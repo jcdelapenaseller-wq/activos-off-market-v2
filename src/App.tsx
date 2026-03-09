@@ -1,5 +1,8 @@
 import { useRoutes, BrowserRouter } from 'react-router-dom';
 import { routes } from './routes';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 
 function AppRoutes() {
   const element = useRoutes(routes);
@@ -9,7 +12,14 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-brand-100 selection:text-brand-900">
+        <ScrollToTop />
+        <Header />
+        <main>
+          <AppRoutes />
+        </main>
+        <Footer />
+      </div>
     </BrowserRouter>
   );
 }

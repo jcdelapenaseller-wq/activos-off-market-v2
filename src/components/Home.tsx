@@ -1,11 +1,27 @@
 import React from 'react';
+import Hero from './Hero';
+import Services from './Services';
+import SocialProof from './SocialProof';
+import Pricing from './Pricing';
+import Process from './Process';
+import Opportunities from './Opportunities';
+import SeoBlock from './SeoBlock';
+import FAQ from './FAQ';
+import FinalCTA from './FinalCTA';
 
 const Home: React.FC = () => {
   return (
-    <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h1>Activos Off Market</h1>
-      <p>Plataforma de análisis técnico de subastas públicas.</p>
-    </div>
+    <>
+      <Hero />
+      <SocialProof />
+      <Services />
+      <Pricing />
+      <Process />
+      <Opportunities />
+      <SeoBlock />
+      <FAQ />
+      <FinalCTA />
+    </>
   );
 };
 
