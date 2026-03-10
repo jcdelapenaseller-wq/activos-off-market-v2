@@ -91,7 +91,8 @@ const AuctionCalculator: React.FC = () => {
     if (params.get('mercado')) setValorMercado(Number(params.get('mercado')));
     if (params.get('tasacion')) setTasacionBOE(Number(params.get('tasacion')));
     if (params.get('reforma')) setReforma(Number(params.get('reforma')));
-    if (params.get('comunidad')) setComunidad(params.get('comunidad') || 'Madrid');
+    if (params.get('ccaa')) setComunidad(params.get('ccaa') || 'Madrid');
+    else if (params.get('comunidad')) setComunidad(params.get('comunidad') || 'Madrid');
     if (params.get('deudas')) setDeudas(Number(params.get('deudas')));
     if (params.get('otros')) setOtrosGastos(Number(params.get('otros')));
   }, []);
@@ -102,25 +103,43 @@ const AuctionCalculator: React.FC = () => {
       mercado: valorMercado.toString(),
       tasacion: tasacionBOE.toString(),
       reforma: reforma.toString(),
-      comunidad: comunidad,
+      ccaa: comunidad,
       deudas: deudas.toString(),
       otros: otrosGastos.toString(),
     });
     const url = `${window.location.origin}${ROUTES.CALCULATOR}?${params.toString()}`;
     navigator.clipboard.writeText(url);
-    alert('Enlace copiado al portapapeles');
+    alert('Enlace de cálculo copiado al portapapeles');
   };
 
   const copyReport = () => {
-    const text = `Informe de inversión:
-- Precio de adjudicación: ${adjudicacion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}
-- Valor de mercado: ${valorMercado.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}
-- Coste total: ${results.costeTotalInversion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}
-- Beneficio estimado: ${isUnlocked ? results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : 'XXXX'}
-- ROI: ${isUnlocked ? results.roi.toFixed(2) + '%' : 'XXXX'}
-- Puja máxima recomendada: ${isUnlocked ? results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : 'XXXX'}`;
+    const text = `Análisis de subasta:
+Precio adjudicación: ${adjudicacion.toLocaleString('es-ES')} €
+Valor mercado: ${valorMercado.toLocaleString('es-ES')} €
+Coste total estimado: ${results.costeTotalInversion.toLocaleString('es-ES')} €
+ROI estimado: ${results.roi.toFixed(2)}%
+Puja máxima recomendada: ${results.precioMaxPuja.toLocaleString('es-ES')} €
+
+Calculado con la herramienta de Activos Off-Market.`;
     navigator.clipboard.writeText(text);
-    alert('Resumen copiado al portapapeles');
+    alert('Resumen de inversión copiado al portapapeles');
+  };
+
+  const createPublicLink = () => {
+    const params = new URLSearchParams({
+      precio: adjudicacion.toString(),
+      mercado: valorMercado.toString(),
+      tasacion: tasacionBOE.toString(),
+      reforma: reforma.toString(),
+      ccaa: comunidad,
+      deudas: deudas.toString(),
+      otros: otrosGastos.toString(),
+    });
+    // Generate a slug-like part for the URL
+    const slug = `${comunidad.toLowerCase().replace(/\s+/g, '-')}-${Math.round(adjudicacion/1000)}k`;
+    const url = `${window.location.origin}/ejemplo-subasta/${slug}?${params.toString()}`;
+    navigator.clipboard.writeText(url);
+    alert('Enlace público generado y copiado al portapapeles');
   };
 
   const results = useMemo(() => {
@@ -172,12 +191,9 @@ const AuctionCalculator: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 pt-32 pb-12">
-      <div className="flex justify-between items-center mb-12">
-        <div>
-          <h1 className="text-4xl font-serif font-bold text-slate-900 mb-6">Calculadora de Rentabilidad para Subastas Judiciales</h1>
-          <p className="text-lg text-slate-600">Herramienta gratuita para calcular rentabilidad, ITP, costes y precio máximo de puja en subastas judiciales en España.</p>
-        </div>
-        <button onClick={shareCalculation} className="bg-slate-100 text-slate-700 font-bold py-3 px-6 rounded-xl hover:bg-slate-200 transition-all">Compartir cálculo</button>
+      <div className="mb-12">
+        <h1 className="text-4xl font-serif font-bold text-slate-900 mb-6">Calculadora de Rentabilidad para Subastas Judiciales</h1>
+        <p className="text-lg text-slate-600">Herramienta gratuita para calcular rentabilidad, ITP, costes y precio máximo de puja en subastas judiciales en España.</p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-12">
@@ -247,36 +263,91 @@ const AuctionCalculator: React.FC = () => {
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-            {!isUnlocked ? (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <p className="font-bold text-slate-900 text-center">Desbloquea el informe completo de inversión</p>
-                    <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Tu mejor email" required className="w-full bg-slate-100 rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-brand-500 outline-none" />
-                    </div>
-                    <button type="submit" disabled={status === 'loading'} className="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-all disabled:opacity-50">{status === 'loading' ? 'Enviando...' : 'Desbloquear resultados'}</button>
-                    {status === 'error' && <p className="text-red-600 font-bold text-center">Hubo un error, inténtalo de nuevo.</p>}
-                </form>
-            ) : (
-                <p className="text-emerald-600 font-bold text-center">¡Resultados desbloqueados!</p>
-            )}
-          </div>
-
           <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mt-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Informe de inversión</h2>
             <div className="space-y-4 text-slate-700">
-                <p>Precio de adjudicación: {adjudicacion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
-                <p>Valor de mercado: {valorMercado.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
-                <p>Coste total: {results.costeTotalInversion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
-                <p className={!isUnlocked ? "blur-sm select-none" : ""}>Beneficio estimado: {results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
-                <p className={!isUnlocked ? "blur-sm select-none" : ""}>ROI: {results.roi.toFixed(2)}%</p>
-                <p className={!isUnlocked ? "blur-sm select-none" : ""}>Puja máxima recomendada: {results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
+                <p className="flex justify-between border-b border-slate-100 pb-2">
+                    <span>Precio de adjudicación:</span> 
+                    <span className="font-bold">{adjudicacion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                </p>
+                <p className="flex justify-between border-b border-slate-100 pb-2">
+                    <span>Valor de mercado:</span> 
+                    <span className="font-bold">{valorMercado.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                </p>
+                <p className="flex justify-between border-b border-slate-100 pb-2">
+                    <span>Coste total:</span> 
+                    <span className="font-bold">{results.costeTotalInversion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                </p>
+                <p className={`flex justify-between border-b border-slate-100 pb-2 ${!isUnlocked ? "blur-sm select-none" : ""}`}>
+                    <span>Beneficio estimado:</span> 
+                    <span className="font-bold">{results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                </p>
+                <p className={`flex justify-between border-b border-slate-100 pb-2 ${!isUnlocked ? "blur-sm select-none" : ""}`}>
+                    <span>ROI:</span> 
+                    <span className="font-bold">{results.roi.toFixed(2)}%</span>
+                </p>
+                <p className={`flex justify-between border-b border-slate-100 pb-2 ${!isUnlocked ? "blur-sm select-none" : ""}`}>
+                    <span>Puja máxima recomendada:</span> 
+                    <span className="font-bold">{results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                </p>
             </div>
-            <button onClick={copyReport} className="mt-6 w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-all">
-                Copiar resumen de inversión
-            </button>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                <button onClick={copyReport} className="bg-slate-900 text-white font-bold py-4 px-4 rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-sm">
+                    Copiar resumen
+                </button>
+                <button onClick={shareCalculation} className="bg-white border border-slate-300 text-slate-700 font-bold py-4 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
+                    Compartir cálculo
+                </button>
+                <div className="sm:col-span-2 pt-4 border-t border-slate-100">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Guardar este análisis como ejemplo de inversión</p>
+                    <button onClick={createPublicLink} className="w-full bg-brand-50 text-brand-700 border border-brand-200 font-bold py-4 px-4 rounded-xl hover:bg-brand-100 transition-all flex items-center justify-center gap-2 text-sm">
+                        Crear enlace público
+                    </button>
+                </div>
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* EMAIL REPORT BLOCK */}
+      <div className="mt-12 bg-brand-900 text-white p-10 rounded-3xl shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-800 rounded-full -mr-32 -mt-32 opacity-20"></div>
+        <div className="relative z-10 max-w-2xl mx-auto text-center">
+            <Mail className="mx-auto mb-6 text-brand-300" size={48} />
+            <h2 className="text-3xl font-serif font-bold mb-4">Recibir informe de inversión por email</h2>
+            <p className="text-brand-100 mb-8 text-lg">
+                Introduce tu email y recibe este análisis de inversión junto con el protocolo profesional de análisis de subastas.
+            </p>
+            
+            {status === 'success' ? (
+                <div className="bg-emerald-500/20 border border-emerald-500/50 p-6 rounded-2xl flex items-center justify-center gap-3">
+                    <CheckCircle className="text-emerald-400" size={24} />
+                    <span className="font-bold text-emerald-50">Informe enviado. Revisa tu correo.</span>
+                </div>
+            ) : (
+                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                        <input 
+                            type="email" 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
+                            placeholder="Tu mejor email" 
+                            required 
+                            className="w-full bg-white text-slate-900 rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-brand-500 outline-none" 
+                        />
+                    </div>
+                    <button 
+                        type="submit" 
+                        disabled={status === 'loading'} 
+                        className="bg-brand-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-400 transition-all disabled:opacity-50 whitespace-nowrap"
+                    >
+                        {status === 'loading' ? 'Enviando...' : 'Enviar informe'}
+                    </button>
+                </form>
+            )}
+            {status === 'error' && <p className="text-red-400 font-bold mt-4">Hubo un error, inténtalo de nuevo.</p>}
         </div>
       </div>
 

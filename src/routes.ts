@@ -24,6 +24,7 @@ import AuctionHowMuchToPayGuide from './components/AuctionHowMuchToPayGuide';
 import AuctionMaxBidGuide from './components/AuctionMaxBidGuide';
 import AuctionMadridGuide from './components/AuctionMadridGuide';
 import AuctionBarcelonaGuide from './components/AuctionBarcelonaGuide';
+import AuctionExampleReport from './components/AuctionExampleReport';
 import Legal from './components/Legal';
 
 export const ROUTES = {
@@ -50,6 +51,7 @@ export const ROUTES = {
   MAX_BID: '/calcular-puja-maxima-subasta',
   MADRID: '/subastas-madrid',
   BARCELONA: '/subastas-barcelona',
+  EXAMPLE_REPORT: '/ejemplo-subasta/:slug',
   LEGAL: '/aviso-legal',
   PRIVACY: '/politica-privacidad',
   COOKIES: '/politica-cookies',
@@ -141,6 +143,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.BARCELONA,
     element: createElement(AuctionBarcelonaGuide),
+  },
+  {
+    path: ROUTES.EXAMPLE_REPORT,
+    element: createElement(AuctionExampleReport),
   },
   {
     path: ROUTES.EMPTY,
