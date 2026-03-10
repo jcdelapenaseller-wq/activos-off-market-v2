@@ -327,7 +327,8 @@ const SubastasBOEPage: React.FC = () => {
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10 sticky top-24">
+        <aside className="lg:col-span-4">
+          <div className="sticky top-24 space-y-10 max-h-[calc(100vh-120px)] overflow-auto pr-2 custom-scrollbar">
             
             {/* CTA TELEGRAM */}
             <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
@@ -377,6 +378,7 @@ const SubastasBOEPage: React.FC = () => {
                 </nav>
             </div>
 
+          </div>
         </aside>
 
       </div>

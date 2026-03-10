@@ -284,7 +284,8 @@ const AuctionVisitGuide: React.FC = () => {
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10 sticky top-24">
+        <aside className="lg:col-span-4">
+          <div className="sticky top-24 space-y-10 max-h-[calc(100vh-120px)] overflow-auto pr-2 custom-scrollbar">
             
             <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Canal de Alertas</span>
@@ -322,6 +323,7 @@ const AuctionVisitGuide: React.FC = () => {
                     </Link>
                 </nav>
             </div>
+          </div>
         </aside>
 
       </div>

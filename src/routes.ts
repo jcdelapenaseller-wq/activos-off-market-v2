@@ -23,6 +23,7 @@ import AuctionProfitabilityGuide from './components/AuctionProfitabilityGuide';
 import AuctionHowMuchToPayGuide from './components/AuctionHowMuchToPayGuide';
 import AuctionMaxBidGuide from './components/AuctionMaxBidGuide';
 import AuctionMadridGuide from './components/AuctionMadridGuide';
+import AuctionBarcelonaGuide from './components/AuctionBarcelonaGuide';
 import Legal from './components/Legal';
 
 export const ROUTES = {
@@ -48,6 +49,7 @@ export const ROUTES = {
   HOW_MUCH_TO_PAY: '/cuanto-pagar-subasta-judicial',
   MAX_BID: '/calcular-puja-maxima-subasta',
   MADRID: '/subastas-madrid',
+  BARCELONA: '/subastas-barcelona',
   LEGAL: '/aviso-legal',
   PRIVACY: '/politica-privacidad',
   COOKIES: '/politica-cookies',
@@ -135,6 +137,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.MADRID,
     element: createElement(AuctionMadridGuide),
+  },
+  {
+    path: ROUTES.BARCELONA,
+    element: createElement(AuctionBarcelonaGuide),
   },
   {
     path: ROUTES.EMPTY,
