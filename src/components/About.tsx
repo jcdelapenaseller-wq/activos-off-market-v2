@@ -47,7 +47,7 @@ const About: React.FC = () => {
     <div className="bg-white">
       
       {/* 1. SECCIÓN PRINCIPAL: BIO Y EXPERIENCIA */}
-      <section className="pt-32 pb-16 md:pt-48 md:pb-24 container mx-auto px-4 md:px-6 max-w-7xl">
+      <section className="pt-32 pb-16 md:pt-48 md:pb-24 max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start mx-auto">
           
           {/* TEXTO - Orden: Abajo en móvil (2), Izquierda en desktop (1) */}
@@ -162,7 +162,7 @@ const About: React.FC = () => {
 
       {/* 2. H2: METODOLOGÍA DE ANÁLISIS */}
       <section className="py-24 bg-white border-t border-slate-100">
-        <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <span className="text-brand-600 font-bold text-sm tracking-widest uppercase mb-4 block">Rigor Técnico</span>
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-4">Metodología de Análisis</h2>
@@ -215,7 +215,7 @@ const About: React.FC = () => {
 
       {/* 3. CTA ESTRATÉGICO */}
       <section className="py-20 bg-slate-50 border-y border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-5xl text-center">
+        <div className="max-w-7xl mx-auto px-6 text-center">
             <h2 className="text-3xl font-bold text-slate-900 mb-12 font-serif">¿Cómo puedo ayudarte?</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -262,7 +262,7 @@ const About: React.FC = () => {
          {/* Decor */}
          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-800 rounded-full opacity-50 blur-3xl translate-x-1/2 -translate-y-1/2"></div>
 
-        <div className="container mx-auto px-4 md:px-6 max-w-5xl relative z-10 flex flex-col md:flex-row items-center gap-16">
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center gap-16">
             <div className="w-full md:w-1/2">
                 <h2 className="font-serif text-4xl md:text-5xl font-bold mb-8 leading-tight">
                   Independencia total del banco y del deudor.

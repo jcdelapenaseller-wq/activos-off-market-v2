@@ -57,7 +57,7 @@ const FAQ: React.FC = () => {
 
   return (
     <section id="faq" className="py-24 bg-white">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-sm font-bold uppercase tracking-wide mb-4 hover:bg-slate-200 transition-colors cursor-default">
             <HelpCircle size={16} /> Dudas Frecuentes

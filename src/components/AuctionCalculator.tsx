@@ -171,7 +171,7 @@ const AuctionCalculator: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-32 pb-12 max-w-6xl">
+    <div className="max-w-7xl mx-auto px-6 pt-32 pb-12">
       <div className="flex justify-between items-center mb-12">
         <div>
           <h1 className="text-4xl font-serif font-bold text-slate-900 mb-6">Calculadora de Rentabilidad para Subastas Judiciales</h1>

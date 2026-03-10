@@ -8,7 +8,7 @@ const FinalCTA: React.FC = () => {
       <div className="absolute top-0 right-0 w-96 h-96 bg-brand-800 rounded-full opacity-40 blur-[100px] translate-x-1/3 -translate-y-1/3 animate-pulse"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-900 rounded-full opacity-40 blur-[100px] -translate-x-1/3 translate-y-1/3 animate-pulse delay-700"></div>
 
-      <div className="container mx-auto px-4 md:px-6 max-w-7xl text-center relative z-10">
+      <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
         
         {/* FRASE ESTRATÉGICA FINAL */}
         <p className="font-serif italic text-xl md:text-2xl text-brand-200 opacity-90 mb-6">

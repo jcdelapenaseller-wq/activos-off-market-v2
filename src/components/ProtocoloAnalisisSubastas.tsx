@@ -51,7 +51,7 @@ const ProtocoloAnalisisSubastas: React.FC = () => {
       
       {/* HERO SECTION */}
       <div className="bg-white pt-32 pb-16 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-7xl text-center">
+        <div className="max-w-7xl mx-auto px-6 text-center">
             <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-brand-100">
                 <Lock size={12} /> Recurso Profesional
             </div>
@@ -69,7 +69,8 @@ const ProtocoloAnalisisSubastas: React.FC = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 py-16 max-w-3xl">
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="max-w-3xl mx-auto">
         
         {/* PROBLEM BLOCK */}
         <div className="bg-red-50 border-l-4 border-red-500 p-8 rounded-r-xl mb-16 shadow-sm">
@@ -153,6 +154,7 @@ const ProtocoloAnalisisSubastas: React.FC = () => {
             </div>
         </div>
 
+        </div>
       </div>
     </div>
   );

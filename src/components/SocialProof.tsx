@@ -4,7 +4,7 @@ import { Star } from 'lucide-react';
 const SocialProof: React.FC = () => {
   return (
     <section className="py-16 bg-white border-y border-slate-100">
-      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+      <div className="max-w-7xl mx-auto px-6">
         
         {/* Trust Logos Row - OFFICIAL LOGOS */}
         {/* Adjusted to be smaller, opacity 80%, no grayscale to keep the official dark blue tone */}

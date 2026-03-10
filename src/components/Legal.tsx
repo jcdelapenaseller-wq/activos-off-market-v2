@@ -149,10 +149,12 @@ const Legal: React.FC<LegalProps> = ({ type }) => {
 
   return (
     <div className="pt-32 pb-20 bg-slate-50 min-h-screen">
-      <div className="container mx-auto px-4 md:px-6 max-w-3xl bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-slate-200">
-        <h1 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-8 border-b pb-4">{data.title}</h1>
-        <div className="prose prose-slate max-w-none prose-a:text-brand-600 prose-headings:text-slate-800 font-light">
-            {data.body}
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-slate-200">
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-8 border-b pb-4">{data.title}</h1>
+          <div className="prose prose-slate max-w-none prose-a:text-brand-600 prose-headings:text-slate-800 font-light">
+              {data.body}
+          </div>
         </div>
       </div>
     </div>

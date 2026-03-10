@@ -86,7 +86,7 @@ const SubastasBOEPage: React.FC = () => {
       
       {/* HEADER SECTION */}
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+        <div className="max-w-7xl mx-auto px-6">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} className="mx-2" />
@@ -118,7 +118,7 @@ const SubastasBOEPage: React.FC = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 md:px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-16 max-w-7xl">
+      <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-16">
         
         {/* MAIN CONTENT */}
         <main className="lg:col-span-8">

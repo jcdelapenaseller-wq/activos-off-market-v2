@@ -106,7 +106,7 @@ const AuctionMadridGuide: React.FC = () => {
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 selection:bg-brand-100 selection:text-brand-900">
       
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+        <div className="max-w-7xl mx-auto px-6">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
@@ -143,7 +143,7 @@ const AuctionMadridGuide: React.FC = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 md:px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-16 max-w-7xl">
+      <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-12 gap-16">
         
         <main className="lg:col-span-8">
             <article className="prose prose-lg prose-slate max-w-none prose-headings:font-serif prose-headings:font-bold prose-headings:text-slate-900 prose-p:leading-loose">

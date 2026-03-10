@@ -4,7 +4,7 @@ import { MapPin, TrendingUp, AlertTriangle, ArrowRight, Lock } from 'lucide-reac
 const Opportunities: React.FC = () => {
   return (
     <section id="ejemplos" className="py-24 bg-slate-900 text-white">
-      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6">Ejemplos reales (ya adjudicados)</h2>
           <p className="text-xl text-slate-300 font-light">
