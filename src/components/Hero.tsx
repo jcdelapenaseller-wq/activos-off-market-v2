@@ -10,7 +10,7 @@ const Hero: React.FC = () => {
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-100/40 rounded-full filter blur-[80px] opacity-60 -translate-x-1/3 translate-y-1/3"></div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         <div className="max-w-5xl mx-auto text-center mb-20 md:mb-32">
           {/* Badge updated */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-brand-100 text-brand-700 text-sm font-bold uppercase tracking-wide mb-10 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700 hover:scale-105 transition-transform cursor-default">

@@ -60,7 +60,7 @@ const AuctionEmptyGuide: React.FC = () => {
       
       {/* HEADER */}
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
@@ -108,7 +108,7 @@ const AuctionEmptyGuide: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
@@ -254,9 +254,9 @@ const AuctionEmptyGuide: React.FC = () => {
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
             
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block flex items-center gap-2">
                     <HelpCircle size={14} /> Estrategia de Puja
                 </span>

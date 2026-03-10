@@ -51,7 +51,7 @@ const ProtocoloAnalisisSubastas: React.FC = () => {
       
       {/* HERO SECTION */}
       <div className="bg-white pt-32 pb-16 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl text-center">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl text-center">
             <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-brand-100">
                 <Lock size={12} /> Recurso Profesional
             </div>

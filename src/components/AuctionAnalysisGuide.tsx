@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen, CheckCircle, Search, FileText, Home, Calculator, Gavel, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
+import LeadMagnetBlock from './LeadMagnetBlock';
 
 const AuctionAnalysisGuide: React.FC = () => {
   // Imágenes estáticas optimizadas (Unsplash)
@@ -16,67 +17,34 @@ const AuctionAnalysisGuide: React.FC = () => {
   // State for read time
   const [readTime, setReadTime] = useState(3);
 
-  // Schema.org Structured Data
-  const schemaData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Article",
-        "headline": "Cómo Analizar una Subasta Judicial Paso a Paso (Guía Completa BOE)",
-        "description": "Guía práctica para analizar una subasta judicial del BOE paso a paso: cargas, ocupación, valor real y cálculo del precio máximo seguro.",
-        "image": [IMG_HERO],
-        "datePublished": "2023-11-22T09:00:00+01:00",
-        "dateModified": schemaDate,
-        "author": {
-          "@type": "Person",
-          "name": "José de la Peña",
-          "jobTitle": "Consultor especializado en análisis de subastas públicas",
-          "url": "https://activosoffmarket.es/quien-soy"
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Activos Off-Market",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://activosoffmarket.es/favicon.ico"
-          }
-        },
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": "https://activosoffmarket.es/como-analizar-subasta-judicial-paso-a-paso/"
+    // Schema.org Article Structured Data
+    const schemaData = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Cómo Analizar una Subasta Judicial Paso a Paso (Guía Completa BOE)",
+      "description": "Guía práctica para analizar una subasta judicial del BOE paso a paso: cargas, ocupación, valor real y cálculo del precio máximo seguro.",
+      "author": {
+        "@type": "Person",
+        "name": "José de la Peña",
+        "jobTitle": "Consultor especializado en análisis de subastas públicas",
+        "url": "https://activosoffmarket.es/quien-soy"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Activos Off-Market",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://activosoffmarket.es/logo.png"
         }
       },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "¿El valor de tasación del BOE es el precio de mercado?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No. Suele ser el valor de tasación original de la escritura de hipoteca. Ignóralo para valorar el activo; úsalo solo para calcular el depósito (5%) y los tramos del 70%."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "¿Cómo sé la deuda exacta de la comunidad?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No es público en el expediente judicial. Debes intentar contactar con el administrador de fincas. Si no te dan el dato, estima el máximo legal (anualidad en curso + 3 anteriores)."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "¿Puedo ver el interior antes de pujar?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No. En subastas judiciales se compra \"a cuerpo cierto\". No hay visitas organizadas salvo rarísimas excepciones donde el ejecutado colabore voluntariamente."
-            }
-          }
-        ]
+      "datePublished": "2023-11-22T09:00:00+01:00",
+      "dateModified": schemaDate,
+      "image": [IMG_HERO],
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://activosoffmarket.es/como-analizar-subasta-judicial-paso-a-paso/"
       }
-    ]
-  };
+    };
 
   useEffect(() => {
     // Read Time Calculation
@@ -152,7 +120,7 @@ const AuctionAnalysisGuide: React.FC = () => {
       
       {/* HEADER STANDARD */}
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
@@ -204,18 +172,22 @@ const AuctionAnalysisGuide: React.FC = () => {
                   height="630"
                   className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                   // @ts-ignore
-                  fetchPriority="high"
+                  fetchpriority="high"
                 />
               </figure>
 
               <p className="text-xl leading-relaxed mb-8 font-light first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-brand-700 first-letter:mr-3 first-letter:float-left">
-                El 90% del éxito en una inversión en <Link to="/subastas-judiciales-espana" className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">el mercado de ejecuciones hipotecarias</Link> no ocurre durante la puja, sino en la fase de análisis previo. 
+                El 90% del éxito en una inversión en <Link to={ROUTES.GUIDE_PILLAR} className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">el mercado de ejecuciones hipotecarias</Link> no ocurre durante la puja, sino en la fase de análisis previo. 
                 Pujar es fácil (son dos clics); saber <strong>qué estás comprando realmente</strong> es lo que distingue al inversor profesional del que acaba perdiendo su depósito.
               </p>
               
               <p className="mb-8">
-                A continuación, detallo el <strong>protocolo de diligencia debida</strong> (Due Diligence) paso a paso que aplicamos en Activos Off-Market para filtrar cualquier expediente antes de considerarlo una oportunidad viable.
+                A continuación, detallo el <strong>protocolo de diligencia debida</strong> (Due Diligence) paso a paso que aplicamos en Activos Off-Market para filtrar cualquier expediente antes de considerarlo una oportunidad viable. Antes de pujar en una subasta es recomendable calcular la rentabilidad real de la operación. Puedes hacerlo con esta <Link to={ROUTES.CALCULATOR} className="text-brand-700 underline font-bold hover:text-brand-900">calculadora de subastas judiciales</Link>.
               </p>
+
+              <div className="my-8 p-6 bg-brand-50 border border-brand-100 rounded-2xl">
+                  <p className="text-brand-900 font-medium m-0">Puedes calcular rápidamente la rentabilidad usando esta <Link to={ROUTES.CALCULATOR} className="text-brand-700 underline font-bold hover:text-brand-900">calculadora de subastas judiciales</Link>.</p>
+              </div>
 
               <hr className="border-slate-200 my-10" />
 
@@ -240,7 +212,7 @@ const AuctionAnalysisGuide: React.FC = () => {
                 Nunca pujes sin revisar la <strong>Certificación de Cargas</strong> expedida por el Registrador (disponible en el portal del BOE). Es el historial jurídico del inmueble.
               </p>
               <p>
-                 Debes identificar claramente qué cargas se cancelan y cuáles heredas. Para ello, consulta nuestra guía específica sobre <Link to="/cargas-subasta-judicial" className="text-brand-700 underline font-bold hover:text-brand-900">jerarquía y cancelación de cargas</Link>, pero el resumen es:
+                 Debes identificar claramente qué cargas se cancelan y cuáles heredas. Para ello, consulta nuestra guía específica sobre <Link to={ROUTES.CHARGES} className="text-brand-700 underline font-bold hover:text-brand-900">jerarquía y cancelación de cargas</Link>, pero el resumen es:
               </p>
               <ul className="list-disc pl-6 space-y-3 mb-8">
                  <li><strong>Carga Ejecutada:</strong> La deuda por la que sale a subasta. Se cancela tras la adjudicación.</li>
@@ -283,7 +255,7 @@ const AuctionAnalysisGuide: React.FC = () => {
                 Una vez tienes tu valoración, debes mirar el Valor de Tasación del BOE solo para una cosa: calcular los tramos legales del Artículo 670 LEC.
               </p>
               <p>
-                Entender la <Link to="/regla-70-subasta-judicial" className="text-brand-700 underline font-bold hover:text-brand-900">firmeza del decreto de adjudicación</Link> es vital para saber si tu puja será firme o si el banco podrá mejorarla y quitarte el activo.
+                Entender la <Link to={ROUTES.RULE_70} className="text-brand-700 underline font-bold hover:text-brand-900">firmeza del decreto de adjudicación</Link> es vital para saber si tu puja será firme o si el banco podrá mejorarla y quitarte el activo.
               </p>
 
               <h2 className="text-3xl font-bold mt-12 mb-6">Paso 6: Evaluar riesgos legales y económicos</h2>
@@ -291,7 +263,7 @@ const AuctionAnalysisGuide: React.FC = () => {
                 Antes de fijar tu precio máximo, resta los costes "invisibles":
               </p>
               <ul className="list-disc pl-6 space-y-3 mb-8">
-                  <li><strong>Depósito:</strong> Recuerda que debes consignar el <Link to="/deposito-subasta-judicial-5-por-ciento" className="text-brand-700 hover:underline">fianza del 5%</Link> para participar.</li>
+                  <li><strong>Depósito:</strong> Recuerda que debes consignar el <Link to={ROUTES.DEPOSIT} className="text-brand-700 hover:underline">fianza del 5%</Link> para participar.</li>
                   <li><strong>Deudas ocultas:</strong> IBI (hasta 4 años) y Comunidad de Propietarios (año en curso + 3 anteriores).</li>
                   <li><strong>Impuestos:</strong> ITP (6-10%) y gastos de inscripción.</li>
               </ul>
@@ -349,13 +321,14 @@ const AuctionAnalysisGuide: React.FC = () => {
                 </div>
               </section>
 
+              <LeadMagnetBlock />
             </article>
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
             
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Canal de Alertas</span>
                 <h3 className="font-serif text-2xl font-bold mb-4">¿Te falta experiencia?</h3>
                 <p className="text-slate-300 mb-8 text-sm leading-relaxed">
@@ -377,23 +350,23 @@ const AuctionAnalysisGuide: React.FC = () => {
                     Guías Relacionadas
                 </h4>
                 <nav className="space-y-4">
-                    <Link to="/subastas-judiciales-espana" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.GUIDE_PILLAR} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Guía General Subastas</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/errores-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.ERRORS} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Errores Frecuentes</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/cargas-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.CHARGES} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Cargas y Deudas</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/vivienda-ocupada-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.OCCUPIED} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Vivienda Ocupada</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                     <Link to="/regla-70-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                     <Link to={ROUTES.RULE_70} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Regla del 70%</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>

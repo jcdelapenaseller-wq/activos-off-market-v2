@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, AlertTriangle, XCircle, CheckCircle, ArrowRight, BookOpen, Ban, Search, Calculator, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
+import LeadMagnetBlock from './LeadMagnetBlock';
 
 const AuctionErrorsGuide: React.FC = () => {
   
@@ -17,80 +18,33 @@ const AuctionErrorsGuide: React.FC = () => {
   const IMG_COSTS = "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=800&h=450";
   const IMG_STRATEGY = "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800&h=450";
 
-  // Schema.org Structured Data
+  // Schema.org Article Structured Data
   const schemaData = {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Article",
-        "headline": "Errores en subastas judiciales que debes evitar",
-        "description": "Descubre los errores más comunes en subastas judiciales en España (cargas ocultas, ocupación, regla del 70%) y cómo evitarlos antes de pujar.",
-        "image": [IMG_HERO],
-        "datePublished": "2023-11-28T09:00:00+01:00",
-        "dateModified": schemaDate,
-        "author": {
-          "@type": "Person",
-          "name": "José de la Peña",
-          "url": "https://activosoffmarket.es/quien-soy"
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Activos Off-Market",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://activosoffmarket.es/favicon.ico"
-          }
-        },
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": "https://activosoffmarket.es/errores-subasta-judicial/"
-        }
-      },
-      {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Inicio",
-            "item": "https://activosoffmarket.es/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Guía Subastas",
-            "item": "https://activosoffmarket.es/subastas-judiciales-espana/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "Errores Frecuentes",
-            "item": "https://activosoffmarket.es/errores-subasta-judicial/"
-          }
-        ]
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "¿Qué pasa si me equivoco al pujar en una subasta?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Si ganas la puja y decides no completar el pago (quebrar la subasta), perderás íntegramente el depósito del 5% que consignaste."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "¿Es recuperable el dinero si hay cargas ocultas?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No. Al participar en la subasta aceptas el estado jurídico del bien. Las cargas anteriores son responsabilidad del adjudicatario."
-            }
-          }
-        ]
+    "@type": "Article",
+    "headline": "Errores en subastas judiciales que debes evitar",
+    "description": "Descubre los errores más comunes en subastas judiciales en España (cargas ocultas, ocupación, regla del 70%) y cómo evitarlos antes de pujar.",
+    "author": {
+      "@type": "Person",
+      "name": "José de la Peña",
+      "jobTitle": "Consultor especializado en análisis de subastas públicas",
+      "url": "https://activosoffmarket.es/quien-soy"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Activos Off-Market",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://activosoffmarket.es/logo.png"
       }
-    ]
+    },
+    "datePublished": "2023-11-28T09:00:00+01:00",
+    "dateModified": schemaDate,
+    "image": [IMG_HERO],
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://activosoffmarket.es/errores-subasta-judicial/"
+    }
   };
 
   useEffect(() => {
@@ -143,6 +97,7 @@ const AuctionErrorsGuide: React.FC = () => {
     }
     canonical.setAttribute('href', "https://activosoffmarket.es/errores-subasta-judicial/");
 
+    // Inject JSON-LD
     const script = document.createElement('script');
     script.type = 'application/ld+json';
     script.text = JSON.stringify(schemaData);
@@ -159,7 +114,7 @@ const AuctionErrorsGuide: React.FC = () => {
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 selection:bg-brand-100 selection:text-brand-900">
       
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
@@ -209,7 +164,7 @@ const AuctionErrorsGuide: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
@@ -440,13 +395,14 @@ const AuctionErrorsGuide: React.FC = () => {
                     </div>
                 </section>
                 
+                <LeadMagnetBlock />
             </article>
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
             
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Canal de Alertas</span>
                 <h3 className="font-serif text-2xl font-bold mb-4">Evita errores caros</h3>
                 <p className="text-slate-300 mb-8 text-sm leading-relaxed">

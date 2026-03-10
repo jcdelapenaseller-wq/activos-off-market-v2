@@ -5,7 +5,7 @@ const Pricing: React.FC = () => {
   return (
     <section id="precios" className="py-24 bg-slate-50 border-t border-slate-200">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center max-w-4xl mx-auto mb-20">
+        <div className="text-center max-w-7xl mx-auto mb-20">
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-slate-900 mb-6">Planes de Colaboración</h2>
           <p className="text-xl md:text-2xl text-slate-700 font-medium max-w-2xl mx-auto leading-relaxed">
             "Publico nuevas oportunidades filtradas cada semana en el canal gratuito y análisis profundos en el Premium."

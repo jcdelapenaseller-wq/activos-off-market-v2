@@ -6,7 +6,7 @@ import { ROUTES } from '../routes';
 const SeoBlock: React.FC = () => {
   return (
     <section className="py-16 bg-white border-t border-slate-100">
-      <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         <div className="prose prose-lg prose-slate max-w-none">
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-6">
             Especialistas en Subastas Judiciales en España (BOE)

@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="bg-slate-950 text-slate-400 py-16 md:py-24 mb-16 md:mb-0 border-t border-slate-900 font-sans">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 mb-16">
           
           {/* Col 1: Brand & SEO Authority Block (Span 4) */}

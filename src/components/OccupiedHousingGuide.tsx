@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, AlertTriangle, ShieldAlert, Scale, Gavel, ArrowRight, BookOpen, Lock, Home, UserX, User, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
+import LeadMagnetBlock from './LeadMagnetBlock';
 
 const OccupiedHousingGuide: React.FC = () => {
   
@@ -17,6 +18,35 @@ const OccupiedHousingGuide: React.FC = () => {
   const IMG_LEGAL = "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=800&h=450"; // Signing contract / Legal papers
   const IMG_EVICTION = "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800&h=450"; // Gavel
 
+  // Schema.org Article Structured Data
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Vivienda Ocupada en Subasta: Riesgos Reales y Estrategia",
+    "description": "¿Es rentable comprar vivienda ocupada en subasta? Analizamos los riesgos legales, plazos reales de desalojo y costes ocultos antes de pujar en el BOE.",
+    "author": {
+      "@type": "Person",
+      "name": "José de la Peña",
+      "jobTitle": "Consultor especializado en análisis de subastas públicas",
+      "url": "https://activosoffmarket.es/quien-soy"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Activos Off-Market",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://activosoffmarket.es/logo.png"
+      }
+    },
+    "datePublished": "2023-11-28T09:00:00+01:00",
+    "dateModified": schemaDate,
+    "image": [IMG_HERO],
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://activosoffmarket.es/vivienda-ocupada-subasta/"
+    }
+  };
+
   useEffect(() => {
     // Read Time Calculation
     const article = document.querySelector('article');
@@ -31,13 +61,25 @@ const OccupiedHousingGuide: React.FC = () => {
     document.title = "Vivienda Ocupada en Subasta: Riesgos y Desalojo | Activos";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute('content', "¿Es rentable comprar vivienda ocupada en subasta? Analizamos los riesgos legales, plazos reales de desalojo y costes ocultos antes de pujar en el BOE.");
+
+    // Inject JSON-LD
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
   }, [schemaDate]);
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 selection:bg-brand-100 selection:text-brand-900">
       
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
@@ -83,7 +125,7 @@ const OccupiedHousingGuide: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
@@ -201,13 +243,14 @@ const OccupiedHousingGuide: React.FC = () => {
                     </div>
                 </section>
                 
+                <LeadMagnetBlock />
             </article>
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
             
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Análisis Semanal</span>
                 <h3 className="font-serif text-2xl font-bold mb-4">¿Te da miedo la ocupación?</h3>
                 <p className="text-slate-300 mb-8 text-sm leading-relaxed">

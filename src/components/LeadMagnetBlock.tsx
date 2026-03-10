@@ -1,77 +1,65 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FileText, ArrowRight, ShieldCheck, Download, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, CheckCircle } from 'lucide-react';
 
-interface LeadMagnetBlockProps {
-  variant?: 'aside' | 'full';
-}
+const LeadMagnetBlock: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-const LeadMagnetBlock: React.FC<LeadMagnetBlockProps> = ({ variant = 'aside' }) => {
-  // Hardcoded path to avoid dependency on routes.ts updates
-  const TARGET_URL = '/protocolo-analisis-subastas';
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (response.ok) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
+      setStatus('error');
+    }
+  };
 
-  if (variant === 'full') {
-    return (
-      <div className="bg-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-2xl my-16 relative overflow-hidden not-prose border border-slate-800">
-        {/* Background Pattern */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-900 rounded-full blur-3xl opacity-20 -mr-16 -mt-16 pointer-events-none"></div>
-        
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-            <div className="flex-1">
-                <div className="inline-flex items-center gap-2 text-brand-300 font-bold text-xs uppercase tracking-widest mb-4">
-                    <ShieldCheck size={16} />
-                    <span>Recurso Gratuito</span>
-                </div>
-                <h3 className="font-serif text-3xl font-bold text-white mb-4 leading-tight">
-                    ¿Vas a pujar sin revisar las cargas?
-                </h3>
-                <p className="text-slate-300 text-lg leading-relaxed mb-6">
-                    Descarga nuestro <strong>Protocolo de Análisis de Riesgos</strong>. Una checklist profesional para detectar deudas ocultas y problemas posesorios antes de perder tu depósito.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                    <div className="flex items-center gap-2 text-sm text-slate-400">
-                        <CheckCircle size={16} className="text-brand-500" /> Sin coste
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-400">
-                        <CheckCircle size={16} className="text-brand-500" /> PDF Inmediato
-                    </div>
-                </div>
-            </div>
-            
-            <div className="w-full md:w-auto flex-shrink-0">
-                <Link 
-                    to={TARGET_URL}
-                    className="block w-full md:w-auto bg-brand-600 text-white font-bold py-4 px-8 rounded-xl text-center hover:bg-brand-500 transition-all shadow-lg shadow-brand-900/50 flex items-center justify-center gap-2 group"
-                >
-                    <Download size={20} />
-                    Descargar Protocolo
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-            </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Default: 'aside'
   return (
-    <div className="bg-white border border-slate-200 p-8 rounded-3xl shadow-sm hover:border-brand-200 transition-colors">
-        <div className="bg-brand-50 w-12 h-12 rounded-full flex items-center justify-center mb-4 text-brand-700">
-            <FileText size={24} />
+    <div className="bg-brand-900 rounded-3xl p-8 md:p-12 text-white my-12 shadow-xl">
+      {status === 'success' ? (
+        <div className="flex items-center gap-4 text-emerald-300">
+          <CheckCircle size={48} />
+          <p className="text-xl font-bold">Te acabo de enviar el Checklist de subastas BOE. Revisa tu email.</p>
         </div>
-        <h4 className="font-bold text-slate-900 mb-2 text-lg">
-            Protocolo de Análisis
-        </h4>
-        <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-            No improvises. Usa la misma checklist que usamos nosotros para filtrar expedientes y evitar errores.
-        </p>
-        <Link 
-            to={TARGET_URL}
-            className="block w-full border-2 border-brand-600 text-brand-700 font-bold py-3 px-4 rounded-xl text-center hover:bg-brand-600 hover:text-white transition-all text-sm flex items-center justify-center gap-2"
-        >
-            <Download size={16} />
-            Descargar Gratis
-        </Link>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h3 className="font-serif text-3xl font-bold mb-4">¿Quieres el Checklist de Subastas BOE?</h3>
+            <p className="text-slate-300 text-lg">Descarga gratis nuestra guía rápida para no perderte ningún paso crítico en tu próxima puja.</p>
+          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Tu mejor email"
+                required
+                className="w-full bg-white text-slate-900 rounded-xl py-4 pl-12 pr-4 text-lg focus:ring-2 focus:ring-brand-500 outline-none"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className="w-full bg-brand-500 text-white font-bold py-4 rounded-xl text-lg hover:bg-brand-600 transition-colors disabled:opacity-50"
+            >
+              {status === 'loading' ? 'Enviando...' : 'Descargar Checklist'}
+            </button>
+            {status === 'error' && <p className="text-red-300 text-sm">Hubo un error, inténtalo de nuevo.</p>}
+          </form>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, Scale, Building2, ArrowRight, BookOpen, AlertTriangle, CheckCircle, XCircle, Landmark, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../routes';
 
 const AuctionComparisonGuide: React.FC = () => {
   
@@ -172,11 +173,11 @@ const AuctionComparisonGuide: React.FC = () => {
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 selection:bg-brand-100 selection:text-brand-900">
       
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
-                <Link to="/" className="hover:text-brand-600 transition-colors">Inicio</Link>
+                <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
-                <Link to="/subastas-judiciales-espana" className="hover:text-brand-600 transition-colors">Guía Subastas</Link>
+                <Link to={ROUTES.GUIDE_PILLAR} className="hover:text-brand-600 transition-colors">Guía Subastas</Link>
                 <ChevronRight size={14} />
                 <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md" aria-current="page">Comparativa Judicial vs AEAT</span>
             </nav>
@@ -222,7 +223,7 @@ const AuctionComparisonGuide: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
@@ -243,8 +244,8 @@ const AuctionComparisonGuide: React.FC = () => {
                         </p>
                         <ul className="text-sm space-y-2">
                             <li className="flex gap-2"><CheckCircle size={16} className="text-brand-500 mt-0.5"/> Interviene un Juzgado.</li>
-                            <li className="flex gap-2"><CheckCircle size={16} className="text-brand-500 mt-0.5"/> Rige la <Link to="/subastas-judiciales-espana" className="underline hover:text-brand-700">LEC</Link>.</li>
-                            <li className="flex gap-2"><CheckCircle size={16} className="text-brand-500 mt-0.5"/> Aplica la <Link to="/regla-70-subasta-judicial" className="underline hover:text-brand-700">Regla del 70%</Link>.</li>
+                            <li className="flex gap-2"><CheckCircle size={16} className="text-brand-500 mt-0.5"/> Rige la <Link to={ROUTES.GUIDE_PILLAR} className="underline hover:text-brand-700">LEC</Link>.</li>
+                            <li className="flex gap-2"><CheckCircle size={16} className="text-brand-500 mt-0.5"/> Aplica la <Link to={ROUTES.RULE_70} className="underline hover:text-brand-700">Regla del 70%</Link>.</li>
                         </ul>
                     </div>
 
@@ -328,7 +329,7 @@ const AuctionComparisonGuide: React.FC = () => {
 
                 <h3 className="text-2xl font-bold text-slate-900 mt-8 mb-4">2. Riesgo Jurídico</h3>
                 <p>
-                    <strong>Judicial:</strong> Es más técnico. Debes entender bien las notificaciones, los plazos de recursos y la <Link to="/cargas-subasta-judicial" className="text-brand-700 underline hover:text-brand-900">purga de cargas</Link>. Es previsible si se analiza bien.
+                    <strong>Judicial:</strong> Es más técnico. Debes entender bien las notificaciones, los plazos de recursos y la <Link to={ROUTES.CHARGES} className="text-brand-700 underline hover:text-brand-900">purga de cargas</Link>. Es previsible si se analiza bien.
                 </p>
                 <p>
                     <strong>AEAT:</strong> Depende mucho de la fase del procedimiento administrativo. A veces es más rápido obtener el decreto de adjudicación, pero la posesión puede ser más compleja si no está bien trabada.
@@ -402,9 +403,9 @@ const AuctionComparisonGuide: React.FC = () => {
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
             
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Canal de Alertas</span>
                 <h3 className="font-serif text-2xl font-bold mb-4">¿Judicial o AEAT?</h3>
                 <p className="text-slate-300 mb-8 text-sm leading-relaxed">
@@ -426,23 +427,23 @@ const AuctionComparisonGuide: React.FC = () => {
                     Guías Relacionadas
                 </h4>
                 <nav className="space-y-4">
-                    <Link to="/subastas-judiciales-espana" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.GUIDE_PILLAR} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Guía General Subastas</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/como-analizar-subasta-judicial-paso-a-paso" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.ANALYSIS} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Análisis Paso a Paso</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/regla-70-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.RULE_70} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Regla del 70%</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/cargas-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.CHARGES} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Cargas y Deudas</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                     <Link to="/cesion-de-remate-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                     <Link to={ROUTES.ASSIGNMENT} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Cesión de Remate</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>

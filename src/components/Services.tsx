@@ -4,7 +4,7 @@ import { Smartphone, UserCheck, Check, ArrowRight, ShieldCheck } from 'lucide-re
 const Services: React.FC = () => {
   return (
     <section id="como-te-ayudo" className="py-24 bg-slate-50">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-slate-900 mb-6">¿Cómo te ayudo?</h2>
           <p className="text-xl text-slate-600">Dos vías para acceder al mercado off-market, dependiendo de tu nivel de autonomía.</p>

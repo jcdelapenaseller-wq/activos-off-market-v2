@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, EyeOff, Search, Home, AlertTriangle, ShieldCheck, DoorClosed, Footprints, Eye, Lock, ArrowRight, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
+import LeadMagnetBlock from './LeadMagnetBlock';
 
 const AuctionVisitGuide: React.FC = () => {
   
@@ -16,6 +17,35 @@ const AuctionVisitGuide: React.FC = () => {
   const IMG_HERO = "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&q=80&w=1200&h=630"; // Puerta cerrada / Llaves
   const IMG_INSPECTION = "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=800&h=450"; // Inspección / Lupa
   const IMG_NEIGHBORHOOD = "https://images.unsplash.com/photo-1444723121867-c61e74e36b1f?auto=format&fit=crop&q=80&w=800&h=450"; // Calle / Vecindario
+
+  // Schema.org Article Structured Data
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "¿Se Puede Visitar un Inmueble en Subasta Judicial? (Guía Realista 2025)",
+    "description": "Descubre si es posible visitar una vivienda en subasta judicial, cuándo se permite y cómo evaluar el riesgo si no puedes acceder al inmueble.",
+    "author": {
+      "@type": "Person",
+      "name": "José de la Peña",
+      "jobTitle": "Consultor especializado en análisis de subastas públicas",
+      "url": "https://activosoffmarket.es/quien-soy"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Activos Off-Market",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://activosoffmarket.es/logo.png"
+      }
+    },
+    "datePublished": "2023-11-22T09:00:00+01:00",
+    "dateModified": schemaDate,
+    "image": [IMG_HERO],
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://activosoffmarket.es/visitar-inmueble-subasta-judicial/"
+    }
+  };
 
   useEffect(() => {
     // Read Time Calculation
@@ -35,30 +65,7 @@ const AuctionVisitGuide: React.FC = () => {
     }
     window.scrollTo(0, 0);
 
-    // Schema.org FAQPage
-    const schemaData = {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "¿Es obligatorio permitir la visita en una subasta judicial?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No. Aunque la Ley de Enjuiciamiento Civil permite solicitarla, depende del consentimiento del ocupante. En la práctica, el 95% de las veces no es posible acceder."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Qué hago si no puedo ver el piso?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Debes realizar una valoración conservadora ('a cuerpo cierto'), asumiendo que el estado interior requiere reforma integral y descontando ese coste de tu puja máxima."
-          }
-        }
-      ]
-    };
-
+    // Inject JSON-LD
     const script = document.createElement('script');
     script.type = 'application/ld+json';
     script.text = JSON.stringify(schemaData);
@@ -76,7 +83,7 @@ const AuctionVisitGuide: React.FC = () => {
       
       {/* HEADER */}
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
@@ -128,7 +135,7 @@ const AuctionVisitGuide: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
@@ -272,13 +279,14 @@ const AuctionVisitGuide: React.FC = () => {
                     </div>
                 </section>
                 
+                <LeadMagnetBlock />
             </article>
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
             
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Canal de Alertas</span>
                 <h3 className="font-serif text-2xl font-bold mb-4">No compres a ciegas del todo</h3>
                 <p className="text-slate-300 mb-8 text-sm leading-relaxed">

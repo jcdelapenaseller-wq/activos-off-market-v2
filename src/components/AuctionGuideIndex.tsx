@@ -62,7 +62,7 @@ const AuctionGuideIndex: React.FC = () => {
       
       {/* HEADER */}
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
@@ -108,7 +108,7 @@ const AuctionGuideIndex: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
@@ -116,6 +116,24 @@ const AuctionGuideIndex: React.FC = () => {
                 <p className="text-xl text-slate-700 leading-relaxed font-light mb-10 first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-brand-700 first-letter:mr-3 first-letter:float-left">
                     Bienvenido al centro de recursos. Aquí encontrarás estructurado todo el conocimiento necesario para invertir en subastas judiciales con rigor técnico y seguridad jurídica.
                 </p>
+
+                {/* TABLA DE CONTENIDOS */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-8 mb-16 shadow-sm">
+                    <h2 className="font-serif text-2xl font-bold text-slate-900 mb-6">Tabla de contenidos de la guía</h2>
+                    <ul className="grid md:grid-cols-2 gap-x-8 gap-y-3 list-none pl-0">
+                        <li><Link to={ROUTES.ANALYSIS} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Cómo analizar una subasta</Link></li>
+                        <li><Link to={ROUTES.RULE_70} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Regla del 70%</Link></li>
+                        <li><Link to={ROUTES.DEPOSIT} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Depósito del 5%</Link></li>
+                        <li><Link to={ROUTES.OCCUPIED} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Vivienda ocupada</Link></li>
+                        <li><Link to={ROUTES.CHARGES} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Cargas registrales</Link></li>
+                        <li><Link to={ROUTES.VISIT} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Visitar inmueble</Link></li>
+                        <li><Link to={ROUTES.ERRORS} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Errores frecuentes</Link></li>
+                        <li><Link to={ROUTES.ASSIGNMENT} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Cesión de remate</Link></li>
+                        <li><Link to={ROUTES.EMPTY} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Subasta desierta</Link></li>
+                        <li><Link to={ROUTES.COMPARISON} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Judicial vs AEAT</Link></li>
+                        <li><Link to={ROUTES.GLOSSARY} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Glosario</Link></li>
+                    </ul>
+                </div>
 
                 {/* SECCIÓN 1: FUNDAMENTOS */}
                 <div className="mb-16">
@@ -266,9 +284,9 @@ const AuctionGuideIndex: React.FC = () => {
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
             
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block flex items-center gap-2">
                     <Gavel size={14} /> Canal Premium
                 </span>

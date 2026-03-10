@@ -31,7 +31,7 @@ const Process: React.FC = () => {
       {/* Decorative background element */}
       <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-slate-50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <span className="text-brand-600 font-bold text-sm tracking-widest uppercase mb-3 block">Rigor Técnico</span>
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-slate-900 mb-6">Mi metodología de verificación</h2>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, CheckCircle, AlertTriangle, Scale, ArrowRight, BookOpen, AlertOctagon, Coins, XCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../routes';
+import LeadMagnetBlock from './LeadMagnetBlock';
 
 const AuctionChargesGuide: React.FC = () => {
   
@@ -17,6 +19,35 @@ const AuctionChargesGuide: React.FC = () => {
   const IMG_REGISTRY = "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800&h=450"; 
   const IMG_MONEY = "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&q=80&w=800&h=450";
 
+  // Schema.org Article Structured Data
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Cargas en Subasta Judicial: Qué se Cancela y Qué No",
+    "description": "Descubre qué cargas se cancelan en una subasta judicial (purga) y cuáles subsisten. Evita heredar hipotecas anteriores y deudas ocultas al adjudicarte.",
+    "author": {
+      "@type": "Person",
+      "name": "José de la Peña",
+      "jobTitle": "Consultor especializado en análisis de subastas públicas",
+      "url": "https://activosoffmarket.es/quien-soy"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Activos Off-Market",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://activosoffmarket.es/logo.png"
+      }
+    },
+    "datePublished": "2023-11-22T09:00:00+01:00",
+    "dateModified": schemaDate,
+    "image": [IMG_HERO],
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://activosoffmarket.es/cargas-subasta-judicial-cancelacion/"
+    }
+  };
+
   useEffect(() => {
     // Read Time Calculation
     const article = document.querySelector('article');
@@ -31,13 +62,25 @@ const AuctionChargesGuide: React.FC = () => {
     document.title = "Cargas en Subasta Judicial: Qué se Cancela y Qué No | Activos";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute('content', "Descubre qué cargas se cancelan en una subasta judicial (purga) y cuáles subsisten. Evita heredar hipotecas anteriores y deudas ocultas al adjudicarte.");
+    
+    // Inject JSON-LD
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+
+    return () => {
+        if (document.head.contains(script)) {
+            document.head.removeChild(script);
+        }
+    };
   }, [schemaDate]);
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 selection:bg-brand-100 selection:text-brand-900">
       
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
                 <Link to="/" className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
@@ -87,7 +130,7 @@ const AuctionChargesGuide: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
@@ -101,6 +144,10 @@ const AuctionChargesGuide: React.FC = () => {
                     <p className="text-brand-900 font-medium text-lg italic m-0">
                         "Un descuento del 40% en subasta puede convertirse en pérdidas totales si heredas una hipoteca preferente que no viste."
                     </p>
+                </div>
+
+                <div className="my-8 p-6 bg-brand-50 border border-brand-100 rounded-2xl">
+                    <p className="text-brand-900 font-medium m-0">Puedes calcular rápidamente la rentabilidad usando esta <Link to={ROUTES.CALCULATOR} className="text-brand-700 underline font-bold hover:text-brand-900">calculadora de subastas judiciales</Link>.</p>
                 </div>
 
                 <div className="my-12 not-prose bg-slate-50 border border-slate-200 rounded-2xl p-6 flex items-center gap-5">
@@ -224,11 +271,12 @@ const AuctionChargesGuide: React.FC = () => {
                     </div>
                 </section>
                 
+                <LeadMagnetBlock />
             </article>
         </main>
 
-        <aside className="lg:col-span-4 space-y-10">
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Canal de Alertas</span>
                 <h3 className="font-serif text-2xl font-bold mb-4">¿Te lían las cargas?</h3>
                 <p className="text-slate-300 mb-8 text-sm leading-relaxed">

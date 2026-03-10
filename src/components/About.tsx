@@ -47,8 +47,8 @@ const About: React.FC = () => {
     <div className="bg-white">
       
       {/* 1. SECCIÓN PRINCIPAL: BIO Y EXPERIENCIA */}
-      <section className="pt-32 pb-16 md:pt-48 md:pb-24 container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start max-w-6xl mx-auto">
+      <section className="pt-32 pb-16 md:pt-48 md:pb-24 container mx-auto px-4 md:px-6 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start mx-auto">
           
           {/* TEXTO - Orden: Abajo en móvil (2), Izquierda en desktop (1) */}
           <div className="order-2 md:order-1 flex flex-col justify-center">
@@ -150,7 +150,7 @@ const About: React.FC = () => {
                   height="800"
                   loading="eager"
                   // @ts-ignore
-                  fetchPriority="high"
+                  fetchpriority="high"
                   style={{ maxWidth: "100%", height: "auto" }}
                   className="rounded-2xl shadow-xl object-cover h-full w-full"
                 />

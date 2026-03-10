@@ -40,7 +40,7 @@ const Header: React.FC = () => {
         isScrolled ? 'bg-white/95 backdrop-blur-md shadow-md py-3' : 'bg-white/80 backdrop-blur-sm py-4 md:py-5'
       }`}
     >
-      <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl flex justify-between items-center">
         <Link to={ROUTES.HOME} className="flex items-center gap-2 text-brand-900 group" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
           <div className="bg-brand-700 text-white p-2 rounded-lg group-hover:bg-brand-800 transition-colors shadow-sm">
             <Gavel size={22} />

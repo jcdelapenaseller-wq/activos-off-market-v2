@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, CheckCircle, ArrowRight, BookOpen, AlertTriangle, Lightbulb, Info, FileText, Scale, Landmark, MapPin, XCircle, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
+import LeadMagnetBlock from './LeadMagnetBlock';
 
 const GuidePillar: React.FC = () => {
   
@@ -54,60 +55,33 @@ const GuidePillar: React.FC = () => {
     setMeta('og:image', IMG_FEATURED);
     setMeta('og:site_name', "Activos Off-Market");
 
-    // Schema.org FAQPage Structured Data
+    // Schema.org Article Structured Data
     const schemaData = {
       "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "¿Puedo visitar el inmueble antes de pujar?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Por norma general, no. En subastas judiciales no hay visitas organizadas. Compras a ciegas en cuanto al estado interior. A veces, si el ejecutado colabora (muy raro), se puede pactar, pero debes asumir reforma integral en tus números."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Necesito abogado y procurador para participar?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Para participar y pujar, no es obligatorio. Puedes hacerlo tú mismo con tu certificado digital. Sin embargo, si surgen problemas procesales o necesitas pedir el lanzamiento (desalojo) posterior, sí necesitarás asistencia letrada."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Puedo pedir una hipoteca para pagar la subasta?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Es muy difícil y arriesgado. Tienes solo 40 días hábiles para pagar. Los bancos tradicionales no suelen financiar si no pueden tasar el interior o si no hay inscripción registral previa a tu nombre. Se recomienda tener liquidez propia o financiación alternativa."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Qué pasa si la vivienda tiene okupas?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Si son ocupantes sin título (precarios), puedes pedir el lanzamiento al mismo juzgado (Art. 675 LEC). El proceso tarda de 4 a 9 meses. Si tienen contrato de alquiler válido anterior a la hipoteca, tendrás que respetarlo hasta su fin."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Se devuelve el depósito si no gano?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Sí. El Portal de Subastas ordena la devolución automática a tu IBAN en cuanto finaliza la subasta, salvo que marques la casilla de reserva de postura (quedar en lista de espera)."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "¿Cuánto dinero necesito tener ahorrado?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Además del precio de adjudicación, calcula un 10-12% extra para Impuesto de Transmisiones Patrimoniales (ITP), Notaría, Registro y posibles deudas de comunidad/IBI atrasadas."
-          }
+      "@type": "Article",
+      "headline": "Subastas Judiciales en España (BOE): Guía Completa para Invertir",
+      "description": "Aprende cómo funcionan las subastas judiciales en España (BOE), riesgos reales, depósito del 5% y cómo encontrar oportunidades rentables.",
+      "author": {
+        "@type": "Person",
+        "name": "José de la Peña",
+        "jobTitle": "Consultor especializado en análisis de subastas públicas",
+        "url": "https://activosoffmarket.es/quien-soy"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Activos Off-Market",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://activosoffmarket.es/logo.png"
         }
-      ]
+      },
+      "datePublished": "2023-11-22T09:00:00+01:00",
+      "dateModified": schemaDate,
+      "image": [IMG_FEATURED],
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://activosoffmarket.es/subastas-judiciales-espana/"
+      }
     };
 
     const script = document.createElement('script');
@@ -128,7 +102,7 @@ const GuidePillar: React.FC = () => {
       
       {/* HEADER SECTION */}
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} className="mx-2" />
@@ -179,7 +153,7 @@ const GuidePillar: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
@@ -193,6 +167,8 @@ const GuidePillar: React.FC = () => {
                          </p>
                      </div>
                 </div>
+
+                <LeadMagnetBlock />
 
                 {/* INTRODUCCIÓN */}
                 <p className="text-xl text-slate-700 leading-relaxed font-light mb-10 first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-brand-700 first-letter:mr-3 first-letter:float-left">
@@ -361,7 +337,7 @@ const GuidePillar: React.FC = () => {
                     <Lightbulb className="text-yellow-500" /> Cómo encontrar oportunidades rentables
                 </h2>
                 <p>
-                    A pesar de los riesgos, la rentabilidad existe. Para encontrarla, debes aplicar un filtro estricto. Mi método se basa en estos pilares:
+                    A pesar de los riesgos, la rentabilidad existe. Para encontrarla, debes aplicar un filtro estricto. Antes de pujar en una subasta es recomendable calcular la rentabilidad real de la operación. Puedes hacerlo con esta <Link to={ROUTES.CALCULATOR} className="text-brand-700 font-bold hover:underline">calculadora de subastas judiciales</Link>. Mi método se basa en estos pilares:
                 </p>
 
                 <ul className="space-y-6 my-8 list-none pl-0">
@@ -459,10 +435,10 @@ const GuidePillar: React.FC = () => {
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
             
             {/* CTA TELEGRAM */}
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block flex items-center gap-2">
                     <CheckCircle size={14} /> Oportunidades Filtradas
                 </span>

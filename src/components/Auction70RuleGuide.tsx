@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, Percent, Gavel, ArrowRight, BookOpen, AlertTriangle, Calculator, CheckCircle, Info, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../routes';
+import LeadMagnetBlock from './LeadMagnetBlock';
 
 const Auction70RuleGuide: React.FC = () => {
   
@@ -13,6 +15,35 @@ const Auction70RuleGuide: React.FC = () => {
 
   // Images Updated
   const IMG_HERO = "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200&h=630";
+
+  // Schema.org Article Structured Data
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Regla del 70% en Subastas Judiciales: Cómo Calcular el Precio Máximo Seguro",
+    "description": "Descubre cómo aplicar la regla del 70% en subastas judiciales del BOE y calcular el precio máximo seguro antes de pujar.",
+    "author": {
+      "@type": "Person",
+      "name": "José de la Peña",
+      "jobTitle": "Consultor especializado en análisis de subastas públicas",
+      "url": "https://activosoffmarket.es/quien-soy"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Activos Off-Market",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://activosoffmarket.es/logo.png"
+      }
+    },
+    "datePublished": "2023-11-22T09:00:00+01:00",
+    "dateModified": schemaDate,
+    "image": [IMG_HERO],
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://activosoffmarket.es/regla-70-subasta-judicial/"
+    }
+  };
 
   useEffect(() => {
     // Read Time Calculation
@@ -48,17 +79,28 @@ const Auction70RuleGuide: React.FC = () => {
     setMeta('og:url', "https://activosoffmarket.es/regla-70-subasta-judicial/");
     setMeta('og:image', IMG_HERO);
 
+    // Inject JSON-LD
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+
+    return () => {
+        if (document.head.contains(script)) {
+            document.head.removeChild(script);
+        }
+    };
   }, [schemaDate]);
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 selection:bg-brand-100 selection:text-brand-900">
       
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
-                <Link to="/" className="hover:text-brand-600 transition-colors">Inicio</Link>
+                <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
-                <Link to="/subastas-judiciales-espana" className="hover:text-brand-600 transition-colors">Guía Subastas</Link>
+                <Link to={ROUTES.GUIDE_PILLAR} className="hover:text-brand-600 transition-colors">Guía Subastas</Link>
                 <ChevronRight size={14} />
                 <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md" aria-current="page">Regla del 70%</span>
             </nav>
@@ -104,13 +146,13 @@ const Auction70RuleGuide: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
 
                 <p className="text-xl text-slate-700 leading-relaxed font-light mb-10 first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-brand-700 first-letter:mr-3 first-letter:float-left">
-                    La <strong>regla del 70%</strong> es el concepto jurídico más importante que debes dominar antes de participar en cualquier <Link to="/subastas-judiciales-espana" className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">licitación pública del BOE</Link>. No es solo un porcentaje; es el umbral que define si tu adjudicación será firme, provisional o si perderás la oportunidad frente al banco o el deudor.
+                    La <strong>regla del 70%</strong> es el concepto jurídico más importante que debes dominar antes de participar en cualquier <Link to={ROUTES.GUIDE_PILLAR} className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">licitación pública del BOE</Link>. No es solo un porcentaje; es el umbral que define si tu adjudicación será firme, provisional o si perderás la oportunidad frente al banco o el deudor.
                 </p>
 
                 <div className="bg-brand-50 p-6 border-l-4 border-brand-600 rounded-r-xl shadow-sm my-10 not-prose flex items-start gap-4">
@@ -121,6 +163,10 @@ const Auction70RuleGuide: React.FC = () => {
                             Este artículo analiza exclusivamente las subastas regidas por la <strong>Ley de Enjuiciamiento Civil (LEC)</strong>, que son las más comunes en el portal del BOE. Las subastas de la Seguridad Social o AEAT tienen normativas diferentes.
                         </p>
                     </div>
+                </div>
+
+                <div className="my-8 p-6 bg-brand-50 border border-brand-100 rounded-2xl">
+                    <p className="text-brand-900 font-medium m-0">Puedes calcular rápidamente la rentabilidad usando esta <Link to={ROUTES.CALCULATOR} className="text-brand-700 underline font-bold hover:text-brand-900">calculadora de subastas judiciales</Link>.</p>
                 </div>
 
                 <h2 className="text-3xl mt-12 mb-6">¿Qué es la regla del 70%?</h2>
@@ -220,7 +266,7 @@ const Auction70RuleGuide: React.FC = () => {
                 </div>
 
                 <p>
-                    Para hacer estos números con precisión, primero debes <Link to="/como-analizar-subasta-judicial-paso-a-paso" className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">saber analizar el expediente judicial</Link> y extraer la deuda real.
+                    Para hacer estos números con precisión, primero debes <Link to={ROUTES.ANALYSIS} className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">saber analizar el expediente judicial</Link> y extraer la deuda real.
                 </p>
 
                 <h2 className="text-3xl mt-12 mb-6">Qué errores cometen los inversores</h2>
@@ -240,7 +286,7 @@ const Auction70RuleGuide: React.FC = () => {
                             <h3 className="font-bold text-slate-900">No calcular el depósito</h3>
                         </div>
                         <p className="text-sm text-slate-600 leading-relaxed">
-                            Recuerda que para jugar debes poner el <Link to="/deposito-subasta-judicial-5-por-ciento" className="text-brand-700 font-bold hover:underline">consignación obligatoria para participar</Link>. Si te adjudican provisionalmente, ese dinero queda retenido semanas o meses hasta que el juez decida.
+                            Recuerda que para jugar debes poner el <Link to={ROUTES.DEPOSIT} className="text-brand-700 font-bold hover:underline">consignación obligatoria para participar</Link>. Si te adjudican provisionalmente, ese dinero queda retenido semanas o meses hasta que el juez decida.
                         </p>
                     </div>
                 </div>
@@ -270,11 +316,12 @@ const Auction70RuleGuide: React.FC = () => {
                     </div>
                 </section>
                 
+                <LeadMagnetBlock />
             </article>
         </main>
 
-        <aside className="lg:col-span-4 space-y-10">
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Canal de Alertas</span>
                 <h3 className="font-serif text-2xl font-bold mb-4">¿Dudas con tu puja?</h3>
                 <p className="text-slate-300 mb-8 text-sm leading-relaxed">
@@ -296,27 +343,27 @@ const Auction70RuleGuide: React.FC = () => {
                     Guías Relacionadas
                 </h4>
                 <nav className="space-y-4">
-                    <Link to="/subastas-judiciales-espana" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.GUIDE_PILLAR} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Guía General Subastas</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/como-analizar-subasta-judicial-paso-a-paso" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.ANALYSIS} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Análisis Paso a Paso</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/deposito-subasta-judicial-5-por-ciento" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.DEPOSIT} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Depósito del 5%</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                     <Link to="/cargas-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                     <Link to={ROUTES.CHARGES} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Cargas y Deudas</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/cesion-de-remate-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.ASSIGNMENT} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Cesión de Remate</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/subasta-judicial-vs-aeat-diferencias" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.COMPARISON} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Judicial vs AEAT</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>

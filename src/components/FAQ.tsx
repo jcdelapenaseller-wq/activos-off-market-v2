@@ -68,7 +68,7 @@ const FAQ: React.FC = () => {
           </p>
         </div>
         
-        <div className="max-w-4xl mx-auto bg-slate-50 rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+        <div className="max-w-7xl mx-auto bg-slate-50 rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
           {faqs.map((faq, index) => (
             <FAQItem key={index} question={faq.question} answer={faq.answer} />
           ))}

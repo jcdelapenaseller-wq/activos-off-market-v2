@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, Briefcase, Gavel, ArrowRight, BookOpen, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../routes';
 
 const AuctionAssignmentGuide: React.FC = () => {
   
@@ -179,11 +180,11 @@ const AuctionAssignmentGuide: React.FC = () => {
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 selection:bg-brand-100 selection:text-brand-900">
       
       <header className="bg-white pt-32 pb-12 border-b border-slate-200">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
-                <Link to="/" className="hover:text-brand-600 transition-colors">Inicio</Link>
+                <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
-                <Link to="/subastas-judiciales-espana" className="hover:text-brand-600 transition-colors">Guía Subastas</Link>
+                <Link to={ROUTES.GUIDE_PILLAR} className="hover:text-brand-600 transition-colors">Guía Subastas</Link>
                 <ChevronRight size={14} />
                 <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md" aria-current="page">Cesión de Remate</span>
             </nav>
@@ -229,7 +230,7 @@ const AuctionAssignmentGuide: React.FC = () => {
                         height="630"
                         loading="eager"
                         // @ts-ignore
-                        fetchPriority="high"
+                        fetchpriority="high"
                         className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
                     />
                 </figure>
@@ -247,7 +248,7 @@ const AuctionAssignmentGuide: React.FC = () => {
 
                 <h2 className="text-3xl mt-12 mb-6">¿Qué es exactamente la cesión de remate?</h2>
                 <p>
-                    Es la posibilidad procesal de que quien ha resultado mejor postor en una <Link to="/subastas-judiciales-espana" className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">subasta judicial</Link> ceda su posición a otra persona (física o jurídica) antes de que se dicte el decreto de adjudicación firme.
+                    Es la posibilidad procesal de que quien ha resultado mejor postor en una <Link to={ROUTES.GUIDE_PILLAR} className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">subasta judicial</Link> ceda su posición a otra persona (física o jurídica) antes de que se dicte el decreto de adjudicación firme.
                 </p>
                 <p>
                     <strong>No es una reventa tradicional.</strong> Es una transmisión del derecho a adjudicarse el bien. El tercero (cesionario) pasa a ocupar la posición del adjudicatario original frente al juzgado.
@@ -283,7 +284,7 @@ const AuctionAssignmentGuide: React.FC = () => {
                     <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
                         <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2"><Briefcase size={20} className="text-brand-600"/> Obligaciones</h3>
                         <ul className="text-sm text-slate-600 space-y-2">
-                            <li>Completar el precio del remate (restando el <Link to="/deposito-subasta-judicial-5-por-ciento" className="text-brand-700 hover:underline">depósito ya consignado</Link>).</li>
+                            <li>Completar el precio del remate (restando el <Link to={ROUTES.DEPOSIT} className="text-brand-700 hover:underline">depósito ya consignado</Link>).</li>
                             <li>Pagar el Impuesto de Transmisiones Patrimoniales (ITP).</li>
                         </ul>
                     </div>
@@ -353,7 +354,7 @@ const AuctionAssignmentGuide: React.FC = () => {
                     <ul className="list-disc pl-5 space-y-1 text-red-800 text-sm">
                         <li>No respetar los plazos procesales puede anular la cesión.</li>
                         <li>No formalizar correctamente ante el juzgado deja al cedente como responsable único.</li>
-                        <li>Si existen <Link to="/cargas-subasta-judicial" className="text-red-900 underline font-bold">cargas anteriores</Link>, el cesionario se las "come" igual que el adjudicatario original.</li>
+                        <li>Si existen <Link to={ROUTES.CHARGES} className="text-red-900 underline font-bold">cargas anteriores</Link>, el cesionario se las "come" igual que el adjudicatario original.</li>
                     </ul>
                 </div>
 
@@ -370,7 +371,7 @@ const AuctionAssignmentGuide: React.FC = () => {
 
                 <h2 className="text-3xl mt-12 mb-6">Estrategia antes de plantear una cesión</h2>
                 <p>
-                    Antes de comprometerte a ceder un remate, confirma la viabilidad jurídica del expediente. Debes tener muy claros los números, incluyendo la posible <Link to="/regla-70-subasta-judicial" className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">regla del 70%</Link> para saber si la adjudicación será firme o provisional.
+                    Antes de comprometerte a ceder un remate, confirma la viabilidad jurídica del expediente. Debes tener muy claros los números, incluyendo la posible <Link to={ROUTES.RULE_70} className="text-brand-700 underline decoration-1 underline-offset-2 hover:text-brand-900">regla del 70%</Link> para saber si la adjudicación será firme o provisional.
                 </p>
 
                 <hr className="my-16 border-slate-200" />
@@ -398,9 +399,9 @@ const AuctionAssignmentGuide: React.FC = () => {
         </main>
 
         {/* SIDEBAR */}
-        <aside className="lg:col-span-4 space-y-10">
+        <aside className="lg:col-span-4 space-y-10 sticky top-24">
             
-            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl sticky top-24 border border-slate-800">
+            <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Canal de Alertas</span>
                 <h3 className="font-serif text-2xl font-bold mb-4">Estrategia Avanzada</h3>
                 <p className="text-slate-300 mb-8 text-sm leading-relaxed">
@@ -422,27 +423,27 @@ const AuctionAssignmentGuide: React.FC = () => {
                     Guías Relacionadas
                 </h4>
                 <nav className="space-y-4">
-                    <Link to="/subastas-judiciales-espana" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.GUIDE_PILLAR} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Guía General Subastas</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/como-analizar-subasta-judicial-paso-a-paso" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.ANALYSIS} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Análisis Paso a Paso</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/deposito-subasta-judicial-5-por-ciento" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.DEPOSIT} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Depósito del 5%</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/regla-70-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.RULE_70} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Regla del 70%</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                     <Link to="/cargas-subasta-judicial" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                     <Link to={ROUTES.CHARGES} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Cargas y Deudas</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to="/subasta-judicial-vs-aeat-diferencias" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.COMPARISON} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Judicial vs AEAT</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
