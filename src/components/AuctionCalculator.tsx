@@ -80,7 +80,7 @@ const AuctionCalculator: React.FC = () => {
   const [deudas, setDeudas] = useState<number>(0);
   const [otrosGastos, setOtrosGastos] = useState<number>(0);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [showEmail, setShowEmail] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -96,6 +96,14 @@ const AuctionCalculator: React.FC = () => {
     if (params.get('deudas')) setDeudas(Number(params.get('deudas')));
     if (params.get('otros')) setOtrosGastos(Number(params.get('otros')));
   }, []);
+
+  const handlePremiumAction = (action: () => void) => {
+    if (isUnlocked) {
+      action();
+    } else {
+      setIsModalOpen(true);
+    }
+  };
 
   const shareCalculation = () => {
     const params = new URLSearchParams({
@@ -118,6 +126,7 @@ Precio adjudicación: ${adjudicacion.toLocaleString('es-ES')} €
 Valor mercado: ${valorMercado.toLocaleString('es-ES')} €
 Coste total estimado: ${results.costeTotalInversion.toLocaleString('es-ES')} €
 ROI estimado: ${results.roi.toFixed(2)}%
+Beneficio estimado: ${results.beneficio.toLocaleString('es-ES')} €
 Puja máxima recomendada: ${results.precioMaxPuja.toLocaleString('es-ES')} €
 
 Calculado con la herramienta de Activos Off-Market.`;
@@ -181,6 +190,7 @@ Calculado con la herramienta de Activos Off-Market.`;
       if (response.ok) {
         setStatus('success');
         setIsUnlocked(true);
+        setTimeout(() => setIsModalOpen(false), 1500);
       } else {
         setStatus('error');
       }
@@ -230,20 +240,35 @@ Calculado con la herramienta de Activos Off-Market.`;
           </div>
           
           <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <span className="block text-sm text-slate-500 mb-1">Coste total inversión</span>
+                <span className="text-2xl font-bold text-slate-900">{results.costeTotalInversion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+            </div>
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <span className="block text-sm text-slate-500 mb-1">ROI</span>
+                <span className="text-2xl font-bold text-slate-900">{results.roi.toFixed(2)}%</span>
+            </div>
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm col-span-2">
+                <span className="block text-sm text-slate-500 mb-1">Beneficio estimado</span>
+                <span className="text-2xl font-bold text-slate-900">{results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-                { label: 'Coste total inversión', value: results.costeTotalInversion, basic: true },
-                { label: 'ROI', value: `${results.roi.toFixed(2)}%`, basic: true },
-                { label: 'Beneficio estimado', value: results.beneficio, basic: false },
-                { label: 'Puja máxima recomendada', value: results.precioMaxPuja, basic: false },
-                { label: 'Margen de seguridad', value: results.margenSeguridad, basic: false },
+                { label: 'Puja máxima recomendada', value: results.precioMaxPuja },
+                { label: 'Margen de seguridad', value: results.margenSeguridad },
             ].map((card, i) => (
-                <div key={i} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                    <span className="block text-sm text-slate-500 mb-1">{card.label}</span>
-                    {card.basic || isUnlocked ? (
-                        <span className="text-2xl font-bold text-slate-900">{typeof card.value === 'number' ? card.value.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : card.value}</span>
-                    ) : (
-                        <span className="text-2xl font-bold text-slate-900 blur-sm select-none">XXXX</span>
+                <div key={i} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+                    {!isUnlocked && (
+                        <span className="absolute top-3 right-4 bg-brand-100 text-brand-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
+                            Resultado avanzado
+                        </span>
                     )}
+                    <span className="block text-sm text-slate-500 mb-1">{card.label}</span>
+                    <span className={`text-2xl font-bold text-slate-900 ${!isUnlocked ? 'blur-md select-none' : ''}`}>
+                        {isUnlocked ? card.value.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : 'XXXX €'}
+                    </span>
                 </div>
             ))}
           </div>
@@ -278,11 +303,11 @@ Calculado con la herramienta de Activos Off-Market.`;
                     <span>Coste total:</span> 
                     <span className="font-bold">{results.costeTotalInversion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
                 </p>
-                <p className={`flex justify-between border-b border-slate-100 pb-2 ${!isUnlocked ? "blur-sm select-none" : ""}`}>
+                <p className="flex justify-between border-b border-slate-100 pb-2">
                     <span>Beneficio estimado:</span> 
                     <span className="font-bold">{results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
                 </p>
-                <p className={`flex justify-between border-b border-slate-100 pb-2 ${!isUnlocked ? "blur-sm select-none" : ""}`}>
+                <p className="flex justify-between border-b border-slate-100 pb-2">
                     <span>ROI:</span> 
                     <span className="font-bold">{results.roi.toFixed(2)}%</span>
                 </p>
@@ -293,15 +318,15 @@ Calculado con la herramienta de Activos Off-Market.`;
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-                <button onClick={copyReport} className="bg-slate-900 text-white font-bold py-4 px-4 rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-sm">
+                <button onClick={() => handlePremiumAction(copyReport)} className="bg-slate-900 text-white font-bold py-4 px-4 rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-sm">
                     Copiar resumen
                 </button>
-                <button onClick={shareCalculation} className="bg-white border border-slate-300 text-slate-700 font-bold py-4 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
+                <button onClick={() => handlePremiumAction(shareCalculation)} className="bg-white border border-slate-300 text-slate-700 font-bold py-4 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
                     Compartir cálculo
                 </button>
                 <div className="sm:col-span-2 pt-4 border-t border-slate-100">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Guardar este análisis como ejemplo de inversión</p>
-                    <button onClick={createPublicLink} className="w-full bg-brand-50 text-brand-700 border border-brand-200 font-bold py-4 px-4 rounded-xl hover:bg-brand-100 transition-all flex items-center justify-center gap-2 text-sm">
+                    <button onClick={() => handlePremiumAction(createPublicLink)} className="w-full bg-brand-50 text-brand-700 border border-brand-200 font-bold py-4 px-4 rounded-xl hover:bg-brand-100 transition-all flex items-center justify-center gap-2 text-sm">
                         Crear enlace público
                     </button>
                 </div>
@@ -310,23 +335,18 @@ Calculado con la herramienta de Activos Off-Market.`;
         </div>
       </div>
 
-      {/* EMAIL REPORT BLOCK */}
-      <div className="mt-12 bg-brand-900 text-white p-10 rounded-3xl shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-800 rounded-full -mr-32 -mt-32 opacity-20"></div>
-        <div className="relative z-10 max-w-2xl mx-auto text-center">
-            <Mail className="mx-auto mb-6 text-brand-300" size={48} />
-            <h2 className="text-3xl font-serif font-bold mb-4">Recibir informe de inversión por email</h2>
-            <p className="text-brand-100 mb-8 text-lg">
-                Introduce tu email y recibe este análisis de inversión junto con el protocolo profesional de análisis de subastas.
-            </p>
-            
-            {status === 'success' ? (
-                <div className="bg-emerald-500/20 border border-emerald-500/50 p-6 rounded-2xl flex items-center justify-center gap-3">
-                    <CheckCircle className="text-emerald-400" size={24} />
-                    <span className="font-bold text-emerald-50">Informe enviado. Revisa tu correo.</span>
-                </div>
-            ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+      {/* BOTTOM CTA BLOCK (Only shown if still locked) */}
+      {!isUnlocked && (
+        <div className="mt-12 bg-brand-900 text-white p-10 rounded-3xl shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-800 rounded-full -mr-32 -mt-32 opacity-20"></div>
+            <div className="relative z-10 max-w-2xl mx-auto text-center">
+                <Mail className="mx-auto mb-6 text-brand-300" size={48} />
+                <h2 className="text-3xl font-serif font-bold mb-4">Recibir informe de inversión por email</h2>
+                <p className="text-brand-100 mb-8 text-lg">
+                    Introduce tu email y recibe este análisis de inversión junto con el protocolo profesional de análisis de subastas.
+                </p>
+                
+                <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 relative">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                         <input 
@@ -340,16 +360,64 @@ Calculado con la herramienta de Activos Off-Market.`;
                     </div>
                     <button 
                         type="submit" 
-                        disabled={status === 'loading'} 
-                        className="bg-brand-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-400 transition-all disabled:opacity-50 whitespace-nowrap"
+                        className="bg-brand-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-400 transition-all whitespace-nowrap"
                     >
-                        {status === 'loading' ? 'Enviando...' : 'Enviar informe'}
+                        Enviar informe
                     </button>
                 </form>
-            )}
-            {status === 'error' && <p className="text-red-400 font-bold mt-4">Hubo un error, inténtalo de nuevo.</p>}
+            </div>
         </div>
-      </div>
+      )}
+
+      {/* CONVERSION MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-sm">
+            <div className="bg-white rounded-3xl p-8 md:p-10 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in duration-300">
+                <button 
+                    onClick={() => setIsModalOpen(false)} 
+                    className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                    <ArrowRight className="rotate-180" size={24} />
+                </button>
+                
+                <div className="text-center">
+                    <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Mail className="text-brand-600" size={32} />
+                    </div>
+                    <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Guarda tu análisis de inversión</h2>
+                    <p className="text-slate-600 mb-8">Introduce tu email para guardar este cálculo y recibir el informe completo.</p>
+                    
+                    {status === 'success' ? (
+                        <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-center gap-3 text-emerald-700 font-bold">
+                            <CheckCircle size={20} /> ¡Análisis guardado!
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                <input 
+                                    type="email" 
+                                    value={email} 
+                                    onChange={(e) => setEmail(e.target.value)} 
+                                    placeholder="Tu mejor email" 
+                                    required 
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-brand-500 outline-none" 
+                                />
+                            </div>
+                            <button 
+                                type="submit" 
+                                disabled={status === 'loading'} 
+                                className="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-all disabled:opacity-50 shadow-lg shadow-brand-500/20"
+                            >
+                                {status === 'loading' ? 'Guardando...' : 'Guardar análisis'}
+                            </button>
+                            {status === 'error' && <p className="text-red-600 text-sm font-bold">Hubo un error, inténtalo de nuevo.</p>}
+                        </form>
+                    )}
+                </div>
+            </div>
+        </div>
+      )}
 
       <article className="prose prose-slate max-w-none mt-20">
         <div className="grid md:grid-cols-2 gap-6 mb-12">
