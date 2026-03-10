@@ -5,10 +5,18 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email } = req.body;
+  const { email, source } = req.body;
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'Invalid email address' });
+  }
+
+  // Map source to group ID from environment variables
+  let groupId = process.env.MAILERLITE_GROUP_DEFAULT;
+  if (source === 'checklist') {
+    groupId = process.env.MAILERLITE_GROUP_CHECKLIST || groupId;
+  } else if (source === 'calculadora') {
+    groupId = process.env.MAILERLITE_GROUP_CALCULADORA || groupId;
   }
 
   try {
@@ -21,7 +29,7 @@ export default async function handler(req: any, res: any) {
       },
       body: JSON.stringify({
         email: email,
-        groups: ["180815370368582982"]
+        groups: groupId ? [groupId] : []
       }),
     });
 

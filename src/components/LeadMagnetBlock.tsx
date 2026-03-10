@@ -12,7 +12,7 @@ const LeadMagnetBlock: React.FC = () => {
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, source: 'checklist' }),
       });
       if (response.ok) {
         setStatus('success');
