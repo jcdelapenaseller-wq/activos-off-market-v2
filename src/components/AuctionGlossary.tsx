@@ -24,10 +24,31 @@ const AuctionGlossary: React.FC = () => {
     // Schema.org
     const schemaData = {
       "@context": "https://schema.org",
-      "@type": "DefinedTermSet",
-      "name": "Glosario de Subastas Judiciales",
-      "description": "Definiciones técnicas de términos relacionados con subastas públicas y judiciales en España.",
-      "inDefinedTermSet": "https://activosoffmarket.es/glosario-subastas-judiciales"
+      "@graph": [
+        {
+          "@type": "DefinedTermSet",
+          "name": "Glosario de Subastas Judiciales",
+          "description": "Definiciones técnicas de términos relacionados con subastas públicas y judiciales en España.",
+          "inDefinedTermSet": "https://activosoffmarket.es/glosario-subastas-judiciales"
+        },
+        {
+          "@type": "Article",
+          "headline": "Glosario de Subastas Judiciales: Términos Clave",
+          "description": "Definiciones técnicas de términos relacionados con subastas públicas y judiciales en España.",
+          "image": ["https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=1200&h=630"],
+          "datePublished": "2024-01-15T09:00:00+01:00",
+          "dateModified": schemaDate,
+          "author": {
+            "@type": "Person",
+            "name": "José de la Peña",
+            "url": "https://activosoffmarket.es/quien-soy"
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://activosoffmarket.es/glosario-subastas"
+          }
+        }
+      ]
     };
 
     const script = document.createElement('script');

@@ -69,19 +69,19 @@ const AuctionWorthItGuide: React.FC = () => {
     setMeta('og:image', IMG_HERO);
 
     // Schema.org
-    const structuredData = {
+    const schemaData = {
         "@context": "https://schema.org",
         "@type": "Article",
         "headline": "¿Merecen la pena las subastas del BOE? Rentabilidad y Riesgos Reales",
         "image": [IMG_HERO],
         "datePublished": "2024-01-15T08:00:00+01:00",
         "dateModified": schemaDate,
-        "author": [{
+        "author": {
             "@type": "Person",
             "name": "José de la Peña",
             "jobTitle": "Jurista Experto en Subastas",
             "url": "https://activosoffmarket.es/quien-soy"
-        }],
+        },
         "publisher": {
             "@type": "Organization",
             "name": "Activos Off-Market",
@@ -91,36 +91,21 @@ const AuctionWorthItGuide: React.FC = () => {
             }
         },
         "description": "Análisis honesto sobre la rentabilidad real de las subastas judiciales en España. Desmontamos mitos, analizamos riesgos y comparamos con el mercado libre.",
-        "mainEntity": {
-            "@type": "FAQPage",
-            "mainEntity": [
-                {
-                    "@type": "Question",
-                    "name": "¿Cuánto se ahorra realmente en una subasta del BOE?",
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": "El descuento medio real oscila entre el 15% y el 30% respecto al mercado libre, una vez descontados todos los gastos (ITP, registro, comunidad, reformas). Los 'chollos' del 50% son excepcionales y suelen tener problemas ocultos."
-                    }
-                },
-                {
-                    "@type": "Question",
-                    "name": "¿Es seguro comprar un piso en subasta sin verlo?",
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": "No es 100% seguro, pero el riesgo se mitiga con un análisis jurídico exhaustivo del expediente (cargas, ocupantes) y una valoración conservadora que contemple una partida para reformas integrales."
-                    }
-                }
-            ]
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://activosoffmarket.es/merecen-pena-subastas-boe"
         }
     };
 
     const script = document.createElement('script');
     script.type = "application/ld+json";
-    script.text = JSON.stringify(structuredData);
+    script.text = JSON.stringify(schemaData);
     document.head.appendChild(script);
 
     return () => {
-        document.head.removeChild(script);
+        if (document.head.contains(script)) {
+            document.head.removeChild(script);
+        }
     };
 
   }, [schemaDate]);

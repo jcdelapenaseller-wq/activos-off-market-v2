@@ -23,26 +23,47 @@ const AuctionGuideIndex: React.FC = () => {
     // Schema.org CollectionPage
     const schemaData = {
       "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      "headline": "Guía Completa de Subastas Judiciales en España",
-      "description": "Índice estructurado de recursos educativos para inversores en subastas públicas.",
-      "mainEntity": {
-        "@type": "ItemList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "url": "https://activosoffmarket.es" + ROUTES.GUIDE_PILLAR,
-            "name": "Subastas Judiciales en España"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "url": "https://activosoffmarket.es" + ROUTES.SUBASTAS_BOE,
-            "name": "Subastas BOE"
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "headline": "Guía Completa de Subastas Judiciales en España",
+          "description": "Índice estructurado de recursos educativos para inversores en subastas públicas.",
+          "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "url": "https://activosoffmarket.es" + ROUTES.GUIDE_PILLAR,
+                "name": "Subastas Judiciales en España"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "url": "https://activosoffmarket.es" + ROUTES.SUBASTAS_BOE,
+                "name": "Subastas BOE"
+              }
+            ]
           }
-        ]
-      }
+        },
+        {
+          "@type": "Article",
+          "headline": "Índice de Guías sobre Subastas Judiciales",
+          "description": "Índice estructurado de recursos educativos para inversores en subastas públicas.",
+          "image": ["https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=1200&h=630"],
+          "datePublished": "2024-01-15T09:00:00+01:00",
+          "dateModified": schemaDate,
+          "author": {
+            "@type": "Person",
+            "name": "José de la Peña",
+            "url": "https://activosoffmarket.es/quien-soy"
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://activosoffmarket.es/indice-guia-subastas"
+          }
+        }
+      ]
     };
 
     const script = document.createElement('script');

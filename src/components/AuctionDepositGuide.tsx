@@ -50,6 +50,36 @@ const AuctionDepositGuide: React.FC = () => {
     setMeta('og:url', "https://activosoffmarket.es/deposito-subasta-judicial-5-por-ciento/");
     setMeta('og:image', IMG_HERO);
 
+    const schemaData = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Depósito 5% en Subastas Judiciales BOE | Guía Completa 2025",
+      "description": "Aprende cómo funcionan el depósito del 5% en subastas judiciales del BOE, plazos, riesgos y qué ocurre si no ganas la puja.",
+      "image": [IMG_HERO],
+      "datePublished": "2024-01-15T09:00:00+01:00",
+      "dateModified": schemaDate,
+      "author": {
+        "@type": "Person",
+        "name": "José de la Peña",
+        "url": "https://activosoffmarket.es/quien-soy"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://activosoffmarket.es/deposito-subasta-judicial-5-por-ciento/"
+      }
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+
   }, [schemaDate]);
 
   return (

@@ -35,16 +35,37 @@ const AuctionCalculator: React.FC = () => {
     script.type = 'application/ld+json';
     script.text = JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Calculadora de Rentabilidad para Subastas Judiciales",
-      "applicationCategory": "FinanceApplication",
-      "operatingSystem": "Web",
-      "description": "Herramienta para calcular rentabilidad, ITP, ROI y precio máximo de puja en subastas judiciales en España.",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "EUR"
-      }
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "Calculadora de Rentabilidad para Subastas Judiciales",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web",
+          "description": "Herramienta para calcular rentabilidad, ITP, ROI y precio máximo de puja en subastas judiciales en España.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          }
+        },
+        {
+          "@type": "Article",
+          "headline": "Calculadora de Rentabilidad para Subastas Judiciales",
+          "description": "Calcula el ROI, beneficio neto y puja máxima recomendada para tus inversiones en subastas del BOE.",
+          "image": ["https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200&h=630"],
+          "datePublished": "2024-01-15T09:00:00+01:00",
+          "dateModified": new Date().toISOString(),
+          "author": {
+            "@type": "Person",
+            "name": "José de la Peña",
+            "url": "https://activosoffmarket.es/quien-soy"
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://activosoffmarket.es/calculadora-subastas"
+          }
+        }
+      ]
     });
     document.head.appendChild(script);
     return () => {
