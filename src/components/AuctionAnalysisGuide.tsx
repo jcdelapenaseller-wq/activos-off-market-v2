@@ -119,7 +119,7 @@ const AuctionAnalysisGuide: React.FC = () => {
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 selection:bg-brand-100 selection:text-brand-900">
       
       {/* HEADER STANDARD */}
-      <header className="bg-white pt-32 pb-12 border-b border-slate-200">
+      <header className="bg-white pb-12 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
                 <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>

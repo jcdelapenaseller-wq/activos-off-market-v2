@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen, CheckCircle, Calculator } from 'lucide-react';
+import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen, Calculator, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
 
-const AuctionProfitabilityGuide: React.FC = () => {
-  const IMG_HERO = "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200&h=630"; 
+const AuctionSevillaGuide: React.FC = () => {
+  const IMG_HERO = "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&q=80&w=1200&h=630"; // Plaza de España, Sevilla
 
   const currentDate = new Date();
   const currentMonthYear = currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
   const schemaDate = currentDate.toISOString();
   
-  const [readTime, setReadTime] = useState(4);
+  const [readTime, setReadTime] = useState(5);
 
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "Cómo calcular la rentabilidad de una subasta judicial",
-    "description": "Aprende cómo calcular la rentabilidad real de una subasta judicial incluyendo ITP, reforma y costes ocultos. Incluye ejemplo práctico.",
+    "headline": "Subastas judiciales en Sevilla | Guía para inversores",
+    "description": "Cómo encontrar y analizar subastas judiciales en Sevilla. Aprende a calcular la rentabilidad y el precio máximo de puja.",
     "author": {
       "@type": "Person",
       "name": "José de la Peña",
@@ -32,12 +32,12 @@ const AuctionProfitabilityGuide: React.FC = () => {
         "url": "https://activosoffmarket.es/logo.png"
       }
     },
-    "datePublished": "2024-01-15T09:00:00+01:00",
+    "datePublished": "2024-03-10T10:00:00+01:00",
     "dateModified": schemaDate,
     "image": [IMG_HERO],
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://activosoffmarket.es/como-calcular-rentabilidad-subasta-judicial"
+      "@id": "https://activosoffmarket.es/subastas-sevilla"
     }
   };
 
@@ -52,10 +52,10 @@ const AuctionProfitabilityGuide: React.FC = () => {
 
     window.scrollTo(0, 0);
 
-    document.title = "Cómo calcular la rentabilidad de una subasta judicial";
+    document.title = "Subastas judiciales en Sevilla | Guía para inversores";
     
     const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) metaDesc.setAttribute('content', "Aprende cómo calcular la rentabilidad real de una subasta judicial incluyendo ITP, reforma y costes ocultos. Incluye ejemplo práctico.");
+    if (metaDesc) metaDesc.setAttribute('content', "Cómo encontrar y analizar subastas judiciales en Sevilla. Aprende a calcular la rentabilidad y el precio máximo de puja.");
 
     const setMeta = (property: string, content: string) => {
         let element = document.querySelector(`meta[property="${property}"]`);
@@ -68,10 +68,10 @@ const AuctionProfitabilityGuide: React.FC = () => {
     };
 
     setMeta('og:type', 'article');
-    setMeta('og:title', 'Cómo calcular la rentabilidad de una subasta judicial');
-    setMeta('og:description', 'Aprende cómo calcular la rentabilidad real de una subasta judicial incluyendo ITP, reforma y costes ocultos. Incluye ejemplo práctico.');
+    setMeta('og:title', 'Subastas judiciales en Sevilla | Guía para inversores');
+    setMeta('og:description', 'Cómo encontrar y analizar subastas judiciales en Sevilla. Aprende a calcular la rentabilidad y el precio máximo de puja.');
     setMeta('og:image', IMG_HERO);
-    setMeta('og:url', 'https://activosoffmarket.es/como-calcular-rentabilidad-subasta-judicial');
+    setMeta('og:url', 'https://activosoffmarket.es/subastas-sevilla');
     setMeta('og:site_name', 'Activos Off-Market');
 
     let twitterCard = document.querySelector('meta[name="twitter:card"]');
@@ -88,7 +88,7 @@ const AuctionProfitabilityGuide: React.FC = () => {
         canonical.setAttribute('rel', 'canonical');
         document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', "https://activosoffmarket.es/como-calcular-rentabilidad-subasta-judicial");
+    canonical.setAttribute('href', "https://activosoffmarket.es/subastas-sevilla");
 
     const script = document.createElement('script');
     script.type = 'application/ld+json';
@@ -112,11 +112,11 @@ const AuctionProfitabilityGuide: React.FC = () => {
                 <ChevronRight size={14} />
                 <Link to={ROUTES.GUIDE_PILLAR} className="hover:text-brand-600 transition-colors">Guía Subastas</Link>
                 <ChevronRight size={14} />
-                <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md" aria-current="page">Calcular Rentabilidad</span>
+                <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md" aria-current="page">Subastas en Sevilla</span>
             </nav>
             
             <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-8 leading-tight">
-                Cómo calcular la rentabilidad de una subasta judicial
+                Subastas judiciales en Sevilla: guía para inversores
             </h1>
 
             <div className="flex flex-wrap items-center gap-6 text-slate-500 text-sm border-t border-slate-100 pt-6">
@@ -151,7 +151,7 @@ const AuctionProfitabilityGuide: React.FC = () => {
               <figure className="mb-12 -mt-6">
                 <img 
                   src={IMG_HERO} 
-                  alt="Cálculo de rentabilidad en subastas judiciales" 
+                  alt="Subastas judiciales en Sevilla" 
                   width="1200" 
                   height="630"
                   className="w-full h-auto object-cover rounded-3xl shadow-xl border border-slate-200 bg-slate-100"
@@ -161,113 +161,102 @@ const AuctionProfitabilityGuide: React.FC = () => {
               </figure>
 
               <p className="text-xl leading-relaxed mb-8 font-light first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-brand-700 first-letter:mr-3 first-letter:float-left">
-                Calcular correctamente la rentabilidad antes de pujar es el paso más crítico en cualquier inversión inmobiliaria, especialmente en las subastas judiciales. Un error de cálculo puede transformar una oportunidad aparente en una pérdida económica severa.
-              </p>
-              
-              <p className="mb-8">
-                En este artículo te explico de forma clara y directa cómo calcular la rentabilidad real de una subasta en España, qué costes ocultos debes considerar siempre y cómo evitar los errores más comunes.
+                Sevilla es una de las provincias españolas con mayor actividad frecuente en subastas judiciales. El dinamismo de su mercado inmobiliario, sumado al volumen de ejecuciones hipotecarias, procedimientos de apremio y embargos, genera un flujo constante de oportunidades para inversores que sepan analizar correctamente los expedientes.
               </p>
 
-              <h2 className="text-3xl font-bold mt-12 mb-6">Qué costes incluir al calcular una subasta judicial</h2>
+              <h2 className="text-3xl font-bold mt-12 mb-6">Dónde encontrar subastas judiciales en Sevilla</h2>
               <p>
-                El precio de adjudicación (lo que pujas) es solo una parte del coste total. Para no llevarte sorpresas, debes sumar siempre los siguientes conceptos:
+                Para localizar activos en la capital hispalense y su provincia, existen tres fuentes principales que todo inversor debe monitorizar:
               </p>
               <ul className="list-disc pl-6 space-y-3 mb-8">
-                <li>
-                  <strong>Precio de adjudicación:</strong> El importe final por el que ganas la subasta.
-                </li>
-                <li>
-                  <strong>ITP (Impuesto de Transmisiones Patrimoniales):</strong> Varía según la comunidad autónoma (generalmente entre el 6% y el 10%). Se calcula sobre el valor de referencia o el precio de adjudicación (el mayor de los dos).
-                </li>
-                <li>
-                  <strong>Costes de notaría y registro:</strong> Gastos derivados de la inscripción del decreto de adjudicación y mandamiento de cancelación de cargas en el Registro de la Propiedad.
-                </li>
-                <li>
-                  <strong>Reforma:</strong> Estimación realista de los costes para adecuar la vivienda para su venta o alquiler.
-                </li>
-                <li>
-                  <strong>Deudas heredadas:</strong> IBI (hasta 4 años) y cuotas de la comunidad de propietarios (año en curso y los 3 anteriores).
-                </li>
+                <li><strong>Portal de Subastas del BOE:</strong> Es la plataforma centralizada donde se publican la mayoría de las subastas judiciales de los juzgados de Sevilla.</li>
+                <li><strong>Subastas de la AEAT:</strong> La Agencia Tributaria subasta bienes embargados en Sevilla para saldar deudas fiscales.</li>
+                <li><strong>Ejecuciones hipotecarias judiciales:</strong> Son procedimientos derivados del impago de préstamos bancarios, que suelen representar el mayor volumen de viviendas en subasta.</li>
               </ul>
 
-              <h2 className="text-3xl font-bold mt-12 mb-6">Cómo calcular el ROI de una subasta</h2>
+              <h2 className="text-3xl font-bold mt-12 mb-6">Zonas con más oportunidades en Sevilla</h2>
               <p>
-                El ROI (Retorno sobre la Inversión) es la métrica clave. Se calcula con esta fórmula básica:
+                Aunque las subastas pueden surgir en cualquier distrito, hay zonas donde la rotación de activos y la demanda de alquiler las hacen especialmente interesantes:
               </p>
-              
-              <div className="bg-slate-900 text-white p-6 rounded-xl my-8 font-mono text-lg text-center shadow-lg">
-                ROI = (Beneficio / Coste Total) × 100
-              </div>
+              <ul className="list-disc pl-6 space-y-3 mb-8">
+                <li><strong>Cerro-Amate y Macarena:</strong> Barrios con precios de entrada más bajos y alta demanda de alquiler, ideales para rentabilidad por yield.</li>
+                <li><strong>San Pablo-Santa Justa:</strong> Una zona estratégica por su cercanía a la estación de tren y buena conexión con el centro.</li>
+                <li><strong>Nervión y Triana:</strong> Distritos más consolidados donde, aunque el precio de adjudicación es mayor, la revalorización y seguridad del activo son muy altas.</li>
+                <li><strong>Área Metropolitana:</strong> Municipios como Dos Hermanas o Alcalá de Guadaíra ofrecen un volumen significativo de subastas con tickets de inversión muy competitivos.</li>
+              </ul>
 
+              <h2 className="text-3xl font-bold mt-12 mb-6">Ejemplo real de cálculo de inversión en Sevilla</h2>
               <p>
-                Para aplicar la fórmula, primero debes calcular el <strong>beneficio</strong>. Este se obtiene restando el <strong>coste total</strong> de la inversión al <strong>valor de mercado</strong> realista del inmueble una vez reformado.
-              </p>
-
-              <h2 className="text-3xl font-bold mt-12 mb-6">Ejemplo real de cálculo de una subasta</h2>
-              <p>
-                Veamos un ejemplo simple con números redondos para ilustrar el proceso:
+                Veamos un ejemplo ilustrativo de cómo se estructuran los números en una operación típica en Andalucía:
               </p>
 
               <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm my-8">
                 <ul className="space-y-4 text-slate-700 font-medium">
                     <li className="flex justify-between border-b border-slate-100 pb-2">
-                        <span>Valor de mercado:</span> <span>220.000€</span>
+                        <span>Valor de mercado:</span> <span>200.000€</span>
                     </li>
                     <li className="flex justify-between border-b border-slate-100 pb-2">
-                        <span>Precio adjudicación:</span> <span>140.000€</span>
+                        <span>Precio de adjudicación:</span> <span>130.000€</span>
                     </li>
                     <li className="flex justify-between border-b border-slate-100 pb-2">
-                        <span>Reforma:</span> <span>25.000€</span>
+                        <span>Reforma estimada:</span> <span>20.000€</span>
                     </li>
                     <li className="flex justify-between border-b border-slate-100 pb-2">
-                        <span>ITP (ej. 6%):</span> <span>8.400€</span>
+                        <span>ITP Andalucía (7%):</span> <span>9.100€</span>
                     </li>
                     <li className="flex justify-between pt-4 font-bold text-lg text-slate-900 border-t-2 border-slate-200">
-                        <span>Coste total:</span> <span>173.400€</span>
+                        <span>Coste total aproximado:</span> <span>159.100€</span>
                     </li>
-                    <li className="flex justify-between text-brand-700 font-bold text-lg">
-                        <span>Beneficio potencial:</span> <span>46.600€</span>
-                    </li>
-                    <li className="flex justify-between text-emerald-600 font-bold text-xl mt-4">
-                        <span>ROI aproximado:</span> <span>26%</span>
+                    <li className="flex justify-between text-brand-700 font-bold text-xl mt-4">
+                        <span>Beneficio potencial:</span> <span>40.900€</span>
                     </li>
                 </ul>
               </div>
 
-              <h2 className="text-3xl font-bold mt-12 mb-6">Errores frecuentes al calcular la rentabilidad de una subasta</h2>
+              <h2 className="text-3xl font-bold mt-12 mb-6">Cómo calcular la rentabilidad de una subasta en Sevilla</h2>
               <p>
-                Muchos inversores fracasan por cometer estos errores básicos de cálculo:
+                Para invertir con éxito en Sevilla, es fundamental dominar la fiscalidad local (ITP al 7% con carácter general en Andalucía) y los costes de gestión. No basta con mirar el precio de salida; hay que analizar las cargas y el estado posesorio.
               </p>
-              <ul className="list-disc pl-6 space-y-3 mb-8">
-                <li><strong>Olvidar el ITP:</strong> Es el gasto más importante después del precio de adjudicación.</li>
-                <li><strong>Subestimar la reforma:</strong> Siempre añade un margen de imprevistos (10-15%) al presupuesto de obra.</li>
-                <li><strong>No considerar deudas de comunidad:</strong> Pueden sumar miles de euros si el anterior propietario llevaba años sin pagar.</li>
-                <li><strong>Confiar demasiado en la tasación BOE:</strong> El valor de subasta que publica el BOE suele estar desactualizado. Haz siempre tu propio estudio de mercado.</li>
-              </ul>
 
               <div className="bg-brand-50 border border-brand-100 p-8 rounded-2xl my-12">
                   <p className="text-brand-900 font-medium text-lg m-0 flex items-start gap-4">
                       <Calculator className="text-brand-600 shrink-0 mt-1" size={24} />
-                      <span>Si quieres estimar automáticamente la rentabilidad de una operación, puedes utilizar esta <Link to={ROUTES.CALCULATOR} className="text-brand-700 font-bold hover:underline">calculadora de subastas judiciales</Link>.</span>
+                      <span>Puedes usar esta <Link to={ROUTES.CALCULATOR} className="text-brand-700 font-bold hover:underline">calculadora de subastas judiciales</Link> para estimar automáticamente el ROI, los impuestos y la puja máxima recomendada.</span>
                   </p>
               </div>
 
-              <div className="mt-12 pt-8 border-t border-slate-200">
-                <h3 className="text-xl font-bold text-slate-900 mb-4">También puede interesarte:</h3>
-                <ul className="list-none pl-0 space-y-3">
-                  <li>
-                    <Link to={ROUTES.HOW_MUCH_TO_PAY} className="text-brand-700 font-medium hover:underline flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
-                      Cuánto pagar en una subasta judicial
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to={ROUTES.MAX_BID} className="text-brand-700 font-medium hover:underline flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
-                      Cómo calcular la puja máxima en una subasta
-                    </Link>
-                  </li>
-                </ul>
+              <h2 className="text-3xl font-bold mt-12 mb-6">Preguntas frecuentes (FAQ)</h2>
+              
+              <div className="space-y-6 my-8">
+                <div className="bg-white border border-slate-200 p-6 rounded-xl">
+                  <h3 className="font-bold text-lg text-slate-900 mb-2 flex items-center gap-2">
+                    <HelpCircle size={20} className="text-brand-600" />
+                    ¿Se puede visitar una vivienda en subasta en Sevilla?
+                  </h3>
+                  <p className="text-slate-600 m-0">
+                    Por lo general, no. Al ser un procedimiento judicial forzoso, el ocupante no tiene obligación de enseñar la vivienda. El análisis debe hacerse "a ciegas" respecto al interior, basándose en la documentación del juzgado.
+                  </p>
+                </div>
+
+                <div className="bg-white border border-slate-200 p-6 rounded-xl">
+                  <h3 className="font-bold text-lg text-slate-900 mb-2 flex items-center gap-2">
+                    <HelpCircle size={20} className="text-brand-600" />
+                    ¿Se puede pedir hipoteca para comprar en subasta?
+                  </h3>
+                  <p className="text-slate-600 m-0">
+                    Es posible pero muy complejo debido a los plazos de pago (40 días hábiles). La mayoría de los inversores acuden con fondos propios o financiación alternativa pre-concedida.
+                  </p>
+                </div>
+
+                <div className="bg-white border border-slate-200 p-6 rounded-xl">
+                  <h3 className="font-bold text-lg text-slate-900 mb-2 flex items-center gap-2">
+                    <HelpCircle size={20} className="text-brand-600" />
+                    ¿Cuánto dinero necesito para participar?
+                  </h3>
+                  <p className="text-slate-600 m-0">
+                    Necesitas al menos el 5% del valor de tasación para el depósito inicial (consignación). Si ganas la subasta, deberás tener el resto del capital listo para el remate en el plazo establecido.
+                  </p>
+                </div>
               </div>
 
               <LeadMagnetBlock />
@@ -278,9 +267,9 @@ const AuctionProfitabilityGuide: React.FC = () => {
           <div className="sticky top-24 space-y-10 max-h-[calc(100vh-120px)] overflow-auto pr-2 custom-scrollbar">
             <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
                 <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Canal de Alertas</span>
-                <h3 className="font-serif text-2xl font-bold mb-4">¿Te falta experiencia?</h3>
+                <h3 className="font-serif text-2xl font-bold mb-4">¿Buscas subastas en Sevilla?</h3>
                 <p className="text-slate-300 mb-8 text-sm leading-relaxed">
-                    En el canal Premium analizo yo las subastas por ti. Ahorra tiempo y evita errores de novato.
+                    En el canal Premium analizo las mejores oportunidades de Sevilla y Andalucía para que inviertas con seguridad.
                 </p>
                 <a 
                     href="https://t.me/activosoffmarket" 
@@ -298,20 +287,24 @@ const AuctionProfitabilityGuide: React.FC = () => {
                     Guías Relacionadas
                 </h4>
                 <nav className="space-y-4">
-                    <Link to={ROUTES.GUIDE_PILLAR} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
-                        <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Guía General Subastas</span>
+                    <Link to={ROUTES.MADRID} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                        <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Subastas en Madrid</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to={ROUTES.ANALYSIS} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
-                        <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Cómo Analizar Subastas</span>
+                    <Link to={ROUTES.BARCELONA} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                        <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Subastas en Barcelona</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to={ROUTES.ERRORS} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
-                        <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Errores Frecuentes</span>
+                    <Link to={ROUTES.VALENCIA} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                        <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Subastas en Valencia</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                     <Link to={ROUTES.RULE_70} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
-                        <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Regla del 70%</span>
+                    <Link to={ROUTES.PROFITABILITY} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                        <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Calcular Rentabilidad</span>
+                        <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
+                    </Link>
+                    <Link to={ROUTES.PROFITABILITY_CALC_GUIDE} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                        <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Calculadora Rentabilidad</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
                 </nav>
@@ -324,4 +317,4 @@ const AuctionProfitabilityGuide: React.FC = () => {
   );
 };
 
-export default AuctionProfitabilityGuide;
+export default AuctionSevillaGuide;

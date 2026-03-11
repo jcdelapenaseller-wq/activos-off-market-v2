@@ -20,10 +20,13 @@ import NotFound from './components/NotFound';
 import AuctionEmptyGuide from './components/AuctionEmptyGuide';
 import AuctionWorthItGuide from './components/AuctionWorthItGuide';
 import AuctionProfitabilityGuide from './components/AuctionProfitabilityGuide';
+import AuctionProfitabilityCalculatorGuide from './components/AuctionProfitabilityCalculatorGuide';
 import AuctionHowMuchToPayGuide from './components/AuctionHowMuchToPayGuide';
 import AuctionMaxBidGuide from './components/AuctionMaxBidGuide';
 import AuctionMadridGuide from './components/AuctionMadridGuide';
 import AuctionBarcelonaGuide from './components/AuctionBarcelonaGuide';
+import AuctionValenciaGuide from './components/AuctionValenciaGuide';
+import AuctionSevillaGuide from './components/AuctionSevillaGuide';
 import AuctionExampleReport from './components/AuctionExampleReport';
 import Legal from './components/Legal';
 
@@ -47,10 +50,13 @@ export const ROUTES = {
   WORTH_IT: '/merecen-pena-subastas-boe',
   CALCULATOR: '/calculadora-subastas',
   PROFITABILITY: '/como-calcular-rentabilidad-subasta-judicial',
+  PROFITABILITY_CALC_GUIDE: '/calculadora-rentabilidad-subastas',
   HOW_MUCH_TO_PAY: '/cuanto-pagar-subasta-judicial',
   MAX_BID: '/calcular-puja-maxima-subasta',
   MADRID: '/subastas-madrid',
   BARCELONA: '/subastas-barcelona',
+  VALENCIA: '/subastas-valencia',
+  SEVILLA: '/subastas-sevilla',
   EXAMPLE_REPORT: '/ejemplo-subasta/:slug',
   LEGAL: '/aviso-legal',
   PRIVACY: '/politica-privacidad',
@@ -129,6 +135,10 @@ export const routes: RouteObject[] = [
     element: createElement(AuctionProfitabilityGuide),
   },
   {
+    path: ROUTES.PROFITABILITY_CALC_GUIDE,
+    element: createElement(AuctionProfitabilityCalculatorGuide),
+  },
+  {
     path: ROUTES.HOW_MUCH_TO_PAY,
     element: createElement(AuctionHowMuchToPayGuide),
   },
@@ -143,6 +153,14 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.BARCELONA,
     element: createElement(AuctionBarcelonaGuide),
+  },
+  {
+    path: ROUTES.VALENCIA,
+    element: createElement(AuctionValenciaGuide),
+  },
+  {
+    path: ROUTES.SEVILLA,
+    element: createElement(AuctionSevillaGuide),
   },
   {
     path: ROUTES.EXAMPLE_REPORT,

@@ -64,6 +64,43 @@ const AuctionCalculator: React.FC = () => {
             "@type": "WebPage",
             "@id": "https://activosoffmarket.es/calculadora-subastas"
           }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "¿Cómo calcular la rentabilidad de una subasta judicial?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Para calcular la rentabilidad real debes comparar el valor de mercado actual del inmueble con el coste total de la inversión. Este coste incluye el precio de adjudicación, el ITP (que varía según la comunidad autónoma), gastos de reforma, notaría, registro y posibles cargas anteriores o deudas de comunidad. Nuestra calculadora de subastas te permite estimar todos estos valores automáticamente."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Cuánto dinero necesito para participar en una subasta judicial?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Para participar necesitas inicialmente el 5% del valor de tasación del bien en concepto de consignación o depósito. Si resultas adjudicatario, deberás abonar el resto del precio de adjudicación en el plazo legal (normalmente 40 días hábiles en subastas judiciales) más los impuestos y gastos asociados."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Qué impuestos se pagan al comprar en una subasta judicial?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "El impuesto principal es el ITP (Impuesto de Transmisiones Patrimoniales). El tipo impositivo depende de la Comunidad Autónoma donde se encuentre el inmueble, oscilando generalmente entre el 4% y el 10%. En subastas judiciales no se suele pagar IVA, salvo en casos muy específicos de ejecuciones entre empresas."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Cómo calcular la puja máxima en una subasta?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "La puja máxima se calcula restando del valor de mercado real todos los costes previstos (impuestos, reformas, cargas, gastos) y aplicando un margen de seguridad mínimo (beneficio deseado). Una regla común es no superar el 70% del valor de mercado tras descontar todos los gastos."
+              }
+            }
+          ]
         }
       ]
     });
@@ -200,7 +237,7 @@ Calculado con la herramienta de Activos Off-Market.`;
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pt-32 pb-12">
+    <div className="max-w-7xl mx-auto px-6 pb-12">
       <div className="mb-12">
         <h1 className="text-4xl font-serif font-bold text-slate-900 mb-6">Calculadora de Rentabilidad para Subastas Judiciales</h1>
         <p className="text-lg text-slate-600">Herramienta gratuita para calcular rentabilidad, ITP, costes y precio máximo de puja en subastas judiciales en España.</p>
@@ -478,13 +515,13 @@ Calculado con la herramienta de Activos Off-Market.`;
             })}
         </div>
 
-        <h2 className="text-3xl font-bold text-slate-900 mb-6">Preguntas frecuentes sobre rentabilidad en subastas judiciales</h2>
+        <h2 className="text-3xl font-bold text-slate-900 mb-6">Preguntas frecuentes sobre calcular la rentabilidad de una subasta judicial</h2>
         <div className="space-y-6">
             {[
-                { q: "¿Cómo calcular si una subasta es rentable?", a: "Debes restar al valor de mercado todos los costes: adjudicación, impuestos (ITP), gastos de registro/notaría, reformas necesarias, deudas heredadas y costes de desalojo. Si el beneficio neto tras todo esto ofrece un ROI superior al 15-20%, suele ser una buena operación." },
-                { q: "¿Qué impuestos se pagan en una subasta judicial?", a: "El principal es el ITP (Impuesto de Transmisiones Patrimoniales), cuyo tipo varía según la Comunidad Autónoma (entre el 4% y el 10%). No se paga IVA en subastas judiciales salvo excepciones muy específicas." },
-                { q: "¿Cómo calcular la puja máxima?", a: "Calcula el valor de mercado y aplica tu margen de seguridad (ej. 70%). Resta de esa cifra todos los costes previstos (ITP, reforma, gastos). El resultado es tu puja máxima para obtener la rentabilidad deseada." },
-                { q: "¿Cuánto dinero necesito para participar en una subasta?", a: "Necesitas el 5% del valor de tasación del bien para constituir el depósito. Además, debes tener liquidez suficiente para pagar el resto del precio de adjudicación en 40 días (judicial) o 20 días (administrativa) tras la subasta." }
+                { q: "¿Cómo calcular la rentabilidad de una subasta judicial?", a: "Para calcular la rentabilidad real debes comparar el valor de mercado actual del inmueble con el coste total de la inversión. Este coste incluye el precio de adjudicación, el ITP (que varía según la comunidad autónoma), gastos de reforma, notaría, registro y posibles cargas anteriores o deudas de comunidad. Nuestra calculadora de subastas te permite estimar todos estos valores automáticamente." },
+                { q: "¿Cuánto dinero necesito para participar en una subasta judicial?", a: "Para participar necesitas inicialmente el 5% del valor de tasación del bien en concepto de consignación o depósito. Si resultas adjudicatario, deberás abonar el resto del precio de adjudicación en el plazo legal (normalmente 40 días hábiles en subastas judiciales) más los impuestos y gastos asociados." },
+                { q: "¿Qué impuestos se pagan al comprar en una subasta judicial?", a: "El principal es el ITP (Impuesto de Transmisiones Patrimoniales). El tipo impositivo depende de la Comunidad Autónoma donde se encuentre el inmueble, oscilando generalmente entre el 4% y el 10%. En subastas judiciales no se suele pagar IVA, salvo en casos muy específicos de ejecuciones entre empresas." },
+                { q: "¿Cómo calcular la puja máxima en una subasta?", a: "La puja máxima se calcula restando del valor de mercado real todos los costes previstos (impuestos, reformas, cargas, gastos) y aplicando un margen de seguridad mínimo (beneficio deseado). Una regla común es no superar el 70% del valor de mercado tras descontar todos los gastos." }
             ].map((faq, i) => (
                 <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <h3 className="font-bold text-lg mb-2">{faq.q}</h3>

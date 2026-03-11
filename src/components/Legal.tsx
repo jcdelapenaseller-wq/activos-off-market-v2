@@ -148,7 +148,7 @@ const Legal: React.FC<LegalProps> = ({ type }) => {
   const data = content[type];
 
   return (
-    <div className="pt-32 pb-20 bg-slate-50 min-h-screen">
+    <div className="pb-20 bg-slate-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
         <div className="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-slate-200">
           <h1 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-8 border-b pb-4">{data.title}</h1>

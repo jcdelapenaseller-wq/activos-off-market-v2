@@ -47,7 +47,7 @@ const About: React.FC = () => {
     <div className="bg-white">
       
       {/* 1. SECCIÓN PRINCIPAL: BIO Y EXPERIENCIA */}
-      <section className="pt-32 pb-16 md:pt-48 md:pb-24 max-w-7xl mx-auto px-6">
+      <section className="pb-16 md:pb-24 max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start mx-auto">
           
           {/* TEXTO - Orden: Abajo en móvil (2), Izquierda en desktop (1) */}

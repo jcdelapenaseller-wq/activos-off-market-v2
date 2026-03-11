@@ -15,7 +15,7 @@ function App() {
       <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-brand-100 selection:text-brand-900">
         <ScrollToTop />
         <Header />
-        <main>
+        <main className="pt-24">
           <AppRoutes />
         </main>
         <Footer />

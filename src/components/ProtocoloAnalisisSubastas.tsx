@@ -50,7 +50,7 @@ const ProtocoloAnalisisSubastas: React.FC = () => {
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 selection:bg-brand-100 selection:text-brand-900">
       
       {/* HERO SECTION */}
-      <div className="bg-white pt-32 pb-16 border-b border-slate-200">
+      <div className="bg-white pb-16 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 text-center">
             <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-brand-100">
                 <Lock size={12} /> Recurso Profesional

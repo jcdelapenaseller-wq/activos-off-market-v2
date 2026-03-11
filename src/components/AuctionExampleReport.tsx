@@ -53,7 +53,7 @@ const AuctionExampleReport: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-32 pb-20 px-6">
+    <div className="bg-slate-50 min-h-screen pb-20 px-6">
       <div className="max-w-4xl mx-auto">
         <Link to={ROUTES.CALCULATOR} className="inline-flex items-center gap-2 text-brand-600 font-bold mb-8 hover:text-brand-700 transition-colors">
           <ChevronLeft size={20} /> Volver a la calculadora

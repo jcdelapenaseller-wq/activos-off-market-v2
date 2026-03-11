@@ -3,7 +3,7 @@ import { Search, ArrowRight, TrendingUp, ShieldCheck, UserCheck, Sparkles, Star 
 
 const Hero: React.FC = () => {
   return (
-    <section className="relative pt-36 pb-24 md:pt-52 md:pb-40 overflow-hidden bg-slate-50">
+    <section className="relative pb-24 md:pb-40 overflow-hidden bg-slate-50">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
         <div className="absolute -top-[10%] -right-[5%] w-2/3 h-full bg-gradient-to-l from-brand-50/80 to-transparent"></div>
