@@ -3,7 +3,7 @@
   <url>
     <loc>https://activosoffmarket.es/</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>1.0</priority>
   </url>
   <url>
     <loc>https://activosoffmarket.es/quien-soy</loc>
@@ -16,88 +16,98 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://activosoffmarket.es/indice-guia-subastas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://activosoffmarket.es/subastas-judiciales-espana</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/como-analizar-subasta-judicial-paso-a-paso</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/glosario-subastas</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/subastas-judiciales-vs-hacienda</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/deposito-subasta-judicial-5-por-ciento</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/regla-70-subasta-judicial</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/vivienda-ocupada-subasta-judicial</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/cargas-subasta-judicial</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/visitar-piso-subasta</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/errores-subasta-judicial</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/cesion-remate</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/subasta-desierta</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://activosoffmarket.es/merece-la-pena-subasta</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://activosoffmarket.es/calculadora-subastas</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/como-calcular-rentabilidad-subasta-judicial</loc>
+    <loc>https://activosoffmarket.es/subastas-madrid</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/cuanto-pagar-subasta-judicial</loc>
+    <loc>https://activosoffmarket.es/subastas-barcelona</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/calcular-puja-maxima-subasta</loc>
+    <loc>https://activosoffmarket.es/subastas-valencia</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-sevilla</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/ejemplos-subastas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-madrid/pisos</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-valencia/pisos</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-madrid/apartamentos</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-madrid-centro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-valencia-poeta-mas-y-ros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-madrid-chamberi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-madrid-chamartin</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/ejemplo-subasta/piso-subasta-madrid-centro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/ejemplo-subasta/piso-subasta-valencia-poeta-mas-y-ros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/ejemplo-subasta/apartamento-subasta-madrid-chamberi-breton-de-los-herreros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/ejemplo-subasta/piso-subasta-madrid-chamartin-costa-rica-28</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>

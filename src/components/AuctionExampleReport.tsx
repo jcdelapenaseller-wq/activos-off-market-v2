@@ -1,7 +1,8 @@
 import React, { useMemo, useEffect } from 'react';
-import { ChevronLeft, Calculator, TrendingUp, DollarSign, Target, ArrowRight, ShieldCheck, Search, AlertOctagon, MapPin, Home, FileText, Scale, Gavel } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calculator, TrendingUp, DollarSign, Target, ArrowRight, ShieldCheck, Search, AlertOctagon, MapPin, Home, FileText, Scale, Gavel, Send, HelpCircle } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { ROUTES } from '../routes';
+import { AUCTIONS, AuctionData } from '../data/auctions';
 
 const ITP_RATES: Record<string, number> = {
   'Madrid': 0.06,
@@ -21,30 +22,6 @@ const ITP_RATES: Record<string, number> = {
   'Cantabria': 0.09,
   'Navarra': 0.06,
   'La Rioja': 0.07,
-};
-
-interface AuctionData {
-  propertyType?: string;
-  city?: string;
-  zone?: string;
-  appraisalValue?: number;
-  claimedDebt?: number;
-  procedureType?: string;
-  surface?: number;
-  occupancy?: string;
-}
-
-const MOCK_AUCTIONS: Record<string, AuctionData> = {
-  'piso-subasta-madrid-centro': {
-    propertyType: "Piso",
-    city: "Madrid",
-    zone: "Centro",
-    appraisalValue: 180000,
-    claimedDebt: 90000,
-    procedureType: "Ejecución hipotecaria",
-    surface: 75,
-    occupancy: "Desconocido"
-  }
 };
 
 const parseSlug = (slug: string = '') => {
@@ -90,7 +67,7 @@ const AuctionExampleReport: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
 
-  const auctionData = slug ? MOCK_AUCTIONS[slug] : undefined;
+  const auctionData = slug ? AUCTIONS[slug] : undefined;
 
   const { tipoInmueble: fallbackTipo, ciudad: fallbackCiudad, ciudadRaw: fallbackCiudadRaw } = useMemo(() => parseSlug(slug), [slug]);
   
@@ -109,6 +86,10 @@ const AuctionExampleReport: React.FC = () => {
   const procedureType = auctionData?.procedureType || 'Subasta Judicial / Administrativa (Verificar en portal oficial)';
   const surface = auctionData?.surface;
   const occupancy = auctionData?.occupancy;
+  const marketPriceM2 = auctionData?.marketPriceM2;
+  const marketPriceM2Min = auctionData?.marketPriceM2Min;
+  const marketPriceM2Max = auctionData?.marketPriceM2Max;
+  const description = auctionData?.description;
 
   const results = useMemo(() => {
     const itpRate = ITP_RATES[comunidad] || 0.08;
@@ -116,12 +97,26 @@ const AuctionExampleReport: React.FC = () => {
     const registroNotaria = adjudicacion * 0.012;
     const gestoria = 500;
     const costeTotalInversion = adjudicacion + itp + registroNotaria + gestoria + reforma + deudas + otrosGastos;
-    const beneficio = valorMercado - costeTotalInversion;
-    const roi = costeTotalInversion > 0 ? (beneficio / costeTotalInversion) * 100 : 0;
-    const precioMaxPuja = (valorMercado * 0.7) - (itp + registroNotaria + gestoria + reforma + deudas + otrosGastos);
+    
+    // Use average market price if range is provided
+    let effectiveMarketValue = valorMercado;
+    if (surface && (marketPriceM2 || (marketPriceM2Min && marketPriceM2Max))) {
+      const priceM2 = marketPriceM2 || ((marketPriceM2Min! + marketPriceM2Max!) / 2);
+      effectiveMarketValue = surface * priceM2;
+    }
 
-    return { itp, registroNotaria, gestoria, costeTotalInversion, beneficio, roi, precioMaxPuja };
-  }, [adjudicacion, valorMercado, reforma, comunidad, deudas, otrosGastos]);
+    const beneficio = effectiveMarketValue - costeTotalInversion;
+    const roi = costeTotalInversion > 0 ? (beneficio / costeTotalInversion) * 100 : 0;
+    const precioMaxPuja = (effectiveMarketValue * 0.7) - (itp + registroNotaria + gestoria + reforma + deudas + otrosGastos);
+
+    return { itp, registroNotaria, gestoria, costeTotalInversion, beneficio, roi, precioMaxPuja, effectiveMarketValue };
+  }, [adjudicacion, valorMercado, reforma, comunidad, deudas, otrosGastos, surface, marketPriceM2, marketPriceM2Min, marketPriceM2Max]);
+
+  const relatedAuctions = useMemo(() => {
+    return Object.entries(AUCTIONS)
+      .filter(([currentSlug]) => currentSlug !== slug)
+      .slice(0, 3);
+  }, [slug]);
 
   useEffect(() => {
     document.title = `${tipoInmueble} en subasta judicial en ${ciudad} | análisis y rentabilidad`;
@@ -130,13 +125,60 @@ const AuctionExampleReport: React.FC = () => {
     if (metaDesc) {
       metaDesc.setAttribute('content', `Análisis de subasta inmobiliaria en ${ciudad}. Revisa riesgos, rentabilidad y cálculo previo antes de pujar.`);
     }
+
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Inicio",
+          "item": "https://activosoffmarket.es/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": `Subastas en ${ciudad}`,
+          "item": `https://activosoffmarket.es/subastas-${ciudad.toLowerCase().replace(/\s+/g, '-')}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Ejemplo de subasta",
+          "item": `https://activosoffmarket.es/ejemplo-subasta/${slug}`
+        }
+      ]
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(breadcrumbSchema);
+    document.head.appendChild(script);
     
     window.scrollTo(0, 0);
-  }, [tipoInmueble, ciudad]);
+
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+  }, [tipoInmueble, ciudad, slug]);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 px-6 pt-10">
       <div className="max-w-4xl mx-auto">
+        {/* Breadcrumbs SEO */}
+        <nav className="flex items-center text-sm text-slate-500 mb-6 font-medium" aria-label="Breadcrumb">
+          <Link to="/" className="hover:text-brand-600 transition-colors">Inicio</Link>
+          <ChevronRight size={14} className="mx-2 text-slate-300" />
+          <Link to={cityRoute || `/subastas-${ciudad.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-brand-600 transition-colors">
+            Subastas en {ciudad}
+          </Link>
+          <ChevronRight size={14} className="mx-2 text-slate-300" />
+          <span className="text-slate-400">Ejemplo de subasta</span>
+        </nav>
+
         <div className="flex flex-wrap items-center gap-4 mb-8 text-sm md:text-base">
           <Link to={ROUTES.CALCULATOR} className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-700 transition-colors">
             <ChevronLeft size={20} /> Volver a la calculadora
@@ -225,6 +267,151 @@ const AuctionExampleReport: React.FC = () => {
               </div>
             </div>
 
+            {/* H2: Datos de la subasta */}
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
+                <FileText className="text-brand-600" size={24} /> Datos de la subasta
+              </h2>
+              <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+                <table className="w-full text-sm text-left">
+                  <tbody className="divide-y divide-slate-100">
+                    {zona && (
+                      <tr className="bg-white">
+                        <td className="px-6 py-4 font-bold text-slate-900 w-1/3">Dirección o zona</td>
+                        <td className="px-6 py-4 text-slate-600">{zona}</td>
+                      </tr>
+                    )}
+                    {ciudad && (
+                      <tr className="bg-slate-50/50">
+                        <td className="px-6 py-4 font-bold text-slate-900">Ciudad</td>
+                        <td className="px-6 py-4 text-slate-600">{ciudad}</td>
+                      </tr>
+                    )}
+                    {procedureType && (
+                      <tr className="bg-white">
+                        <td className="px-6 py-4 font-bold text-slate-900">Tipo de procedimiento</td>
+                        <td className="px-6 py-4 text-slate-600">{procedureType}</td>
+                      </tr>
+                    )}
+                    {valorMercado > 0 && (
+                      <tr className="bg-slate-50/50">
+                        <td className="px-6 py-4 font-bold text-slate-900">Valor de tasación</td>
+                        <td className="px-6 py-4 text-slate-600">{valorMercado.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</td>
+                      </tr>
+                    )}
+                    {deudas > 0 && (
+                      <tr className="bg-white">
+                        <td className="px-6 py-4 font-bold text-slate-900">Deuda reclamada</td>
+                        <td className="px-6 py-4 text-slate-600">{deudas.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</td>
+                      </tr>
+                    )}
+                    {surface && (
+                      <tr className="bg-slate-50/50">
+                        <td className="px-6 py-4 font-bold text-slate-900">Superficie</td>
+                        <td className="px-6 py-4 text-slate-600">{surface} m²</td>
+                      </tr>
+                    )}
+                    {auctionData?.boeId && (
+                      <tr className="bg-white">
+                        <td className="px-6 py-4 font-bold text-slate-900">Identificador BOE</td>
+                        <td className="px-6 py-4 text-slate-600 font-mono">{auctionData.boeId}</td>
+                      </tr>
+                    )}
+                    {auctionData?.boeUrl && (
+                      <tr className="bg-slate-50/50">
+                        <td className="px-6 py-4 font-bold text-slate-900">Enlace al BOE</td>
+                        <td className="px-6 py-4">
+                          <a 
+                            href={auctionData.boeUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-brand-600 font-bold hover:underline inline-flex items-center gap-1"
+                          >
+                            Ver en portal oficial <ArrowRight size={14} />
+                          </a>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* H2: Análisis técnico y observaciones */}
+            {description && (
+              <div className="mb-12">
+                <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
+                  <Search className="text-brand-600" size={24} /> Análisis técnico y observaciones
+                </h2>
+                <div className="bg-brand-50/50 border border-brand-100 rounded-2xl p-6 text-slate-700 leading-relaxed">
+                  <p className="whitespace-pre-line">{description}</p>
+                </div>
+              </div>
+            )}
+
+            {/* H2: Precio de mercado del inmueble en la zona */}
+            {surface && (marketPriceM2 || (marketPriceM2Min && marketPriceM2Max)) && (
+              <div className="mb-12">
+                <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
+                  <TrendingUp className="text-brand-600" size={24} /> Precio de mercado del inmueble en la zona
+                </h2>
+                <div className="prose prose-slate max-w-none text-slate-600 mb-6">
+                  <p>
+                    En la zona de <strong>{ciudad}{zona ? ` / ${zona}` : ''}</strong>, el precio de la vivienda se sitúa 
+                    {marketPriceM2 ? (
+                      <> aproximadamente en <strong>{marketPriceM2.toLocaleString('es-ES')} €/m²</strong> </>
+                    ) : (
+                      <> en un rango de entre <strong>{marketPriceM2Min?.toLocaleString('es-ES')} €/m²</strong> y <strong>{marketPriceM2Max?.toLocaleString('es-ES')} €/m²</strong> </>
+                    )}
+                    según portales inmobiliarios y testigos de la zona.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Cálculo de mercado</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Superficie:</span>
+                        <span className="font-medium text-slate-900">{surface} m²</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Precio estimado:</span>
+                        <span className="font-medium text-slate-900">
+                          {marketPriceM2 ? (
+                            `${marketPriceM2.toLocaleString('es-ES')} €/m²`
+                          ) : (
+                            `${marketPriceM2Min?.toLocaleString('es-ES')} - ${marketPriceM2Max?.toLocaleString('es-ES')} €/m²`
+                          )}
+                        </span>
+                      </div>
+                      <div className="pt-3 mt-3 border-t border-slate-200 flex justify-between items-center">
+                        <span className="font-bold text-slate-900">Valor estimado de mercado:</span>
+                        <span className="text-xl font-bold text-emerald-600">
+                          {results.effectiveMarketValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-brand-50 rounded-2xl p-6 border border-brand-100">
+                    <h3 className="text-sm font-bold text-brand-700 uppercase tracking-wider mb-4">Comparativa subasta</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-brand-800">Valor de tasación en la subasta:</span>
+                        <span className="font-medium text-brand-900">{valorMercado > 0 ? valorMercado.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : 'No especificado'}</span>
+                      </div>
+                      <div className="pt-3 mt-3 border-t border-brand-200">
+                        <p className="text-sm text-brand-800">
+                          Esto permite entender rápidamente el posible margen de inversión comparando el valor real de mercado con el valor de tasación oficial del juzgado.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* H2: Primer análisis de la oportunidad */}
             <div className="mb-12">
               <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
@@ -232,12 +419,27 @@ const AuctionExampleReport: React.FC = () => {
               </h2>
               <div className="prose prose-slate max-w-none text-slate-600">
                 <p>
-                  Analizando este <strong>{tipoInmueble.toLowerCase()} en {ciudad}</strong>, nos encontramos ante una oportunidad de inversión inmobiliaria a través de subasta pública. 
-                  El éxito de esta operación dependerá de la correcta evaluación de los costes ocultos y del margen de seguridad entre el valor de adjudicación y el valor real de mercado.
+                  Analizando este <strong>{tipoInmueble.toLowerCase()} en {ciudad}{zona ? ` / ${zona}` : ''}</strong>, encontramos una posible oportunidad de inversión a través de subasta judicial.
                 </p>
+                
+                {valorMercado > 0 && (
+                  <p>
+                    El valor de tasación publicado es de <strong>{valorMercado.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</strong>.
+                  </p>
+                )}
+
+                {surface && marketPriceM2 ? (
+                  <p>
+                    Si estimamos el precio medio de mercado en aproximadamente <strong>{marketPriceM2.toLocaleString('es-ES')} €/m²</strong> y consideramos una superficie de <strong>{surface} m²</strong>, el valor de mercado aproximado podría situarse en torno a <strong>{(surface * marketPriceM2).toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</strong>.
+                  </p>
+                ) : (
+                  <p>
+                    El éxito de esta operación dependerá de la correcta evaluación de los costes ocultos y del margen de seguridad entre el valor de adjudicación y el valor real de mercado.
+                  </p>
+                )}
+
                 <p>
-                  Antes de participar, es fundamental revisar la certificación de cargas, el estado posesorio del inmueble y calcular con precisión los impuestos (ITP en {comunidad}), 
-                  gastos de registro, notaría y posibles reformas necesarias para su posterior venta o alquiler.
+                  Esto permite evaluar si existe margen suficiente para una inversión con seguridad. Antes de participar, es fundamental revisar la certificación de cargas, el estado posesorio del inmueble y calcular con precisión los impuestos (ITP en {comunidad}), gastos de registro, notaría y posibles reformas.
                 </p>
               </div>
             </div>
@@ -337,6 +539,30 @@ const AuctionExampleReport: React.FC = () => {
               )}
             </div>
 
+            {/* H2: Ver más subastas inmobiliarias como esta */}
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
+                <Send className="text-brand-600" size={24} /> Ver más subastas inmobiliarias como esta
+              </h2>
+              
+              <div className="bg-brand-50 rounded-2xl p-8 border border-brand-100 text-center shadow-sm">
+                <p className="text-slate-700 mb-4 font-medium">
+                  La mayoría de oportunidades de inversión en subastas no se publican en abierto.
+                </p>
+                <p className="text-slate-600 mb-8">
+                  En el canal de Telegram de Activos Off-Market publico regularmente análisis de subastas activas, oportunidades detectadas en el BOE y comentarios sobre riesgos y rentabilidad.
+                </p>
+                <a 
+                  href="https://t.me/activosOffmarket" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 bg-[#0088cc] text-white font-bold py-4 px-8 rounded-xl hover:bg-[#0077b3] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 w-full sm:w-auto"
+                >
+                  <Send size={20} /> Unirme al canal de subastas
+                </a>
+              </div>
+            </div>
+
             {/* H2: Cómo analizar una subasta inmobiliaria paso a paso */}
             <div>
               <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
@@ -351,6 +577,94 @@ const AuctionExampleReport: React.FC = () => {
               </Link>
             </div>
 
+            {/* H2: Subastas inmobiliarias en {city} */}
+            <div className="mt-12 pt-12 border-t border-slate-100">
+              <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
+                <MapPin className="text-brand-600" size={24} /> Subastas inmobiliarias en {ciudad}
+              </h2>
+              <div className="prose prose-slate max-w-none text-slate-600">
+                <p>
+                  Las subastas inmobiliarias en <strong>{ciudad}</strong> incluyen viviendas, locales y otros activos procedentes de ejecuciones hipotecarias y procedimientos judiciales. En esta ciudad se publican regularmente oportunidades en el BOE y en diversos juzgados que pueden representar una excelente inversión si se analizan correctamente.
+                </p>
+                <p>
+                  Antes de pujar en una subasta en <strong>{ciudad}</strong> es importante analizar correctamente las cargas, la ocupación del inmueble y el valor real de mercado. Puedes consultar nuestra <Link to={cityRoute || `/subastas-${ciudad.toLowerCase().replace(/\s+/g, '-')}`} className="text-brand-600 font-bold hover:underline">guía específica de subastas en {ciudad}</Link> para conocer mejor el mercado local.
+                </p>
+                <p>
+                  Si necesitas ayuda para calcular los números de tu próxima operación, utiliza nuestra <Link to={ROUTES.CALCULATOR} className="text-brand-600 font-bold hover:underline">calculadora de subastas</Link> para obtener un desglose detallado de impuestos y rentabilidad.
+                </p>
+              </div>
+            </div>
+
+            {/* H2: Preguntas frecuentes sobre subastas inmobiliarias */}
+            <div className="mt-12 pt-12 border-t border-slate-100">
+              <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
+                <HelpCircle className="text-brand-600" size={24} /> Preguntas frecuentes sobre subastas inmobiliarias
+              </h2>
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">¿Puede estar ocupado un inmueble comprado en subasta?</h3>
+                  <p className="text-slate-600">
+                    Sí, es una de las situaciones más comunes. Un inmueble en subasta puede estar ocupado por el anterior propietario, por inquilinos con contrato en vigor o incluso por ocupantes sin título legal. Es fundamental analizar la situación posesoria en el edicto y la certificación de cargas antes de pujar, ya que esto determinará el tiempo y el coste necesario para tomar posesión del activo.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">¿Qué impuestos se pagan al adjudicarse una subasta?</h3>
+                  <p className="text-slate-600">
+                    Al adquirir un inmueble en subasta, el adjudicatario debe liquidar normalmente el Impuesto de Transmisiones Patrimoniales (ITP), cuyo tipo varía según la Comunidad Autónoma (generalmente entre el 4% y el 10%). Además, se deben considerar los gastos de inscripción en el Registro de la Propiedad y, en algunos casos, gastos de comunidad o IBI pendientes que la ley obliga a asumir al nuevo propietario.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">¿Qué ocurre si nadie puja en una subasta judicial?</h3>
+                  <p className="text-slate-600">
+                    Si una subasta queda desierta (sin postores), el acreedor ejecutante tiene el derecho de solicitar la adjudicación del bien. Según la Ley de Enjuiciamiento Civil (LEC), los porcentajes y condiciones de esta adjudicación dependen de si el inmueble es la vivienda habitual del deudor o no, y de la cuantía de la deuda reclamada.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">¿Cómo calcular la puja máxima en una subasta?</h3>
+                  <p className="text-slate-600">
+                    Para calcular tu puja máxima, debes restar al valor real de mercado todos los costes asociados: impuestos (ITP), gastos de registro, deudas preferentes (comunidad e IBI), posibles reformas y el margen de beneficio que desees obtener. Una herramienta útil para este cálculo es nuestra <Link to={ROUTES.CALCULATOR} className="text-brand-600 font-bold hover:underline">calculadora de subastas</Link>, que te ayudará a no sobrepujar y asegurar tu rentabilidad.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* H2: Otras subastas inmobiliarias analizadas */}
+            {relatedAuctions.length > 0 && (
+              <div className="mt-12 pt-12 border-t border-slate-100">
+                <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 mb-8">
+                  <TrendingUp className="text-brand-600" size={24} /> Otras subastas inmobiliarias analizadas
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {relatedAuctions.map(([relatedSlug, data]) => (
+                    <div key={relatedSlug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all group">
+                      <div className="p-5">
+                        <h3 className="text-base font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
+                          {data.propertyType} en {data.city}
+                        </h3>
+                        <div className="space-y-1 mb-4">
+                          <div className="flex items-center gap-2 text-slate-500 text-xs">
+                            <MapPin size={12} className="text-brand-500" />
+                            <span>{data.zone || data.city}</span>
+                          </div>
+                          {data.appraisalValue && (
+                            <div className="flex items-center gap-2 text-slate-500 text-xs">
+                              <DollarSign size={12} className="text-brand-500" />
+                              <span>Tasación: <span className="font-bold text-slate-900">{data.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
+                            </div>
+                          )}
+                        </div>
+                        <Link 
+                          to={`/ejemplo-subasta/${relatedSlug}`}
+                          className="inline-flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-2 px-4 rounded-lg text-xs hover:bg-brand-600 transition-all"
+                        >
+                          Ver análisis <ChevronRight size={14} />
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen, Calculator, HelpCircle } from 'lucide-react';
+import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen, Calculator, HelpCircle, MapPin, DollarSign, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
+import { AUCTIONS } from '../data/auctions';
 
 const AuctionValenciaGuide: React.FC = () => {
+  const cityAuctions = Object.entries(AUCTIONS).filter(([_, a]) => a.city === "Valencia");
   const IMG_HERO = "https://images.unsplash.com/photo-1541336032412-2048a678540d?auto=format&fit=crop&q=80&w=1200&h=630"; 
 
   const currentDate = new Date();
@@ -225,6 +227,27 @@ const AuctionValenciaGuide: React.FC = () => {
                   </p>
               </div>
 
+              <h2 className="text-3xl font-bold mt-12 mb-6">Subastas por tipo en Valencia</h2>
+              <p>
+                Si buscas un tipo de activo específico en la capital del Turia, puedes filtrar los análisis por categoría:
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-8 not-prose">
+                <Link to="/subastas-valencia/pisos" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Pisos</Link>
+                <Link to="/subastas-valencia/locales" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Locales</Link>
+                <Link to="/subastas-valencia/viviendas" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Viviendas</Link>
+                <Link to="/subastas-valencia/chalets" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Chalets</Link>
+                <Link to="/subastas-valencia/garajes" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Garajes</Link>
+                <Link to="/subastas-valencia/naves" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Naves</Link>
+              </div>
+
+              <h2 className="text-3xl font-bold mt-12 mb-6">Subastas por zona en Valencia</h2>
+              <p>
+                Explora las subastas analizadas en los diferentes barrios de Valencia:
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-8 not-prose">
+                <Link to="/subastas-valencia-poeta-mas-y-ros" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Poeta Mas y Ros</Link>
+              </div>
+
               <h2 className="text-3xl font-bold mt-12 mb-6">Preguntas frecuentes (FAQ)</h2>
               
               <div className="space-y-6 my-8">
@@ -258,6 +281,44 @@ const AuctionValenciaGuide: React.FC = () => {
                   </p>
                 </div>
               </div>
+
+              {cityAuctions.length > 0 && (
+                <div className="mt-16 pt-12 border-t border-slate-200">
+                  <h2 className="text-3xl font-bold mb-8">Ejemplos de subastas inmobiliarias en Valencia</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 not-prose">
+                    {cityAuctions.map(([slug, data]) => (
+                      <div key={slug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all group">
+                        <div className="p-6">
+                          <div className="flex items-center gap-2 text-brand-600 font-bold text-xs uppercase tracking-wider mb-3">
+                            <TrendingUp size={14} /> Análisis real
+                          </div>
+                          <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
+                            {data.propertyType} en subasta en {data.city}
+                          </h3>
+                          <div className="space-y-2 mb-4">
+                            <div className="flex items-center gap-2 text-slate-500 text-xs">
+                              <MapPin size={14} className="text-brand-500" />
+                              <span>{data.zone || data.city}</span>
+                            </div>
+                            {data.appraisalValue && (
+                              <div className="flex items-center gap-2 text-slate-500 text-xs">
+                                <DollarSign size={14} className="text-brand-500" />
+                                <span>Valor tasación: <span className="font-bold text-slate-900">{data.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
+                              </div>
+                            )}
+                          </div>
+                          <Link 
+                            to={`/ejemplo-subasta/${slug}`}
+                            className="inline-flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-2 px-4 rounded-lg text-sm hover:bg-brand-600 transition-all"
+                          >
+                            Ver análisis <ChevronRight size={16} />
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <LeadMagnetBlock />
             </article>

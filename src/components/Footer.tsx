@@ -61,6 +61,7 @@ const Footer: React.FC = () => {
               <li><Link to={ROUTES.RULE_70} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Regla del 70%</Link></li>
               <li><Link to={ROUTES.DEPOSIT} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Depósito del 5%</Link></li>
               <li><Link to={ROUTES.ANALYSIS} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Cómo analizar una subasta</Link></li>
+              <li><Link to={ROUTES.EXAMPLES_INDEX} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200 font-bold text-emerald-400">Ejemplos de análisis</Link></li>
               <li><Link to={ROUTES.PROFITABILITY_CALC_GUIDE} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Calculadora de Rentabilidad</Link></li>
               <li><Link to={ROUTES.VALENCIA} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Subastas en Valencia</Link></li>
               <li><Link to={ROUTES.SEVILLA} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Subastas en Sevilla</Link></li>

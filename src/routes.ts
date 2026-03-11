@@ -28,6 +28,9 @@ import AuctionBarcelonaGuide from './components/AuctionBarcelonaGuide';
 import AuctionValenciaGuide from './components/AuctionValenciaGuide';
 import AuctionSevillaGuide from './components/AuctionSevillaGuide';
 import AuctionExampleReport from './components/AuctionExampleReport';
+import AuctionExamplesIndex from './components/AuctionExamplesIndex';
+import CityPropertyAuctions from './components/CityPropertyAuctions';
+import ZoneAuctions from './components/ZoneAuctions';
 import Legal from './components/Legal';
 
 export const ROUTES = {
@@ -57,7 +60,10 @@ export const ROUTES = {
   BARCELONA: '/subastas-barcelona',
   VALENCIA: '/subastas-valencia',
   SEVILLA: '/subastas-sevilla',
+  EXAMPLES_INDEX: '/ejemplos-subastas',
   EXAMPLE_REPORT: '/ejemplo-subasta/:slug',
+  CITY_PROPERTY: '/subastas-:city/:propertyType',
+  ZONE: '/subastas-:cityZone',
   LEGAL: '/aviso-legal',
   PRIVACY: '/politica-privacidad',
   COOKIES: '/politica-cookies',
@@ -163,8 +169,20 @@ export const routes: RouteObject[] = [
     element: createElement(AuctionSevillaGuide),
   },
   {
+    path: ROUTES.EXAMPLES_INDEX,
+    element: createElement(AuctionExamplesIndex),
+  },
+  {
     path: ROUTES.EXAMPLE_REPORT,
     element: createElement(AuctionExampleReport),
+  },
+  {
+    path: ROUTES.CITY_PROPERTY,
+    element: createElement(CityPropertyAuctions),
+  },
+  {
+    path: ROUTES.ZONE,
+    element: createElement(ZoneAuctions),
   },
   {
     path: ROUTES.EMPTY,
