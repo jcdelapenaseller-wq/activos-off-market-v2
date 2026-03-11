@@ -36,6 +36,12 @@ function generateSitemap() {
   // Find unique city + propertyType combinations that actually exist in the data
   const cityPropertyPages = new Set();
   const zonePages = new Set();
+  const cityBidPages = new Set();
+  const cityRentabilityPages = new Set();
+  const cityPujarPages = new Set();
+  const cityAnalizarPages = new Set();
+  const cityAuctionsPages = new Set();
+  const zonePropertyCityPages = new Set();
   
   // Split content by auction entries to process them individually
   const entries = auctionsContent.split(/['"]\s*:\s*\{/);
@@ -44,11 +50,27 @@ function generateSitemap() {
     const typeMatch = entry.match(/propertyType\s*:\s*['"]([^'"]+)['"]/);
     const zoneMatch = entry.match(/zone\s*:\s*['"]([^'"]+)['"]/);
     
+    if (cityMatch) {
+      const city = cityMatch[1].toLowerCase();
+      cityBidPages.add(`/calcular-puja-subasta-${city}`);
+      cityRentabilityPages.add(`/rentabilidad-subasta-${city}`);
+      cityPujarPages.add(`/cuanto-pujar-subasta-${city}`);
+      cityAnalizarPages.add(`/analizar-subasta-${city}`);
+      cityAuctionsPages.add(`/subastas-en-${city}`);
+    }
+
     if (cityMatch && typeMatch) {
       const city = cityMatch[1].toLowerCase();
       const type = typeMatch[1];
       const typeSlug = typeToSlug[type] || type.toLowerCase();
-      cityPropertyPages.add(`/subastas-${city}/${typeSlug}`);
+      cityPropertyPages.add(`/subastas-${typeSlug}-${city}`);
+      
+      if (zoneMatch) {
+        const zone = zoneMatch[1].toLowerCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
+          .replace(/\s+/g, '-');
+        zonePropertyCityPages.add(`/subastas-${typeSlug}-${city}-${zone}`);
+      }
     }
 
     if (cityMatch && zoneMatch) {
@@ -87,8 +109,53 @@ ${Array.from(zonePages).map(page => `  <url>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`).join('\n')}
+${Array.from(cityBidPages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
+${Array.from(cityRentabilityPages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
+${Array.from(cityPujarPages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
+${Array.from(cityAnalizarPages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
+${Array.from(cityAuctionsPages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
+${Array.from(zonePropertyCityPages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
 ${slugs.map(slug => `  <url>
     <loc>${BASE_URL}/ejemplo-subasta/${slug}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/rentabilidad-subasta/${slug}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/calcular-puja-subasta/${slug}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/analizar-subasta/${slug}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>`).join('\n')}

@@ -240,6 +240,16 @@ const AuctionBarcelonaGuide: React.FC = () => {
                   </p>
               </div>
 
+              <div className="bg-white border border-brand-200 p-8 rounded-2xl my-12 shadow-sm">
+                  <h3 className="font-bold text-slate-900 mb-4">¿Quieres saber cuánto pujar?</h3>
+                  <p className="text-slate-600 mb-6">
+                      Calcular la puja máxima es clave para no perder dinero. Hemos creado una herramienta específica para analizar subastas en Barcelona.
+                  </p>
+                  <Link to={`/calcular-puja-subasta/barcelona`} className="inline-flex items-center gap-2 bg-slate-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-600 transition-all">
+                      Calcular la puja en subastas en Barcelona <ArrowRight size={18} />
+                  </Link>
+              </div>
+
               <h2 className="text-3xl font-bold mt-12 mb-6">Subastas por tipo en Barcelona</h2>
               <p>
                 Si buscas un tipo de activo específico en la ciudad condal, puedes filtrar los análisis por categoría:

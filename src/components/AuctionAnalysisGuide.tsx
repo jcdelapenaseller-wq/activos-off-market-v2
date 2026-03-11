@@ -3,6 +3,7 @@ import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen, CheckCircle, Searc
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
+import ConversionBlock from './ConversionBlock';
 
 const AuctionAnalysisGuide: React.FC = () => {
   // Imágenes estáticas optimizadas (Unsplash)
@@ -185,9 +186,7 @@ const AuctionAnalysisGuide: React.FC = () => {
                 A continuación, detallo el <strong>protocolo de diligencia debida</strong> (Due Diligence) paso a paso que aplicamos en Activos Off-Market para filtrar cualquier expediente antes de considerarlo una oportunidad viable. Antes de pujar en una subasta es recomendable calcular la rentabilidad real de la operación. Puedes hacerlo con esta <Link to={ROUTES.CALCULATOR} className="text-brand-700 underline font-bold hover:text-brand-900">calculadora de subastas judiciales</Link>.
               </p>
 
-              <div className="my-8 p-6 bg-brand-50 border border-brand-100 rounded-2xl">
-                  <p className="text-brand-900 font-medium m-0">Puedes calcular rápidamente la rentabilidad usando esta <Link to={ROUTES.CALCULATOR} className="text-brand-700 underline font-bold hover:text-brand-900">calculadora de subastas judiciales</Link>.</p>
-              </div>
+              <ConversionBlock />
 
               <hr className="border-slate-200 my-10" />
 

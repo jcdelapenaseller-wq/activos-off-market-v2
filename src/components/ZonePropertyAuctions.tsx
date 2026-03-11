@@ -1,57 +1,32 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
-import { ChevronRight, MapPin, Home, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
+import { ChevronRight, MapPin, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
 import { ROUTES } from '../routes';
-
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 
-const CityPropertyAuctions: React.FC = () => {
-  const { city: cityParam, propertyType: propertyTypeParam } = useParams<{ city: string; propertyType: string }>();
+const ZonePropertyAuctions: React.FC = () => {
+  const { city: cityParam, propertyType: propertyTypeParam, zone: zoneParam } = useParams<{ city: string; propertyType: string; zone: string }>();
 
   const city = useMemo(() => cityParam ? CITY_MAP[cityParam.toLowerCase()] || cityParam.charAt(0).toUpperCase() + cityParam.slice(1) : '', [cityParam]);
   const propertyType = useMemo(() => propertyTypeParam ? PROPERTY_TYPE_MAP[propertyTypeParam.toLowerCase()] || propertyTypeParam.charAt(0).toUpperCase() + propertyTypeParam.slice(1) : '', [propertyTypeParam]);
+  const zone = useMemo(() => zoneParam ? zoneParam.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : '', [zoneParam]);
 
   const filteredAuctions = useMemo(() => {
     return Object.entries(AUCTIONS).filter(([_, data]) => {
       const cityMatch = data.city?.toLowerCase() === city.toLowerCase();
       const typeMatch = data.propertyType?.toLowerCase() === propertyType.toLowerCase();
-      return cityMatch && typeMatch;
+      const zoneMatch = data.zone?.toLowerCase() === zone.toLowerCase();
+      return cityMatch && typeMatch && zoneMatch;
     });
-  }, [city, propertyType]);
+  }, [city, propertyType, zone]);
 
   useEffect(() => {
-    if (city && propertyType) {
-      document.title = `Subastas de ${propertyType} en ${city} | Activos Off-Market`;
-      
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute('content', `Listado de subastas de ${propertyType} en ${city}. Ejemplos reales y análisis de oportunidades en subastas inmobiliarias.`);
-      }
-
-      // SEO: Noindex if no auctions found to avoid thin content indexing
-      let metaRobots = document.querySelector('meta[name="robots"]');
-      if (filteredAuctions.length === 0) {
-        if (!metaRobots) {
-          metaRobots = document.createElement('meta');
-          metaRobots.setAttribute('name', 'robots');
-          document.head.appendChild(metaRobots);
-        }
-        metaRobots.setAttribute('content', 'noindex');
-      } else if (metaRobots) {
-        metaRobots.setAttribute('content', 'index, follow');
-      }
+    if (city && propertyType && zone) {
+      document.title = `Subastas de ${propertyType} en ${zone}, ${city} | Activos Off-Market`;
     }
     window.scrollTo(0, 0);
-
-    return () => {
-      // Cleanup robots tag on unmount
-      const metaRobots = document.querySelector('meta[name="robots"]');
-      if (metaRobots && filteredAuctions.length === 0) {
-        metaRobots.setAttribute('content', 'index, follow');
-      }
-    };
-  }, [city, propertyType, filteredAuctions.length]);
+  }, [city, propertyType, zone]);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 px-6 pt-10">
@@ -64,10 +39,11 @@ const CityPropertyAuctions: React.FC = () => {
 
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
-            Subastas de {propertyType} en {city}
+            Subastas de {propertyType} en {zone}, {city}
           </h1>
           <p className="text-xl text-slate-600 max-w-3xl">
-            Listado de subastas de {propertyType.toLowerCase()} en {city}. Ejemplos reales y análisis de oportunidades en subastas inmobiliarias.
+            Descubre las oportunidades de inversión en subastas de {propertyType.toLowerCase()} en la zona de {zone}, {city}. 
+            Analizamos el mercado local para ayudarte a encontrar las mejores opciones.
           </p>
         </div>
 
@@ -80,13 +56,13 @@ const CityPropertyAuctions: React.FC = () => {
                     <TrendingUp size={16} /> Análisis de oportunidad
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
-                    {data.propertyType} en subasta en {data.city}
+                    {data.propertyType} en subasta en {data.zone}
                   </h3>
                   
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
                       <MapPin size={16} className="text-brand-500" />
-                      <span>{data.city}{data.zone ? ` / ${data.zone}` : ''}</span>
+                      <span>{data.zone}</span>
                     </div>
                     {data.appraisalValue && (
                       <div className="flex items-center gap-2 text-slate-500 text-sm">
@@ -108,38 +84,31 @@ const CityPropertyAuctions: React.FC = () => {
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">
-            <Home size={48} className="mx-auto text-slate-300 mb-4" />
             <h2 className="text-2xl font-bold text-slate-900 mb-2">No hay subastas disponibles</h2>
             <p className="text-slate-600 mb-8">
-              Actualmente no hay ejemplos analizados de {propertyType} en {city}.
-              Estamos añadiendo nuevos análisis semanalmente.
+              Actualmente no hay ejemplos analizados de {propertyType} en {zone}, {city}.
             </p>
-            <Link 
-              to={ROUTES.EXAMPLES_INDEX}
-              className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all"
-            >
-              Ver todos los ejemplos <ChevronRight size={20} />
-            </Link>
           </div>
         )}
 
         <div className="mt-16 bg-brand-900 rounded-3xl p-10 text-center text-white">
-          <h2 className="text-3xl font-serif font-bold mb-4">¿Buscas oportunidades en {city}?</h2>
-          <p className="text-brand-200 mb-8 max-w-2xl mx-auto">
-            En nuestro canal de Telegram publicamos regularmente análisis de subastas activas en {city} y otras provincias de España.
-          </p>
-          <a 
-            href="https://t.me/activosOffmarket" 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <h2 className="text-3xl font-serif font-bold mb-4">¿Quieres aprender a analizar estas subastas?</h2>
+          <Link 
+            to={ROUTES.CALCULATOR}
             className="inline-flex items-center gap-2 bg-white text-brand-900 font-bold py-4 px-8 rounded-xl hover:bg-brand-50 transition-all"
           >
-            Unirme al canal de Telegram <ChevronRight size={20} />
-          </a>
+            Ir a la calculadora de subastas <ChevronRight size={20} />
+          </Link>
+        </div>
+
+        <div className="mt-8 flex justify-center gap-4">
+          <Link to={`/subastas-${propertyTypeParam}-${cityParam}`} className="text-brand-700 font-bold hover:underline">Ver todas las subastas de {propertyType} en {city}</Link>
+          <Link to={`/subastas-en-${cityParam}`} className="text-brand-700 font-bold hover:underline">Ver todas las subastas en {city}</Link>
+          <Link to={ROUTES.CALCULATOR} className="text-brand-700 font-bold hover:underline">Calculadora de subastas</Link>
         </div>
       </div>
     </div>
   );
 };
 
-export default CityPropertyAuctions;
+export default ZonePropertyAuctions;

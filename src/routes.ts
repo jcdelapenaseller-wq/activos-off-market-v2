@@ -23,13 +23,18 @@ import AuctionProfitabilityGuide from './components/AuctionProfitabilityGuide';
 import AuctionProfitabilityCalculatorGuide from './components/AuctionProfitabilityCalculatorGuide';
 import AuctionHowMuchToPayGuide from './components/AuctionHowMuchToPayGuide';
 import AuctionMaxBidGuide from './components/AuctionMaxBidGuide';
+import CalculateBidGuide from './components/CalculateBidGuide';
 import AuctionMadridGuide from './components/AuctionMadridGuide';
 import AuctionBarcelonaGuide from './components/AuctionBarcelonaGuide';
 import AuctionValenciaGuide from './components/AuctionValenciaGuide';
 import AuctionSevillaGuide from './components/AuctionSevillaGuide';
+import AnalyzeAuctionGuide from './components/AnalyzeAuctionGuide';
+import AuctionDynamicPage from './components/AuctionDynamicPage';
+import CityAuctionsPage from './components/CityAuctionsPage';
 import AuctionExampleReport from './components/AuctionExampleReport';
 import AuctionExamplesIndex from './components/AuctionExamplesIndex';
 import CityPropertyAuctions from './components/CityPropertyAuctions';
+import ZonePropertyAuctions from './components/ZonePropertyAuctions';
 import ZoneAuctions from './components/ZoneAuctions';
 import Legal from './components/Legal';
 
@@ -56,13 +61,23 @@ export const ROUTES = {
   PROFITABILITY_CALC_GUIDE: '/calculadora-rentabilidad-subastas',
   HOW_MUCH_TO_PAY: '/cuanto-pagar-subasta-judicial',
   MAX_BID: '/calcular-puja-maxima-subasta',
+  CALCULAR_PUJA: '/calcular-puja-subasta-judicial',
+  PUJA_MAXIMA_BOE: '/puja-maxima-subasta-judicial',
+  RENTABILIDAD_JUDICIAL: '/rentabilidad-subasta-judicial',
+  CUANTO_PUJAR_BOE: '/cuanto-pujar-subasta-boe',
+  CALCULAR_PUJA_CITY: '/calcular-puja-subasta/:city',
+  RENTABILIDAD_CITY: '/rentabilidad-subasta/:city',
+  CUANTO_PUJAR_CITY: '/cuanto-pujar-subasta/:city',
+  ANALIZAR_CITY: '/analizar-subasta/:city',
+  SUBASTAS_EN_CITY: '/subastas-en/:city',
   MADRID: '/subastas-madrid',
   BARCELONA: '/subastas-barcelona',
   VALENCIA: '/subastas-valencia',
   SEVILLA: '/subastas-sevilla',
   EXAMPLES_INDEX: '/ejemplos-subastas',
   EXAMPLE_REPORT: '/ejemplo-subasta/:slug',
-  CITY_PROPERTY: '/subastas-:city/:propertyType',
+  CITY_PROPERTY: '/subastas-:propertyType-:city',
+  ZONE_PROPERTY_CITY: '/subastas-:propertyType-:city-:zone',
   ZONE: '/subastas-:cityZone',
   LEGAL: '/aviso-legal',
   PRIVACY: '/politica-privacidad',
@@ -153,6 +168,54 @@ export const routes: RouteObject[] = [
     element: createElement(AuctionMaxBidGuide),
   },
   {
+    path: ROUTES.CALCULAR_PUJA,
+    element: createElement(CalculateBidGuide),
+  },
+  {
+    path: ROUTES.PUJA_MAXIMA_BOE,
+    element: createElement(CalculateBidGuide),
+  },
+  {
+    path: ROUTES.RENTABILIDAD_JUDICIAL,
+    element: createElement(CalculateBidGuide),
+  },
+  {
+    path: ROUTES.CUANTO_PUJAR_BOE,
+    element: createElement(CalculateBidGuide),
+  },
+  {
+    path: ROUTES.CALCULAR_PUJA_CITY,
+    element: createElement(CalculateBidGuide),
+  },
+  {
+    path: ROUTES.RENTABILIDAD_CITY,
+    element: createElement(CalculateBidGuide),
+  },
+  {
+    path: ROUTES.CUANTO_PUJAR_CITY,
+    element: createElement(CalculateBidGuide),
+  },
+  {
+    path: ROUTES.ANALIZAR_CITY,
+    element: createElement(AnalyzeAuctionGuide),
+  },
+  {
+    path: '/rentabilidad-subasta/:slug',
+    element: createElement(AuctionDynamicPage),
+  },
+  {
+    path: '/calcular-puja-subasta/:slug',
+    element: createElement(AuctionDynamicPage),
+  },
+  {
+    path: '/analizar-subasta/:slug',
+    element: createElement(AuctionDynamicPage),
+  },
+  {
+    path: '/subastas-en/:city',
+    element: createElement(CityAuctionsPage),
+  },
+  {
     path: ROUTES.MADRID,
     element: createElement(AuctionMadridGuide),
   },
@@ -179,6 +242,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.CITY_PROPERTY,
     element: createElement(CityPropertyAuctions),
+  },
+  {
+    path: ROUTES.ZONE_PROPERTY_CITY,
+    element: createElement(ZonePropertyAuctions),
   },
   {
     path: ROUTES.ZONE,
