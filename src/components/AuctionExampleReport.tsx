@@ -119,7 +119,7 @@ const AuctionExampleReport: React.FC = () => {
   }, [slug]);
 
   useEffect(() => {
-    document.title = `${tipoInmueble} en subasta judicial en ${ciudad} | análisis y rentabilidad`;
+    document.title = `Subasta ${tipoInmueble.toLowerCase()} en ${ciudad}${zona ? ` – ${zona}` : ''} | análisis y rentabilidad`;
     
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
