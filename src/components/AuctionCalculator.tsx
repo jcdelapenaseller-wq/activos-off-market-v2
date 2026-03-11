@@ -128,6 +128,12 @@ const AuctionCalculator: React.FC = () => {
     if (params.get('mercado')) setValorMercado(Number(params.get('mercado')));
     if (params.get('tasacion')) setTasacionBOE(Number(params.get('tasacion')));
     if (params.get('reforma')) setReforma(Number(params.get('reforma')));
+    
+    // New params
+    if (params.get('appraisalValue')) setTasacionBOE(Number(params.get('appraisalValue')));
+    if (params.get('city')) setComunidad(params.get('city') || 'Madrid');
+    if (params.get('marketPrice')) setValorMercado(Number(params.get('marketPrice')));
+    
     if (params.get('ccaa')) setComunidad(params.get('ccaa') || 'Madrid');
     else if (params.get('comunidad')) setComunidad(params.get('comunidad') || 'Madrid');
     if (params.get('deudas')) setDeudas(Number(params.get('deudas')));
@@ -202,7 +208,10 @@ Calculado con la herramienta de Activos Off-Market.`;
     return { itp, registroNotaria, gestoria, costeTotalInversion, beneficio, roi, precioMaxPuja, margenSeguridad };
   }, [adjudicacion, valorMercado, reforma, comunidad, deudas, otrosGastos]);
 
+  const hasData = adjudicacion > 0 || valorMercado > 0 || tasacionBOE > 0 || reforma > 0 || deudas > 0;
+
   const getRoiStatus = (roi: number) => {
+    if (!hasData) return { label: 'Introduce los datos de la subasta para calcular el riesgo de la inversión.', traffic: 'bg-slate-200' };
     if (roi > 20) return { color: 'text-green-600', label: 'Excelente', bg: 'bg-green-100', traffic: 'bg-green-500' };
     if (roi >= 10) return { color: 'text-yellow-600', label: 'Aceptable', bg: 'bg-yellow-100', traffic: 'bg-yellow-500' };
     return { color: 'text-red-600', label: 'Arriesgado', bg: 'bg-red-100', traffic: 'bg-red-500' };
@@ -243,9 +252,24 @@ Calculado con la herramienta de Activos Off-Market.`;
         <p className="text-lg text-slate-600">Herramienta gratuita para calcular rentabilidad, ITP, costes y precio máximo de puja en subastas judiciales en España.</p>
       </div>
 
+      {/* Step-by-Step Guide */}
+      <div className="grid md:grid-cols-3 gap-6 mb-12">
+        {[
+          { step: "Paso 1", title: "Introduce los datos de la subasta" },
+          { step: "Paso 2", title: "La calculadora estima rentabilidad y riesgo" },
+          { step: "Paso 3", title: "Introduce tu email para desbloquear el informe completo de inversión" }
+        ].map((item, i) => (
+          <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <span className="text-brand-600 font-bold text-sm uppercase tracking-wider">{item.step}</span>
+            <h3 className="text-lg font-bold text-slate-900 mt-1">{item.title}</h3>
+          </div>
+        ))}
+      </div>
+
       <div className="grid lg:grid-cols-2 gap-12">
         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">Datos de la Subasta</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Datos de la Subasta</h2>
+          <p className="text-slate-600 mb-6">Introduce los datos de la subasta para estimar la rentabilidad y calcular la puja máxima recomendada.</p>
           {[
             { label: 'Precio adjudicación (€)', value: adjudicacion, setter: setAdjudicacion },
             { label: 'Valor mercado estimado (€)', value: valorMercado, setter: setValorMercado },
@@ -271,8 +295,8 @@ Calculado con la herramienta de Activos Off-Market.`;
           <div className="flex items-center gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
             <div className={`w-16 h-16 rounded-full ${roiStatus.traffic}`}></div>
             <div>
-                <h3 className="text-xl font-bold text-slate-900">Estado: {roiStatus.label}</h3>
-                <p className="text-slate-600">Tu inversión parece {roiStatus.label.toLowerCase()}.</p>
+                <h3 className="text-xl font-bold text-slate-900">{hasData ? `Estado: ${roiStatus.label}` : 'Estado de la inversión'}</h3>
+                <p className="text-slate-600">{hasData ? `Tu inversión parece ${roiStatus.label.toLowerCase()}.` : roiStatus.label}</p>
             </div>
           </div>
           
@@ -296,10 +320,10 @@ Calculado con la herramienta de Activos Off-Market.`;
                 { label: 'Puja máxima recomendada', value: results.precioMaxPuja },
                 { label: 'Margen de seguridad', value: results.margenSeguridad },
             ].map((card, i) => (
-                <div key={i} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+                <div key={i} onClick={() => handlePremiumAction(() => {})} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden cursor-pointer hover:border-brand-300 transition-colors">
                     {!isUnlocked && (
                         <span className="absolute top-3 right-4 bg-brand-100 text-brand-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
-                            Resultado avanzado
+                            Resultado bloqueado
                         </span>
                     )}
                     <span className="block text-sm text-slate-500 mb-1">{card.label}</span>
@@ -354,16 +378,71 @@ Calculado con la herramienta de Activos Off-Market.`;
                 </p>
             </div>
             
+            {!isUnlocked && (
+                <div className="bg-white border-2 border-brand-100 p-8 rounded-3xl mt-8 shadow-md">
+                    <div className="flex flex-col items-center text-center gap-6">
+                        <div className="w-full max-w-lg">
+                            <h2 className="text-2xl font-bold text-slate-900 mb-3">
+                                Ver la puja máxima recomendada y el informe completo de inversión
+                            </h2>
+                            <p className="text-slate-600 mb-6 text-base">
+                                Introduce tu email para ver el informe completo de esta subasta, incluyendo:
+                            </p>
+                            <ul className="grid grid-cols-2 gap-3 text-slate-700 font-medium text-sm text-left">
+                                <li className="flex items-center gap-2">
+                                    <CheckCircle size={16} className="text-brand-600" />
+                                    <span>Puja máxima recomendada</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <CheckCircle size={16} className="text-brand-600" />
+                                    <span>Margen de seguridad</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <CheckCircle size={16} className="text-brand-600" />
+                                    <span>ROI estimado completo</span>
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <CheckCircle size={16} className="text-brand-600" />
+                                    <span>Informe profesional</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div className="w-full max-w-sm">
+                            <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="space-y-3">
+                                <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                    <input 
+                                        type="email" 
+                                        value={email} 
+                                        onChange={(e) => setEmail(e.target.value)} 
+                                        placeholder="Tu mejor email" 
+                                        required 
+                                        className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-brand-500 outline-none transition-all text-base" 
+                                    />
+                                </div>
+                                <button 
+                                    type="submit" 
+                                    className="w-full bg-brand-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 text-base"
+                                >
+                                    Desbloquear puja máxima recomendada <ArrowRight size={20} />
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-                <button onClick={() => handlePremiumAction(copyReport)} className="bg-slate-900 text-white font-bold py-4 px-4 rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-sm">
+                <button onClick={() => handlePremiumAction(copyReport)} className="bg-white border border-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
                     Copiar resumen
                 </button>
-                <button onClick={() => handlePremiumAction(shareCalculation)} className="bg-white border border-slate-300 text-slate-700 font-bold py-4 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
+                <button onClick={() => handlePremiumAction(shareCalculation)} className="bg-white border border-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
                     Compartir cálculo
                 </button>
                 <div className="sm:col-span-2 pt-4 border-t border-slate-100">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Guardar este análisis como ejemplo de inversión</p>
-                    <button onClick={() => handlePremiumAction(createPublicLink)} className="w-full bg-brand-50 text-brand-700 border border-brand-200 font-bold py-4 px-4 rounded-xl hover:bg-brand-100 transition-all flex items-center justify-center gap-2 text-sm">
+                    <button onClick={() => handlePremiumAction(createPublicLink)} className="w-full bg-white border border-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
                         Crear enlace público
                     </button>
                 </div>
@@ -371,40 +450,6 @@ Calculado con la herramienta de Activos Off-Market.`;
           </div>
         </div>
       </div>
-
-      {/* BOTTOM CTA BLOCK (Only shown if still locked) */}
-      {!isUnlocked && (
-        <div className="mt-12 bg-brand-900 text-white p-10 rounded-3xl shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-800 rounded-full -mr-32 -mt-32 opacity-20"></div>
-            <div className="relative z-10 max-w-2xl mx-auto text-center">
-                <Mail className="mx-auto mb-6 text-brand-300" size={48} />
-                <h2 className="text-3xl font-serif font-bold mb-4">Recibir informe de inversión por email</h2>
-                <p className="text-brand-100 mb-8 text-lg">
-                    Introduce tu email y recibe este análisis de inversión junto con el protocolo profesional de análisis de subastas.
-                </p>
-                
-                <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1 relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                        <input 
-                            type="email" 
-                            value={email} 
-                            onChange={(e) => setEmail(e.target.value)} 
-                            placeholder="Tu mejor email" 
-                            required 
-                            className="w-full bg-white text-slate-900 rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-brand-500 outline-none" 
-                        />
-                    </div>
-                    <button 
-                        type="submit" 
-                        className="bg-brand-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-400 transition-all whitespace-nowrap"
-                    >
-                        Enviar informe
-                    </button>
-                </form>
-            </div>
-        </div>
-      )}
 
       {/* CONVERSION MODAL */}
       {isModalOpen && (
@@ -419,14 +464,14 @@ Calculado con la herramienta de Activos Off-Market.`;
                 
                 <div className="text-center">
                     <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Mail className="text-brand-600" size={32} />
+                        <TrendingUp className="text-brand-600" size={32} />
                     </div>
-                    <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Guarda tu análisis de inversión</h2>
-                    <p className="text-slate-600 mb-8">Introduce tu email para guardar este cálculo y recibir el informe completo.</p>
+                    <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Ver puja máxima recomendada</h2>
+                    <p className="text-slate-600 mb-8">Introduce tu email para ver el informe completo de inversión generado por la calculadora.</p>
                     
                     {status === 'success' ? (
                         <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-center gap-3 text-emerald-700 font-bold">
-                            <CheckCircle size={20} /> ¡Análisis guardado!
+                            <CheckCircle size={20} /> ¡Informe desbloqueado!
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -446,7 +491,7 @@ Calculado con la herramienta de Activos Off-Market.`;
                                 disabled={status === 'loading'} 
                                 className="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-all disabled:opacity-50 shadow-lg shadow-brand-500/20"
                             >
-                                {status === 'loading' ? 'Guardando...' : 'Guardar análisis'}
+                                {status === 'loading' ? 'Desbloqueando...' : 'Desbloquear puja máxima'}
                             </button>
                             {status === 'error' && <p className="text-red-600 text-sm font-bold">Hubo un error, inténtalo de nuevo.</p>}
                         </form>
