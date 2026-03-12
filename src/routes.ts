@@ -78,7 +78,7 @@ export const ROUTES = {
   EXAMPLES_INDEX: '/ejemplos-subastas',
   EXAMPLE_REPORT: '/ejemplo-subasta/:slug',
   NOTICIAS_SUBASTAS: '/noticias-subastas/:slug',
-  CITY_PROPERTY: '/subastas-:city/:propertyType',
+  CITY_PROPERTY: '/subastas-:citySlug/:propertyType',
   ZONE_PROPERTY_CITY: '/subastas-:propertyType-:city-:zone',
   ZONE: '/subastas-:cityZone',
   LEGAL: '/aviso-legal',
