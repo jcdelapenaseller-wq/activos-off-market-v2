@@ -96,7 +96,7 @@ const BestAuctionsByCity: React.FC = () => {
                   {`${auction.propertyType || 'Inmueble'} en subasta en ${displayCity} con tasación de ${auction.appraisalValue?.toLocaleString('es-ES')}€ y deuda de ${auction.claimedDebt?.toLocaleString('es-ES')}€`}
                 </h2>
                 
-                <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                     <p className="text-xs text-slate-500 uppercase font-bold mb-1">Zona</p>
                     <p className="font-semibold text-slate-900 truncate" title={auction.zone}>{auction.zone}</p>
@@ -112,6 +112,12 @@ const BestAuctionsByCity: React.FC = () => {
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                     <p className="text-xs text-slate-500 uppercase font-bold mb-1">Deuda</p>
                     <p className="font-semibold text-red-600">{auction.claimedDebt?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">Descuento potencial</p>
+                    <p className={`font-semibold ${auction.appraisalValue && auction.claimedDebt && ((auction.appraisalValue - auction.claimedDebt) / auction.appraisalValue * 100) > 40 ? 'text-green-600' : 'text-slate-900'}`}>
+                      {auction.appraisalValue && auction.claimedDebt ? `-${Math.round((auction.appraisalValue - auction.claimedDebt) / auction.appraisalValue * 100)} %` : 'N/D'}
+                    </p>
                   </div>
                 </div>
                 

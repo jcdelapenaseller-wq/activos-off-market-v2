@@ -103,6 +103,33 @@ const ZoneAuctions: React.FC = () => {
 
   const normalizeForUrl = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
 
+  const metrics = useMemo(() => {
+    const count = filteredAuctions.length;
+    if (count === 0) return { count: 0, avgAppraisal: 0, avgDebt: 0 };
+
+    let totalAppraisal = 0;
+    let totalDebt = 0;
+    let appraisalCount = 0;
+    let debtCount = 0;
+
+    filteredAuctions.forEach(([_, data]) => {
+      if (data.appraisalValue) {
+        totalAppraisal += data.appraisalValue;
+        appraisalCount++;
+      }
+      if (data.claimedDebt) {
+        totalDebt += data.claimedDebt;
+        debtCount++;
+      }
+    });
+
+    return {
+      count,
+      avgAppraisal: appraisalCount > 0 ? totalAppraisal / appraisalCount : 0,
+      avgDebt: debtCount > 0 ? totalDebt / debtCount : 0
+    };
+  }, [filteredAuctions]);
+
   useEffect(() => {
     if (actualZoneName && displayCity) {
       document.title = `Subastas inmobiliarias en ${actualZoneName}, ${displayCity} | Activos Off-Market`;
@@ -158,13 +185,53 @@ const ZoneAuctions: React.FC = () => {
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
             Subastas inmobiliarias en {actualZoneName}, {displayCity}
           </h1>
+
+          {filteredAuctions.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
+                <p className="text-sm text-slate-500 font-bold uppercase mb-1">Subastas detectadas</p>
+                <p className="text-2xl font-bold text-brand-600">{metrics.count}</p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
+                <p className="text-sm text-slate-500 font-bold uppercase mb-1">Tasación media</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {metrics.avgAppraisal > 0 ? metrics.avgAppraisal.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
+                </p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
+                <p className="text-sm text-slate-500 font-bold uppercase mb-1">Deuda media</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {metrics.avgDebt > 0 ? metrics.avgDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
+                </p>
+              </div>
+            </div>
+          )}
+
           <p className="text-xl text-slate-600 max-w-3xl mb-12">
             Ejemplos de subastas inmobiliarias en {actualZoneName}, {displayCity}. Análisis de oportunidades procedentes del BOE y otros portales oficiales.
           </p>
           
-          <div className="prose prose-slate max-w-3xl">
+          <div className="prose prose-slate max-w-3xl mx-auto space-y-6">
             <p>
-              Invertir en subastas inmobiliarias en {actualZoneName}, {displayCity}, ofrece oportunidades únicas para adquirir inmuebles en zonas de alta demanda. Este mercado permite encontrar activos con un potencial de revalorización significativo, siempre que se aborde con una estrategia profesional. El éxito en estas operaciones depende directamente de tu capacidad para analizar minuciosamente las cargas registrales, verificar la situación de ocupación y calcular con precisión la puja máxima que garantiza la rentabilidad. En un mercado tan competitivo como {actualZoneName}, la rapidez y la precisión en el análisis son tus mejores aliados. No permitas que la emoción de la subasta nuble tu juicio; basa cada decisión en datos sólidos y una evaluación de riesgos realista para asegurar que tu inversión en {actualZoneName} sea un éxito a largo plazo.
+              Invertir en subastas inmobiliarias en {actualZoneName}, {displayCity}, ofrece oportunidades únicas para adquirir inmuebles en zonas de alta demanda. Este mercado permite encontrar activos con un potencial de revalorización significativo, siempre que se aborde con una estrategia profesional.
+            </p>
+            
+            <div className="bg-brand-50 p-6 rounded-2xl border border-brand-100 my-8">
+              <h2 className="text-xl font-serif font-bold text-slate-900 mb-4 mt-0">
+                Qué hace interesante esta zona para invertir
+              </h2>
+              <ul className="space-y-2 mb-0">
+                <li>Alta demanda de alquiler y compraventa en {actualZoneName}.</li>
+                <li>Potencial de revalorización a medio y largo plazo en {displayCity}.</li>
+                <li>Oportunidades de adquirir inmuebles por debajo del valor de mercado.</li>
+              </ul>
+            </div>
+
+            <p>
+              El éxito en estas operaciones depende directamente de tu capacidad para analizar minuciosamente las cargas registrales, verificar la situación de ocupación y calcular con precisión la puja máxima que garantiza la rentabilidad.
+            </p>
+            <p>
+              En un mercado tan competitivo como {actualZoneName}, la rapidez y la precisión en el análisis son tus mejores aliados. No permitas que la emoción de la subasta nuble tu juicio; basa cada decisión en datos sólidos y una evaluación de riesgos realista para asegurar que tu inversión en {actualZoneName} sea un éxito a largo plazo.
             </p>
           </div>
         </div>
@@ -190,6 +257,18 @@ const ZoneAuctions: React.FC = () => {
                       <div className="flex items-center gap-2 text-slate-500 text-sm">
                         <DollarSign size={16} className="text-brand-500" />
                         <span>Valor tasación: <span className="font-bold text-slate-900">{data.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
+                      </div>
+                    )}
+                    {data.claimedDebt && (
+                      <div className="flex items-center gap-2 text-slate-500 text-sm">
+                        <DollarSign size={16} className="text-red-500" />
+                        <span>Deuda: <span className="font-bold text-red-600">{data.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
+                      </div>
+                    )}
+                    {data.appraisalValue && data.claimedDebt && (
+                      <div className="flex items-center gap-2 text-slate-500 text-sm">
+                        <TrendingUp size={16} className={((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100) > 40 ? 'text-green-500' : 'text-slate-400'} />
+                        <span className="text-slate-500">Descuento potencial: <span className={`font-bold ${((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100) > 40 ? 'text-green-600' : 'text-slate-900'}`}>-{Math.round((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100)} %</span></span>
                       </div>
                     )}
                   </div>
@@ -221,19 +300,24 @@ const ZoneAuctions: React.FC = () => {
           </div>
         )}
 
-        <div className="mt-16 prose prose-slate max-w-3xl">
-          <h2 className="text-3xl font-serif font-bold text-slate-900 mb-6">
+        <div className="mt-16 prose prose-slate max-w-3xl mx-auto space-y-6">
+          <h2 className="text-3xl font-serif font-bold text-slate-900 mt-12 mb-6">
             Qué deben tener en cuenta los inversores en subastas de {actualZoneName} ({displayCity})
           </h2>
-          <p className="mb-8">
-            El mercado de subastas en {actualZoneName} requiere un enfoque especializado. Dada la alta demanda en esta zona de {displayCity}, es crucial entender no solo el valor de mercado actual, sino también las particularidades de la zona que pueden afectar a la liquidez del activo. Antes de realizar cualquier puja, asegúrate de haber calculado todos los costes ocultos y de tener una estrategia clara para la toma de posesión del inmueble.
+          <p>
+            El mercado de subastas en {actualZoneName} requiere un enfoque especializado. Dada la alta demanda en esta zona de {displayCity}, es crucial entender no solo el valor de mercado actual, sino también las particularidades de la zona que pueden afectar a la liquidez del activo.
           </p>
-          <Link 
-            to="/calculadora-subastas" 
-            className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all"
-          >
-            Calcular puja máxima <ChevronRight size={20} />
-          </Link>
+          <p>
+            Antes de realizar cualquier puja, asegúrate de haber calculado todos los costes ocultos y de tener una estrategia clara para la toma de posesión del inmueble.
+          </p>
+          <div className="mt-8">
+            <Link 
+              to="/calculadora-subastas" 
+              className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all no-underline"
+            >
+              Calcular puja máxima <ChevronRight size={20} />
+            </Link>
+          </div>
         </div>
 
         {/* Internal Linking Blocks */}

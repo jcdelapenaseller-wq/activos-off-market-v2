@@ -59,6 +59,33 @@ const CityPropertyAuctions: React.FC = () => {
 
   const normalizeForUrl = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
 
+  const metrics = useMemo(() => {
+    const count = filteredAuctions.length;
+    if (count === 0) return { count: 0, avgAppraisal: 0, avgDebt: 0 };
+
+    let totalAppraisal = 0;
+    let totalDebt = 0;
+    let appraisalCount = 0;
+    let debtCount = 0;
+
+    filteredAuctions.forEach(([_, data]) => {
+      if (data.appraisalValue) {
+        totalAppraisal += data.appraisalValue;
+        appraisalCount++;
+      }
+      if (data.claimedDebt) {
+        totalDebt += data.claimedDebt;
+        debtCount++;
+      }
+    });
+
+    return {
+      count,
+      avgAppraisal: appraisalCount > 0 ? totalAppraisal / appraisalCount : 0,
+      avgDebt: debtCount > 0 ? totalDebt / debtCount : 0
+    };
+  }, [filteredAuctions]);
+
   useEffect(() => {
     if (city && propertyType) {
       document.title = `Subastas de ${propertyType} en ${city} | Activos Off-Market`;
@@ -115,13 +142,53 @@ const CityPropertyAuctions: React.FC = () => {
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
             Subastas de {propertyType} en {city}
           </h1>
+
+          {filteredAuctions.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
+                <p className="text-sm text-slate-500 font-bold uppercase mb-1">Subastas detectadas</p>
+                <p className="text-2xl font-bold text-brand-600">{metrics.count}</p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
+                <p className="text-sm text-slate-500 font-bold uppercase mb-1">Tasación media</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {metrics.avgAppraisal > 0 ? metrics.avgAppraisal.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
+                </p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
+                <p className="text-sm text-slate-500 font-bold uppercase mb-1">Deuda media</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {metrics.avgDebt > 0 ? metrics.avgDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
+                </p>
+              </div>
+            </div>
+          )}
+
           <p className="text-xl text-slate-600 max-w-3xl mb-12">
             Listado de subastas de {propertyType.toLowerCase()} en {city}. Ejemplos reales y análisis de oportunidades en subastas inmobiliarias.
           </p>
           
-          <div className="prose prose-slate max-w-3xl">
+          <div className="prose prose-slate max-w-3xl mx-auto space-y-6">
             <p>
-              Las subastas inmobiliarias en {city} representan una de las oportunidades de inversión más dinámicas y rentables en el mercado actual. Acceder a {propertyType.toLowerCase()} a través de subastas judiciales permite adquirir activos por debajo de su valor de mercado, pero requiere un análisis riguroso para asegurar la rentabilidad. No se trata simplemente de buscar chollos, sino de gestionar riesgos de forma profesional. Antes de participar, es fundamental realizar una auditoría completa que incluya la revisión detallada de las cargas registrales, la situación posesoria y de ocupación del inmueble, y la determinación precisa de la puja máxima. Solo mediante un análisis técnico exhaustivo de estos factores podrás transformar una subasta en una inversión inmobiliaria sólida y segura en {city}.
+              Las subastas inmobiliarias en {city} representan una de las oportunidades de inversión más dinámicas y rentables en el mercado actual. Acceder a {propertyType.toLowerCase()} a través de subastas judiciales permite adquirir activos por debajo de su valor de mercado, pero requiere un análisis riguroso para asegurar la rentabilidad.
+            </p>
+
+            <div className="bg-brand-50 p-6 rounded-2xl border border-brand-100 my-8">
+              <h2 className="text-xl font-serif font-bold text-slate-900 mb-4 mt-0">
+                Qué hace interesante este tipo de inmueble para invertir
+              </h2>
+              <ul className="space-y-2 mb-0">
+                <li>Alta demanda de {propertyType.toLowerCase()} en el mercado actual de {city}.</li>
+                <li>Posibilidad de adquirir activos con un descuento significativo sobre el valor de mercado.</li>
+                <li>Excelente potencial para estrategias de alquiler o reforma y venta (flipping).</li>
+              </ul>
+            </div>
+
+            <p>
+              No se trata simplemente de buscar chollos, sino de gestionar riesgos de forma profesional. Antes de participar, es fundamental realizar una auditoría completa que incluya la revisión detallada de las cargas registrales, la situación posesoria y de ocupación del inmueble, y la determinación precisa de la puja máxima.
+            </p>
+            <p>
+              Solo mediante un análisis técnico exhaustivo de estos factores podrás transformar una subasta en una inversión inmobiliaria sólida y segura en {city}.
             </p>
           </div>
         </div>
@@ -147,6 +214,18 @@ const CityPropertyAuctions: React.FC = () => {
                       <div className="flex items-center gap-2 text-slate-500 text-sm">
                         <DollarSign size={16} className="text-brand-500" />
                         <span>Valor tasación: <span className="font-bold text-slate-900">{data.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
+                      </div>
+                    )}
+                    {data.claimedDebt && (
+                      <div className="flex items-center gap-2 text-slate-500 text-sm">
+                        <DollarSign size={16} className="text-red-500" />
+                        <span>Deuda: <span className="font-bold text-red-600">{data.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
+                      </div>
+                    )}
+                    {data.appraisalValue && data.claimedDebt && (
+                      <div className="flex items-center gap-2 text-slate-500 text-sm">
+                        <TrendingUp size={16} className={((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100) > 40 ? 'text-green-500' : 'text-slate-400'} />
+                        <span className="text-slate-500">Descuento potencial: <span className={`font-bold ${((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100) > 40 ? 'text-green-600' : 'text-slate-900'}`}>-{Math.round((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100)} %</span></span>
                       </div>
                     )}
                   </div>
@@ -178,19 +257,24 @@ const CityPropertyAuctions: React.FC = () => {
           </div>
         )}
 
-        <div className="mt-16 prose prose-slate max-w-3xl">
-          <h2 className="text-3xl font-serif font-bold text-slate-900 mb-6">
+        <div className="mt-16 prose prose-slate max-w-3xl mx-auto space-y-6">
+          <h2 className="text-3xl font-serif font-bold text-slate-900 mt-12 mb-6">
             Qué debes analizar antes de pujar por un {propertyType.toLowerCase()} en subasta en {city}
           </h2>
-          <p className="mb-8">
-            La clave del éxito en las subastas de {propertyType.toLowerCase()} en {city} radica en la preparación. No te centres únicamente en el precio de salida; analiza la rentabilidad neta tras considerar todos los costes asociados: impuestos, gastos de gestión, posibles reformas y, sobre todo, la resolución de la situación posesoria. Una mala estimación de estos factores puede convertir una oportunidad aparentemente atractiva en una inversión deficitaria.
+          <p>
+            La clave del éxito en las subastas de {propertyType.toLowerCase()} en {city} radica en la preparación. No te centres únicamente en el precio de salida; analiza la rentabilidad neta tras considerar todos los costes asociados: impuestos, gastos de gestión, posibles reformas y, sobre todo, la resolución de la situación posesoria.
           </p>
-          <Link 
-            to="/calculadora-subastas" 
-            className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all"
-          >
-            Calcular puja máxima <ChevronRight size={20} />
-          </Link>
+          <p>
+            Una mala estimación de estos factores puede convertir una oportunidad aparentemente atractiva en una inversión deficitaria.
+          </p>
+          <div className="mt-8">
+            <Link 
+              to="/calculadora-subastas" 
+              className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all no-underline"
+            >
+              Calcular puja máxima <ChevronRight size={20} />
+            </Link>
+          </div>
         </div>
 
         <div className="mt-16 bg-brand-900 rounded-3xl p-10 text-center text-white">
