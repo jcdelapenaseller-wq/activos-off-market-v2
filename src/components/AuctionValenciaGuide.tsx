@@ -163,7 +163,7 @@ const AuctionValenciaGuide: React.FC = () => {
               </figure>
 
               <p className="text-xl leading-relaxed mb-8 font-light first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-brand-700 first-letter:mr-3 first-letter:float-left">
-                Valencia es actualmente una de las provincias con mayor actividad en subastas judiciales en España. El volumen constante de ejecuciones hipotecarias y procedimientos de apremio la convierten en un mercado prioritario para inversores inmobiliarios que buscan rentabilidades superiores a la media nacional.
+                Las subastas inmobiliarias en Valencia representan una de las vías más interesantes para adquirir propiedades con importantes descuentos sobre el valor de mercado. Este sistema público permite a los inversores acceder a viviendas, locales, garajes y naves industriales procedentes de embargos o ejecuciones hipotecarias. La principal oportunidad de inversión radica en la diferencia entre el valor de tasación del inmueble y su precio de adjudicación final, que en muchas ocasiones permite obtener márgenes de rentabilidad muy superiores a los de la compraventa tradicional. Sin embargo, participar en subastas judiciales o administrativas en Valencia no está exento de riesgos y requiere un conocimiento técnico profundo. Es absolutamente fundamental realizar un estudio exhaustivo antes de pujar. Esto implica analizar detalladamente la certificación de cargas del Registro de la Propiedad para identificar deudas previas, embargos o hipotecas que el adjudicatario deba asumir. Igualmente crítico es verificar la situación posesoria y de ocupación del inmueble, ya que adquirir una propiedad con inquilinos o precaristas puede retrasar significativamente la toma de posesión y mermar la rentabilidad esperada. Una estrategia de inversión exitosa en subastas exige rigor, análisis y una correcta evaluación de todos estos factores.
               </p>
 
               <h2 className="text-3xl font-bold mt-12 mb-6">Dónde encontrar subastas judiciales en Valencia</h2>
@@ -242,12 +242,12 @@ const AuctionValenciaGuide: React.FC = () => {
                 Si buscas un tipo de activo específico en la capital del Turia, puedes filtrar los análisis por categoría:
               </p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-8 not-prose">
-                <Link to="/subastas-valencia/pisos" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Pisos</Link>
-                <Link to="/subastas-valencia/locales" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Locales</Link>
-                <Link to="/subastas-valencia/viviendas" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Viviendas</Link>
-                <Link to="/subastas-valencia/chalets" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Chalets</Link>
-                <Link to="/subastas-valencia/garajes" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Garajes</Link>
-                <Link to="/subastas-valencia/naves" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Naves</Link>
+                <Link to="/subastas/valencia/pisos" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Pisos</Link>
+                <Link to="/subastas/valencia/locales" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Locales</Link>
+                <Link to="/subastas/valencia/viviendas" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Viviendas</Link>
+                <Link to="/subastas/valencia/chalets" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Chalets</Link>
+                <Link to="/subastas/valencia/garajes" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Garajes</Link>
+                <Link to="/subastas/valencia/naves" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Naves</Link>
               </div>
 
               <h2 className="text-3xl font-bold mt-12 mb-6">Subastas por zona en Valencia</h2>
@@ -255,7 +255,7 @@ const AuctionValenciaGuide: React.FC = () => {
                 Explora las subastas analizadas en los diferentes barrios de Valencia:
               </p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-8 not-prose">
-                <Link to="/subastas-valencia-poeta-mas-y-ros" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Poeta Mas y Ros</Link>
+                <Link to="/subastas/valencia/poeta-mas-y-ros" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Poeta Mas y Ros</Link>
               </div>
 
               <h2 className="text-3xl font-bold mt-12 mb-6">Preguntas frecuentes (FAQ)</h2>
@@ -329,6 +329,25 @@ const AuctionValenciaGuide: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              <div className="my-16">
+                <h2 className="text-3xl font-bold mb-6">Cómo analizar una subasta inmobiliaria en Valencia</h2>
+                <p className="mb-8">
+                  Para tener éxito en el mercado de subastas de Valencia, el análisis previo debe ser metódico. Comienza revisando el edicto de la subasta y la certificación de cargas para entender exactamente qué se subasta (pleno dominio, nuda propiedad, proindiviso) y qué deudas arrastra la finca. Posteriormente, evalúa el mercado inmobiliario local en la zona específica de Valencia para determinar el valor real de mercado del activo, ignorando el valor de tasación oficial si este está desactualizado. Finalmente, calcula todos los costes asociados: ITP o IVA, gastos de notaría, registro, posibles reformas y costes de un procedimiento de desahucio si el inmueble está ocupado.
+                </p>
+
+                <h2 className="text-3xl font-bold mb-6">Errores comunes al comprar en subastas judiciales</h2>
+                <p className="mb-8">
+                  Uno de los errores más frecuentes entre los inversores novatos es pujar basándose únicamente en el precio de salida, sin haber descontado las cargas anteriores que subsisten tras la adjudicación. Otro fallo crítico es no investigar el estado de ocupación del inmueble, asumiendo que se entregará vacío. Además, muchos participantes olvidan incluir en sus cálculos los impuestos de transmisión y los gastos de adecuación del activo. Para evitar estos errores que pueden arruinar la rentabilidad de la operación, es vital establecer un límite estricto de puja basado en números fríos y no dejarse llevar por la emoción del momento.
+                </p>
+
+                <Link 
+                  to="/calculadora-subastas" 
+                  className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all mt-4"
+                >
+                  Calcular puja máxima <ChevronRight size={20} />
+                </Link>
+              </div>
 
               <LeadMagnetBlock />
             </article>

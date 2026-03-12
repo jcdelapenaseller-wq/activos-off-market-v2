@@ -163,7 +163,7 @@ const AuctionMadridGuide: React.FC = () => {
               </figure>
 
               <p className="text-xl leading-relaxed mb-8 font-light first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-brand-700 first-letter:mr-3 first-letter:float-left">
-                Madrid es, sin duda, una de las ciudades con mayor actividad y volumen de subastas inmobiliarias en toda España. El dinamismo de su mercado inmobiliario hace que constantemente surjan oportunidades de inversión a través de la vía judicial y administrativa.
+                Las subastas inmobiliarias en Madrid representan una de las vías más interesantes para adquirir propiedades con importantes descuentos sobre el valor de mercado. Este sistema público permite a los inversores acceder a viviendas, locales, garajes y naves industriales procedentes de embargos o ejecuciones hipotecarias. La principal oportunidad de inversión radica en la diferencia entre el valor de tasación del inmueble y su precio de adjudicación final, que en muchas ocasiones permite obtener márgenes de rentabilidad muy superiores a los de la compraventa tradicional. Sin embargo, participar en subastas judiciales o administrativas en Madrid no está exento de riesgos y requiere un conocimiento técnico profundo. Es absolutamente fundamental realizar un estudio exhaustivo antes de pujar. Esto implica analizar detalladamente la certificación de cargas del Registro de la Propiedad para identificar deudas previas, embargos o hipotecas que el adjudicatario deba asumir. Igualmente crítico es verificar la situación posesoria y de ocupación del inmueble, ya que adquirir una propiedad con inquilinos o precaristas puede retrasar significativamente la toma de posesión y mermar la rentabilidad esperada. Una estrategia de inversión exitosa en subastas exige rigor, análisis y una correcta evaluación de todos estos factores.
               </p>
 
               <h2 className="text-3xl font-bold mt-12 mb-6">Dónde encontrar subastas judiciales en Madrid</h2>
@@ -344,6 +344,25 @@ const AuctionMadridGuide: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              <div className="my-16">
+                <h2 className="text-3xl font-bold mb-6">Cómo analizar una subasta inmobiliaria en Madrid</h2>
+                <p className="mb-8">
+                  Para tener éxito en el mercado de subastas de Madrid, el análisis previo debe ser metódico. Comienza revisando el edicto de la subasta y la certificación de cargas para entender exactamente qué se subasta (pleno dominio, nuda propiedad, proindiviso) y qué deudas arrastra la finca. Posteriormente, evalúa el mercado inmobiliario local en la zona específica de Madrid para determinar el valor real de mercado del activo, ignorando el valor de tasación oficial si este está desactualizado. Finalmente, calcula todos los costes asociados: ITP o IVA, gastos de notaría, registro, posibles reformas y costes de un procedimiento de desahucio si el inmueble está ocupado.
+                </p>
+
+                <h2 className="text-3xl font-bold mb-6">Errores comunes al comprar en subastas judiciales</h2>
+                <p className="mb-8">
+                  Uno de los errores más frecuentes entre los inversores novatos es pujar basándose únicamente en el precio de salida, sin haber descontado las cargas anteriores que subsisten tras la adjudicación. Otro fallo crítico es no investigar el estado de ocupación del inmueble, asumiendo que se entregará vacío. Además, muchos participantes olvidan incluir en sus cálculos los impuestos de transmisión y los gastos de adecuación del activo. Para evitar estos errores que pueden arruinar la rentabilidad de la operación, es vital establecer un límite estricto de puja basado en números fríos y no dejarse llevar por la emoción del momento.
+                </p>
+
+                <Link 
+                  to="/calculadora-subastas" 
+                  className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all mt-4"
+                >
+                  Calcular puja máxima <ChevronRight size={20} />
+                </Link>
+              </div>
 
               <LeadMagnetBlock />
             </article>
