@@ -156,12 +156,47 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://activosoffmarket.es/subastas/madrid/oportunidades</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas/valencia/oportunidades</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://activosoffmarket.es/mejores-subastas/madrid</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://activosoffmarket.es/mejores-subastas/valencia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas/madrid/centro/centro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas/valencia/poeta-mas-y-ros/poeta-mas-y-ros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas/madrid/chamberi/breton-de-los-herreros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas/madrid/chamartin/costa-rica-28</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas/madrid/doctor-esquerdo/doctor-esquerdo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

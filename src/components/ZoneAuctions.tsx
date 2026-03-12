@@ -101,7 +101,30 @@ const ZoneAuctions: React.FC = () => {
     return Array.from(types).sort();
   }, [city]);
 
-  const normalizeForUrl = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
+  const normalizeForUrl = (str: string) => str.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+
+  const availableStreets = useMemo(() => {
+    if (!city || !zone) return [];
+    const normalizedCity = normalizeForUrl(city);
+    const normalizedZone = normalizeForUrl(zone);
+    
+    const zoneAuctions = Object.values(AUCTIONS).filter(a => 
+      normalizeForUrl(a.city || '') === normalizedCity && 
+      normalizeForUrl(a.zone || '') === normalizedZone
+    );
+    
+    const streets = new Set<string>();
+    zoneAuctions.forEach(a => {
+      if (a.address) streets.add(a.address);
+    });
+    return Array.from(streets).sort().slice(0, 6);
+  }, [city, zone]);
 
   const metrics = useMemo(() => {
     const count = filteredAuctions.length;
@@ -322,6 +345,24 @@ const ZoneAuctions: React.FC = () => {
 
         {/* Internal Linking Blocks */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-slate-200 pt-12">
+          {availableStreets.length > 0 && (
+            <div className="md:col-span-2">
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">Subastas detectadas en calles de {actualZoneName}</h2>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {availableStreets.map(streetName => (
+                  <li key={streetName}>
+                    <Link 
+                      to={`/subastas/${normalizeForUrl(displayCity)}/${normalizeForUrl(actualZoneName || '')}/${normalizeForUrl(streetName)}`}
+                      className="text-brand-600 hover:text-brand-800 hover:underline font-medium flex items-center gap-2"
+                    >
+                      <ChevronRight size={16} /> Subastas en {streetName}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {availableZones.length > 0 && (
             <div>
               <h2 className="text-2xl font-bold text-slate-900 mb-6">Subastas en otras zonas de {displayCity}</h2>

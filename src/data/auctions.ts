@@ -2,6 +2,7 @@ export interface AuctionData {
   propertyType?: string;
   city?: string;
   zone?: string;
+  address?: string;
   appraisalValue?: number;
   claimedDebt?: number;
   procedureType?: string;
@@ -20,6 +21,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     propertyType: "Piso",
     city: "Madrid",
     zone: "Centro",
+    address: "Centro",
     appraisalValue: 180000,
     claimedDebt: 90000,
     procedureType: "Ejecución hipotecaria",
@@ -33,6 +35,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     propertyType: "Piso",
     city: "Valencia",
     zone: "Poeta Mas y Ros",
+    address: "Poeta Mas y Ros",
     appraisalValue: 174435,
     claimedDebt: 184767,
     procedureType: "Ejecución hipotecaria",
@@ -47,6 +50,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     propertyType: "Apartamento",
     city: "Madrid",
     zone: "Chamberí",
+    address: "Bretón de los Herreros",
     appraisalValue: 368220,
     claimedDebt: 129963,
     procedureType: "Ejecución hipotecaria",
@@ -62,6 +66,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     propertyType: "Piso",
     city: "Madrid",
     zone: "Chamartín",
+    address: "Costa Rica 28",
     appraisalValue: 286886,
     claimedDebt: 78196,
     procedureType: "Ejecución hipotecaria AEAT",
@@ -77,6 +82,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     propertyType: "Vivienda",
     city: "Madrid",
     zone: "Doctor Esquerdo",
+    address: "Doctor Esquerdo",
     appraisalValue: 358000,
     procedureType: "AEAT Apremio",
     description: "Subasta de la Agencia Tributaria (AEAT) por apremio. Se trata de una vivienda en la zona consolidada de Doctor Esquerdo (6ª planta). En subastas AEAT, si la mejor oferta es ≥ 50% del tipo, la adjudicación es automática; de lo contrario, decide la Mesa. El análisis destaca la presencia de una hipoteca anterior en la nota simple: la rentabilidad real depende críticamente de si esta carga está económicamente cancelada o no. Valor de mercado estimado en la zona para pisos similares reformados: entre 400.000€ y 460.000€.",

@@ -15,7 +15,12 @@ const staticPages = [
   '/subastas-valencia',
   '/subastas-sevilla',
   '/ejemplos-subastas',
-  '/noticias-subastas'
+  '/noticias-subastas',
+  '/subastas-recientes',
+  '/noticias-subastas/madrid',
+  '/noticias-subastas/barcelona',
+  '/noticias-subastas/valencia',
+  '/noticias-subastas/sevilla'
 ];
 
 
@@ -42,7 +47,9 @@ function generateSitemap() {
   const cityPujarPages = new Set();
   const cityAnalizarPages = new Set();
   const cityAuctionsPages = new Set();
+  const cityOpportunitiesPages = new Set();
   const cityBestAuctionsPages = new Set();
+  const streetPages = new Set();
   const zonePropertyCityPages = new Set();
   
   // Split content by auction entries to process them individually
@@ -51,6 +58,7 @@ function generateSitemap() {
     const cityMatch = entry.match(/city\s*:\s*['"]([^'"]+)['"]/);
     const typeMatch = entry.match(/propertyType\s*:\s*['"]([^'"]+)['"]/);
     const zoneMatch = entry.match(/zone\s*:\s*['"]([^'"]+)['"]/);
+    const addressMatch = entry.match(/address\s*:\s*['"]([^'"]+)['"]/);
     
     if (cityMatch) {
       const city = cityMatch[1].toLowerCase();
@@ -59,6 +67,7 @@ function generateSitemap() {
       cityPujarPages.add(`/cuanto-pujar-subasta-${city}`);
       cityAnalizarPages.add(`/analizar-subasta-${city}`);
       cityAuctionsPages.add(`/subastas-en-${city}`);
+      cityOpportunitiesPages.add(`/subastas/${city}/oportunidades`);
       cityBestAuctionsPages.add(`/mejores-subastas/${city}`);
     }
 
@@ -82,6 +91,21 @@ function generateSitemap() {
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
         .replace(/\s+/g, '-');
       zonePages.add(`/subastas/${city}/${zone}`);
+    }
+
+    if (cityMatch && zoneMatch && addressMatch) {
+      const city = cityMatch[1].toLowerCase();
+      const zone = zoneMatch[1].toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
+        .replace(/\s+/g, '-');
+      const street = addressMatch[1].toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]+/g, '')
+        .replace(/--+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+      streetPages.add(`/subastas/${city}/${zone}/${street}`);
     }
   });
 
@@ -137,7 +161,17 @@ ${Array.from(cityAuctionsPages).map(page => `  <url>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`).join('\n')}
+${Array.from(cityOpportunitiesPages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
 ${Array.from(cityBestAuctionsPages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
+${Array.from(streetPages).map(page => `  <url>
     <loc>${BASE_URL}${page}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

@@ -119,11 +119,34 @@ const AuctionDiscoverArticle: React.FC = () => {
             <p className="text-slate-700 mb-6">
               Si estás analizando subastas en esta zona, puedes ver otras oportunidades detectadas recientemente en {auction.city} con mayor diferencia entre tasación y deuda.
             </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link 
+                to={`/mejores-subastas/${auction.city?.toLowerCase()}`} 
+                className="inline-flex items-center justify-center bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors"
+              >
+                Ver las mejores subastas en {auction.city}
+              </Link>
+              <Link 
+                to={`/noticias-subastas/${auction.city?.toLowerCase()}`} 
+                className="inline-flex items-center justify-center bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-600 transition-colors"
+              >
+                Más subastas detectadas recientemente en {auction.city}
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 mt-12 mb-10">
+            <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4 mt-0">
+              Más subastas en {auction.zone}
+            </h2>
+            <p className="text-slate-700 mb-6">
+              Si estás analizando esta oportunidad, puedes ver otras subastas detectadas en {auction.zone}.
+            </p>
             <Link 
-              to={`/mejores-subastas/${auction.city?.toLowerCase()}`} 
-              className="inline-flex items-center justify-center bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors"
+              to={`/subastas/${auction.city?.toLowerCase()}/${auction.zone?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+/, '').replace(/-+$/, '')}`} 
+              className="inline-flex items-center justify-center bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-600 transition-colors"
             >
-              Ver las mejores subastas en {auction.city}
+              Ver subastas en {auction.zone}
             </Link>
           </div>
         </div>

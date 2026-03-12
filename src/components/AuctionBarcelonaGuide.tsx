@@ -136,6 +136,36 @@ const AuctionBarcelonaGuide: React.FC = () => {
               </Link>
             </div>
 
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-8 shadow-sm">
+              <h2 className="text-xl font-serif font-bold text-slate-900 mb-2">
+                Subastas con mayor descuento en Barcelona
+              </h2>
+              <p className="text-slate-600 mb-4">
+                Estas son las subastas inmobiliarias detectadas en Barcelona con mayor diferencia entre tasación y deuda.
+              </p>
+              <Link 
+                to="/subastas/barcelona/oportunidades" 
+                className="inline-flex items-center justify-center bg-slate-900 text-white font-bold py-2 px-6 rounded-xl hover:bg-brand-600 transition-colors"
+              >
+                Ver oportunidades en Barcelona
+              </Link>
+            </div>
+
+            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-6 mb-8">
+              <h2 className="text-xl font-serif font-bold text-slate-900 mb-2">
+                Últimas subastas publicadas
+              </h2>
+              <p className="text-slate-700 mb-4 text-sm">
+                Accede al listado de las subastas más recientes detectadas en la web.
+              </p>
+              <Link 
+                to="/subastas-recientes" 
+                className="inline-flex items-center justify-center bg-brand-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-brand-700 transition-colors text-sm"
+              >
+                Ver subastas recientes
+              </Link>
+            </div>
+
             <div className="flex flex-wrap items-center gap-6 text-slate-500 text-sm border-t border-slate-100 pt-6">
                 <div className="flex items-center gap-3">
                     <img 

@@ -36,6 +36,10 @@ import AuctionExamplesIndex from './components/AuctionExamplesIndex';
 import CityPropertyAuctions from './components/CityPropertyAuctions';
 import ZonePropertyAuctions from './components/ZonePropertyAuctions';
 import ZoneAuctions from './components/ZoneAuctions';
+import StreetAuctions from './components/StreetAuctions';
+import OpportunityAuctions from './components/OpportunityAuctions';
+import RecentAuctions from './components/RecentAuctions';
+import DiscoverCityArticles from './components/DiscoverCityArticles';
 import AuctionDiscoverArticle from './components/AuctionDiscoverArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
 import Legal from './components/Legal';
@@ -45,6 +49,7 @@ export const ROUTES = {
   HOME: '/',
   ABOUT: '/quien-soy',
   SUBASTAS_BOE: '/subastas-boe',
+  RECENT_AUCTIONS: '/subastas-recientes',
   GUIDE_INDEX: '/indice-guia-subastas',
   GUIDE_PILLAR: '/subastas-judiciales-espana',
   ANALYSIS: '/como-analizar-subasta-judicial-paso-a-paso',
@@ -80,9 +85,12 @@ export const ROUTES = {
   EXAMPLES_INDEX: '/ejemplos-subastas',
   EXAMPLE_REPORT: '/ejemplo-subasta/:slug',
   NOTICIAS_SUBASTAS_INDEX: '/noticias-subastas',
+  NOTICIAS_SUBASTAS_CITY: '/noticias-subastas/:city',
   NOTICIAS_SUBASTAS: '/noticias-subastas/:slug',
   CITY_PROPERTY: '/subastas/:city/:propertyType',
   ZONE_PROPERTY_CITY: '/subastas-:propertyType-:city-:zone',
+  STREET: '/subastas/:city/:zone/:street',
+  CITY_OPPORTUNITIES: '/subastas/:city/oportunidades',
   ZONE: '/subastas/:city/:zone',
   BEST_AUCTIONS_CITY: '/mejores-subastas/:city',
   LEGAL: '/aviso-legal',
@@ -104,6 +112,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.SUBASTAS_BOE,
     element: createElement(SubastasBOEPage),
+  },
+  {
+    path: ROUTES.RECENT_AUCTIONS,
+    element: createElement(RecentAuctions),
   },
   {
     path: ROUTES.GUIDE_INDEX,
@@ -250,8 +262,32 @@ export const routes: RouteObject[] = [
     element: createElement(DiscoverArticlesIndex),
   },
   {
+    path: '/noticias-subastas/madrid',
+    element: createElement(DiscoverCityArticles),
+  },
+  {
+    path: '/noticias-subastas/barcelona',
+    element: createElement(DiscoverCityArticles),
+  },
+  {
+    path: '/noticias-subastas/valencia',
+    element: createElement(DiscoverCityArticles),
+  },
+  {
+    path: '/noticias-subastas/sevilla',
+    element: createElement(DiscoverCityArticles),
+  },
+  {
     path: ROUTES.NOTICIAS_SUBASTAS,
     element: createElement(AuctionDiscoverArticle),
+  },
+  {
+    path: ROUTES.STREET,
+    element: createElement(StreetAuctions),
+  },
+  {
+    path: ROUTES.CITY_OPPORTUNITIES,
+    element: createElement(OpportunityAuctions),
   },
   {
     path: ROUTES.ZONE,
