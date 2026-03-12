@@ -56,37 +56,137 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/subastas-madrid/pisos</loc>
+    <loc>https://activosoffmarket.es/noticias-subastas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas/madrid/pisos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/subastas-valencia/pisos</loc>
+    <loc>https://activosoffmarket.es/subastas/valencia/pisos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/subastas-madrid/apartamentos</loc>
+    <loc>https://activosoffmarket.es/subastas/madrid/apartamentos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/subastas-madrid-centro</loc>
+    <loc>https://activosoffmarket.es/subastas/madrid/viviendas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/subastas-valencia-poeta-mas-y-ros</loc>
+    <loc>https://activosoffmarket.es/subastas/madrid/centro</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/subastas-madrid-chamberi</loc>
+    <loc>https://activosoffmarket.es/subastas/valencia/poeta-mas-y-ros</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://activosoffmarket.es/subastas-madrid-chamartin</loc>
+    <loc>https://activosoffmarket.es/subastas/madrid/chamberi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas/madrid/chamartin</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas/madrid/doctor-esquerdo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/calcular-puja-subasta-madrid</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/calcular-puja-subasta-valencia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/rentabilidad-subasta-madrid</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/rentabilidad-subasta-valencia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/cuanto-pujar-subasta-madrid</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/cuanto-pujar-subasta-valencia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/analizar-subasta-madrid</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/analizar-subasta-valencia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-en-madrid</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-en-valencia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/mejores-subastas/madrid</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/mejores-subastas/valencia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-pisos-madrid-centro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-pisos-valencia-poeta-mas-y-ros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-apartamentos-madrid-chamberi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-pisos-madrid-chamartin</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/subastas-viviendas-madrid-doctor-esquerdo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -96,7 +196,47 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://activosoffmarket.es/rentabilidad-subasta/piso-subasta-madrid-centro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/calcular-puja-subasta/piso-subasta-madrid-centro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/noticias-subastas/piso-subasta-madrid-centro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/analizar-subasta/piso-subasta-madrid-centro</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://activosoffmarket.es/ejemplo-subasta/piso-subasta-valencia-poeta-mas-y-ros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/rentabilidad-subasta/piso-subasta-valencia-poeta-mas-y-ros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/calcular-puja-subasta/piso-subasta-valencia-poeta-mas-y-ros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/noticias-subastas/piso-subasta-valencia-poeta-mas-y-ros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/analizar-subasta/piso-subasta-valencia-poeta-mas-y-ros</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -106,7 +246,72 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://activosoffmarket.es/rentabilidad-subasta/apartamento-subasta-madrid-chamberi-breton-de-los-herreros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/calcular-puja-subasta/apartamento-subasta-madrid-chamberi-breton-de-los-herreros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/noticias-subastas/apartamento-subasta-madrid-chamberi-breton-de-los-herreros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/analizar-subasta/apartamento-subasta-madrid-chamberi-breton-de-los-herreros</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://activosoffmarket.es/ejemplo-subasta/piso-subasta-madrid-chamartin-costa-rica-28</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/rentabilidad-subasta/piso-subasta-madrid-chamartin-costa-rica-28</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/calcular-puja-subasta/piso-subasta-madrid-chamartin-costa-rica-28</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/noticias-subastas/piso-subasta-madrid-chamartin-costa-rica-28</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/analizar-subasta/piso-subasta-madrid-chamartin-costa-rica-28</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/ejemplo-subasta/vivienda-subasta-madrid-doctor-esquerdo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/rentabilidad-subasta/vivienda-subasta-madrid-doctor-esquerdo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/calcular-puja-subasta/vivienda-subasta-madrid-doctor-esquerdo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/noticias-subastas/vivienda-subasta-madrid-doctor-esquerdo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://activosoffmarket.es/analizar-subasta/vivienda-subasta-madrid-doctor-esquerdo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

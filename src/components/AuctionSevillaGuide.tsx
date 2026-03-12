@@ -129,7 +129,7 @@ const AuctionSevillaGuide: React.FC = () => {
                 Algunas subastas destacan por la gran diferencia entre su valor de tasación y la deuda reclamada, lo que puede suponer una oportunidad única de inversión.
               </p>
               <Link 
-                to="/mejores-subastas-sevilla" 
+                to="/mejores-subastas/sevilla" 
                 className="inline-flex items-center justify-center bg-brand-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-brand-700 transition-colors"
               >
                 Ver las mejores subastas en Sevilla

@@ -120,7 +120,7 @@ const AuctionDiscoverArticle: React.FC = () => {
               Si estás analizando subastas en esta zona, puedes ver otras oportunidades detectadas recientemente en {auction.city} con mayor diferencia entre tasación y deuda.
             </p>
             <Link 
-              to={`/mejores-subastas-${auction.city?.toLowerCase()}`} 
+              to={`/mejores-subastas/${auction.city?.toLowerCase()}`} 
               className="inline-flex items-center justify-center bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors"
             >
               Ver las mejores subastas en {auction.city}

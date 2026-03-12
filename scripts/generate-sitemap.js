@@ -59,7 +59,7 @@ function generateSitemap() {
       cityPujarPages.add(`/cuanto-pujar-subasta-${city}`);
       cityAnalizarPages.add(`/analizar-subasta-${city}`);
       cityAuctionsPages.add(`/subastas-en-${city}`);
-      cityBestAuctionsPages.add(`/mejores-subastas-${city}`);
+      cityBestAuctionsPages.add(`/mejores-subastas/${city}`);
     }
 
     if (cityMatch && typeMatch) {

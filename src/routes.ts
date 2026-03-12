@@ -84,7 +84,7 @@ export const ROUTES = {
   CITY_PROPERTY: '/subastas/:city/:propertyType',
   ZONE_PROPERTY_CITY: '/subastas-:propertyType-:city-:zone',
   ZONE: '/subastas/:city/:zone',
-  BEST_AUCTIONS_CITY: '/mejores-subastas-:city',
+  BEST_AUCTIONS_CITY: '/mejores-subastas/:city',
   LEGAL: '/aviso-legal',
   PRIVACY: '/politica-privacidad',
   COOKIES: '/politica-cookies',
