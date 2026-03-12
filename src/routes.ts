@@ -39,6 +39,7 @@ import ZoneAuctions from './components/ZoneAuctions';
 import AuctionDiscoverArticle from './components/AuctionDiscoverArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
 import Legal from './components/Legal';
+import BestAuctionsByCity from './components/BestAuctionsByCity';
 
 export const ROUTES = {
   HOME: '/',
@@ -83,6 +84,7 @@ export const ROUTES = {
   CITY_PROPERTY: '/subastas/:city/:propertyType',
   ZONE_PROPERTY_CITY: '/subastas-:propertyType-:city-:zone',
   ZONE: '/subastas/:city/:zone',
+  BEST_AUCTIONS_CITY: '/mejores-subastas-:city',
   LEGAL: '/aviso-legal',
   PRIVACY: '/politica-privacidad',
   COOKIES: '/politica-cookies',
@@ -258,6 +260,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.ZONE_PROPERTY_CITY,
     element: createElement(ZonePropertyAuctions),
+  },
+  {
+    path: ROUTES.BEST_AUCTIONS_CITY,
+    element: createElement(BestAuctionsByCity),
   },
   {
     path: ROUTES.CITY_PROPERTY,

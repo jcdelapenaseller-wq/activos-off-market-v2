@@ -121,6 +121,21 @@ const AuctionSevillaGuide: React.FC = () => {
                 Subastas judiciales en Sevilla: guía para inversores
             </h1>
 
+            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-6 mb-8">
+              <h2 className="text-xl font-serif font-bold text-slate-900 mb-2">
+                Las subastas más interesantes detectadas en Sevilla
+              </h2>
+              <p className="text-slate-700 mb-4">
+                Algunas subastas destacan por la gran diferencia entre su valor de tasación y la deuda reclamada, lo que puede suponer una oportunidad única de inversión.
+              </p>
+              <Link 
+                to="/mejores-subastas-sevilla" 
+                className="inline-flex items-center justify-center bg-brand-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-brand-700 transition-colors"
+              >
+                Ver las mejores subastas en Sevilla
+              </Link>
+            </div>
+
             <div className="flex flex-wrap items-center gap-6 text-slate-500 text-sm border-t border-slate-100 pt-6">
                 <div className="flex items-center gap-3">
                     <img 

@@ -42,6 +42,7 @@ function generateSitemap() {
   const cityPujarPages = new Set();
   const cityAnalizarPages = new Set();
   const cityAuctionsPages = new Set();
+  const cityBestAuctionsPages = new Set();
   const zonePropertyCityPages = new Set();
   
   // Split content by auction entries to process them individually
@@ -58,6 +59,7 @@ function generateSitemap() {
       cityPujarPages.add(`/cuanto-pujar-subasta-${city}`);
       cityAnalizarPages.add(`/analizar-subasta-${city}`);
       cityAuctionsPages.add(`/subastas-en-${city}`);
+      cityBestAuctionsPages.add(`/mejores-subastas-${city}`);
     }
 
     if (cityMatch && typeMatch) {
@@ -131,6 +133,11 @@ ${Array.from(cityAnalizarPages).map(page => `  <url>
     <priority>0.7</priority>
   </url>`).join('\n')}
 ${Array.from(cityAuctionsPages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n')}
+${Array.from(cityBestAuctionsPages).map(page => `  <url>
     <loc>${BASE_URL}${page}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
