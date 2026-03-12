@@ -3,6 +3,7 @@ import { useParams, useLocation, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../routes';
 import ConversionBlock from './ConversionBlock';
+import RelatedAuctions from './RelatedAuctions';
 import { Calculator, Gavel, TrendingUp, Search, ChevronRight, MapPin, Home, DollarSign } from 'lucide-react';
 
 const AuctionDynamicPage: React.FC = () => {
@@ -30,13 +31,16 @@ const AuctionDynamicPage: React.FC = () => {
     return `Análisis detallado de esta subasta en ${cityName}`;
   };
 
-  const similarAuctions = Object.entries(AUCTIONS)
-    .filter(([s, data]) => data.city === auction.city && s !== slug)
-    .slice(0, 3);
-
   return (
     <div className="max-w-4xl mx-auto px-6 py-16 prose prose-slate">
       <h1>{getTitle()}</h1>
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mt-6">
+        <h2 className="text-xl font-bold text-slate-900 mb-2">¿Cuánto deberías pujar realmente por esta subasta?</h2>
+        <p className="text-slate-700 mb-4">Muchos inversores pierden dinero porque calculan mal la puja máxima teniendo en cuenta cargas, costes y margen de seguridad.</p>
+        <Link to={`/calcular-puja-subasta/${slug}`} className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
+          Calcular puja máxima
+        </Link>
+      </div>
       <p className="lead">
         Analizamos los datos de este {propertyType.toLowerCase()} en {zone}, {cityName}, para ayudarte a tomar una decisión informada.
       </p>
@@ -72,31 +76,7 @@ const AuctionDynamicPage: React.FC = () => {
         <li><Link to={ROUTES.CALCULATOR} className="text-brand-700 hover:underline">Ir a la calculadora de subastas</Link></li>
       </ul>
 
-      {similarAuctions.length > 0 && (
-        <section className="mt-16">
-          <h2 className="text-3xl font-bold mb-8">Subastas similares en {cityName}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {similarAuctions.map(([s, data]) => (
-              <div key={s} className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-xl transition-all group">
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
-                    {data.propertyType} en {data.zone}
-                  </h3>
-                  <div className="text-sm text-slate-500 mb-4">
-                    Tasación: <span className="font-bold text-slate-900">{data.appraisalValue?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-                  </div>
-                  <Link 
-                    to={`/ejemplo-subasta/${s}`}
-                    className="inline-flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-2 px-4 rounded-xl hover:bg-brand-600 transition-all"
-                  >
-                    Ver análisis <ChevronRight size={16} />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {slug && <RelatedAuctions currentAuctionSlug={slug} currentAuctionData={auction} />}
     </div>
   );
 };

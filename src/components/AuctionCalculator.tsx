@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Calculator, TrendingUp, AlertTriangle, CheckCircle, Info, ArrowRight, BookOpen, Mail } from 'lucide-react';
+import { Calculator, TrendingUp, AlertTriangle, CheckCircle, Info, ArrowRight, BookOpen, Mail, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
@@ -204,8 +204,10 @@ Calculado con la herramienta de Activos Off-Market.`;
     const roi = costeTotalInversion > 0 ? (beneficio / costeTotalInversion) * 100 : 0;
     const precioMaxPuja = (valorMercado * 0.7) - (itp + registroNotaria + gestoria + reforma + deudas + otrosGastos);
     const margenSeguridad = valorMercado * 0.3; // Assuming 30% margin
+    const escenarioConservador = beneficio * 0.8;
+    const escenarioOptimista = beneficio * 1.2;
 
-    return { itp, registroNotaria, gestoria, costeTotalInversion, beneficio, roi, precioMaxPuja, margenSeguridad };
+    return { itp, registroNotaria, gestoria, costeTotalInversion, beneficio, roi, precioMaxPuja, margenSeguridad, escenarioConservador, escenarioOptimista };
   }, [adjudicacion, valorMercado, reforma, comunidad, deudas, otrosGastos]);
 
   const hasData = adjudicacion > 0 || valorMercado > 0 || tasacionBOE > 0 || reforma > 0 || deudas > 0;
@@ -231,12 +233,20 @@ Calculado con la herramienta de Activos Off-Market.`;
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'calculadora' }),
+        body: JSON.stringify({
+          email,
+          source: 'calculadora',
+          fields: {
+            precio_maximo_puja: results.precioMaxPuja,
+            roi_estimado: results.roi,
+            margen_seguridad: results.margenSeguridad
+          }
+        }),
       });
       if (response.ok) {
         setStatus('success');
         setIsUnlocked(true);
-        setTimeout(() => setIsModalOpen(false), 1500);
+        setTimeout(() => setIsModalOpen(false), 3000);
       } else {
         setStatus('error');
       }
@@ -300,38 +310,77 @@ Calculado con la herramienta de Activos Off-Market.`;
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                <span className="block text-sm text-slate-500 mb-1">Coste total inversión</span>
-                <span className="text-2xl font-bold text-slate-900">{results.costeTotalInversion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-            </div>
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                <span className="block text-sm text-slate-500 mb-1">ROI</span>
-                <span className="text-2xl font-bold text-slate-900">{results.roi.toFixed(2)}%</span>
-            </div>
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm col-span-2">
-                <span className="block text-sm text-slate-500 mb-1">Beneficio estimado</span>
-                <span className="text-2xl font-bold text-slate-900">{results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-            </div>
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <span className="block text-sm text-slate-500 mb-1">Precio máximo estimado de puja</span>
+            <span className="text-2xl font-bold text-slate-900">{results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-                { label: 'Puja máxima recomendada', value: results.precioMaxPuja },
-                { label: 'Margen de seguridad', value: results.margenSeguridad },
-            ].map((card, i) => (
-                <div key={i} onClick={() => handlePremiumAction(() => {})} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden cursor-pointer hover:border-brand-300 transition-colors">
-                    {!isUnlocked && (
-                        <span className="absolute top-3 right-4 bg-brand-100 text-brand-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
-                            Resultado bloqueado
-                        </span>
-                    )}
-                    <span className="block text-sm text-slate-500 mb-1">{card.label}</span>
-                    <span className={`text-2xl font-bold text-slate-900 ${!isUnlocked ? 'blur-md select-none' : ''}`}>
-                        {isUnlocked ? card.value.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : 'XXXX €'}
-                    </span>
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative">
+            <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+              {!isUnlocked && <Lock size={20} className="text-slate-400" />} Análisis completo de inversión
+            </h3>
+            
+            <div className={`space-y-4 ${!isUnlocked ? 'blur-sm select-none pointer-events-none' : ''}`}>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 p-4 rounded-xl">
+                  <span className="block text-xs text-slate-500 uppercase">ROI estimado</span>
+                  <span className="text-lg font-bold text-slate-900">{results.roi.toFixed(2)}%</span>
                 </div>
-            ))}
+                <div className="bg-slate-50 p-4 rounded-xl">
+                  <span className="block text-xs text-slate-500 uppercase">Margen seguridad</span>
+                  <span className="text-lg font-bold text-slate-900">{results.margenSeguridad.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                </div>
+              </div>
+              <div className="bg-slate-50 p-4 rounded-xl">
+                <span className="block text-xs text-slate-500 uppercase">Rentabilidad estimada</span>
+                <span className="text-lg font-bold text-slate-900">{results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 p-4 rounded-xl">
+                  <span className="block text-xs text-slate-500 uppercase">Escenario conservador</span>
+                  <span className="text-lg font-bold text-slate-900">{results.escenarioConservador.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-xl">
+                  <span className="block text-xs text-slate-500 uppercase">Escenario optimista</span>
+                  <span className="text-lg font-bold text-slate-900">{results.escenarioOptimista.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                </div>
+              </div>
+            </div>
+
+            {!isUnlocked && (
+              <div className="mt-8 bg-brand-50 p-6 rounded-2xl border border-brand-100 text-center">
+                <p className="text-slate-700 mb-4">Introduce tu email para desbloquear el análisis completo de esta subasta.</p>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  {status === 'success' ? (
+                    <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-center gap-3 text-emerald-700 font-bold">
+                        <CheckCircle size={20} /> ✔ Análisis desbloqueado. También te hemos enviado el resumen por email.
+                    </div>
+                  ) : (
+                    <>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                        <input 
+                          type="email" 
+                          value={email} 
+                          onChange={(e) => setEmail(e.target.value)} 
+                          placeholder="Tu mejor email" 
+                          required 
+                          className="w-full bg-white text-slate-900 border border-slate-200 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-brand-500 outline-none transition-all" 
+                        />
+                      </div>
+                      <button 
+                        type="submit" 
+                        disabled={status === 'loading'} 
+                        className="w-full bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-700 transition-all shadow-lg flex items-center justify-center gap-2"
+                      >
+                        {status === 'loading' ? 'Desbloqueando...' : 'Desbloquear análisis completo'}
+                      </button>
+                      {status === 'error' && <p className="text-red-600 text-sm font-bold">Hubo un error, inténtalo de nuevo.</p>}
+                    </>
+                  )}
+                </form>
+              </div>
+            )}
           </div>
 
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-64">
@@ -351,7 +400,7 @@ Calculado con la herramienta de Activos Off-Market.`;
 
           <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mt-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">Informe de inversión</h2>
-            <div className="space-y-4 text-slate-700">
+            <div className={`space-y-4 text-slate-700 ${!isUnlocked ? 'blur-sm select-none pointer-events-none' : ''}`}>
                 <p className="flex justify-between border-b border-slate-100 pb-2">
                     <span>Precio de adjudicación:</span> 
                     <span className="font-bold">{adjudicacion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
@@ -372,7 +421,7 @@ Calculado con la herramienta de Activos Off-Market.`;
                     <span>ROI:</span> 
                     <span className="font-bold">{results.roi.toFixed(2)}%</span>
                 </p>
-                <p className={`flex justify-between border-b border-slate-100 pb-2 ${!isUnlocked ? "blur-sm select-none" : ""}`}>
+                <p className="flex justify-between border-b border-slate-100 pb-2">
                     <span>Puja máxima recomendada:</span> 
                     <span className="font-bold">{results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
                 </p>
@@ -471,7 +520,7 @@ Calculado con la herramienta de Activos Off-Market.`;
                     
                     {status === 'success' ? (
                         <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-center gap-3 text-emerald-700 font-bold">
-                            <CheckCircle size={20} /> ¡Informe desbloqueado!
+                            <CheckCircle size={20} /> ✔ Análisis desbloqueado. También te hemos enviado el resumen por email.
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-4">

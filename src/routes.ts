@@ -36,6 +36,7 @@ import AuctionExamplesIndex from './components/AuctionExamplesIndex';
 import CityPropertyAuctions from './components/CityPropertyAuctions';
 import ZonePropertyAuctions from './components/ZonePropertyAuctions';
 import ZoneAuctions from './components/ZoneAuctions';
+import AuctionDiscoverArticle from './components/AuctionDiscoverArticle';
 import Legal from './components/Legal';
 
 export const ROUTES = {
@@ -76,7 +77,8 @@ export const ROUTES = {
   SEVILLA: '/subastas-sevilla',
   EXAMPLES_INDEX: '/ejemplos-subastas',
   EXAMPLE_REPORT: '/ejemplo-subasta/:slug',
-  CITY_PROPERTY: '/subastas-:propertyType-:city',
+  NOTICIAS_SUBASTAS: '/noticias-subastas/:slug',
+  CITY_PROPERTY: '/subastas-:city/:propertyType',
   ZONE_PROPERTY_CITY: '/subastas-:propertyType-:city-:zone',
   ZONE: '/subastas-:cityZone',
   LEGAL: '/aviso-legal',
@@ -238,6 +240,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.EXAMPLE_REPORT,
     element: createElement(AuctionExampleReport),
+  },
+  {
+    path: ROUTES.NOTICIAS_SUBASTAS,
+    element: createElement(AuctionDiscoverArticle),
   },
   {
     path: ROUTES.CITY_PROPERTY,

@@ -155,6 +155,11 @@ ${slugs.map(slug => `  <url>
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>${BASE_URL}/noticias-subastas/${slug}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>${BASE_URL}/analizar-subasta/${slug}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

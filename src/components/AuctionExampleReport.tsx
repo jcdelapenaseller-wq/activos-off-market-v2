@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Calculator, TrendingUp, DollarSign, Target, 
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { ROUTES } from '../routes';
 import { AUCTIONS, AuctionData } from '../data/auctions';
+import RelatedAuctions from './RelatedAuctions';
 
 const ITP_RATES: Record<string, number> = {
   'Madrid': 0.06,
@@ -112,11 +113,7 @@ const AuctionExampleReport: React.FC = () => {
     return { itp, registroNotaria, gestoria, costeTotalInversion, beneficio, roi, precioMaxPuja, effectiveMarketValue };
   }, [adjudicacion, valorMercado, reforma, comunidad, deudas, otrosGastos, surface, marketPriceM2, marketPriceM2Min, marketPriceM2Max]);
 
-  const relatedAuctions = useMemo(() => {
-    return Object.entries(AUCTIONS)
-      .filter(([currentSlug]) => currentSlug !== slug)
-      .slice(0, 3);
-  }, [slug]);
+  // Removed old relatedAuctions logic
 
   useEffect(() => {
     document.title = `Subasta ${tipoInmueble.toLowerCase()} en ${ciudad}${zona ? ` – ${zona}` : ''} | análisis y rentabilidad`;
@@ -202,6 +199,14 @@ const AuctionExampleReport: React.FC = () => {
             <Calculator className="mx-auto mb-4 text-brand-300" size={48} />
             <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">Análisis de subasta inmobiliaria en {ciudad}</h1>
             <p className="text-brand-200 text-lg">Revisión de rentabilidad, riesgos y costes estimados para este {tipoInmueble.toLowerCase()}</p>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mt-6 mx-8">
+            <h2 className="text-xl font-bold text-slate-900 mb-2">¿Cuánto deberías pujar realmente por esta subasta?</h2>
+            <p className="text-slate-700 mb-4">Muchos inversores pierden dinero porque calculan mal la puja máxima teniendo en cuenta cargas, costes y margen de seguridad.</p>
+            <Link to={`/calcular-puja-subasta/${slug}`} className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
+              Calcular puja máxima
+            </Link>
           </div>
 
           <div className="p-8 md:p-12">
@@ -629,41 +634,8 @@ const AuctionExampleReport: React.FC = () => {
             </div>
 
             {/* H2: Otras subastas inmobiliarias analizadas */}
-            {relatedAuctions.length > 0 && (
-              <div className="mt-12 pt-12 border-t border-slate-100">
-                <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2 mb-8">
-                  <TrendingUp className="text-brand-600" size={24} /> Otras subastas inmobiliarias analizadas
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {relatedAuctions.map(([relatedSlug, data]) => (
-                    <div key={relatedSlug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all group">
-                      <div className="p-5">
-                        <h3 className="text-base font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
-                          {data.propertyType} en {data.city}
-                        </h3>
-                        <div className="space-y-1 mb-4">
-                          <div className="flex items-center gap-2 text-slate-500 text-xs">
-                            <MapPin size={12} className="text-brand-500" />
-                            <span>{data.zone || data.city}</span>
-                          </div>
-                          {data.appraisalValue && (
-                            <div className="flex items-center gap-2 text-slate-500 text-xs">
-                              <DollarSign size={12} className="text-brand-500" />
-                              <span>Tasación: <span className="font-bold text-slate-900">{data.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
-                            </div>
-                          )}
-                        </div>
-                        <Link 
-                          to={`/ejemplo-subasta/${relatedSlug}`}
-                          className="inline-flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-2 px-4 rounded-lg text-xs hover:bg-brand-600 transition-all"
-                        >
-                          Ver análisis <ChevronRight size={14} />
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {slug && auctionData && (
+              <RelatedAuctions currentAuctionSlug={slug} currentAuctionData={auctionData} />
             )}
           </div>
         </div>
