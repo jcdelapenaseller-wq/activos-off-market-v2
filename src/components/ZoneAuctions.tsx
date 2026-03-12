@@ -9,32 +9,32 @@ const CITY_LIST = ['madrid', 'barcelona', 'valencia', 'sevilla'];
 const ZoneAuctions: React.FC = () => {
   const { city, zone } = useParams<{ city: string, zone: string }>();
 
-  const { displayCity, displayZone, zoneSlug } = useMemo(() => {
-    if (!city || !zone) return { displayCity: '', displayZone: '', zoneSlug: '' };
+  const { displayCity, displayZone } = useMemo(() => {
+    if (!city || !zone) return { displayCity: '', displayZone: '' };
 
     const foundCity = city.charAt(0).toUpperCase() + city.slice(1);
-    const foundZoneSlug = zone;
     const displayZone = zone.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
-    return { displayCity: foundCity, displayZone, zoneSlug: foundZoneSlug };
+    return { displayCity: foundCity, displayZone };
   }, [city, zone]);
 
   const filteredAuctions = useMemo(() => {
+    if (!city || !zone) return [];
+    
+    const normalize = (str: string) => str.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, '-');
+      
+    const normalizedCity = normalize(city);
+    const normalizedZone = normalize(zone);
+
     return Object.entries(AUCTIONS).filter(([_, data]) => {
-      if (!city || !zoneSlug) return false;
-      
-      const cityMatch = data.city?.toLowerCase() === city.toLowerCase();
-      // Match zone by slugifying both the data.zone and the URL zone parameter
-      const normalize = (str: string) => str.toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, '-');
-        
+      const dataCitySlug = normalize(data.city || '');
       const dataZoneSlug = normalize(data.zone || '');
-      const normalizedUrlZone = normalize(zoneSlug);
       
-      return cityMatch && dataZoneSlug === normalizedUrlZone;
+      return dataCitySlug === normalizedCity && dataZoneSlug === normalizedZone;
     });
-  }, [city, zoneSlug]);
+  }, [city, zone]);
 
   // Try to get the actual display name from the first match if available
   const actualZoneName = useMemo(() => {
