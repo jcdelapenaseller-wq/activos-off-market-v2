@@ -76,13 +76,24 @@ const DiscoverCityArticles: React.FC = () => {
           <div className="grid grid-cols-1 gap-8">
             {articles.map((article) => (
               <article key={article.slug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row">
-                <Link to={`/noticias-subastas/${article.slug}`} className="md:w-2/5 shrink-0 block">
+                <Link to={`/noticias-subastas/${article.slug}`} className="md:w-2/5 shrink-0 block relative group">
                   <img 
                     src={article.imageUrl} 
                     alt={article.title}
-                    className="w-full h-64 md:h-full object-cover"
+                    className="w-full h-64 md:h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />
+                  <div className="absolute top-4 left-4 bg-brand-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
+                    Oportunidad
+                  </div>
+                  <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-slate-900 p-2 rounded-lg shadow-lg">
+                    <MapPin size={16} className="text-brand-600" />
+                  </div>
+                  {article.auction.appraisalValue && article.auction.claimedDebt && (
+                    <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm text-brand-900 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
+                      -{Math.round((1 - article.auction.claimedDebt / article.auction.appraisalValue) * 100)}% Dto.
+                    </div>
+                  )}
                 </Link>
                 <div className="p-8 flex flex-col justify-center">
                   <div className="flex items-center gap-2 text-slate-500 text-sm mb-4">

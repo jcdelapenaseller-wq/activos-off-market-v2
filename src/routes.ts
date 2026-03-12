@@ -39,6 +39,7 @@ import ZoneAuctions from './components/ZoneAuctions';
 import StreetAuctions from './components/StreetAuctions';
 import OpportunityAuctions from './components/OpportunityAuctions';
 import RecentAuctions from './components/RecentAuctions';
+import HighDiscountAuctions from './components/HighDiscountAuctions';
 import DiscoverCityArticles from './components/DiscoverCityArticles';
 import AuctionDiscoverArticle from './components/AuctionDiscoverArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
@@ -50,6 +51,7 @@ export const ROUTES = {
   ABOUT: '/quien-soy',
   SUBASTAS_BOE: '/subastas-boe',
   RECENT_AUCTIONS: '/subastas-recientes',
+  HIGH_DISCOUNT: '/subastas-descuento-50',
   GUIDE_INDEX: '/indice-guia-subastas',
   GUIDE_PILLAR: '/subastas-judiciales-espana',
   ANALYSIS: '/como-analizar-subasta-judicial-paso-a-paso',
@@ -116,6 +118,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.RECENT_AUCTIONS,
     element: createElement(RecentAuctions),
+  },
+  {
+    path: ROUTES.HIGH_DISCOUNT,
+    element: createElement(HighDiscountAuctions),
   },
   {
     path: ROUTES.GUIDE_INDEX,

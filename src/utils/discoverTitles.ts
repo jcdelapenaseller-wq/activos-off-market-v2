@@ -3,35 +3,38 @@ import { AuctionData } from '../data/auctions';
 export function generateDiscoverTitle(slug: string, auction: AuctionData): string {
   const type = auction.propertyType?.toLowerCase() || 'inmueble';
   const location = auction.zone || auction.city || 'España';
+  const city = auction.city || 'España';
   
-  const appraisal = auction.appraisalValue;
-  const debt = auction.claimedDebt;
+  const appraisal = auction.appraisalValue || 0;
+  const debt = auction.claimedDebt || 0;
+  const ratio = appraisal > 0 ? debt / appraisal : 1;
   
-  const formatCurrency = (value: number) => 
-    value.toLocaleString('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+  const formatNum = (val: number) => 
+    val.toLocaleString('es-ES', { maximumFractionDigits: 0 });
 
   const titles: string[] = [];
 
-  if (appraisal && debt && debt < appraisal * 0.6) {
-    titles.push(`Un ${type} en ${location} entra en subasta por una deuda de solo ${formatCurrency(debt)}`);
-    titles.push(`Una subasta en ${location} llama la atención por su gran diferencia de precio`);
-    titles.push(`Este ${type} en ${location} sale a subasta con un valor muy superior a la deuda`);
+  // 1. SHOCK DE PRECIO (ratio < 0.5)
+  if (ratio < 0.5 && appraisal > 0 && debt > 0) {
+    titles.push(`Un ${type} en ${location} de ${formatNum(appraisal)} € sale a subasta por una deuda de ${formatNum(debt)} €`);
+    titles.push(`Subasta en ${location}: un ${type} de ${formatNum(appraisal)} € con una deuda de solo ${formatNum(debt)} €`);
+    titles.push(`${type} en ${location} valorado en ${formatNum(appraisal)} € aparece en subasta por ${formatNum(debt)} €`);
+    titles.push(`¿Oportunidad? Un ${type} en ${location} de ${formatNum(appraisal)} € entra en subasta por ${formatNum(debt)} €`);
+  } 
+  // 2. OPORTUNIDAD (0.5 <= ratio < 0.7)
+  else if (ratio < 0.7 && appraisal > 0) {
+    titles.push(`Detectan una nueva subasta en ${city} que podría esconder una gran oportunidad`);
+    titles.push(`Una subasta en ${location} llama la atención por la diferencia entre tasación y deuda`);
+    titles.push(`Oportunidad en ${location}: un ${type} de ${formatNum(appraisal)} € entra en subasta pública`);
+    titles.push(`Analizan un ${type} en ${location} que acaba de salir a subasta por debajo de tasación`);
+  } 
+  // 3. NOTICIA GENERAL (ratio >= 0.7)
+  else {
+    titles.push(`Este ${type} en ${location} acaba de entrar en subasta pública`);
+    titles.push(`Nueva subasta de ${type} en ${location} valorado en ${formatNum(appraisal)} €`);
+    titles.push(`Un ${type} en ${location} sale a subasta: todos los detalles del expediente`);
+    titles.push(`Detectada subasta de ${type} en ${location} con un valor de ${formatNum(appraisal)} €`);
   }
-
-  if (debt && debt < 150000) {
-    titles.push(`Un ${type} en ${location} aparece en subasta por una cantidad inesperadamente baja`);
-  }
-
-  if (appraisal && appraisal > 500000) {
-    titles.push(`Sale a subasta un exclusivo ${type} en ${location} valorado en ${formatCurrency(appraisal)}`);
-  }
-
-  if (appraisal) {
-    titles.push(`Sale a subasta un ${type} en ${location} valorado en ${formatCurrency(appraisal)}`);
-  }
-
-  titles.push(`Una nueva subasta de ${type} en ${location} genera expectación en el mercado`);
-  titles.push(`Oportunidad en ${location}: un ${type} acaba de entrar en subasta pública`);
 
   // Deterministic selection based on slug
   let seed = 0;
@@ -39,11 +42,13 @@ export function generateDiscoverTitle(slug: string, auction: AuctionData): strin
     seed += slug.charCodeAt(i);
   }
   
-  // Filter titles to ensure they are <= 90 chars
+  // Filter titles to ensure they are <= 90 chars and not empty
   const validTitles = titles.filter(t => t.length <= 90);
   
   if (validTitles.length === 0) {
-    return `Subasta de ${type} en ${location}`.substring(0, 90);
+    // Fallback if all templates failed length check (unlikely with these templates)
+    const fallback = `Subasta de ${type} en ${location} de ${formatNum(appraisal)} €`.substring(0, 90);
+    return fallback;
   }
 
   return validTitles[seed % validTitles.length];

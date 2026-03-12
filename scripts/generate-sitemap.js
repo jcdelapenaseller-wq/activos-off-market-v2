@@ -17,6 +17,7 @@ const staticPages = [
   '/ejemplos-subastas',
   '/noticias-subastas',
   '/subastas-recientes',
+  '/subastas-descuento-50',
   '/noticias-subastas/madrid',
   '/noticias-subastas/barcelona',
   '/noticias-subastas/valencia',

@@ -1,12 +1,28 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight } from 'lucide-react';
+import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight, Percent } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../routes';
 
 const RecentAuctions: React.FC = () => {
   // Get all auctions and reverse them to show most recent first (by insertion order)
   const allAuctions = Object.entries(AUCTIONS).reverse().slice(0, 20);
+
+  const formatPublishedDate = (dateString?: string) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const now = new Date('2026-03-12T16:58:36Z'); // Using current runtime date for consistency
+    const diffTime = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return "Publicado hoy";
+    } else if (diffDays < 30) {
+      return `Publicado hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`;
+    } else {
+      return `Publicado el ${date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    }
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -48,7 +64,7 @@ const RecentAuctions: React.FC = () => {
               <div className="p-8 flex-grow">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 text-brand-600 font-bold text-xs uppercase tracking-widest">
-                    <Calendar size={14} /> Reciente
+                    <Calendar size={14} /> {formatPublishedDate(data.publishedAt) || 'Reciente'}
                   </div>
                   <div className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-tighter">
                     {data.procedureType || 'Subasta'}
@@ -118,6 +134,24 @@ const RecentAuctions: React.FC = () => {
               Ir a la Calculadora <Calculator size={22} />
             </Link>
           </div>
+        </div>
+
+        <div className="mt-12 bg-emerald-50 border border-emerald-100 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center text-white shrink-0">
+              <Percent size={24} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-900">¿Buscas las mejores oportunidades?</h3>
+              <p className="text-slate-600">Hemos seleccionado los activos con mayor margen de beneficio potencial.</p>
+            </div>
+          </div>
+          <Link 
+            to="/subastas-descuento-50" 
+            className="bg-emerald-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-emerald-700 transition-all whitespace-nowrap"
+          >
+            Subastas con más del 50% de descuento
+          </Link>
         </div>
 
         <div className="mt-20 pt-12 border-t border-slate-200">
