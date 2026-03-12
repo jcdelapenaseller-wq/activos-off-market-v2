@@ -3,14 +3,16 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../routes';
 import { Calendar, User, ChevronRight, ArrowLeft } from 'lucide-react';
+import { generateDiscoverTitle } from '../utils/discoverTitles';
 
 const AuctionDiscoverArticle: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const auction = useMemo(() => slug ? AUCTIONS[slug] : null, [slug]);
+  const title = useMemo(() => auction && slug ? generateDiscoverTitle(slug, auction) : '', [auction, slug]);
 
   useEffect(() => {
-    if (auction) {
-      document.title = `Un ${auction.propertyType?.toLowerCase() || 'inmueble'} en ${auction.city} valorado en ${auction.appraisalValue?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})} aparece en subasta`;
+    if (auction && title) {
+      document.title = `${title} | Activos Off-Market`;
       
       const metaRobots = document.createElement('meta');
       metaRobots.setAttribute('name', 'robots');
@@ -38,7 +40,7 @@ const AuctionDiscoverArticle: React.FC = () => {
             referrerPolicy="no-referrer"
           />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6 leading-tight">
-            Un {auction.propertyType?.toLowerCase()} en {auction.city} valorado en {auction.appraisalValue?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})} aparece en subasta
+            {title}
           </h1>
           <div className="flex items-center gap-6 text-slate-500 text-sm">
             <div className="flex items-center gap-2"><Calendar size={16} /> {formattedDate}</div>

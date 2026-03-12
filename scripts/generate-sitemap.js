@@ -14,7 +14,8 @@ const staticPages = [
   '/subastas-barcelona',
   '/subastas-valencia',
   '/subastas-sevilla',
-  '/ejemplos-subastas'
+  '/ejemplos-subastas',
+  '/noticias-subastas'
 ];
 
 
@@ -78,7 +79,7 @@ function generateSitemap() {
       const zone = zoneMatch[1].toLowerCase()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
         .replace(/\s+/g, '-');
-      zonePages.add(`/subastas-${city}-${zone}`);
+      zonePages.add(`/subastas/${city}/${zone}`);
     }
   });
 
