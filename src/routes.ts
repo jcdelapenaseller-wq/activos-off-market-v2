@@ -246,16 +246,16 @@ export const routes: RouteObject[] = [
     element: createElement(AuctionDiscoverArticle),
   },
   {
-    path: ROUTES.CITY_PROPERTY,
-    element: createElement(CityPropertyAuctions),
+    path: ROUTES.ZONE,
+    element: createElement(ZoneAuctions),
   },
   {
     path: ROUTES.ZONE_PROPERTY_CITY,
     element: createElement(ZonePropertyAuctions),
   },
   {
-    path: ROUTES.ZONE,
-    element: createElement(ZoneAuctions),
+    path: ROUTES.CITY_PROPERTY,
+    element: createElement(CityPropertyAuctions),
   },
   {
     path: ROUTES.EMPTY,
