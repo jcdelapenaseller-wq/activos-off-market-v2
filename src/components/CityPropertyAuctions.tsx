@@ -16,10 +16,24 @@ const CityPropertyAuctions: React.FC = () => {
   }, [citySlugParam]);
   const propertyType = useMemo(() => propertyTypeParam ? PROPERTY_TYPE_MAP[propertyTypeParam.toLowerCase()] || propertyTypeParam.charAt(0).toUpperCase() + propertyTypeParam.slice(1) : '', [propertyTypeParam]);
 
+  const getSingular = (type: string) => {
+    const normalized = type.toLowerCase();
+    const map: Record<string, string> = {
+      'pisos': 'piso', 'piso': 'piso',
+      'locales': 'local', 'local': 'local',
+      'viviendas': 'vivienda', 'vivienda': 'vivienda',
+      'chalets': 'chalet', 'chalet': 'chalet',
+      'garajes': 'garaje', 'garaje': 'garaje',
+      'naves': 'nave', 'nave': 'nave',
+      'apartamentos': 'apartamento', 'apartamento': 'apartamento'
+    };
+    return map[normalized] || normalized;
+  };
+
   const filteredAuctions = useMemo(() => {
     return Object.entries(AUCTIONS).filter(([_, data]) => {
-      const cityMatch = data.city?.toLowerCase() === city.toLowerCase();
-      const typeMatch = data.propertyType?.toLowerCase() === propertyType.toLowerCase();
+      const cityMatch = data.city && data.city.toLowerCase() === city.toLowerCase();
+      const typeMatch = data.propertyType && getSingular(data.propertyType) === getSingular(propertyType);
       return cityMatch && typeMatch;
     });
   }, [city, propertyType]);
