@@ -7,13 +7,12 @@ import { ROUTES } from '../routes';
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 
 const CityPropertyAuctions: React.FC = () => {
-  const { citySlug: citySlugParam, propertyType: propertyTypeParam } = useParams<{ citySlug: string; propertyType: string }>();
+  const { city: cityParam, propertyType: propertyTypeParam } = useParams<{ city: string; propertyType: string }>();
 
   const city = useMemo(() => {
-    if (!citySlugParam) return '';
-    const cityValue = citySlugParam.replace('subastas-', '');
-    return CITY_MAP[cityValue.toLowerCase()] || cityValue.charAt(0).toUpperCase() + cityValue.slice(1);
-  }, [citySlugParam]);
+    if (!cityParam) return '';
+    return CITY_MAP[cityParam.toLowerCase()] || cityParam.charAt(0).toUpperCase() + cityParam.slice(1);
+  }, [cityParam]);
   const propertyType = useMemo(() => propertyTypeParam ? PROPERTY_TYPE_MAP[propertyTypeParam.toLowerCase()] || propertyTypeParam.charAt(0).toUpperCase() + propertyTypeParam.slice(1) : '', [propertyTypeParam]);
 
   const getSingular = (type: string) => {

@@ -63,7 +63,7 @@ function generateSitemap() {
       const city = cityMatch[1].toLowerCase();
       const type = typeMatch[1];
       const typeSlug = typeToSlug[type] || type.toLowerCase();
-      cityPropertyPages.add(`/subastas-${typeSlug}-${city}`);
+      cityPropertyPages.add(`/subastas/${city}/${typeSlug}`);
       
       if (zoneMatch) {
         const zone = zoneMatch[1].toLowerCase()

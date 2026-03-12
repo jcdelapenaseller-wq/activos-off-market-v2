@@ -255,12 +255,12 @@ const AuctionMadridGuide: React.FC = () => {
                 Si buscas un tipo de activo específico en la capital, puedes filtrar los análisis por categoría:
               </p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-8 not-prose">
-                <Link to="/subastas-madrid/pisos" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Pisos</Link>
-                <Link to="/subastas-madrid/locales" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Locales</Link>
-                <Link to="/subastas-madrid/viviendas" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Viviendas</Link>
-                <Link to="/subastas-madrid/chalets" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Chalets</Link>
-                <Link to="/subastas-madrid/garajes" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Garajes</Link>
-                <Link to="/subastas-madrid/naves" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Naves</Link>
+                <Link to="/subastas/madrid/pisos" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Pisos</Link>
+                <Link to="/subastas/madrid/locales" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Locales</Link>
+                <Link to="/subastas/madrid/viviendas" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Viviendas</Link>
+                <Link to="/subastas/madrid/chalets" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Chalets</Link>
+                <Link to="/subastas/madrid/garajes" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Garajes</Link>
+                <Link to="/subastas/madrid/naves" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Naves</Link>
               </div>
 
               <h2 className="text-3xl font-bold mt-12 mb-6">Subastas por zona en Madrid</h2>
