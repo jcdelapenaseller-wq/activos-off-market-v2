@@ -24,11 +24,15 @@ const ZoneAuctions: React.FC = () => {
       if (!city || !zoneSlug) return false;
       
       const cityMatch = data.city?.toLowerCase() === city.toLowerCase();
-      // Match zone by slugifying the data.zone (removing accents)
-      const dataZoneSlug = data.zone?.toLowerCase()
+      // Match zone by slugifying both the data.zone and the URL zone parameter
+      const normalize = (str: string) => str.toLowerCase()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         .replace(/\s+/g, '-');
-      return cityMatch && dataZoneSlug === zoneSlug;
+        
+      const dataZoneSlug = normalize(data.zone || '');
+      const normalizedUrlZone = normalize(zoneSlug);
+      
+      return cityMatch && dataZoneSlug === normalizedUrlZone;
     });
   }, [city, zoneSlug]);
 
