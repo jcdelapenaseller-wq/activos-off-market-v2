@@ -7,28 +7,17 @@ import { ROUTES } from '../routes';
 const CITY_LIST = ['madrid', 'barcelona', 'valencia', 'sevilla'];
 
 const ZoneAuctions: React.FC = () => {
-  const { cityZone } = useParams<{ cityZone: string }>();
+  const { city, zone } = useParams<{ city: string, zone: string }>();
 
-  const { city, zone, zoneSlug } = useMemo(() => {
-    if (!cityZone) return { city: '', zone: '', zoneSlug: '' };
+  const { displayCity, displayZone, zoneSlug } = useMemo(() => {
+    if (!city || !zone) return { displayCity: '', displayZone: '', zoneSlug: '' };
 
-    let foundCity = '';
-    let foundZoneSlug = '';
+    const foundCity = city.charAt(0).toUpperCase() + city.slice(1);
+    const foundZoneSlug = zone;
+    const displayZone = zone.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
-    for (const c of CITY_LIST) {
-      if (cityZone.startsWith(c + '-')) {
-        foundCity = c.charAt(0).toUpperCase() + c.slice(1);
-        foundZoneSlug = cityZone.replace(c + '-', '');
-        break;
-      }
-    }
-
-    // Convert slug back to display name (simple version)
-    // In a real app, we might have a map, but here we can try to match against AUCTIONS data
-    const displayZone = foundZoneSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-
-    return { city: foundCity, zone: displayZone, zoneSlug: foundZoneSlug };
-  }, [cityZone]);
+    return { displayCity: foundCity, displayZone, zoneSlug: foundZoneSlug };
+  }, [city, zone]);
 
   const filteredAuctions = useMemo(() => {
     return Object.entries(AUCTIONS).filter(([_, data]) => {
@@ -48,16 +37,16 @@ const ZoneAuctions: React.FC = () => {
     if (filteredAuctions.length > 0) {
       return filteredAuctions[0][1].zone;
     }
-    return zone;
-  }, [filteredAuctions, zone]);
+    return displayZone;
+  }, [filteredAuctions, displayZone]);
 
   useEffect(() => {
-    if (actualZoneName && city) {
-      document.title = `Subastas inmobiliarias en ${actualZoneName}, ${city} | Activos Off-Market`;
+    if (actualZoneName && displayCity) {
+      document.title = `Subastas inmobiliarias en ${actualZoneName}, ${displayCity} | Activos Off-Market`;
       
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
-        metaDesc.setAttribute('content', `Ejemplos de subastas inmobiliarias en ${actualZoneName}, ${city}. Análisis de oportunidades procedentes del BOE.`);
+        metaDesc.setAttribute('content', `Ejemplos de subastas inmobiliarias en ${actualZoneName}, ${displayCity}. Análisis de oportunidades procedentes del BOE.`);
       }
 
       // SEO: Noindex if no auctions found
@@ -81,7 +70,7 @@ const ZoneAuctions: React.FC = () => {
         metaRobots.setAttribute('content', 'index, follow');
       }
     };
-  }, [city, actualZoneName, filteredAuctions.length]);
+  }, [displayCity, actualZoneName, filteredAuctions.length]);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 px-6 pt-10">
@@ -94,10 +83,10 @@ const ZoneAuctions: React.FC = () => {
 
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
-            Subastas inmobiliarias en {actualZoneName}, {city}
+            Subastas inmobiliarias en {actualZoneName}, {displayCity}
           </h1>
           <p className="text-xl text-slate-600 max-w-3xl">
-            Ejemplos de subastas inmobiliarias en {actualZoneName}, {city}. Análisis de oportunidades procedentes del BOE y otros portales oficiales.
+            Ejemplos de subastas inmobiliarias en {actualZoneName}, {displayCity}. Análisis de oportunidades procedentes del BOE y otros portales oficiales.
           </p>
         </div>
 

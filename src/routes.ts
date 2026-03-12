@@ -80,7 +80,7 @@ export const ROUTES = {
   NOTICIAS_SUBASTAS: '/noticias-subastas/:slug',
   CITY_PROPERTY: '/subastas/:city/:propertyType',
   ZONE_PROPERTY_CITY: '/subastas-:propertyType-:city-:zone',
-  ZONE: '/subastas-:cityZone',
+  ZONE: '/subastas-:city-:zone',
   LEGAL: '/aviso-legal',
   PRIVACY: '/politica-privacidad',
   COOKIES: '/politica-cookies',
