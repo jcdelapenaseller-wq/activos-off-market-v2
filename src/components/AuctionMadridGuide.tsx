@@ -268,9 +268,9 @@ const AuctionMadridGuide: React.FC = () => {
                 Explora las subastas analizadas en los diferentes barrios y distritos de Madrid:
               </p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-8 not-prose">
-                <Link to="/subastas-madrid-centro" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Centro</Link>
-                <Link to="/subastas-madrid-chamberi" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Chamberí</Link>
-                <Link to="/subastas-madrid-chamartin" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Chamartín</Link>
+                <Link to="/subastas/madrid/centro" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Centro</Link>
+                <Link to="/subastas/madrid/chamberi" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Chamberí</Link>
+                <Link to="/subastas/madrid/chamartin" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Chamartín</Link>
               </div>
 
               <h2 className="text-3xl font-bold mt-12 mb-6">Preguntas frecuentes sobre subastas en Madrid</h2>
