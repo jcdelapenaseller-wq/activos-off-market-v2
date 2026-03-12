@@ -21,6 +21,9 @@ const ZoneAuctions: React.FC = () => {
   const filteredAuctions = useMemo(() => {
     if (!city || !zone) return [];
     
+    console.log("Params recibidos:", { city, zone });
+    console.log("AUCTIONS completo:", AUCTIONS);
+    
     const normalize = (str: string) => str.toLowerCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .replace(/\s+/g, '-');
@@ -28,9 +31,19 @@ const ZoneAuctions: React.FC = () => {
     const normalizedCity = normalize(city);
     const normalizedZone = normalize(zone);
 
-    return Object.entries(AUCTIONS).filter(([_, data]) => {
+    return Object.entries(AUCTIONS).filter(([slug, data]) => {
       const dataCitySlug = normalize(data.city || '');
       const dataZoneSlug = normalize(data.zone || '');
+      
+      console.log("Subasta evaluada:", slug);
+      console.log("Ciudad datos:", data.city);
+      console.log("Zona datos:", data.zone);
+      console.log("Comparación normalizada:", {
+        dataCitySlug,
+        normalizedCity,
+        dataZoneSlug,
+        normalizedZone
+      });
       
       return dataCitySlug === normalizedCity && dataZoneSlug === normalizedZone;
     });
