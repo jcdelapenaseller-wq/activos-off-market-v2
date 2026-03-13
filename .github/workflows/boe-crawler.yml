@@ -22,7 +22,7 @@ jobs:
         run: npm install
 
       - name: Run crawler
-        run: node scripts/boeCrawler.js
+        run: node scripts/boeCrawler.cjs
 
       - name: Commit updated auctions
         run: |
