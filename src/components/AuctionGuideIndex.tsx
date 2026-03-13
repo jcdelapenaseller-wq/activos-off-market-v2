@@ -97,7 +97,7 @@ const AuctionGuideIndex: React.FC = () => {
 
             <div className="flex flex-wrap items-center gap-6 text-slate-500 text-sm border-t border-slate-100 pt-6">
                 <div className="flex items-center gap-3">
-                    <img src="/jose-delapena.jpg" alt="José de la Peña" className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md" />
+                    <img src="/jose-de-la-pena-subastas-boe.jpg" alt="José de la Peña" className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md" />
                     <div className="flex flex-col">
                         <span className="font-bold text-slate-900 leading-none">José de la Peña</span>
                         <span className="text-xs text-brand-600 mt-1 font-semibold uppercase">Jurista</span>
