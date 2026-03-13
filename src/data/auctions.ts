@@ -15,6 +15,10 @@ export interface AuctionData {
   boeId?: string;
   boeUrl?: string;
   publishedAt?: string; // ISO date string
+  slug?: string;
+  auctionDate?: string;
+  discount?: number;
+  pricePerM2?: number;
 }
 
 export const AUCTIONS: Record<string, AuctionData> = {
