@@ -214,6 +214,12 @@ function generateSlug(city, zone, id) {
 function saveAuction(auction) {
   const content = fs.readFileSync(CONFIG.AUCTIONS_FILE, 'utf8');
   
+  // Evitar duplicados comprobando si el slug ya existe
+  if (content.includes(`'${auction.slug}':`)) {
+    console.log(`  ⚠️ Subasta ya existente: ${auction.slug}`);
+    return;
+  }
+
   // Encontrar el cierre del objeto AUCTIONS
   const lastBraceIndex = content.lastIndexOf('};');
   if (lastBraceIndex === -1) return;
