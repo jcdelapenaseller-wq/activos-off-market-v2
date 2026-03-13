@@ -94,5 +94,19 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-AT-2024-23R4586001244",
     boeUrl: "https://subastas.boe.es/reg/detalleSubasta.php?idSub=SUB-AT-2024-23R4586001244",
     publishedAt: "2026-03-05T17:45:00Z"
+  },
+  'vivienda-subasta-madrid-nuevos-ministerios-maria-de-guzman-45': {
+    propertyType: "Vivienda",
+    city: "Madrid",
+    zone: "Nuevos Ministerios",
+    address: "Calle de María de Guzmán, 45",
+    appraisalValue: 200500,
+    claimedDebt: 150750,
+    procedureType: "Judicial vía de apremio",
+    occupancy: "No consta",
+    description: "Subasta judicial de vivienda en la calle María de Guzmán, zona de Nuevos Ministerios. El edicto no especifica la situación posesoria, lo cual es un factor de riesgo a considerar en la estrategia de puja. La deuda reclamada representa aproximadamente el 75% del valor de tasación. Se trata de una ubicación muy céntrica y demandada en Madrid, donde los valores de mercado suelen superar ampliamente los tipos de subasta. Se recomienda revisar posibles cargas preferentes y el estado real del inmueble.",
+    boeId: "SUB-JA-2026-258334",
+    boeUrl: "https://subastas.boe.es/reg/detalleSubasta.php?idSub=SUB-JA-2026-258334",
+    publishedAt: "2026-03-13T18:52:47Z"
   }
 };
