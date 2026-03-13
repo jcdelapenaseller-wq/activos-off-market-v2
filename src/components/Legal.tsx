@@ -15,9 +15,9 @@ const Legal: React.FC<LegalProps> = ({ type }) => {
           <h3>1. Datos Identificativos</h3>
           <p>
             Nombre Comercial: Activos Off-Market<br/>
-            Titular: [XXXX Nombre Completo o Razón Social]<br/>
-            NIF/CIF: [XXXX]<br/>
-            Domicilio Social: [XXXX Dirección Completa]<br/>
+            Titular: José Carlos De La Peña Manchón (Entrepreneur individuel)<br/>
+            RCS Paris: 994 466 985<br/>
+            Domicilio Social: 59 rue de Ponthieu, 75008 Paris<br/>
             Email de contacto: contacto@activosoffmarket.com<br/>
             Actividad: Consultoría y análisis de subastas públicas.
           </p>
@@ -38,7 +38,7 @@ const Legal: React.FC<LegalProps> = ({ type }) => {
           </ul>
 
           <h3>5. Legislación y Jurisdicción</h3>
-          <p>Para la resolución de todas las controversias o cuestiones relacionadas con el presente sitio web, será de aplicación la legislación española, siendo competentes los Juzgados y Tribunales de [XXXX Ciudad del Titular].</p>
+          <p>Para la resolución de todas las controversias o cuestiones relacionadas con el presente sitio web, será de aplicación la legislación española, siendo competentes los Juzgados y Tribunales de París.</p>
         </>
       )
     },
@@ -50,8 +50,8 @@ const Legal: React.FC<LegalProps> = ({ type }) => {
 
             <h3>1. Responsable del Tratamiento</h3>
             <p>
-              Titular: [XXXX Nombre Completo]<br/>
-              NIF: [XXXX]<br/>
+              Titular: José Carlos De La Peña Manchón (Entrepreneur individuel)<br/>
+              RCS Paris: 994 466 985<br/>
               Email: contacto@activosoffmarket.com
             </p>
 

@@ -92,6 +92,13 @@ const AuctionExampleReport: React.FC = () => {
   const marketPriceM2Max = auctionData?.marketPriceM2Max;
   const description = auctionData?.description;
 
+  const address = auctionData?.address || '';
+  const displayTitle = useMemo(() => {
+    if (address) return `Análisis de subasta en ${address} (${ciudad})`;
+    if (zona) return `Análisis de subasta en ${zona} (${ciudad})`;
+    return `Análisis de subasta inmobiliaria en ${ciudad}`;
+  }, [address, zona, ciudad]);
+
   const results = useMemo(() => {
     const itpRate = ITP_RATES[comunidad] || 0.08;
     const itp = adjudicacion * itpRate;
@@ -116,11 +123,11 @@ const AuctionExampleReport: React.FC = () => {
   // Removed old relatedAuctions logic
 
   useEffect(() => {
-    document.title = `Subasta ${tipoInmueble.toLowerCase()} en ${ciudad}${zona ? ` – ${zona}` : ''} | análisis y rentabilidad`;
+    document.title = `${displayTitle} | Análisis y Rentabilidad`;
     
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', `Análisis de subasta inmobiliaria en ${ciudad}. Revisa riesgos, rentabilidad y cálculo previo antes de pujar.`);
+      metaDesc.setAttribute('content', `${displayTitle}. Revisa riesgos, rentabilidad y cálculo previo antes de pujar en esta subasta del BOE.`);
     }
 
     const breadcrumbSchema = {
@@ -197,7 +204,7 @@ const AuctionExampleReport: React.FC = () => {
         <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden mb-12">
           <div className="bg-brand-900 text-white p-10 text-center">
             <Calculator className="mx-auto mb-4 text-brand-300" size={48} />
-            <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">Análisis de subasta inmobiliaria en {ciudad}</h1>
+            <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">{displayTitle}</h1>
             <p className="text-brand-200 text-lg">Revisión de rentabilidad, riesgos y costes estimados para este {tipoInmueble.toLowerCase()}</p>
           </div>
 
@@ -353,6 +360,52 @@ const AuctionExampleReport: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* BLOQUE DE CONVERSIÓN 1: CALENDLY */}
+            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-8 my-10 shadow-sm">
+              <div className="flex flex-col md:flex-row gap-8 items-center">
+                <div className="flex-1">
+                  <h3 className="text-2xl font-serif font-bold text-slate-900 mb-4">¿Quieres el análisis completo del expediente?</h3>
+                  <p className="text-slate-700 mb-4">El análisis público resume los datos principales de la subasta.</p>
+                  <p className="text-slate-700 mb-4">Antes de pujar muchos inversores solicitan una revisión completa del expediente:</p>
+                  <ul className="space-y-2 text-slate-700 mb-6">
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-brand-600 rounded-full"></div>
+                      revisión de cargas registrales
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-brand-600 rounded-full"></div>
+                      análisis de la situación posesoria
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-brand-600 rounded-full"></div>
+                      estrategia de puja recomendada
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-brand-600 rounded-full"></div>
+                      estimación de valor real del activo
+                    </li>
+                  </ul>
+                  <a 
+                    href="https://calendly.com/activosoffmarket" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-brand-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-800 transition-all shadow-md"
+                  >
+                    Solicitar análisis completo <ArrowRight size={20} />
+                  </a>
+                </div>
+                <div className="hidden md:block w-1/3">
+                  <div className="bg-white p-6 rounded-2xl border border-brand-100 shadow-inner">
+                    <FileText className="text-brand-600 w-12 h-12 mb-4" />
+                    <div className="h-2 w-full bg-slate-100 rounded mb-2"></div>
+                    <div className="h-2 w-3/4 bg-slate-100 rounded mb-2"></div>
+                    <div className="h-2 w-full bg-slate-100 rounded mb-4"></div>
+                    <div className="h-8 w-full bg-brand-100 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* H2: Precio de mercado del inmueble en la zona */}
             {surface && (marketPriceM2 || (marketPriceM2Min && marketPriceM2Max)) && (
@@ -580,6 +633,23 @@ const AuctionExampleReport: React.FC = () => {
               <Link to={ROUTES.ANALYSIS} className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-800 transition-colors group">
                 Leer guía paso a paso <ArrowRight size={20} className="transform group-hover:translate-x-1 transition-transform" />
               </Link>
+            </div>
+
+            {/* BLOQUE DE CONVERSIÓN 2: TELEGRAM PREMIUM */}
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 my-10 shadow-sm text-center">
+              <Send className="text-brand-600 mx-auto mb-4" size={40} />
+              <h3 className="text-2xl font-serif font-bold text-slate-900 mb-4">Más subastas analizadas cada semana</h3>
+              <p className="text-slate-600 mb-8 max-w-2xl mx-auto">
+                En el canal premium publico más activos detectados y explico el contexto jurídico y la estrategia posible en muchas subastas que no aparecen en el canal gratuito.
+              </p>
+              <a 
+                href="https://sublaunch.com/activosoffmarket" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-slate-900 text-white font-bold py-4 px-10 rounded-xl hover:bg-brand-700 transition-all shadow-md"
+              >
+                Ver canal premium <ArrowRight size={20} />
+              </a>
             </div>
 
             {/* H2: Subastas inmobiliarias en {city} */}

@@ -11,7 +11,7 @@ const RecentAuctions: React.FC = () => {
   const formatPublishedDate = (dateString?: string) => {
     if (!dateString) return null;
     const date = new Date(dateString);
-    const now = new Date('2026-03-12T16:58:36Z'); // Using current runtime date for consistency
+    const now = new Date('2026-03-13T20:19:35Z'); // Updated to current runtime date
     const diffTime = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
@@ -47,11 +47,18 @@ const RecentAuctions: React.FC = () => {
           </h1>
 
           <div className="prose prose-lg prose-slate max-w-3xl">
+            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-6 mb-8">
+              <h2 className="text-xl font-bold text-slate-900 mb-2 mt-0">Últimas subastas detectadas recientemente</h2>
+              <p className="text-slate-700 mb-0">
+                Estas son las últimas subastas inmobiliarias detectadas y analizadas recientemente a partir de los anuncios publicados en el BOE y otros procedimientos públicos.
+              </p>
+            </div>
+
             <p className="text-xl leading-relaxed text-slate-600">
-              El mercado de subastas públicas en España es extremadamente dinámico, con cientos de nuevos activos publicados cada semana en el Portal del BOE. Mantenerse actualizado es la clave para detectar oportunidades antes que la competencia. En esta sección listamos los últimos análisis técnicos realizados sobre subastas judiciales y administrativas en las principales ciudades españolas.
+              El mercado de subastas públicas en España es extremadamente dinámico, con cientos de nuevos activos publicados cada semana en el Portal del BOE. Mantenerse actualizado es la clave para detectar oportunidades antes que la competencia.
             </p>
             <p className="text-slate-600">
-              Cada una de estas subastas ha sido filtrada y analizada bajo criterios de rentabilidad y seguridad jurídica. Analizamos desde la certificación de cargas hasta el entorno inmobiliario local para ofrecerte una visión clara del potencial de cada activo. Recuerda que el tiempo es un factor crítico en las subastas, por lo que te recomendamos revisar esta sección frecuentemente para no perder ninguna oportunidad estratégica.
+              En Activos Off-Market publicamos regularmente nuevas subastas analizadas para que no te pierdas ninguna oportunidad de inversión. Nuestro equipo rastrea diariamente el BOE y otros portales oficiales para identificar los activos con mayor potencial de rentabilidad. Analizamos desde la certificación de cargas hasta el entorno inmobiliario local para ofrecerte una visión clara del potencial de cada activo.
             </p>
           </div>
         </div>
@@ -156,13 +163,38 @@ const RecentAuctions: React.FC = () => {
 
         <div className="mt-20 pt-12 border-t border-slate-200">
           <h2 className="text-2xl font-serif font-bold text-slate-900 mb-8 text-center">
-            Explorar subastas por ciudad
+            Hub de contenido y subastas por ciudad
           </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <Link to={ROUTES.NOTICIAS_SUBASTAS_INDEX} className="flex items-center justify-between bg-white border border-slate-200 p-6 rounded-2xl hover:border-brand-500 hover:shadow-md transition-all group">
+              <div>
+                <h3 className="font-bold text-slate-900 group-hover:text-brand-600">Noticias de Subastas</h3>
+                <p className="text-sm text-slate-500">Actualidad y avisos del BOE</p>
+              </div>
+              <ChevronRight className="text-slate-300 group-hover:text-brand-600" />
+            </Link>
+            <Link to={ROUTES.HIGH_DISCOUNT} className="flex items-center justify-between bg-white border border-slate-200 p-6 rounded-2xl hover:border-brand-500 hover:shadow-md transition-all group">
+              <div>
+                <h3 className="font-bold text-slate-900 group-hover:text-brand-600">Subastas con Descuento</h3>
+                <p className="text-sm text-slate-500">Más del 50% sobre tasación</p>
+              </div>
+              <ChevronRight className="text-slate-300 group-hover:text-brand-600" />
+            </Link>
+            <Link to={ROUTES.GUIDE_PILLAR} className="flex items-center justify-between bg-white border border-slate-200 p-6 rounded-2xl hover:border-brand-500 hover:shadow-md transition-all group">
+              <div>
+                <h3 className="font-bold text-slate-900 group-hover:text-brand-600">Guía de Inversión</h3>
+                <p className="text-sm text-slate-500">Aprende a pujar con seguridad</p>
+              </div>
+              <ChevronRight className="text-slate-300 group-hover:text-brand-600" />
+            </Link>
+          </div>
+
+          <h3 className="text-xl font-bold text-slate-900 mb-6 text-center">Explorar por ciudad</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link to="/subastas-madrid" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Madrid</Link>
-            <Link to="/subastas-barcelona" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Barcelona</Link>
-            <Link to="/subastas-valencia" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Valencia</Link>
-            <Link to="/subastas-sevilla" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Sevilla</Link>
+            <Link to="/subastas-en/madrid" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Madrid</Link>
+            <Link to="/subastas-en/barcelona" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Barcelona</Link>
+            <Link to="/subastas-en/valencia" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Valencia</Link>
+            <Link to="/subastas-en/sevilla" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Sevilla</Link>
           </div>
         </div>
       </main>

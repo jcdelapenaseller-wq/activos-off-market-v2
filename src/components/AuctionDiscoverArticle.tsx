@@ -10,6 +10,16 @@ const AuctionDiscoverArticle: React.FC = () => {
   const auction = useMemo(() => slug ? AUCTIONS[slug] : null, [slug]);
   const title = useMemo(() => auction && slug ? generateDiscoverTitle(slug, auction) : '', [auction, slug]);
 
+  const discount = useMemo(() => {
+    if (!auction || !auction.appraisalValue || !auction.claimedDebt) return null;
+    return Math.round((1 - auction.claimedDebt / auction.appraisalValue) * 100);
+  }, [auction]);
+
+  const altText = useMemo(() => {
+    if (!auction) return 'Subasta inmobiliaria';
+    return `Subasta de ${auction.propertyType?.toLowerCase()} en ${auction.zone} ${auction.city}${discount ? ` con descuento del ${discount}% sobre tasación` : ''}`;
+  }, [auction, discount]);
+
   useEffect(() => {
     if (auction && title && slug) {
       document.title = `${title} | Activos Off-Market`;
@@ -25,7 +35,7 @@ const AuctionDiscoverArticle: React.FC = () => {
         "headline": title,
         "description": `Una nueva oportunidad acaba de aparecer en el portal de subastas: un ${auction.propertyType?.toLowerCase() || 'inmueble'} ubicado en ${auction.zone}, ${auction.city}.`,
         "image": [
-          `https://picsum.photos/seed/real-estate-auction-${slug}/1200/675`
+          `https://picsum.photos/seed/real-estate-building-facade-auction-${slug}/1200/675`
         ],
         "datePublished": new Date().toISOString(),
         "dateModified": new Date().toISOString(),
@@ -68,8 +78,8 @@ const AuctionDiscoverArticle: React.FC = () => {
       <article className="max-w-3xl mx-auto px-6 py-12">
         <header className="mb-12">
           <img 
-            src={`https://picsum.photos/seed/real-estate-auction-${slug}/1200/675`} 
-            alt="Subasta inmobiliaria" 
+            src={`https://picsum.photos/seed/real-estate-building-facade-auction-${slug}/1200/675`} 
+            alt={altText} 
             className="w-full rounded-lg object-cover aspect-video mb-10"
             referrerPolicy="no-referrer"
           />

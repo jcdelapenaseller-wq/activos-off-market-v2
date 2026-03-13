@@ -36,12 +36,19 @@ const DiscoverCityArticles: React.FC = () => {
         const date = new Date();
         date.setDate(date.getDate() - index * 2);
         
+        const discount = auction.appraisalValue && auction.claimedDebt 
+          ? Math.round((1 - auction.claimedDebt / auction.appraisalValue) * 100)
+          : null;
+
+        const altText = `Subasta de ${auction.propertyType?.toLowerCase()} en ${auction.zone} ${auction.city}${discount ? ` con descuento del ${discount}% sobre tasación` : ''}`;
+        
         return {
           slug,
           auction,
           date,
           title: generateDiscoverTitle(slug, auction),
-          imageUrl: `https://picsum.photos/seed/real-estate-auction-${slug}/800/450`
+          imageUrl: `https://picsum.photos/seed/real-estate-building-facade-auction-${slug}/800/450`,
+          altText
         };
       })
       .sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -79,7 +86,7 @@ const DiscoverCityArticles: React.FC = () => {
                 <Link to={`/noticias-subastas/${article.slug}`} className="md:w-2/5 shrink-0 block relative group">
                   <img 
                     src={article.imageUrl} 
-                    alt={article.title}
+                    alt={article.altText}
                     className="w-full h-64 md:h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />
