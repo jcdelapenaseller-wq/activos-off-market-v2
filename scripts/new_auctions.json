@@ -1,0 +1,13 @@
+[
+  {
+    "slug": "test-subasta-madrid",
+    "city": "Madrid",
+    "zone": "Chamberí",
+    "propertyType": "Pisos",
+    "appraisalValue": 450000,
+    "claimedDebt": 120000,
+    "discount": 73,
+    "auctionDate": "2026-04-15",
+    "address": "Calle de prueba"
+  }
+]
