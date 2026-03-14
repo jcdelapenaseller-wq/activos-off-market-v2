@@ -19,6 +19,8 @@ const HOOKS = [
   "Acaba de aparecer esta subasta en el BOE y merece una revisión rápida.",
   "Estoy revisando este expediente ahora mismo y tiene algunos puntos interesantes.",
   "Este activo acaba de publicarse y puede tener potencial.",
+  "Este expediente acaba de saltar en el radar.",
+  "Estoy analizando esta subasta y hay algunos detalles interesantes.",
   "He visto este expediente recién salido del horno y me ha llamado la atención.",
   "Acabo de detectar esta oportunidad en el BOE y estoy analizando los detalles.",
   "Ojo a esta subasta que acaba de publicarse, tiene una pinta interesante para estudiar.",
@@ -27,20 +29,40 @@ const HOOKS = [
   "Acaban de publicar este expediente y creo que puede ser una buena oportunidad.",
   "Estoy analizando esta nueva subasta que ha salido hoy, tiene datos curiosos.",
   "He encontrado este activo en el BOE y me parece que tiene bastante juego.",
-  "Este anuncio acaba de salir y merece echarle un vistazo antes de que se llene de gente."
+  "Este anuncio acaba de salir y merece echarle un vistazo antes de que se llene de gente.",
+  "Nueva entrada en el BOE que me ha hecho parar un momento a revisar.",
+  "Acabo de ver este expediente y por zona podría ser muy interesante.",
+  "Mirando las subastas de hoy, esta destaca por encima del resto.",
+  "Hay movimiento en el BOE y este activo es de los que hay que seguir.",
+  "He detectado este expediente y los números preliminares llaman la atención.",
+  "Acaba de entrar esta subasta y ya estoy pidiendo nota simple para ver qué hay.",
+  "Acaba de publicarse esta subasta en el BOE y merece una revisión rápida.",
+  "Este expediente acaba de aparecer en el BOE y tiene algunos elementos interesantes.",
+  "Esta subasta acaba de publicarse y merece una mirada rápida."
 ];
 
 const INSIGHTS = [
-  "Este tipo de activos en zonas céntricas suele atraer bastante interés cuando empiezan las pujas.",
+  "Este tipo de activos en zonas céntricas suele generar bastante interés cuando empiezan las pujas.",
   "La clave aquí será revisar bien la situación posesoria.",
-  "Habrá que mirar con lupa las cargas registrales antes de decidir.",
+  "Habrá que mirar con lupa las cargas registrales.",
+  "Este tipo de expedientes a veces se resuelven con bastante competencia.",
   "El valor de tasación parece atractivo, pero hay que validar precios reales de mercado.",
   "La ubicación es estratégica, lo que suele reducir el riesgo de comercialización posterior.",
   "Ojo con los plazos de este juzgado, suelen ser algo lentos en los decretos de adjudicación.",
   "Parece que hay un buen margen de seguridad si la puja no se dispara demasiado.",
   "Es fundamental confirmar si existen deudas de comunidad o IBI pendientes de pago.",
   "Este expediente tiene una deuda reclamada baja respecto a la tasación, lo cual es buena señal.",
-  "Activos como este suelen ser ideales para inversores que buscan rentabilidad por alquiler."
+  "Activos como este suelen ser ideales para inversores que buscan rentabilidad por alquiler.",
+  "La tipología del activo es muy demandada en esta zona concreta.",
+  "Hay que verificar si el activo está ocupado o si se puede tomar posesión rápido.",
+  "Si el descuento se mantiene, la rentabilidad neta podría ser de dos dígitos.",
+  "Recomiendo revisar el edicto para confirmar si hay algún derecho de adquisición preferente."
+];
+
+const CURIOSITY_TRIGGERS = [
+  "Hay un detalle del expediente que puede cambiar bastante el riesgo real.",
+  "Este expediente tiene un matiz interesante que estoy revisando.",
+  "Hay un punto del edicto que merece analizarse con calma."
 ];
 
 const EMOJI_MAP = {
@@ -52,7 +74,8 @@ const EMOJI_MAP = {
   'parking': '🚗',
   'solar': '🌍',
   'terreno': '🌍',
-  'nave': '🏭'
+  'nave': '🏭',
+  'edificio': '🏢'
 };
 
 const MONTHS = [
@@ -154,10 +177,11 @@ async function runNotifier() {
   for (const auction of auctions) {
     const hook = getRandom(HOOKS);
     const insight = getRandom(INSIGHTS);
+    const curiosity = getRandom(CURIOSITY_TRIGGERS);
     
     // Selección de emoji
     const typeLower = (auction.propertyType || '').toLowerCase();
-    const emoji = EMOJI_MAP[typeLower] || '🏠';
+    const emoji = EMOJI_MAP[typeLower] || '🏢';
 
     // Construcción de hashtags
     const hashtags = [
@@ -175,6 +199,12 @@ async function runNotifier() {
     let message = `${emoji} ${hashtags}\n\n`;
     message += `${hook}\n\n`;
     
+    // Línea de ubicación
+    const location = auction.zone && auction.zone !== 'Desconocida' 
+      ? `📍 ${auction.city} (${auction.zone})` 
+      : `📍 ${auction.city}`;
+    message += `${location}\n\n`;
+    
     message += `📊 <b>Datos del expediente</b>\n\n`;
     
     if (appraisal) message += `💰 <b>Valor de subasta:</b> ${appraisal}\n`;
@@ -188,15 +218,15 @@ async function runNotifier() {
 
     message += `\n${insight}\n\n`;
     
-    message += `🔎 <b>Ficha completa</b>\n`;
-    message += `${CONFIG.BASE_URL}/${auction.slug}\n\n`;
+    message += `🔎 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver ficha completa</a>\n\n`;
+    
+    message += `${curiosity}\n\n`;
     
     message += `En el canal premium analizo además:\n\n`;
     message += `• cargas reales del registro\n`;
     message += `• rango probable de adjudicación\n`;
     message += `• estrategia de puja\n\n`;
-    message += `🔒 <b>Acceso Premium</b>\n`;
-    message += `https://sublaunch.com/activosoffmarket`;
+    message += `🔒 <a href="https://sublaunch.com/activosoffmarket">Acceso al análisis premium</a>`;
 
     // Enviar mensaje
     const success = await sendTelegramMessage(message);
