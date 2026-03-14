@@ -5,8 +5,7 @@ const axios = require('axios');
 /**
  * TELEGRAM NOTIFIER - ActivosOffMarket.es
  * 
- * Envía alertas de nuevas subastas detectadas por el crawler a un canal de Telegram.
- * Estilo: Analista experto humano.
+ * Envía alertas de nuevas subastas con un tono humano y experto.
  */
 
 const CONFIG = {
@@ -22,11 +21,11 @@ const HOOKS = [
   "Esta subasta acaba de publicarse y tiene algunos puntos curiosos.",
   "Estoy mirando este expediente ahora mismo porque puede tener bastante juego.",
   "Este anuncio acaba de salir en el BOE y merece echarle un vistazo.",
-  "He detectado este nuevo expediente en el BOE y las cifras iniciales llaman la atención.",
-  "Acaban de publicar esta subasta y por ubicación podría ser una oportunidad a seguir.",
-  "Dando una vuelta por las novedades del BOE me he topado con este expediente.",
-  "Ojo a esta subasta que acaba de salir; tiene pinta de que habrá movimiento.",
-  "Acabo de ver este anuncio y ya estoy descargando la certificación de cargas."
+  "He visto este expediente recién publicado y me ha llamado la atención por la zona.",
+  "Acabo de detectar esta oportunidad en el BOE y estoy analizando los detalles.",
+  "Ojo a esta subasta que acaba de salir, tiene una pinta interesante para estudiar.",
+  "Revisando las novedades del BOE, me he topado con este activo que acaba de publicarse.",
+  "Esta oportunidad acaba de saltar en el radar y parece que merece un análisis rápido."
 ];
 
 const INSIGHTS = [
@@ -34,8 +33,10 @@ const INSIGHTS = [
   "La situación posesoria no está del todo clara.",
   "Este tipo de activos en esta zona suelen atraer bastante interés cuando empiezan a moverse las pujas.",
   "Antes de plantear pujar habría que revisar bien las cargas.",
-  "El valor de tasación parece algo desajustado, habría que validar precios de mercado.",
-  "Es un expediente con miga; la clave estará en el análisis del edicto."
+  "El valor de tasación parece estar algo desfasado, habría que validar precios de mercado.",
+  "La ubicación es muy buena, pero el expediente judicial tiene algunos puntos a revisar.",
+  "Parece que hay margen, pero hay que confirmar si existen deudas preferentes.",
+  "Es un activo con potencial, aunque la clave estará en la estrategia de puja final."
 ];
 
 function formatCurrency(value) {
@@ -82,7 +83,7 @@ async function runNotifier() {
     const data = fs.readFileSync(CONFIG.NEW_AUCTIONS_FILE, 'utf8');
     auctions = JSON.parse(data);
   } catch (error) {
-    console.error('❌ Error leyendo JSON:', error.message);
+    console.error('❌ Error leyendo new_auctions.json:', error.message);
     return;
   }
 
@@ -97,42 +98,45 @@ async function runNotifier() {
     
     // Ubicación inteligente
     const location = auction.zone && auction.zone !== 'Desconocida' 
-      ? `📍 ${auction.city} / ${auction.zone}` 
-      : `📍 ${auction.city}`;
+      ? `${auction.city} (${auction.zone})` 
+      : auction.city;
+
+    // Cálculo de descuento si es posible
+    let discountText = "";
+    if (auction.appraisalValue && auction.claimedDebt && auction.appraisalValue > auction.claimedDebt) {
+      const discount = Math.round(((auction.appraisalValue - auction.claimedDebt) / auction.appraisalValue) * 100);
+      if (discount > 0) {
+        discountText = `📉 <b>Descuento teórico:</b> ~${discount}%\n`;
+      }
+    }
 
     // Construcción del mensaje
     let message = `${hook}\n\n`;
-    message += `${location}\n\n`;
-    message += `📊 <b>Datos rápidos del expediente</b>\n\n`;
+    message += `📍 <b>${location}</b>\n`;
+    message += `📊 <b>${auction.propertyType}</b>\n\n`;
     
     const appraisal = formatCurrency(auction.appraisalValue);
-    if (appraisal) {
-      message += `💰 <b>Valor de subasta:</b> ${appraisal}\n`;
-    }
-
-    if (auction.claimedDebt) {
-      const debt = formatCurrency(auction.claimedDebt);
-      if (debt) message += `🏦 <b>Deuda reclamada:</b> ${debt}\n`;
-    }
-
-    if (auction.discount && auction.discount > 0) {
-      message += `📉 <b>Descuento teórico:</b> ${auction.discount}%\n`;
-    }
+    if (appraisal) message += `💰 <b>Valor de subasta:</b> ${appraisal}\n`;
+    
+    const debt = formatCurrency(auction.claimedDebt);
+    if (debt) message += `🏦 <b>Deuda reclamada:</b> ${debt}\n`;
+    
+    message += discountText;
 
     if (auction.auctionDate) {
-      message += `\n⏳ <b>Cierre de subasta:</b> ${auction.auctionDate}\n`;
+      message += `⏳ <b>Cierre de subasta:</b> ${auction.auctionDate}\n`;
     }
 
     message += `\n${insight}\n\n`;
     
     message += `🔎 <b>Análisis completo del expediente:</b>\n`;
     message += `${CONFIG.BASE_URL}/${auction.slug}\n\n`;
-
+    
     message += `En el canal premium analizo además:\n`;
     message += `• cargas reales del registro\n`;
     message += `• rango probable de adjudicación\n`;
     message += `• estrategia de puja\n\n`;
-    message += `🔒 https://sublaunch.com/activosoffmarket`;
+    message += `🔒 <a href="https://sublaunch.com/activosoffmarket">Acceso Premium</a>`;
 
     const success = await sendTelegramMessage(message);
     if (success) {
@@ -148,8 +152,6 @@ async function runNotifier() {
   } catch (error) {
     console.error('❌ Error eliminando archivo:', error.message);
   }
-
-  console.log('🏁 Notificaciones finalizadas.');
 }
 
 runNotifier();
