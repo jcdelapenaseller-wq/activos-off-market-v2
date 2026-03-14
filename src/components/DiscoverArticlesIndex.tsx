@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { Calendar, ChevronRight, MapPin } from 'lucide-react';
 import { generateDiscoverTitle } from '../utils/discoverTitles';
+import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 
 const DiscoverArticlesIndex: React.FC = () => {
   useEffect(() => {
@@ -14,7 +15,7 @@ const DiscoverArticlesIndex: React.FC = () => {
   }, []);
 
   const articles = useMemo(() => {
-    return Object.entries(AUCTIONS).map(([slug, auction], index) => {
+    const mapped = Object.entries(AUCTIONS).map(([slug, auction], index) => {
       // Generate a deterministic date based on index so they can be sorted
       // We subtract days from today based on the index
       const date = new Date();
@@ -35,7 +36,13 @@ const DiscoverArticlesIndex: React.FC = () => {
         altText
       };
     }).sort((a, b) => b.date.getTime() - a.date.getTime());
+    
+    return sortActiveFirst(mapped, (item) => item.auction.auctionDate);
   }, []);
+
+  const activeCount = useMemo(() => {
+    return articles.filter(item => !isAuctionFinished(item.auction.auctionDate)).length;
+  }, [articles]);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 px-6 pt-10">
@@ -44,17 +51,33 @@ const DiscoverArticlesIndex: React.FC = () => {
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
             Últimas subastas inmobiliarias detectadas en España
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
             Descubre las oportunidades de inversión más recientes procedentes del Boletín Oficial del Estado (BOE). 
             Estas subastas judiciales y administrativas permiten adquirir inmuebles con importantes descuentos sobre 
             su valor de mercado. Analiza cada expediente detalladamente y utiliza nuestra calculadora para estimar 
             tu puja máxima con total seguridad.
           </p>
+          {activeCount > 0 && (
+            <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+              </span>
+              {activeCount} subastas activas ahora mismo
+            </div>
+          )}
         </header>
 
         <div className="grid grid-cols-1 gap-8">
-          {articles.map((article) => (
-            <article key={article.slug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row">
+          {articles.map((article) => {
+            const isFinished = isAuctionFinished(article.auction.auctionDate);
+            return (
+            <article key={article.slug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row relative">
+              {isFinished && (
+                <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
+                  Adjudicada
+                </div>
+              )}
               <Link to={`/noticias-subastas/${article.slug}`} className="md:w-2/5 shrink-0 block relative group">
                 <img 
                   src={article.imageUrl} 
@@ -91,13 +114,14 @@ const DiscoverArticlesIndex: React.FC = () => {
                 </p>
                 <Link 
                   to={`/noticias-subastas/${article.slug}`}
-                  className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-800 transition-colors mt-auto"
+                  className={`inline-flex items-center gap-2 font-bold transition-colors mt-auto ${isFinished ? 'text-slate-500 hover:text-slate-700' : 'text-brand-600 hover:text-brand-800'}`}
                 >
                   Leer noticia completa <ChevronRight size={18} />
                 </Link>
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

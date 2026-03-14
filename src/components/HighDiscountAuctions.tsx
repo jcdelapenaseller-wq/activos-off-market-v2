@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, ArrowRight, Percent } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../routes';
+import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 
 const HighDiscountAuctions: React.FC = () => {
   useEffect(() => {
@@ -14,7 +15,7 @@ const HighDiscountAuctions: React.FC = () => {
   }, []);
 
   const highDiscountAuctions = useMemo(() => {
-    return Object.entries(AUCTIONS)
+    const filtered = Object.entries(AUCTIONS)
       .map(([slug, data]) => {
         const appraisalValue = data.appraisalValue || 0;
         const claimedDebt = data.claimedDebt || 0;
@@ -28,7 +29,13 @@ const HighDiscountAuctions: React.FC = () => {
       })
       .filter(item => item.discount >= 50)
       .sort((a, b) => b.discount - a.discount);
+      
+    return sortActiveFirst(filtered, (item) => item.data.auctionDate);
   }, []);
+
+  const activeCount = useMemo(() => {
+    return highDiscountAuctions.filter(item => !isAuctionFinished(item.data.auctionDate)).length;
+  }, [highDiscountAuctions]);
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
@@ -56,9 +63,25 @@ const HighDiscountAuctions: React.FC = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-16">
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+            </span>
+            {activeCount} subastas activas ahora mismo
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {highDiscountAuctions.map(({ slug, data, discount }) => (
-            <div key={slug} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all group flex flex-col h-full">
+          {highDiscountAuctions.map(({ slug, data, discount }) => {
+            const isFinished = isAuctionFinished(data.auctionDate);
+            return (
+            <div key={slug} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all group flex flex-col h-full relative">
+              {isFinished && (
+                <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
+                  Adjudicada
+                </div>
+              )}
               <div className="p-8 flex-grow">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs uppercase tracking-widest">
@@ -114,13 +137,14 @@ const HighDiscountAuctions: React.FC = () => {
               <div className="px-8 pb-8 mt-auto">
                 <Link 
                   to={`/ejemplo-subasta/${slug}`}
-                  className="inline-flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-brand-600 transition-all shadow-lg shadow-slate-200"
+                  className={`inline-flex items-center justify-center gap-2 w-full font-bold py-4 px-6 rounded-2xl transition-all shadow-lg ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300 shadow-none' : 'bg-slate-900 text-white hover:bg-brand-600 shadow-slate-200'}`}
                 >
                   Ver Análisis Completo <ArrowRight size={18} />
                 </Link>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-20 bg-brand-900 rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-2xl">

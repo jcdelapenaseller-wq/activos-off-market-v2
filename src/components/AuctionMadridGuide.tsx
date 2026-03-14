@@ -4,9 +4,18 @@ import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
 import { AUCTIONS } from '../data/auctions';
+import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 
 const AuctionMadridGuide: React.FC = () => {
-  const cityAuctions = Object.entries(AUCTIONS).filter(([_, a]) => a.city === "Madrid");
+  const cityAuctions = React.useMemo(() => {
+    const filtered = Object.entries(AUCTIONS).filter(([_, a]) => a.city === "Madrid");
+    return sortActiveFirst(filtered, (item) => item[1].auctionDate);
+  }, []);
+  
+  const activeCount = React.useMemo(() => {
+    return cityAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
+  }, [cityAuctions]);
+
   const IMG_HERO = "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&q=80&w=1200&h=630"; 
 
   const currentDate = new Date();
@@ -354,10 +363,28 @@ const AuctionMadridGuide: React.FC = () => {
 
               {cityAuctions.length > 0 && (
                 <div className="mt-16 pt-12 border-t border-slate-200">
-                  <h2 className="text-3xl font-bold mb-8">Ejemplos de subastas inmobiliarias en Madrid</h2>
+                  <h2 className="text-3xl font-bold mb-6">Ejemplos de subastas inmobiliarias en Madrid</h2>
+                  
+                  {activeCount > 0 && (
+                    <div className="mb-8 inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+                      </span>
+                      {activeCount} subastas activas ahora mismo
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 not-prose">
-                    {cityAuctions.map(([slug, data]) => (
-                      <div key={slug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all group">
+                    {cityAuctions.map(([slug, data]) => {
+                      const isFinished = isAuctionFinished(data.auctionDate);
+                      return (
+                      <div key={slug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all group relative">
+                        {isFinished && (
+                          <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
+                            Adjudicada
+                          </div>
+                        )}
                         <div className="p-6">
                           <div className="flex items-center gap-2 text-brand-600 font-bold text-xs uppercase tracking-wider mb-3">
                             <TrendingUp size={14} /> Análisis real
@@ -379,13 +406,14 @@ const AuctionMadridGuide: React.FC = () => {
                           </div>
                           <Link 
                             to={`/ejemplo-subasta/${slug}`}
-                            className="inline-flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-2 px-4 rounded-lg text-sm hover:bg-brand-600 transition-all"
+                            className={`inline-flex items-center justify-center gap-2 w-full font-bold py-2 px-4 rounded-lg text-sm transition-all ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                           >
                             Ver análisis <ChevronRight size={16} />
                           </Link>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

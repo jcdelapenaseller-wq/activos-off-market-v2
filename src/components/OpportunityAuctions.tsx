@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, DollarSign, TrendingUp, ArrowLeft, Percent } from 'lucide-react';
 import { ROUTES } from '../routes';
+import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 
 const OpportunityAuctions: React.FC = () => {
   const { city } = useParams<{ city: string }>();
@@ -21,7 +22,7 @@ const OpportunityAuctions: React.FC = () => {
     
     const normalizedCity = normalize(city);
 
-    return Object.entries(AUCTIONS)
+    const filtered = Object.entries(AUCTIONS)
       .filter(([_, data]) => {
         if (normalize(data.city || '') !== normalizedCity) return false;
         if (!data.appraisalValue || !data.claimedDebt) return false;
@@ -34,7 +35,13 @@ const OpportunityAuctions: React.FC = () => {
         return { slug, data, discount };
       })
       .sort((a, b) => b.discount - a.discount);
+      
+    return sortActiveFirst(filtered, (item) => item.data.auctionDate);
   }, [city]);
+
+  const activeCount = useMemo(() => {
+    return opportunities.filter(item => !isAuctionFinished(item.data.auctionDate)).length;
+  }, [opportunities]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -59,6 +66,16 @@ const OpportunityAuctions: React.FC = () => {
             Subastas inmobiliarias con mayor descuento en {displayCity}
           </h1>
 
+          {activeCount > 0 && (
+            <div className="mb-6 inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+              </span>
+              {activeCount} subastas activas ahora mismo
+            </div>
+          )}
+
           <div className="max-w-3xl">
             <p className="text-lg text-slate-600 leading-relaxed mb-6">
               Identificar las mejores oportunidades de inversión en <strong>{displayCity}</strong> requiere un análisis exhaustivo de la relación entre el valor de tasación oficial y la deuda reclamada en el procedimiento. En esta página hemos seleccionado exclusivamente aquellas subastas judiciales y administrativas que presentan un <strong>descuento potencial superior al 40%</strong>, lo que representa un margen de seguridad excepcional para el inversor profesional. Estas operaciones permiten adquirir activos significativamente por debajo de su valor de mercado, maximizando la rentabilidad final tras considerar los costes de adjudicación y saneamiento. Explorar estas oportunidades hiperlocales en {displayCity} es el primer paso para construir una cartera inmobiliaria sólida mediante licitaciones públicas, aprovechando las ineficiencias del mercado de ejecuciones hipotecarias y apremios administrativos.
@@ -76,8 +93,15 @@ const OpportunityAuctions: React.FC = () => {
 
         {opportunities.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {opportunities.map(({ slug, data, discount }) => (
-              <div key={slug} className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col">
+            {opportunities.map(({ slug, data, discount }) => {
+              const isFinished = isAuctionFinished(data.auctionDate);
+              return (
+              <div key={slug} className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative">
+                {isFinished && (
+                  <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
+                    Adjudicada
+                  </div>
+                )}
                 <div className="p-6 flex-grow">
                   <div className="flex justify-between items-start mb-4">
                     <span className="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -114,7 +138,7 @@ const OpportunityAuctions: React.FC = () => {
                   <div className="space-y-3">
                     <Link 
                       to={`/ejemplo-subasta/${slug}`}
-                      className="w-full inline-flex items-center justify-center bg-slate-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-600 transition-colors group"
+                      className={`w-full inline-flex items-center justify-center font-bold py-3 px-6 rounded-xl transition-colors group ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                     >
                       Ver detalles
                       <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
@@ -128,7 +152,8 @@ const OpportunityAuctions: React.FC = () => {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-2xl mx-auto">

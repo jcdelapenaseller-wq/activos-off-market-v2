@@ -3,6 +3,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../routes';
 import { generateDiscoverTitle } from '../utils/discoverTitles';
+import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 
 const BestAuctionsByCity: React.FC = () => {
   const { city } = useParams<{ city: string }>();
@@ -27,8 +28,12 @@ const BestAuctionsByCity: React.FC = () => {
       .sort((a, b) => b.margin - a.margin)
       .slice(0, 10);
 
-    return cityAuctions;
+    return sortActiveFirst(cityAuctions, (item) => item.auction.auctionDate);
   }, [normalizedCity]);
+
+  const activeCount = useMemo(() => {
+    return bestAuctions.filter(item => !isAuctionFinished(item.auction.auctionDate)).length;
+  }, [bestAuctions]);
 
   const displayCity = bestAuctions.length > 0 ? bestAuctions[0].auction.city : city ? city.charAt(0).toUpperCase() + city.slice(1) : '';
 
@@ -73,16 +78,32 @@ const BestAuctionsByCity: React.FC = () => {
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
             Las subastas inmobiliarias más interesantes detectadas en {displayCity}
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
             Descubre las oportunidades de inversión más recientes procedentes del Boletín Oficial del Estado (BOE) en {displayCity}. 
             Analizamos la diferencia entre el valor de tasación y la deuda reclamada para identificar aquellas subastas con mayor potencial de rentabilidad. 
             Es fundamental realizar un análisis exhaustivo antes de participar.
           </p>
+          {activeCount > 0 && (
+            <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+              </span>
+              {activeCount} subastas activas ahora mismo
+            </div>
+          )}
         </header>
 
         <div className="grid grid-cols-1 gap-8">
-          {bestAuctions.map(({ slug, auction }) => (
-            <article key={slug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row">
+          {bestAuctions.map(({ slug, auction }) => {
+            const isFinished = isAuctionFinished(auction.auctionDate);
+            return (
+            <article key={slug} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row relative">
+              {isFinished && (
+                <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
+                  Adjudicada
+                </div>
+              )}
               <div className="md:w-2/5 shrink-0">
                 <img 
                   src={`https://picsum.photos/seed/real-estate-auction-${slug}/800/450`} 
@@ -124,14 +145,15 @@ const BestAuctionsByCity: React.FC = () => {
                 <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-100">
                   <Link 
                     to={`/noticias-subastas/${slug}`} 
-                    className="inline-flex items-center justify-center bg-slate-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-600 transition-all w-full text-center"
+                    className={`inline-flex items-center justify-center font-bold py-3 px-6 rounded-xl transition-all w-full text-center ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                   >
                     Ver análisis completo
                   </Link>
                 </div>
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-12 text-center">

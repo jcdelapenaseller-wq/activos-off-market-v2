@@ -4,6 +4,8 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { ROUTES } from '../routes';
 import { AUCTIONS, AuctionData } from '../data/auctions';
 import RelatedAuctions from './RelatedAuctions';
+import { isAuctionFinished } from '../utils/auctionHelpers';
+import FinishedAuctionBanner from './FinishedAuctionBanner';
 
 const ITP_RATES: Record<string, number> = {
   'Madrid': 0.06,
@@ -98,6 +100,8 @@ const AuctionExampleReport: React.FC = () => {
     if (zona) return `Análisis de subasta en ${zona} (${ciudad})`;
     return `Análisis de subasta inmobiliaria en ${ciudad}`;
   }, [address, zona, ciudad]);
+
+  const isFinished = isAuctionFinished(auctionData?.auctionDate);
 
   const results = useMemo(() => {
     const itpRate = ITP_RATES[comunidad] || 0.08;
@@ -200,6 +204,35 @@ const AuctionExampleReport: React.FC = () => {
             </>
           )}
         </div>
+
+        {isFinished && auctionData?.auctionDate && (
+          <div className="mb-8">
+            <FinishedAuctionBanner auctionDate={auctionData.auctionDate} />
+            <div className="bg-white border border-slate-200 rounded-2xl p-8 mt-6 shadow-sm">
+              <h3 className="text-xl font-bold text-slate-900 mb-6">Subastas similares en esta zona</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Link to={`/subastas-${ciudadRaw.toLowerCase().replace(' ', '-')}`} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-brand-50 transition-colors group">
+                  <span className="font-medium text-slate-700 group-hover:text-brand-700">Subastas similares en {ciudad}</span>
+                  <ArrowRight size={16} className="text-slate-400 group-hover:text-brand-600" />
+                </Link>
+                {zona && (
+                  <Link to={`/subastas/${ciudadRaw.toLowerCase().replace(' ', '-')}/${zona.toLowerCase().replace(' ', '-')}`} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-brand-50 transition-colors group">
+                    <span className="font-medium text-slate-700 group-hover:text-brand-700">Subastas en {zona}</span>
+                    <ArrowRight size={16} className="text-slate-400 group-hover:text-brand-600" />
+                  </Link>
+                )}
+                <Link to="/subastas-descuento-50" className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-brand-50 transition-colors group">
+                  <span className="font-medium text-slate-700 group-hover:text-brand-700">Subastas con descuento &gt; 50%</span>
+                  <ArrowRight size={16} className="text-slate-400 group-hover:text-brand-600" />
+                </Link>
+                <Link to="/subastas-recientes" className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-brand-50 transition-colors group">
+                  <span className="font-medium text-slate-700 group-hover:text-brand-700">Subastas recientes</span>
+                  <ArrowRight size={16} className="text-slate-400 group-hover:text-brand-600" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden mb-12">
           <div className="bg-brand-900 text-white p-10 text-center">

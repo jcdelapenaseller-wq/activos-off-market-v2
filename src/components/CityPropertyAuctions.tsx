@@ -5,6 +5,7 @@ import { ChevronRight, MapPin, Home, DollarSign, TrendingUp, ArrowLeft } from 'l
 import { ROUTES } from '../routes';
 
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
+import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 
 const CityPropertyAuctions: React.FC = () => {
   const { city: cityParam, propertyType: propertyTypeParam } = useParams<{ city: string; propertyType: string }>();
@@ -30,12 +31,17 @@ const CityPropertyAuctions: React.FC = () => {
   };
 
   const filteredAuctions = useMemo(() => {
-    return Object.entries(AUCTIONS).filter(([_, data]) => {
+    const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
       const cityMatch = data.city && data.city.toLowerCase() === city.toLowerCase();
       const typeMatch = data.propertyType && normalizePropertyType(data.propertyType) === normalizePropertyType(propertyType);
       return cityMatch && typeMatch;
     });
+    return sortActiveFirst(filtered, (item) => item[1].auctionDate);
   }, [city, propertyType]);
+
+  const activeCount = useMemo(() => {
+    return filteredAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
+  }, [filteredAuctions]);
 
   const availableZones = useMemo(() => {
     if (!city) return [];
@@ -143,6 +149,16 @@ const CityPropertyAuctions: React.FC = () => {
             Subastas de {propertyType} en {city}
           </h1>
 
+          {activeCount > 0 && (
+            <div className="mb-8 inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+              </span>
+              {activeCount} subastas activas ahora mismo
+            </div>
+          )}
+
           {filteredAuctions.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
@@ -195,8 +211,15 @@ const CityPropertyAuctions: React.FC = () => {
 
         {filteredAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAuctions.map(([slug, data]) => (
-              <div key={slug} className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-xl transition-all group">
+            {filteredAuctions.map(([slug, data]) => {
+              const isFinished = isAuctionFinished(data.auctionDate);
+              return (
+              <div key={slug} className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-xl transition-all group relative">
+                {isFinished && (
+                  <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
+                    Adjudicada
+                  </div>
+                )}
                 <div className="p-6">
                   <div className="flex items-center gap-2 text-brand-600 font-bold text-sm uppercase tracking-wider mb-3">
                     <TrendingUp size={16} /> Análisis de oportunidad
@@ -232,13 +255,14 @@ const CityPropertyAuctions: React.FC = () => {
 
                   <Link 
                     to={`/ejemplo-subasta/${slug}`}
-                    className="inline-flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-600 transition-all group-hover:translate-y-[-2px]"
+                    className={`inline-flex items-center justify-center gap-2 w-full font-bold py-3 px-6 rounded-xl transition-all group-hover:translate-y-[-2px] ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                   >
                     Ver análisis completo <ChevronRight size={18} />
                   </Link>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">

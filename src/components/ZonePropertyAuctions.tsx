@@ -4,6 +4,7 @@ import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
 import { ROUTES } from '../routes';
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
+import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 
 const ZonePropertyAuctions: React.FC = () => {
   const { city: cityParam, propertyType: propertyTypeParam, zone: zoneParam } = useParams<{ city: string; propertyType: string; zone: string }>();
@@ -13,13 +14,18 @@ const ZonePropertyAuctions: React.FC = () => {
   const zone = useMemo(() => zoneParam ? zoneParam.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : '', [zoneParam]);
 
   const filteredAuctions = useMemo(() => {
-    return Object.entries(AUCTIONS).filter(([_, data]) => {
+    const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
       const cityMatch = data.city?.toLowerCase() === city.toLowerCase();
       const typeMatch = data.propertyType?.toLowerCase() === propertyType.toLowerCase();
       const zoneMatch = data.zone?.toLowerCase() === zone.toLowerCase();
       return cityMatch && typeMatch && zoneMatch;
     });
+    return sortActiveFirst(filtered, (item) => item[1].auctionDate);
   }, [city, propertyType, zone]);
+
+  const activeCount = useMemo(() => {
+    return filteredAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
+  }, [filteredAuctions]);
 
   useEffect(() => {
     if (city && propertyType && zone) {
@@ -41,16 +47,32 @@ const ZonePropertyAuctions: React.FC = () => {
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
             Subastas de {propertyType} en {zone}, {city}
           </h1>
-          <p className="text-xl text-slate-600 max-w-3xl">
+          <p className="text-xl text-slate-600 max-w-3xl mb-8">
             Descubre las oportunidades de inversión en subastas de {propertyType.toLowerCase()} en la zona de {zone}, {city}. 
             Analizamos el mercado local para ayudarte a encontrar las mejores opciones.
           </p>
+          {activeCount > 0 && (
+            <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+              </span>
+              {activeCount} subastas activas ahora mismo
+            </div>
+          )}
         </div>
 
         {filteredAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAuctions.map(([slug, data]) => (
-              <div key={slug} className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-xl transition-all group">
+            {filteredAuctions.map(([slug, data]) => {
+              const isFinished = isAuctionFinished(data.auctionDate);
+              return (
+              <div key={slug} className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-xl transition-all group relative">
+                {isFinished && (
+                  <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
+                    Adjudicada
+                  </div>
+                )}
                 <div className="p-6">
                   <div className="flex items-center gap-2 text-brand-600 font-bold text-sm uppercase tracking-wider mb-3">
                     <TrendingUp size={16} /> Análisis de oportunidad
@@ -74,13 +96,14 @@ const ZonePropertyAuctions: React.FC = () => {
 
                   <Link 
                     to={`/ejemplo-subasta/${slug}`}
-                    className="inline-flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-600 transition-all group-hover:translate-y-[-2px]"
+                    className={`inline-flex items-center justify-center gap-2 w-full font-bold py-3 px-6 rounded-xl transition-all group-hover:translate-y-[-2px] ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                   >
                     Ver análisis completo <ChevronRight size={18} />
                   </Link>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">

@@ -9,6 +9,8 @@ import {
   MapPin, Home, DollarSign, AlertTriangle, CheckCircle, 
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon
 } from 'lucide-react';
+import { isAuctionFinished } from '../utils/auctionHelpers';
+import FinishedAuctionBanner from './FinishedAuctionBanner';
 
 const ITP_RATES: Record<string, number> = {
   'Madrid': 0.06,
@@ -75,6 +77,8 @@ const AuctionDynamicPage: React.FC = () => {
 
   if (!auction) return <div className="max-w-4xl mx-auto px-6 py-16">Subasta no encontrada</div>;
 
+  const isFinished = isAuctionFinished(auction.auctionDate);
+
   const cityName = auction.city || 'la ciudad';
   const propertyType = auction.propertyType || 'inmueble';
   const zone = auction.zone || 'la zona';
@@ -99,6 +103,9 @@ const AuctionDynamicPage: React.FC = () => {
           </nav>
 
           <header className="mb-12">
+            {isFinished && auction.auctionDate && (
+              <FinishedAuctionBanner auctionDate={auction.auctionDate} />
+            )}
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6 leading-tight">
               {getTitle()}
             </h1>
@@ -301,6 +308,9 @@ const AuctionDynamicPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-16 prose prose-slate">
+      {isFinished && auction.auctionDate && (
+        <FinishedAuctionBanner auctionDate={auction.auctionDate} />
+      )}
       <h1>{getTitle()}</h1>
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mt-6">
         <h2 className="text-xl font-bold text-slate-900 mb-2">¿Cuánto deberías pujar realmente por esta subasta?</h2>

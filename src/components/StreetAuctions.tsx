@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp } from 'lucide-react';
 import { ROUTES } from '../routes';
+import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 
 const StreetAuctions: React.FC = () => {
   const { city, zone, street } = useParams<{ city: string, zone: string, street: string }>();
@@ -22,7 +23,7 @@ const StreetAuctions: React.FC = () => {
     const normalizedZone = normalize(zone);
     const normalizedStreet = normalize(street);
 
-    return Object.entries(AUCTIONS).filter(([_, data]) => {
+    const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
       const dataCitySlug = normalize(data.city || '');
       const dataZoneSlug = normalize(data.zone || '');
       const dataStreetSlug = normalize(data.address || '');
@@ -31,7 +32,13 @@ const StreetAuctions: React.FC = () => {
              dataZoneSlug === normalizedZone && 
              dataStreetSlug === normalizedStreet;
     });
+    
+    return sortActiveFirst(filtered, (item) => item[1].auctionDate);
   }, [city, zone, street]);
+
+  const activeCount = useMemo(() => {
+    return filteredAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
+  }, [filteredAuctions]);
 
   const { displayCity, displayZone, displayStreet } = useMemo(() => {
     if (filteredAuctions.length > 0) {
@@ -98,6 +105,16 @@ const StreetAuctions: React.FC = () => {
             Subastas inmobiliarias en {displayStreet}, {displayZone} ({displayCity})
           </h1>
 
+          {activeCount > 0 && (
+            <div className="mb-6 inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+              </span>
+              {activeCount} subastas activas ahora mismo
+            </div>
+          )}
+
           <div className="max-w-3xl">
             <p className="text-lg text-slate-600 leading-relaxed mb-6">
               Explora las oportunidades de inversión mediante subastas judiciales y administrativas localizadas específicamente en la calle <strong>{displayStreet}</strong>, dentro del barrio de <strong>{displayZone}</strong> en <strong>{displayCity}</strong>. Esta zona destaca por su dinamismo inmobiliario y su excelente ubicación, lo que convierte a cualquier activo en subasta en una opción potencialmente muy rentable. Analizar el mercado hiperlocal es clave para determinar el valor real de los inmuebles y establecer una estrategia de puja ganadora. En esta página encontrarás el listado actualizado de activos disponibles, incluyendo su valor de tasación oficial y la deuda reclamada, permitiéndote calcular el descuento potencial de cada operación antes de participar en el proceso de licitación pública.
@@ -109,8 +126,15 @@ const StreetAuctions: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 py-12">
         {filteredAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAuctions.map(([slug, data]) => (
-              <div key={slug} className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col">
+            {filteredAuctions.map(([slug, data]) => {
+              const isFinished = isAuctionFinished(data.auctionDate);
+              return (
+              <div key={slug} className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative">
+                {isFinished && (
+                  <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
+                    Adjudicada
+                  </div>
+                )}
                 <div className="p-6 flex-grow">
                   <div className="flex justify-between items-start mb-4">
                     <span className="bg-brand-50 text-brand-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -152,14 +176,15 @@ const StreetAuctions: React.FC = () => {
 
                   <Link 
                     to={`/ejemplo-subasta/${slug}`}
-                    className="w-full inline-flex items-center justify-center bg-slate-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-600 transition-colors group"
+                    className={`w-full inline-flex items-center justify-center font-bold py-3 px-6 rounded-xl transition-colors group ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                   >
                     Ver detalles
                     <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-2xl mx-auto">

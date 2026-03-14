@@ -86,9 +86,18 @@ async function processAuction(subId, boeId) {
     zone = await getZoneFromCoords(physicalData.lat, physicalData.lon);
   }
 
+  // Mapeo de propertyType
+  const rawType = physicalData.use || data.description || "";
+  const mappedType = mapPropertyType(rawType);
+
+  if (!mappedType) {
+    console.log(`  ⚠️ Tipo de propiedad no admitido o desconocido. Saltando...`);
+    return;
+  }
+
   // 8. Generar objeto AuctionData
   const auctionEntry = {
-    propertyType: physicalData.use || "Vivienda",
+    propertyType: mappedType,
     city: physicalData.municipality || "Desconocida",
     zone: zone,
     address: data.address || physicalData.municipality,
@@ -209,6 +218,21 @@ function generateSlug(city, zone, id) {
   return `${city}-${zone}-${id}`.toLowerCase()
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
     .replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+}
+
+function mapPropertyType(rawType) {
+  if (!rawType) return null;
+  const t = rawType.toLowerCase();
+
+  // Orden de precedencia: más específico primero
+  if (t.includes('piso') || t.includes('apartamento')) return 'Pisos';
+  if (t.includes('chalet') || t.includes('unifamiliar')) return 'Chalets';
+  if (t.includes('residencial') || t.includes('vivienda')) return 'Viviendas';
+  if (t.includes('comercial') || t.includes('oficina') || t.includes('local')) return 'Locales';
+  if (t.includes('garaje') || t.includes('estacionamiento') || t.includes('aparcamiento') || t.includes('plaza')) return 'Garajes';
+  if (t.includes('industrial') || t.includes('nave')) return 'Naves';
+
+  return null;
 }
 
 function saveAuction(auction) {
