@@ -6,6 +6,7 @@ const axios = require('axios');
  * TELEGRAM NOTIFIER - ActivosOffMarket.es
  * 
  * Envía alertas de nuevas subastas detectadas por el crawler a un canal de Telegram.
+ * Estilo: Analista experto humano.
  */
 
 const CONFIG = {
@@ -15,25 +16,30 @@ const CONFIG = {
   BASE_URL: 'https://www.activosoffmarket.es/subasta'
 };
 
-const INTROS = [
-  "Acaba de aparecer una subasta interesante en el BOE.",
-  "Estoy revisando ahora mismo este expediente que acaba de publicarse.",
-  "Nueva subasta detectada que puede ser interesante.",
-  "Ha salido una subasta curiosa que merece la pena mirar.",
-  "Este expediente acaba de publicarse y tiene algunos puntos interesantes.",
-  "He visto este nuevo anuncio en el BOE y creo que merece un vistazo."
+const HOOKS = [
+  "Acaba de aparecer en el BOE una subasta interesante que estoy revisando ahora mismo.",
+  "Revisando el BOE ha salido este expediente que puede tener algo de margen.",
+  "Esta subasta acaba de publicarse y tiene algunos puntos curiosos.",
+  "Estoy mirando este expediente ahora mismo porque puede tener bastante juego.",
+  "Este anuncio acaba de salir en el BOE y merece echarle un vistazo.",
+  "He detectado este nuevo expediente en el BOE y las cifras iniciales llaman la atención.",
+  "Acaban de publicar esta subasta y por ubicación podría ser una oportunidad a seguir.",
+  "Dando una vuelta por las novedades del BOE me he topado con este expediente.",
+  "Ojo a esta subasta que acaba de salir; tiene pinta de que habrá movimiento.",
+  "Acabo de ver este anuncio y ya estoy descargando la certificación de cargas."
 ];
 
-const OUTROS = [
-  "Estoy revisando el expediente porque hay un par de puntos que pueden cambiar bastante el riesgo.",
-  "Ojo con las cargas de este activo, hay que mirarlas con lupa antes de decidir.",
-  "Parece una oportunidad interesante por ubicación, pero falta validar el estado de ocupación.",
-  "Voy a profundizar en el análisis de este activo para ver si el descuento es real.",
-  "Si buscas algo en esta zona, este expediente es un buen punto de partida para investigar."
+const INSIGHTS = [
+  "Hay un detalle del expediente que puede influir bastante en el riesgo.",
+  "La situación posesoria no está del todo clara.",
+  "Este tipo de activos en esta zona suelen atraer bastante interés cuando empiezan a moverse las pujas.",
+  "Antes de plantear pujar habría que revisar bien las cargas.",
+  "El valor de tasación parece algo desajustado, habría que validar precios de mercado.",
+  "Es un expediente con miga; la clave estará en el análisis del edicto."
 ];
 
 function formatCurrency(value) {
-  if (!value) return 'No indicada';
+  if (!value) return null;
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
 }
 
@@ -43,7 +49,7 @@ function getRandom(arr) {
 
 async function sendTelegramMessage(text) {
   if (!CONFIG.BOT_TOKEN || !CONFIG.CHAT_ID) {
-    console.error('❌ Error: BOT_TOKEN o CHAT_ID no configurados en las variables de entorno.');
+    console.error('❌ Error: BOT_TOKEN o CHAT_ID no configurados.');
     return;
   }
 
@@ -58,84 +64,92 @@ async function sendTelegramMessage(text) {
     });
     return true;
   } catch (error) {
-    console.error('❌ Error enviando mensaje a Telegram:', error.response?.data || error.message);
+    console.error('❌ Error enviando a Telegram:', error.response?.data || error.message);
     return false;
   }
 }
 
 async function runNotifier() {
-  console.log('🚀 Iniciando notificador de Telegram...');
+  console.log('🚀 Iniciando notificador experto de Telegram...');
 
-  // 1. Verificar si existe el archivo de nuevas subastas
   if (!fs.existsSync(CONFIG.NEW_AUCTIONS_FILE)) {
-    console.log('ℹ️ No hay subastas nuevas para notificar.');
+    console.log('ℹ️ No hay subastas nuevas.');
     return;
   }
 
-  // 2. Leer y parsear el archivo
   let auctions = [];
   try {
     const data = fs.readFileSync(CONFIG.NEW_AUCTIONS_FILE, 'utf8');
     auctions = JSON.parse(data);
   } catch (error) {
-    console.error('❌ Error leyendo new_auctions.json:', error.message);
+    console.error('❌ Error leyendo JSON:', error.message);
     return;
   }
 
   if (auctions.length === 0) {
-    console.log('ℹ️ El archivo de subastas nuevas está vacío.');
     fs.unlinkSync(CONFIG.NEW_AUCTIONS_FILE);
     return;
   }
 
-  console.log(`📢 Enviando ${auctions.length} notificaciones...`);
-
-  // 3. Procesar cada subasta
   for (const auction of auctions) {
-    const intro = getRandom(INTROS);
-    const outro = getRandom(OUTROS);
+    const hook = getRandom(HOOKS);
+    const insight = getRandom(INSIGHTS);
     
-    // Construir ubicación
+    // Ubicación inteligente
     const location = auction.zone && auction.zone !== 'Desconocida' 
-      ? `${auction.city} / ${auction.zone}` 
-      : auction.city;
+      ? `📍 ${auction.city} / ${auction.zone}` 
+      : `📍 ${auction.city}`;
 
-    // Construir mensaje
-    let message = `<b>${intro}</b>\n\n`;
-    message += `📍 ${location}\n`;
-    message += `🏠 ${auction.propertyType}\n\n`;
-    message += `💰 <b>Tasación:</b> ${formatCurrency(auction.appraisalValue)}\n`;
+    // Construcción del mensaje
+    let message = `${hook}\n\n`;
+    message += `${location}\n\n`;
+    message += `📊 <b>Datos rápidos del expediente</b>\n\n`;
     
+    const appraisal = formatCurrency(auction.appraisalValue);
+    if (appraisal) {
+      message += `💰 <b>Valor de subasta:</b> ${appraisal}\n`;
+    }
+
     if (auction.claimedDebt) {
-      message += `🏦 <b>Deuda reclamada:</b> ${formatCurrency(auction.claimedDebt)}\n`;
+      const debt = formatCurrency(auction.claimedDebt);
+      if (debt) message += `🏦 <b>Deuda reclamada:</b> ${debt}\n`;
+    }
+
+    if (auction.discount && auction.discount > 0) {
+      message += `📉 <b>Descuento teórico:</b> ${auction.discount}%\n`;
     }
 
     if (auction.auctionDate) {
-      message += `⏳ <b>Cierre:</b> ${auction.auctionDate}\n`;
+      message += `\n⏳ <b>Cierre de subasta:</b> ${auction.auctionDate}\n`;
     }
 
-    message += `\n<i>${outro}</i>\n\n`;
-    message += `${CONFIG.BASE_URL}/${auction.slug}`;
+    message += `\n${insight}\n\n`;
+    
+    message += `🔎 <b>Análisis completo del expediente:</b>\n`;
+    message += `${CONFIG.BASE_URL}/${auction.slug}\n\n`;
 
-    // Enviar mensaje
+    message += `En el canal premium analizo además:\n`;
+    message += `• cargas reales del registro\n`;
+    message += `• rango probable de adjudicación\n`;
+    message += `• estrategia de puja\n\n`;
+    message += `🔒 https://sublaunch.com/activosoffmarket`;
+
     const success = await sendTelegramMessage(message);
     if (success) {
-      console.log(`✅ Notificación enviada: ${auction.slug}`);
+      console.log(`✅ Enviada: ${auction.slug}`);
     }
 
-    // Pequeño delay para evitar rate limits de Telegram si hay muchas
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
   }
 
-  // 4. Eliminar el archivo temporal
   try {
     fs.unlinkSync(CONFIG.NEW_AUCTIONS_FILE);
-    console.log('🗑️ Archivo new_auctions.json eliminado.');
+    console.log('🗑️ Archivo temporal eliminado.');
   } catch (error) {
-    console.error('❌ Error eliminando el archivo temporal:', error.message);
+    console.error('❌ Error eliminando archivo:', error.message);
   }
 
-  console.log('🏁 Proceso de notificación finalizado.');
+  console.log('🏁 Notificaciones finalizadas.');
 }
 
 runNotifier();
