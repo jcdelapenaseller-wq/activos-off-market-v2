@@ -19,7 +19,7 @@ const CONFIG = {
 };
 
 async function runCrawler() {
-  const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  const days = ['20260314','20260313','20260312'].split('T')[0].replace(/-/g, '');
   console.log(`\n🚀 Iniciando crawler para la fecha: ${today}\n`);
 
   try {
