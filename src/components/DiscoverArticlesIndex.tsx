@@ -4,6 +4,7 @@ import { AUCTIONS } from '../data/auctions';
 import { Calendar, ChevronRight, MapPin } from 'lucide-react';
 import { generateDiscoverTitle } from '../utils/discoverTitles';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import TelegramCTA from './TelegramCTA';
 
 const DiscoverArticlesIndex: React.FC = () => {
   useEffect(() => {
@@ -123,6 +124,7 @@ const DiscoverArticlesIndex: React.FC = () => {
             );
           })}
         </div>
+        <TelegramCTA variant="banner" />
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { Calendar, User, ChevronRight, ArrowLeft, ArrowRight } from 'lucide-reac
 import { generateDiscoverTitle } from '../utils/discoverTitles';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
+import TelegramCTA from './TelegramCTA';
 
 const AuctionDiscoverArticle: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -199,6 +200,8 @@ const AuctionDiscoverArticle: React.FC = () => {
             </Link>
           </div>
         </div>
+
+        <TelegramCTA variant="article" />
 
         <footer className="mt-16 border-t border-slate-200 pt-12">
           <h3 className="text-2xl font-bold mb-6">¿Quieres analizar esta subasta?</h3>

@@ -10,6 +10,8 @@ const path = require('path');
  * Pipeline completo para la detección, extracción y enriquecimiento de subastas.
  */
 
+const newAuctions = [];
+
 const CONFIG = {
   AUCTIONS_FILE: path.join(__dirname, '../src/data/auctions.ts'),
   MIN_DISCOUNT: 30,
@@ -56,6 +58,12 @@ async function runCrawler() {
 
   } catch (error) {
     console.error(`❌ Error general en el crawler: ${error.message}`);
+  } finally {
+    // 10. Guardar subastas nuevas en archivo temporal
+    if (newAuctions.length > 0) {
+      fs.writeFileSync(path.join(__dirname, 'new_auctions.json'), JSON.stringify(newAuctions, null, 2));
+      console.log(`\n📝 Archivo new_auctions.json generado con ${newAuctions.length} subastas.`);
+    }
   }
 }
 
@@ -117,8 +125,20 @@ async function processAuction(subId, boeId) {
   };
 
   // 9. Guardar en auctions.ts
-  saveAuction(auctionEntry);
-  console.log(`  ✅ Subasta guardada con éxito: ${auctionEntry.slug}`);
+  if (saveAuction(auctionEntry)) {
+    console.log(`  ✅ Subasta guardada con éxito: ${auctionEntry.slug}`);
+    newAuctions.push({
+      slug: auctionEntry.slug,
+      city: auctionEntry.city,
+      zone: auctionEntry.zone,
+      propertyType: auctionEntry.propertyType,
+      appraisalValue: auctionEntry.appraisalValue,
+      claimedDebt: auctionEntry.claimedDebt,
+      discount: auctionEntry.discount,
+      auctionDate: auctionEntry.auctionDate,
+      address: auctionEntry.address
+    });
+  }
 }
 
 async function scrapePortal(subId) {
@@ -241,17 +261,18 @@ function saveAuction(auction) {
   // Evitar duplicados comprobando si el slug ya existe
   if (content.includes(`'${auction.slug}':`)) {
     console.log(`  ⚠️ Subasta ya existente: ${auction.slug}`);
-    return;
+    return false;
   }
 
   // Encontrar el cierre del objeto AUCTIONS
   const lastBraceIndex = content.lastIndexOf('};');
-  if (lastBraceIndex === -1) return;
+  if (lastBraceIndex === -1) return false;
 
   const newEntry = `  '${auction.slug}': ${JSON.stringify(auction, null, 2)},\n`;
   
   const updatedContent = content.slice(0, lastBraceIndex) + newEntry + content.slice(lastBraceIndex);
   fs.writeFileSync(CONFIG.AUCTIONS_FILE, updatedContent);
+  return true;
 }
 
 // Ejecutar
