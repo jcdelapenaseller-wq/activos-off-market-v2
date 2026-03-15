@@ -5,8 +5,7 @@ const axios = require('axios');
 /**
  * PREMIUM TELEGRAM NOTIFIER - ActivosOffMarket.es
  * 
- * Envía alertas al canal Premium con un retraso de 30-60 min.
- * Soporta TEST_MODE=true para envío inmediato.
+ * Envía alertas al canal Premium con datos detallados y análisis.
  */
 
 const CONFIG = {
@@ -15,6 +14,41 @@ const CONFIG = {
   PREMIUM_CHAT_ID: process.env.PREMIUM_CHAT_ID,
   BASE_URL: 'https://www.activosoffmarket.es/ejemplo-subasta'
 };
+
+const HOOKS = [
+  "He detectado un nuevo expediente en el BOE que merece una revisión detallada.",
+  "Acaba de saltar esta oportunidad al radar y tiene algunos puntos muy interesantes.",
+  "Revisando las novedades, este activo destaca por su potencial.",
+  "Ojo a esta subasta que acaba de publicarse, parece que hay margen para trabajar."
+];
+
+const COMMENTS = [
+  "Parece que hay un buen margen de seguridad si la puja no se dispara demasiado.",
+  "La ubicación es estratégica, lo que suele reducir el riesgo de comercialización posterior.",
+  "Habrá que mirar con lupa las cargas registrales.",
+  "La clave aquí será revisar bien la situación posesoria."
+];
+
+const TRANSITIONS = [
+  "Analizando los números preliminares, esto es lo que tenemos:",
+  "Si entramos en detalle, el escenario se ve así:",
+  "Desglosando el expediente, estos son los puntos clave:"
+];
+
+function formatCurrency(value) {
+  if (!value) return "Pendiente";
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
+}
+
+function getRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function toHashtag(str) {
+  if (!str) return '';
+  const clean = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "");
+  return '#' + clean.charAt(0).toUpperCase() + clean.slice(1);
+}
 
 async function sendTelegramMessage(text) {
   if (!process.env.BOT_TOKEN || !process.env.PREMIUM_CHAT_ID) {
@@ -64,7 +98,44 @@ async function runNotifier() {
   const processedSlugs = [];
 
   for (const auction of pending) {
-    const message = `🔒 <b>Análisis Premium</b>\n\n🏠 ${auction.propertyType} en ${auction.city} - 📍 ${auction.address}\n📅 Cierre: ${auction.auctionDate}\n\nEste activo acaba de publicarse y puede tener potencial.\n\n🔎 <b>Claves del expediente</b>\n• Procedimiento: ${auction.procedureType}\n• Situación posesoria: No indicada\n\n💰 <b>Escenario orientativo</b>\n• Valor estimado: ${auction.appraisalValue}€\n\n🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>\n\n🔎 <a href="${CONFIG.BASE_URL}/${auction.slug}">Análisis completo del activo</a>\n\nSi alguien está valorando entrar en esta subasta puedo revisar el expediente completo antes del cierre.\n\n👉 https://calendly.com/activosoffmarket`;
+    const hashtags = `${toHashtag(auction.propertyType)} ${toHashtag(auction.city)} ${auction.zone && auction.zone !== 'Desconocida' ? toHashtag(auction.zone) : ''}`;
+    const debtRatio = auction.appraisalValue > 0 ? ((auction.claimedDebt / auction.appraisalValue) * 100).toFixed(1) : "N/A";
+    
+    const message = `🔒 <b>Análisis Premium</b>
+
+🏠 ${hashtags} – 📍 ${auction.address}
+📅 <b>Cierre de subasta:</b> ${auction.auctionDate}
+
+${getRandom(HOOKS)}
+
+🔎 <b>Claves del expediente</b>
+
+• Procedimiento: ${auction.procedureType}
+• Situación posesoria: Pendiente de verificar en el edicto
+• Posibles cargas a revisar: Cargas registrales y deudas de comunidad/IBI
+
+📊 <b>Lectura rápida</b>
+
+• deuda reclamada: ${formatCurrency(auction.claimedDebt)}
+• valor de subasta: ${formatCurrency(auction.appraisalValue)}
+• ratio deuda / subasta: ${debtRatio}%
+• descuento teórico: ${auction.discount ? auction.discount + '%' : 'Pendiente'}
+
+💰 <b>Escenario orientativo</b>
+
+• rango posible de adjudicación: Estimación inicial pendiente de afinar
+• valor estimado de mercado en la zona: Pendiente de análisis comparativo
+• margen potencial aproximado: Pendiente de validar cargas
+
+${getRandom(TRANSITIONS)}
+
+🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>
+
+🔎 <a href="${CONFIG.BASE_URL}/${auction.slug}">Análisis completo del activo</a>
+
+Si alguien está valorando entrar en esta subasta puedo revisar el expediente completo antes del cierre.
+
+👉 <a href="https://calendly.com/activosoffmarket">Reservar consultoría</a>`;
 
     const success = await sendTelegramMessage(message);
     if (success) {
@@ -74,7 +145,6 @@ async function runNotifier() {
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
 
-  // Remove processed auctions
   const remaining = pending.filter(a => !processedSlugs.includes(a.slug));
   fs.writeFileSync(CONFIG.PENDING_FILE, JSON.stringify(remaining, null, 2));
   console.log(`🏁 Proceso finalizado. ${remaining.length} subastas restantes.`);
