@@ -11,14 +11,27 @@ const path = require('path');
  */
 
 const newAuctions = [];
+const premiumAuctions = [];
 
 const CONFIG = {
   AUCTIONS_FILE: path.join(__dirname, '../src/data/auctions.ts'),
+  PENDING_PREMIUM_FILE: path.join(__dirname, 'pending_premium.json'),
   MIN_DISCOUNT: 30,
   USER_AGENT: 'ActivosOffMarket-Bot/1.0 (josecpmx@gmail.com)'
 };
 
 async function runCrawler() {
+  // Load existing premium auctions to avoid duplicates
+  let existingPremium = [];
+  if (fs.existsSync(CONFIG.PENDING_PREMIUM_FILE)) {
+    try {
+      existingPremium = JSON.parse(fs.readFileSync(CONFIG.PENDING_PREMIUM_FILE, 'utf8'));
+    } catch (e) {
+      console.error('Error reading pending_premium.json:', e.message);
+    }
+  }
+  premiumAuctions.push(...existingPremium);
+
   const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
   console.log(`\n🚀 Iniciando crawler para la fecha: ${today}\n`);
 
@@ -64,6 +77,9 @@ async function runCrawler() {
       fs.writeFileSync(path.join(__dirname, 'new_auctions.json'), JSON.stringify(newAuctions, null, 2));
       console.log(`\n📝 Archivo new_auctions.json generado con ${newAuctions.length} subastas.`);
     }
+    // Guardar en pending_premium.json
+    fs.writeFileSync(CONFIG.PENDING_PREMIUM_FILE, JSON.stringify(premiumAuctions, null, 2));
+    console.log(`\n📝 Archivo pending_premium.json actualizado con ${premiumAuctions.length} subastas.`);
   }
 }
 
@@ -138,6 +154,23 @@ async function processAuction(subId, boeId) {
       auctionDate: auctionEntry.auctionDate,
       address: auctionEntry.address
     });
+
+    // Add to premium queue if not exists
+    if (!premiumAuctions.find(a => a.slug === auctionEntry.slug)) {
+      premiumAuctions.push({
+        slug: auctionEntry.slug,
+        city: auctionEntry.city,
+        zone: auctionEntry.zone,
+        propertyType: auctionEntry.propertyType,
+        address: auctionEntry.address,
+        appraisalValue: auctionEntry.appraisalValue,
+        claimedDebt: auctionEntry.claimedDebt,
+        procedureType: auctionEntry.procedureType,
+        auctionDate: auctionEntry.auctionDate,
+        discount: auctionEntry.discount,
+        detectedAt: new Date().toISOString()
+      });
+    }
   }
 }
 
