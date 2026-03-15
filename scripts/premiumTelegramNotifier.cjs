@@ -17,13 +17,25 @@ const CONFIG = {
 };
 
 async function sendTelegramMessage(text) {
-  if (!CONFIG.BOT_TOKEN || !CONFIG.PREMIUM_CHAT_ID) {
+  if (!process.env.BOT_TOKEN || !process.env.PREMIUM_CHAT_ID) {
     console.error('❌ Error: BOT_TOKEN o PREMIUM_CHAT_ID no configurados.');
     return;
   }
-  const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage`;
+  const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`;
   try {
-    await axios.post(url, { chat_id: CONFIG.PREMIUM_CHAT_ID, text: text, parse_mode: 'HTML' });
+    await axios.post(
+      url,
+      {
+        chat_id: process.env.PREMIUM_CHAT_ID,
+        text: text,
+        parse_mode: "HTML"
+      },
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
     return true;
   } catch (error) {
     console.error('❌ Error enviando a Telegram:', error.response?.data || error.message);
