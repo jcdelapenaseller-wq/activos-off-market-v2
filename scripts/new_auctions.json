@@ -1,0 +1,11 @@
+[
+  {
+    "slug": "test-subasta-premium",
+    "propertyType": "Piso",
+    "city": "Madrid",
+    "zone": "Salamanca",
+    "appraisalValue": 500000,
+    "claimedDebt": 200000,
+    "auctionDate": "2026-04-15"
+  }
+]
