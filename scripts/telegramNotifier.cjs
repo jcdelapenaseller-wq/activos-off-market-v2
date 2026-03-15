@@ -136,10 +136,9 @@ async function sendTelegramMessage(text) {
   try {
     console.log("DEBUG CHAT_ID:", process.env.CHAT_ID);
     await axios.post(url, {
-      chat_id: CONFIG.CHAT_ID,
+      chat_id: process.env.CHAT_ID,
       text: text,
-      parse_mode: 'HTML',
-      disable_web_page_preview: false
+      parse_mode: 'HTML'
     });
     return true;
   } catch (error) {
