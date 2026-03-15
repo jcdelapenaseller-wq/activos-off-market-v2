@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check, X, Sparkles } from 'lucide-react';
+import { MetricTag } from '../utils/themeClasses';
 
 const Pricing: React.FC = () => {
   return (
@@ -16,10 +17,13 @@ const Pricing: React.FC = () => {
           
           {/* Free Tier */}
           <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 flex flex-col hover:border-slate-300 transition-colors group">
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Canal Gratuito</h3>
+            <div className="mb-4">
+              <span className={MetricTag}>Canal Gratuito</span>
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Radar de Mercado</h3>
             <div className="text-4xl font-bold text-slate-900 mb-6">0€ <span className="text-base font-medium text-slate-500">/siempre</span></div>
             <p className="text-slate-600 mb-8 flex-grow leading-relaxed">
-              El radar de mercado. Recibe las alertas básicas (título + precio) para estar al día de lo que sale.
+              Recibe las alertas básicas (título + precio) para estar al día de lo que sale.
             </p>
             <a href="https://t.me/activosoffmarket" target="_blank" rel="noopener noreferrer" className="block w-full py-4 px-6 bg-slate-100 text-slate-800 font-bold rounded-xl text-center hover:bg-slate-200 transition-colors mb-8 text-lg">
               Entrar al Canal
@@ -41,11 +45,14 @@ const Pricing: React.FC = () => {
           </div>
 
           {/* Premium Tier - HIGHLIGHTED */}
-          <div className="bg-white p-10 rounded-3xl shadow-2xl border-2 border-brand-600 relative flex flex-col transform md:-translate-y-4 z-10 transition-transform hover:-translate-y-5">
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-sm font-bold px-6 py-2 rounded-full uppercase tracking-wide shadow-lg flex items-center gap-2 whitespace-nowrap">
-                <Sparkles size={16} /> Oferta Especial Lanzamiento
+          <div className="bg-brand-50/50 p-10 rounded-3xl shadow-2xl border-2 border-brand-500 relative flex flex-col transform md:-translate-y-4 z-10 transition-transform hover:-translate-y-5">
+            <div className={`absolute -top-4 left-1/2 -translate-x-1/2 ${MetricTag} !bg-brand-600 !text-white !border-brand-600 shadow-lg flex items-center gap-1.5 whitespace-nowrap !px-4 !py-1.5`}>
+                <Sparkles size={14} /> Recomendado
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Canal Premium</h3>
+            <div className="mb-4 mt-2">
+              <span className={`${MetricTag} !bg-brand-100 !text-brand-800 !border-brand-200`}>Premium</span>
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Análisis Profundo</h3>
             <div className="flex items-baseline gap-1 mb-6">
                 <span className="text-sm font-bold text-slate-500">Desde</span>
                 <span className="text-4xl font-bold text-slate-900">9€</span>
@@ -84,7 +91,10 @@ const Pricing: React.FC = () => {
 
           {/* Consulting Tier */}
           <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 flex flex-col hover:border-slate-300 transition-colors group">
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Consultoría 1:1</h3>
+            <div className="mb-4">
+              <span className={MetricTag}>Consultoría</span>
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Sesión 1:1</h3>
             <div className="flex items-baseline gap-1 mb-6">
                 <span className="text-sm font-bold text-slate-500">Desde solo</span>
                 <span className="text-4xl font-bold text-slate-900">39€</span>

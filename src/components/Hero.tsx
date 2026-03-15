@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, ArrowRight, TrendingUp, ShieldCheck, UserCheck, Sparkles, Star } from 'lucide-react';
+import { MetricHighlight, MetricPositive, MetricNeutral, MetricTag } from '../utils/themeClasses';
 
 const Hero: React.FC = () => {
   return (
@@ -34,9 +35,25 @@ const Hero: React.FC = () => {
             "Invertir en subastas no es cuestión de suerte. <br className="hidden md:block" /> Es cuestión de información."
           </p>
           
-          <p className="text-lg md:text-2xl text-slate-600 mb-14 max-w-3xl mx-auto leading-relaxed font-light">
+          <p className="text-lg md:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
              Yo te ayudo a <strong>ganar tiempo</strong> y <strong>minimizar riesgos</strong> antes de que pongas un euro sobre la mesa. Filtro y analizo las subastas públicas (BOE, AEAT) para que tú solo decidas.
           </p>
+
+          {/* Metrics Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-14">
+            <div className={`${MetricHighlight.container} shadow-sm border border-blue-100/50`}>
+              <div className={MetricHighlight.value}>+500</div>
+              <div className={MetricHighlight.label}>Subastas analizadas</div>
+            </div>
+            <div className={`${MetricPositive.container} shadow-sm border border-emerald-100/50`}>
+              <div className={MetricPositive.value}>42%</div>
+              <div className={MetricPositive.label}>Descuento medio detectado</div>
+            </div>
+            <div className={`${MetricNeutral.container} shadow-sm border border-slate-200/50`}>
+              <div className={MetricNeutral.value}>+1.200</div>
+              <div className={MetricNeutral.label}>Alertas enviadas</div>
+            </div>
+          </div>
           
           <div className="flex flex-col items-center gap-8">
             <div className="flex flex-col sm:flex-row gap-5 justify-center items-center w-full">
@@ -50,7 +67,7 @@ const Hero: React.FC = () => {
                 Ver Canal Gratuito
                 </a>
                 <div className="relative w-full sm:w-auto group">
-                    <div className="absolute -top-3 -right-3 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded-full shadow-sm z-10 uppercase tracking-wide flex items-center gap-1">
+                    <div className={`absolute -top-3 -right-3 z-10 flex items-center gap-1 shadow-sm ${MetricTag} !bg-yellow-100 !text-yellow-800 !border-yellow-200 hover:!bg-yellow-200 !text-[10px] !font-bold uppercase tracking-wide`}>
                         <Sparkles size={10} /> Oferta Lanzamiento
                     </div>
                     <a 
@@ -85,37 +102,37 @@ const Hero: React.FC = () => {
 
         {/* BLOQUE DE AUTORIDAD (3 CARDS) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {/* Card 1 */}
-            <div className="bg-white p-10 md:p-12 rounded-3xl shadow-lg border border-slate-100 hover:border-brand-300 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
-                <div className="bg-brand-50 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 text-brand-700 group-hover:bg-brand-600 group-hover:text-white transition-all">
+            {/* Card 1: Oportunidades filtradas (Azul) */}
+            <div className="bg-white p-10 md:p-12 rounded-3xl shadow-lg border-t-4 border-t-blue-500 border-x border-b border-slate-100 hover:border-blue-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+                <div className="bg-blue-50 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
                     <TrendingUp size={40} />
                 </div>
-                <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-brand-700 transition-colors">Oportunidades filtradas</h3>
+                <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-blue-700 transition-colors">Oportunidades filtradas</h3>
                 <p className="text-xl text-slate-600 leading-relaxed">
                     Publico en el canal gratuito nuevas subastas ya seleccionadas. Sin ruido. Solo lo que tiene sentido económico.
                 </p>
             </div>
 
-            {/* Card 2 */}
-            <div className="bg-white p-10 md:p-12 rounded-3xl shadow-xl border-2 border-slate-100 hover:border-brand-500 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group relative overflow-hidden z-10">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-brand-50 rounded-bl-full -mr-4 -mt-4 z-0 transition-transform group-hover:scale-125"></div>
+            {/* Card 2: Análisis profundo (Verde) */}
+            <div className="bg-white p-10 md:p-12 rounded-3xl shadow-xl border-t-4 border-t-emerald-500 border-x border-b border-slate-100 hover:border-emerald-300 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group relative overflow-hidden z-10">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4 z-0 transition-transform group-hover:scale-125"></div>
                 <div className="relative z-10">
-                    <div className="bg-brand-100 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 text-brand-800 group-hover:bg-brand-600 group-hover:text-white transition-all">
+                    <div className="bg-emerald-50 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all">
                         <ShieldCheck size={40} />
                     </div>
-                    <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-brand-700 transition-colors">Análisis profundo</h3>
+                    <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-emerald-700 transition-colors">Análisis profundo</h3>
                     <p className="text-xl text-slate-600 leading-relaxed">
                         Cargas ocultas, situación posesoria (ocupación) y números reales antes de que decidas pujar.
                     </p>
                 </div>
             </div>
 
-            {/* Card 3 */}
-            <div className="bg-white p-10 md:p-12 rounded-3xl shadow-lg border border-slate-100 hover:border-brand-300 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
-                <div className="bg-slate-100 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 text-slate-700 group-hover:bg-slate-800 group-hover:text-white transition-all">
+            {/* Card 3: Servicio personal (Naranja suave) */}
+            <div className="bg-white p-10 md:p-12 rounded-3xl shadow-lg border-t-4 border-t-orange-400 border-x border-b border-slate-100 hover:border-orange-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+                <div className="bg-orange-50 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 text-orange-600 group-hover:bg-orange-500 group-hover:text-white transition-all">
                     <UserCheck size={40} />
                 </div>
-                <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-slate-700 transition-colors">Servicio personal</h3>
+                <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-orange-700 transition-colors">Servicio personal</h3>
                 <p className="text-xl text-slate-600 leading-relaxed">
                    Analizo subastas públicas con datos verificados y criterio jurídico. Sin conflictos de interés.
                 </p>

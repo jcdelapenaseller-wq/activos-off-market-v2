@@ -1,5 +1,6 @@
 import React from 'react';
 import { Smartphone, UserCheck, Check, ArrowRight, ShieldCheck } from 'lucide-react';
+import { MetricTag } from '../utils/themeClasses';
 
 const Services: React.FC = () => {
   return (
@@ -18,6 +19,10 @@ const Services: React.FC = () => {
             <div className="relative z-10 flex-grow">
               <div className="w-20 h-20 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-700 mb-8 shadow-inner group-hover:bg-brand-600 group-hover:text-white transition-colors duration-300">
                 <Smartphone size={40} />
+              </div>
+              <div className="mb-4 flex gap-2">
+                <span className={MetricTag}>Canal Gratuito</span>
+                <span className={`${MetricTag} !bg-brand-100 !text-brand-800 !border-brand-200`}>Premium</span>
               </div>
               <h3 className="text-3xl font-bold text-slate-900 mb-6 group-hover:text-brand-700 transition-colors">Canal de Telegram</h3>
               <p className="text-lg text-slate-600 mb-8 leading-relaxed">
@@ -66,6 +71,9 @@ const Services: React.FC = () => {
             <div className="relative z-10 flex-grow">
               <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-700 mb-8 shadow-inner group-hover:bg-slate-800 group-hover:text-white transition-colors duration-300">
                 <UserCheck size={40} />
+              </div>
+              <div className="mb-4">
+                <span className={MetricTag}>Consultoría</span>
               </div>
               <h3 className="text-3xl font-bold text-slate-900 mb-6 group-hover:text-slate-700 transition-colors">Consultoría Estratégica</h3>
               <p className="text-lg text-slate-600 mb-8 leading-relaxed">
