@@ -16,7 +16,7 @@ const premiumAuctions = [];
 const CONFIG = {
   AUCTIONS_FILE: path.join(__dirname, '../src/data/auctions.ts'),
   PENDING_PREMIUM_FILE: path.join(__dirname, 'pending_premium.json'),
-  MIN_DISCOUNT: 30,
+  MIN_DISCOUNT: 15,
   USER_AGENT: 'ActivosOffMarket-Bot/1.0 (josecpmx@gmail.com)'
 };
 
