@@ -17,6 +17,14 @@ const AuctionDiscoverArticle: React.FC = () => {
     return Math.round((1 - auction.claimedDebt / auction.appraisalValue) * 100);
   }, [auction]);
 
+  const imageUrl = useMemo(() => {
+    const type = auction?.propertyType?.toLowerCase() || '';
+    if (type.includes('local')) return 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop';
+    if (type.includes('garaje')) return 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=1200&auto=format&fit=crop';
+    if (type.includes('nave')) return 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop';
+    return 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
+  }, [auction]);
+
   const formattedCurrency = (value: number | undefined) => {
     if (value === undefined) return 'Consultar';
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
@@ -71,7 +79,7 @@ const AuctionDiscoverArticle: React.FC = () => {
             {title}
           </h1>
           
-          <div className="flex items-center gap-4 text-slate-600 border-b border-slate-100 pb-6">
+          <div className="flex flex-wrap items-center gap-4 text-slate-600 border-b border-slate-100 pb-6">
             <div className="flex items-center gap-2">
               <Calendar size={18} className="text-brand-600" />
               <span className="text-sm">{publishDate}</span>
@@ -79,6 +87,13 @@ const AuctionDiscoverArticle: React.FC = () => {
             <div className="flex items-center gap-2">
               <User size={18} className="text-brand-600" />
               <span className="text-sm font-medium text-slate-900">José Carlos de la Peña</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock size={18} className="text-brand-600" />
+              <span className="text-sm">Tiempo de lectura: 2 min</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-500">Actualizado: {publishDate}</span>
             </div>
           </div>
         </header>
@@ -92,8 +107,8 @@ const AuctionDiscoverArticle: React.FC = () => {
         {/* B) Imagen principal */}
         <div className="mb-10">
           <img 
-            src={`https://picsum.photos/seed/city-building-facade-${auction.city?.toLowerCase()}-${slug}/1200/675`} 
-            alt={`Subasta en ${auction.city} - ${auction.zone}`} 
+            src={imageUrl} 
+            alt={`Subasta de ${auction.propertyType} en ${auction.city}`} 
             className="w-full rounded-2xl object-cover aspect-video shadow-lg"
             referrerPolicy="no-referrer"
           />
@@ -160,11 +175,6 @@ const AuctionDiscoverArticle: React.FC = () => {
           </div>
         </section>
 
-        {/* H) Espacio para AdSense 1 */}
-        <div className="my-8 py-4 bg-slate-50 border-y border-slate-100 flex items-center justify-center text-slate-400 text-xs uppercase tracking-widest min-h-[100px]">
-          Publicidad
-        </div>
-
         {/* D) Explicación breve */}
         <div className="prose prose-slate prose-lg max-w-none mb-10">
           <p className="mb-6">
@@ -183,6 +193,13 @@ const AuctionDiscoverArticle: React.FC = () => {
           </p>
         </div>
 
+        <section className="mb-10">
+          <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Lo que llama la atención de esta subasta</h2>
+          <p className="text-slate-700 mb-4">
+            El descuento del {discount}% sobre el valor de tasación es el primer factor que destaca. La ubicación en {auction.zone} sitúa este activo en un punto estratégico de {auction.city}, un mercado donde la oferta de {auction.propertyType?.toLowerCase()} a precios competitivos es escasa.
+          </p>
+        </section>
+
         {/* E) Bloque de análisis experto */}
         <div className="bg-brand-50 border-l-4 border-brand-500 p-6 mb-10 rounded-r-2xl">
           <h3 className="text-brand-900 font-bold flex items-center gap-2 mb-2">
@@ -197,10 +214,22 @@ const AuctionDiscoverArticle: React.FC = () => {
           </p>
         </div>
 
-        {/* H) Espacio para AdSense 2 */}
-        <div className="my-12 py-4 bg-slate-50 border-y border-slate-100 flex items-center justify-center text-slate-400 text-xs uppercase tracking-widest min-h-[250px]">
-          Publicidad
-        </div>
+        <section className="mb-10">
+          <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Qué miran primero los inversores</h2>
+          <ul className="list-disc list-inside text-slate-700 space-y-2">
+            <li><strong>Situación posesoria:</strong> ¿Está ocupado? Es el riesgo número uno.</li>
+            <li><strong>Cargas registrales:</strong> ¿Qué hipotecas o embargos anteriores existen?</li>
+            <li><strong>Estado del inmueble:</strong> ¿Requiere reforma integral o es para entrar a vivir?</li>
+            <li><strong>Valor real en la zona:</strong> ¿El precio de mercado justifica el riesgo?</li>
+          </ul>
+        </section>
+
+        <section className="mb-10">
+          <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Por qué esta subasta puede interesar</h2>
+          <p className="text-slate-700 mb-4">
+            La ratio entre la deuda reclamada ({formattedCurrency(auction.claimedDebt)}) y el valor de tasación ({formattedCurrency(auction.appraisalValue)}) sugiere un margen de maniobra interesante. La demanda de {auction.propertyType?.toLowerCase()} en {auction.city} es constante, lo que garantiza una alta liquidez si el precio de adjudicación es el adecuado.
+          </p>
+        </section>
 
         {/* F) CTA hacia Telegram */}
         <section className="bg-sky-50 border border-sky-100 rounded-2xl p-8 mb-10 text-center">
@@ -263,10 +292,17 @@ const AuctionDiscoverArticle: React.FC = () => {
           </div>
         </section>
 
-        {/* H) Espacio para AdSense 3 */}
-        <div className="mt-12 py-4 bg-slate-50 border-y border-slate-100 flex items-center justify-center text-slate-400 text-xs uppercase tracking-widest min-h-[150px]">
-          Publicidad
-        </div>
+        <section className="mb-10">
+          <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Antes de pujar conviene revisar</h2>
+          <p className="text-slate-700 mb-4">
+            No te lances sin hacer los deberes. Antes de realizar cualquier depósito:
+          </p>
+          <ul className="list-disc list-inside text-slate-700 space-y-2">
+            <li><strong>Revisa la nota simple:</strong> Es el documento que revela la verdad sobre las cargas.</li>
+            <li><strong>Confirma la ocupación:</strong> Si está ocupado, el proceso de desahucio es largo y costoso.</li>
+            <li><strong>Valida las cargas:</strong> Asegúrate de qué cargas se cancelan y cuáles te subrogas.</li>
+          </ul>
+        </section>
 
         {/* Footer del artículo con enlaces relacionados */}
         <footer className="mt-16 pt-12 border-t border-slate-100">
