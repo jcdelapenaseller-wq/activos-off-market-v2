@@ -20,26 +20,37 @@ const HOOKS = [
   "Este expediente tiene algunos elementos interesantes.",
   "A primera vista parece una subasta bastante limpia.",
   "Este activo merece mirarlo con calma antes de que empiecen las pujas.",
-  "Este tipo de activos en esta zona suelen moverse rápido."
+  "Este tipo de activos en esta zona suelen moverse rápido.",
+  "He detectado un nuevo expediente en el BOE que merece una revisión detallada.",
+  "Acaba de saltar esta oportunidad al radar y tiene algunos puntos muy interesantes.",
+  "Revisando las novedades, este activo destaca por su potencial."
 ];
 
 const INTERPRETATIONS = [
   "La deuda representa una parte interesante del valor de subasta, lo que a veces deja margen si no aparecen cargas inesperadas.",
   "Cuando la deuda está bastante por debajo del valor de subasta suele haber más recorrido para inversores.",
   "Este tipo de expedientes depende mucho de la situación posesoria, es clave verificarla.",
-  "La estructura de deuda frente al valor de subasta sugiere que hay que analizar bien los costes ocultos."
+  "La estructura de deuda frente al valor de subasta sugiere que hay que analizar bien los costes ocultos.",
+  "Si el activo acompaña en estado y posesión, el mercado de la zona suele absorber bien este tipo de producto.",
+  "En esta zona activos comparables suelen moverse por encima del tipo de subasta."
 ];
 
 const TRANSITIONS = [
   "Desglosando el expediente, estos son los puntos clave.",
   "Este tipo de operaciones se ganan en los detalles.",
-  "Antes de pujar conviene mirar bien estos puntos."
+  "Antes de pujar conviene mirar bien estos puntos.",
+  "Analizando los números preliminares, esto es lo que tenemos:",
+  "Si entramos en detalle, el escenario se ve así:"
 ];
 
 const FOMO_LINES = [
   "No es un activo para improvisar.",
   "Aquí se gana en el detalle.",
-  "Conviene revisar bien el expediente antes de consignar el depósito."
+  "Conviene revisar bien el expediente antes de consignar el depósito.",
+  "Este tipo de expedientes suele decidirse en la certificación registral.",
+  "Una revisión rápida del expediente puede cambiar completamente la estrategia de puja.",
+  "En subastas como esta la diferencia suele estar en lo que no aparece en el edicto.",
+  "No es el tipo de activo que conviene improvisar."
 ];
 
 function formatCurrency(value) {
@@ -118,23 +129,23 @@ ${getRandom(HOOKS)}
 🔎 <b>Claves del expediente</b>
 
 • Procedimiento: ${auction.procedureType}
-• Situación posesoria: Pendiente de verificar en el edicto
-• Posibles cargas a revisar: Cargas registrales y deudas de comunidad/IBI
+• Situación posesoria: ${auction.occupancy || "La clave aquí suele estar en la situación posesoria y el orden de cargas"}
+• Posibles cargas a revisar: El margen real dependerá del orden de cargas en la certificación registral, conviene revisarla bien antes de plantear puja.
 
 📊 <b>Lectura rápida</b>
 
 • deuda reclamada: ${formatCurrency(auction.claimedDebt)}
 • valor de subasta: ${formatCurrency(auction.appraisalValue)}
 • ratio deuda / subasta: ${debtRatio}%
-• descuento teórico: ${auction.discount ? auction.discount + '%' : 'Pendiente'}
+• descuento teórico: ${auction.discount ? auction.discount + '%' : 'A determinar'}
 
 ${getRandom(INTERPRETATIONS)}
 
 💰 <b>Escenario orientativo</b>
 
-• rango posible de adjudicación: Estimación inicial pendiente de afinar
-• valor estimado de mercado en la zona: Pendiente de análisis comparativo
-• margen potencial aproximado: Pendiente de validar cargas
+• rango posible de adjudicación: Estimación inicial basada en tipología
+• valor estimado de mercado en la zona: Si el activo acompaña en estado, el mercado suele absorber bien este producto
+• margen potencial aproximado: Margen a confirmar tras revisar cargas registrales
 
 ${getRandom(TRANSITIONS)}
 
