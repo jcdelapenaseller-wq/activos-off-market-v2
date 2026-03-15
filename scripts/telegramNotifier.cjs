@@ -126,20 +126,27 @@ function toHashtag(str) {
  * Envía el mensaje a la API de Telegram
  */
 async function sendTelegramMessage(text) {
-  if (!CONFIG.BOT_TOKEN || !CONFIG.CHAT_ID) {
+  if (!process.env.BOT_TOKEN || !process.env.CHAT_ID) {
     console.error('❌ Error: BOT_TOKEN o CHAT_ID no configurados.');
     return;
   }
 
-  const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage`;
+  const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`;
   
   try {
-    console.log("DEBUG CHAT_ID:", process.env.CHAT_ID);
-    await axios.post(url, {
-      chat_id: process.env.CHAT_ID,
-      text: text,
-      parse_mode: 'HTML'
-    });
+    await axios.post(
+      url,
+      {
+        chat_id: process.env.CHAT_ID,
+        text: text,
+        parse_mode: "HTML"
+      },
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
     return true;
   } catch (error) {
     console.error('❌ Error enviando a Telegram:', error.response?.data || error.message);
