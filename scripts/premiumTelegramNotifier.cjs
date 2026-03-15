@@ -16,23 +16,30 @@ const CONFIG = {
 };
 
 const HOOKS = [
-  "He detectado un nuevo expediente en el BOE que merece una revisión detallada.",
-  "Acaba de saltar esta oportunidad al radar y tiene algunos puntos muy interesantes.",
-  "Revisando las novedades, este activo destaca por su potencial.",
-  "Ojo a esta subasta que acaba de publicarse, parece que hay margen para trabajar."
+  "Ojo a esta subasta que acaba de aparecer en el radar.",
+  "Este expediente tiene algunos elementos interesantes.",
+  "A primera vista parece una subasta bastante limpia.",
+  "Este activo merece mirarlo con calma antes de que empiecen las pujas.",
+  "Este tipo de activos en esta zona suelen moverse rápido."
 ];
 
-const COMMENTS = [
-  "Parece que hay un buen margen de seguridad si la puja no se dispara demasiado.",
-  "La ubicación es estratégica, lo que suele reducir el riesgo de comercialización posterior.",
-  "Habrá que mirar con lupa las cargas registrales.",
-  "La clave aquí será revisar bien la situación posesoria."
+const INTERPRETATIONS = [
+  "La deuda representa una parte interesante del valor de subasta, lo que a veces deja margen si no aparecen cargas inesperadas.",
+  "Cuando la deuda está bastante por debajo del valor de subasta suele haber más recorrido para inversores.",
+  "Este tipo de expedientes depende mucho de la situación posesoria, es clave verificarla.",
+  "La estructura de deuda frente al valor de subasta sugiere que hay que analizar bien los costes ocultos."
 ];
 
 const TRANSITIONS = [
-  "Analizando los números preliminares, esto es lo que tenemos:",
-  "Si entramos en detalle, el escenario se ve así:",
-  "Desglosando el expediente, estos son los puntos clave:"
+  "Desglosando el expediente, estos son los puntos clave.",
+  "Este tipo de operaciones se ganan en los detalles.",
+  "Antes de pujar conviene mirar bien estos puntos."
+];
+
+const FOMO_LINES = [
+  "No es un activo para improvisar.",
+  "Aquí se gana en el detalle.",
+  "Conviene revisar bien el expediente antes de consignar el depósito."
 ];
 
 function formatCurrency(value) {
@@ -121,6 +128,8 @@ ${getRandom(HOOKS)}
 • ratio deuda / subasta: ${debtRatio}%
 • descuento teórico: ${auction.discount ? auction.discount + '%' : 'Pendiente'}
 
+${getRandom(INTERPRETATIONS)}
+
 💰 <b>Escenario orientativo</b>
 
 • rango posible de adjudicación: Estimación inicial pendiente de afinar
@@ -133,7 +142,7 @@ ${getRandom(TRANSITIONS)}
 
 🔎 <a href="${CONFIG.BASE_URL}/${auction.slug}">Análisis completo del activo</a>
 
-Si alguien está valorando entrar en esta subasta puedo revisar el expediente completo antes del cierre.
+${getRandom(FOMO_LINES)}
 
 👉 <a href="https://calendly.com/activosoffmarket">Reservar consultoría</a>`;
 
