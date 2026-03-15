@@ -43,6 +43,7 @@ import HighDiscountAuctions from './components/HighDiscountAuctions';
 import DiscoverCityArticles from './components/DiscoverCityArticles';
 import AuctionDiscoverArticle from './components/AuctionDiscoverArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
+import NeighborhoodInvestmentAnalysis from './components/NeighborhoodInvestmentAnalysis';
 import Legal from './components/Legal';
 import BestAuctionsByCity from './components/BestAuctionsByCity';
 
@@ -95,6 +96,7 @@ export const ROUTES = {
   CITY_OPPORTUNITIES: '/subastas/:city/oportunidades',
   ZONE: '/subastas/:city/:zone',
   BEST_AUCTIONS_CITY: '/mejores-subastas/:city',
+  INVERSION_CITY_ZONE: '/inversion/:city/:zone',
   LEGAL: '/aviso-legal',
   PRIVACY: '/politica-privacidad',
   COOKIES: '/politica-cookies',
@@ -306,6 +308,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.BEST_AUCTIONS_CITY,
     element: createElement(BestAuctionsByCity),
+  },
+  {
+    path: ROUTES.INVERSION_CITY_ZONE,
+    element: createElement(NeighborhoodInvestmentAnalysis),
   },
   {
     path: ROUTES.CITY_PROPERTY,
