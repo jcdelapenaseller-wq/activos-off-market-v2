@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
-import { TrendingUp, DollarSign, MapPin, ChevronRight, Calculator, Info } from 'lucide-react';
+import { MetricHighlight, MetricPositive, MetricNeutral, MetricWarning, MetricTag, getDiscountColor } from '../utils/themeClasses';
 
 const CityInvestmentAnalysis: React.FC = () => {
   const { city } = useParams<{ city: string }>();
@@ -85,10 +85,10 @@ const CityInvestmentAnalysis: React.FC = () => {
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
-            <div className="bg-blue-50 p-4 rounded-xl text-center"><p className="text-sm text-blue-600">Subastas</p><p className="text-2xl font-bold text-blue-900">{metrics.count}</p></div>
-            <div className="bg-emerald-50 p-4 rounded-xl text-center"><p className="text-sm text-emerald-600">Descuento medio</p><p className="text-2xl font-bold text-emerald-900">{metrics.avgDiscount}%</p></div>
-            <div className="bg-slate-100 p-4 rounded-xl text-center"><p className="text-sm text-slate-600">Precio m²</p><p className="text-2xl font-bold text-slate-900">{metrics.avgPriceM2.toLocaleString('es-ES')}€</p></div>
-            <div className="bg-orange-50 p-4 rounded-xl text-center"><p className="text-sm text-orange-600">Tipo principal</p><p className="text-2xl font-bold text-orange-900">{metrics.predominantType}</p></div>
+            <div className={MetricHighlight.container}><p className={MetricHighlight.label}>Subastas</p><p className={MetricHighlight.value}>{metrics.count}</p></div>
+            <div className={MetricPositive.container}><p className={MetricPositive.label}>Descuento medio</p><p className={MetricPositive.value}>{metrics.avgDiscount}%</p></div>
+            <div className={MetricNeutral.container}><p className={MetricNeutral.label}>Precio m²</p><p className={MetricNeutral.value}>{metrics.avgPriceM2.toLocaleString('es-ES')}€</p></div>
+            <div className={MetricWarning.container}><p className={MetricWarning.label}>Tipo principal</p><p className={MetricWarning.value}>{metrics.predominantType}</p></div>
         </div>
 
         <h2 className="text-2xl font-bold mb-4">Qué está pasando con las subastas en {city}</h2>
@@ -102,7 +102,7 @@ const CityInvestmentAnalysis: React.FC = () => {
         <ul className="flex flex-wrap gap-2 mb-4">
             {metrics.topZones.map(([zone, count]) => (
                 <li key={zone}>
-                    <Link to={`/inversion/${city}/${zone.toLowerCase().replace(/\s+/g, '-')}`} className="bg-slate-100 px-3 py-1 rounded-full text-sm border border-slate-200 text-slate-700 hover:bg-slate-200">
+                    <Link to={`/inversion/${city}/${zone.toLowerCase().replace(/\s+/g, '-')}`} className={MetricTag}>
                         {zone} ({count})
                     </Link>
                 </li>
@@ -133,8 +133,8 @@ const CityInvestmentAnalysis: React.FC = () => {
                             <p>Deuda: {a.claimedDebt?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
                             {(() => {
                                 const discount = a.appraisalValue && a.claimedDebt ? Math.round((1 - a.claimedDebt / a.appraisalValue) * 100) : 0;
-                                const discountColor = discount > 40 ? 'text-emerald-600' : discount >= 20 ? 'text-orange-600' : 'text-slate-500';
-                                return <p className={`font-bold ${discountColor}`}>Descuento: {discount}%</p>;
+                                const discountColor = getDiscountColor(discount);
+                                return <p className={discountColor}>Descuento: {discount}%</p>;
                             })()}
                         </div>
                         <Link to={`/ejemplo-subasta/${a.slug}`} className="inline-block mt-4 text-brand-600 font-bold">Ver ficha →</Link>

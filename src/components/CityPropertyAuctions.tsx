@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
 import { ROUTES } from '../routes';
+import { MetricHighlight, MetricNeutral, MetricWarning, MetricTag, getDiscountColor } from '../utils/themeClasses';
 
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
@@ -161,19 +162,19 @@ const CityPropertyAuctions: React.FC = () => {
 
           {filteredAuctions.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
-                <p className="text-sm text-slate-500 font-bold uppercase mb-1">Subastas detectadas</p>
-                <p className="text-2xl font-bold text-brand-600">{metrics.count}</p>
+              <div className={MetricHighlight.container}>
+                <p className={MetricHighlight.label}>Subastas detectadas</p>
+                <p className={MetricHighlight.value}>{metrics.count}</p>
               </div>
-              <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
-                <p className="text-sm text-slate-500 font-bold uppercase mb-1">Tasación media</p>
-                <p className="text-2xl font-bold text-slate-900">
+              <div className={MetricNeutral.container}>
+                <p className={MetricNeutral.label}>Tasación media</p>
+                <p className={MetricNeutral.value}>
                   {metrics.avgAppraisal > 0 ? metrics.avgAppraisal.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
                 </p>
               </div>
-              <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
-                <p className="text-sm text-slate-500 font-bold uppercase mb-1">Deuda media</p>
-                <p className="text-2xl font-bold text-red-600">
+              <div className={MetricWarning.container}>
+                <p className={MetricWarning.label}>Deuda media</p>
+                <p className={MetricWarning.value}>
                   {metrics.avgDebt > 0 ? metrics.avgDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
                 </p>
               </div>
@@ -245,12 +246,16 @@ const CityPropertyAuctions: React.FC = () => {
                         <span>Deuda: <span className="font-bold text-red-600">{data.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
                       </div>
                     )}
-                    {data.appraisalValue && data.claimedDebt && (
-                      <div className="flex items-center gap-2 text-slate-500 text-sm">
-                        <TrendingUp size={16} className={((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100) > 40 ? 'text-green-500' : 'text-slate-400'} />
-                        <span className="text-slate-500">Descuento potencial: <span className={`font-bold ${((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100) > 40 ? 'text-green-600' : 'text-slate-900'}`}>-{Math.round((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100)} %</span></span>
-                      </div>
-                    )}
+                    {data.appraisalValue && data.claimedDebt && (() => {
+                      const discount = Math.round((1 - data.claimedDebt / data.appraisalValue) * 100);
+                      const discountColor = getDiscountColor(discount);
+                      return (
+                        <div className="flex items-center gap-2 text-sm">
+                          <TrendingUp size={16} className={discountColor} />
+                          <span className="text-slate-500">Descuento potencial: <span className={discountColor}>-{discount}%</span></span>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <Link 
@@ -321,14 +326,14 @@ const CityPropertyAuctions: React.FC = () => {
           {availableZones.length > 0 && (
             <div>
               <h2 className="text-2xl font-bold text-slate-900 mb-6">Subastas en otras zonas de {city}</h2>
-              <ul className="space-y-3">
+              <ul className="flex flex-wrap gap-2">
                 {availableZones.map(z => (
                   <li key={z}>
                     <Link 
                       to={`/subastas/${normalizeForUrl(city)}/${normalizeForUrl(z)}`}
-                      className="text-brand-600 hover:text-brand-800 hover:underline font-medium flex items-center gap-2"
+                      className={MetricTag}
                     >
-                      <ChevronRight size={16} /> Subastas en {z}
+                      {z}
                     </Link>
                   </li>
                 ))}
@@ -339,14 +344,14 @@ const CityPropertyAuctions: React.FC = () => {
           {availablePropertyTypes.length > 0 && (
             <div>
               <h2 className="text-2xl font-bold text-slate-900 mb-6">Otros tipos de subastas en {city}</h2>
-              <ul className="space-y-3">
+              <ul className="flex flex-wrap gap-2">
                 {availablePropertyTypes.map(pt => (
                   <li key={pt}>
                     <Link 
                       to={`/subastas/${normalizeForUrl(city)}/${normalizeForUrl(pt)}`}
-                      className="text-brand-600 hover:text-brand-800 hover:underline font-medium flex items-center gap-2 capitalize"
+                      className={`${MetricTag} capitalize`}
                     >
-                      <ChevronRight size={16} /> Subastas de {pt} en {city}
+                      {pt}
                     </Link>
                   </li>
                 ))}
