@@ -2,10 +2,11 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../routes';
-import { Calendar, User, MapPin, CircleDollarSign, Landmark, TrendingDown, Clock, MessageSquare, ExternalLink, ShieldCheck, Info, ArrowLeft } from 'lucide-react';
+import { Calendar, User, ChevronRight, ArrowLeft, ArrowRight } from 'lucide-react';
 import { generateDiscoverTitle } from '../utils/discoverTitles';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
+import TelegramCTA from './TelegramCTA';
 
 const AuctionDiscoverArticle: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -17,10 +18,10 @@ const AuctionDiscoverArticle: React.FC = () => {
     return Math.round((1 - auction.claimedDebt / auction.appraisalValue) * 100);
   }, [auction]);
 
-  const formattedCurrency = (value: number | undefined) => {
-    if (value === undefined) return 'Consultar';
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
-  };
+  const altText = useMemo(() => {
+    if (!auction) return 'Subasta inmobiliaria';
+    return `Subasta de ${auction.propertyType?.toLowerCase()} en ${auction.zone} ${auction.city}${discount ? ` con descuento del ${discount}% sobre tasación` : ''}`;
+  }, [auction, discount]);
 
   useEffect(() => {
     if (auction && title && slug) {
@@ -31,20 +32,37 @@ const AuctionDiscoverArticle: React.FC = () => {
       metaRobots.setAttribute('content', 'max-image-preview:large');
       document.head.appendChild(metaRobots);
 
-      const scriptSchema = document.createElement('script');
-      scriptSchema.setAttribute('type', 'application/ld+json');
-      scriptSchema.textContent = JSON.stringify({
+      const schemaData = {
         "@context": "https://schema.org",
         "@type": "NewsArticle",
         "headline": title,
-        "description": `Análisis de la subasta de un ${auction.propertyType?.toLowerCase() || 'inmueble'} en ${auction.zone}, ${auction.city}. Datos clave, riesgos y cómo participar.`,
-        "image": [`https://picsum.photos/seed/real-estate-${auction.city?.toLowerCase()}-${slug}/1200/675`],
-        "datePublished": auction.publishedAt || new Date().toISOString(),
+        "description": `Una nueva oportunidad acaba de aparecer en el portal de subastas: un ${auction.propertyType?.toLowerCase() || 'inmueble'} ubicado en ${auction.zone}, ${auction.city}.`,
+        "image": [
+          `https://picsum.photos/seed/real-estate-building-facade-auction-${slug}/1200/675`
+        ],
+        "datePublished": new Date().toISOString(),
+        "dateModified": new Date().toISOString(),
         "author": [{
             "@type": "Person",
             "name": "José Carlos de la Peña"
-        }]
-      });
+        }],
+        "publisher": {
+          "@type": "Organization",
+          "name": "Activos Off Market",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://activosoffmarket.es/logo.png"
+          }
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": `https://activosoffmarket.es/noticias-subastas/${slug}`
+        }
+      };
+
+      const scriptSchema = document.createElement('script');
+      scriptSchema.setAttribute('type', 'application/ld+json');
+      scriptSchema.textContent = JSON.stringify(schemaData);
       document.head.appendChild(scriptSchema);
 
       return () => {
@@ -56,229 +74,145 @@ const AuctionDiscoverArticle: React.FC = () => {
 
   if (!auction) return <Navigate to="/404" />;
 
-  const publishDate = auction.publishedAt 
-    ? new Date(auction.publishedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
-    : new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-  
+  const formattedDate = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
   const isFinished = isAuctionFinished(auction.auctionDate);
 
   return (
     <div className="bg-white min-h-screen">
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12">
-        {/* A) Encabezado */}
-        <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-slate-900 mb-6 leading-tight">
-            {title}
-          </h1>
-          
-          <div className="flex items-center gap-4 text-slate-600 border-b border-slate-100 pb-6">
-            <div className="flex items-center gap-2">
-              <Calendar size={18} className="text-brand-600" />
-              <span className="text-sm">{publishDate}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <User size={18} className="text-brand-600" />
-              <span className="text-sm font-medium text-slate-900">José Carlos de la Peña</span>
-            </div>
-          </div>
-        </header>
-
+      <article className="max-w-3xl mx-auto px-6 py-12">
         {isFinished && (
           <div className="mb-8">
             <FinishedAuctionBanner auctionDate={auction.auctionDate} />
           </div>
         )}
-
-        {/* B) Imagen principal */}
-        <div className="mb-10">
+        <header className="mb-12">
           <img 
-            src={`https://picsum.photos/seed/city-building-facade-${auction.city?.toLowerCase()}-${slug}/1200/675`} 
-            alt={`Subasta en ${auction.city} - ${auction.zone}`} 
-            className="w-full rounded-2xl object-cover aspect-video shadow-lg"
+            src={`https://picsum.photos/seed/real-estate-building-facade-auction-${slug}/1200/675`} 
+            alt={altText} 
+            className="w-full rounded-lg object-cover aspect-video mb-10"
             referrerPolicy="no-referrer"
           />
-        </div>
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-8 leading-tight">
+            {title}
+          </h1>
 
-        {/* C) Resumen rápido */}
-        <section className="bg-slate-900 text-white rounded-2xl p-6 md:p-8 mb-10 shadow-xl overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-          <h2 className="text-xl font-serif font-bold mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
-            <Info size={20} className="text-brand-400" />
-            Datos clave de la subasta
-          </h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-white/10 rounded-lg">
-                <MapPin size={20} className="text-brand-400" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Ubicación</p>
-                <p className="font-medium">{auction.zone}, {auction.city}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-white/10 rounded-lg">
-                <CircleDollarSign size={20} className="text-brand-400" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Valor Subasta</p>
-                <p className="font-medium">{formattedCurrency(auction.appraisalValue)}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-white/10 rounded-lg">
-                <Landmark size={20} className="text-brand-400" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Deuda Reclamada</p>
-                <p className="font-medium">{formattedCurrency(auction.claimedDebt)}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-white/10 rounded-lg">
-                <TrendingDown size={20} className="text-brand-400" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Descuento Estimado</p>
-                <p className="font-medium text-brand-400">{discount ? `${discount}%` : 'Ver análisis'}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-white/10 rounded-lg">
-                <Clock size={20} className="text-brand-400" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Fecha de cierre</p>
-                <p className="font-medium">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : 'Consultar BOE'}</p>
-              </div>
-            </div>
+          <div className="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <p className="text-sm text-slate-500 uppercase tracking-wider font-bold mb-1">Análisis realizado por</p>
+            <p className="text-lg font-serif font-bold text-slate-900">José Carlos de la Peña</p>
+            <p className="text-sm text-slate-600">Jurista especializado en subastas públicas</p>
           </div>
-        </section>
 
-        {/* H) Espacio para AdSense 1 */}
-        <div className="my-8 py-4 bg-slate-50 border-y border-slate-100 flex items-center justify-center text-slate-400 text-xs uppercase tracking-widest min-h-[100px]">
-          Publicidad
-        </div>
-
-        {/* D) Explicación breve */}
-        <div className="prose prose-slate prose-lg max-w-none mb-10">
-          <p className="mb-6">
-            Se ha publicado una nueva oportunidad en el portal de subastas del BOE. Se trata de un {auction.propertyType?.toLowerCase() || 'inmueble'} ubicado en {auction.zone}, una de las áreas con mayor movimiento de {auction.city}.
-          </p>
-          <p className="mb-6">
-            Este activo sale a subasta bajo un procedimiento de {auction.procedureType || 'ejecución judicial'}. Para un inversor, este tipo de activos representan una oportunidad de adquirir inmuebles por debajo de su precio de mercado, aunque requieren un análisis técnico riguroso.
-          </p>
-          {auction.description && (
-            <p className="mb-6">
-              {auction.description.length > 250 ? `${auction.description.substring(0, 250)}...` : auction.description}
+          <div className="prose prose-slate prose-lg max-w-none mb-8">
+            <p>
+              Esta subasta presenta una oportunidad destacada sobre un {auction.propertyType?.toLowerCase() || 'inmueble'} situado en una ubicación estratégica de {auction.zone}, {auction.city}. 
+              {discount && (
+                <> Lo que hace especialmente interesante este activo es la notable diferencia entre su valor de tasación y la deuda reclamada, lo que se traduce en un descuento potencial del {discount}% sobre el valor de mercado.</>
+              )}
             </p>
-          )}
-          <p className="mb-6">
-            El contexto actual del mercado en {auction.city} muestra una demanda sólida, lo que hace que activos con descuentos significativos como este sean especialmente atractivos para estrategias de comprar, reformar y vender, o para rentabilidad por alquiler.
-          </p>
-        </div>
-
-        {/* E) Bloque de análisis experto */}
-        <div className="bg-brand-50 border-l-4 border-brand-500 p-6 mb-10 rounded-r-2xl">
-          <h3 className="text-brand-900 font-bold flex items-center gap-2 mb-2">
-            <ShieldCheck size={20} />
-            Análisis rápido
-          </h3>
-          <p className="text-slate-700 italic">
-            {auction.description 
-              ? `"${auction.description.split('.')[0]}."`
-              : `"Este tipo de activos en ${auction.city} suele generar bastante interés cuando empiezan las pujas. La clave del éxito aquí será validar si las cargas anteriores están realmente canceladas económicamente."`
-            }
-          </p>
-        </div>
-
-        {/* H) Espacio para AdSense 2 */}
-        <div className="my-12 py-4 bg-slate-50 border-y border-slate-100 flex items-center justify-center text-slate-400 text-xs uppercase tracking-widest min-h-[250px]">
-          Publicidad
-        </div>
-
-        {/* F) CTA hacia Telegram */}
-        <section className="bg-sky-50 border border-sky-100 rounded-2xl p-8 mb-10 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-sky-500 text-white rounded-full mb-4 shadow-lg shadow-sky-200">
-            <MessageSquare size={32} />
-          </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-3">Únete a la comunidad de subastas</h3>
-          <p className="text-slate-600 mb-6 max-w-md mx-auto">
-            En el canal Telegram analizo cada subasta y aviso cuando aparecen oportunidades interesantes antes de que se vuelvan virales.
-          </p>
-          <a 
-            href="https://t.me/activosOffmarket" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-sky-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-sky-600 transition-all shadow-lg shadow-sky-200"
-          >
-            👉 Seguir el canal Telegram
-          </a>
-        </section>
-
-        {/* I) Sección “Cómo participar” */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-serif font-bold text-slate-900 mb-6">Cómo participar en esta subasta</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex gap-4 p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
-              <div className="flex-shrink-0 w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold">1</div>
-              <p className="text-slate-700 text-sm">Debes estar registrado en el Portal de Subastas del BOE con certificado digital o Cl@ve.</p>
-            </div>
-            <div className="flex gap-4 p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
-              <div className="flex-shrink-0 w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold">2</div>
-              <p className="text-slate-700 text-sm">Es obligatorio realizar un depósito del 5% del valor de tasación para poder pujar.</p>
-            </div>
-            <div className="flex gap-4 p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
-              <div className="flex-shrink-0 w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold">3</div>
-              <p className="text-slate-700 text-sm">Las pujas suelen durar 20 días naturales desde la apertura del proceso.</p>
-            </div>
-            <div className="flex gap-4 p-4 bg-white border border-slate-100 rounded-xl shadow-sm">
-              <div className="flex-shrink-0 w-8 h-8 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center font-bold">4</div>
-              <p className="text-slate-700 text-sm">Si resultas ganador, tendrás un plazo para consignar el resto del precio del remate.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* G) CTA hacia consultoría */}
-        <section className="bg-slate-900 text-white rounded-2xl p-8 md:p-10 mb-10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/20 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-          <div className="relative z-10">
-            <h3 className="text-2xl font-serif font-bold mb-4">¿Necesitas un análisis profesional?</h3>
-            <p className="text-slate-300 mb-8 max-w-2xl">
-              Si estás pensando en participar en una subasta como esta, puedo revisar el expediente completo, analizar las cargas registrales y explicarte los riesgos reales antes de que pongas tu dinero.
+            <p>
+              Para los inversores inmobiliarios, este tipo de activos representan una vía de entrada al mercado con márgenes de beneficio superiores a la media, siempre que se realice un análisis exhaustivo de las cargas registrales y la situación posesoria. 
+              La ubicación en {auction.zone} es un factor determinante, ya que suele tener una alta demanda, lo que facilita tanto la reventa como el alquiler posterior a la adjudicación.
             </p>
-            <a 
-              href="https://calendly.com/activosoffmarket" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-brand-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-600 transition-all shadow-lg shadow-brand-900/50"
-            >
-              📅 Reservar análisis de subasta
-            </a>
+            <p>
+              No obstante, es crucial abordar este proceso con cautela, evaluando cada detalle del expediente para mitigar riesgos y asegurar una rentabilidad real.
+            </p>
           </div>
-        </section>
 
-        {/* H) Espacio para AdSense 3 */}
-        <div className="mt-12 py-4 bg-slate-50 border-y border-slate-100 flex items-center justify-center text-slate-400 text-xs uppercase tracking-widest min-h-[150px]">
-          Publicidad
-        </div>
-
-        {/* Footer del artículo con enlaces relacionados */}
-        <footer className="mt-16 pt-12 border-t border-slate-100">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
-            <Link to={ROUTES.NOTICIAS_SUBASTAS_INDEX} className="text-slate-500 hover:text-brand-600 flex items-center gap-2 transition-colors">
-              <ArrowLeft size={16} /> Volver a noticias
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 my-8">
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Análisis de la subasta</h2>
+            <p className="text-slate-600 mb-4">Consulta el análisis técnico detallado, los riesgos y la rentabilidad estimada para esta subasta.</p>
+            <Link to={`/ejemplo-subasta/${slug}`} className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-700 transition-colors">
+              Ver análisis completo <ArrowRight size={16} />
             </Link>
-            <div className="flex gap-4">
-              <Link to={`/ejemplo-subasta/${slug}`} className="text-brand-600 font-bold hover:underline flex items-center gap-1">
-                Ver ficha técnica <ExternalLink size={14} />
+          </div>
+
+          <div className="text-sm text-gray-500 mb-6 flex flex-col gap-1">
+            <p>Publicado el {formattedDate}</p>
+            <p>Análisis realizado por José Carlos de la Peña</p>
+          </div>
+        </header>
+
+        <div className="prose prose-slate prose-lg max-w-none space-y-6">
+          <p className="lead">Una nueva oportunidad acaba de aparecer en el portal de subastas: un {auction.propertyType?.toLowerCase()} ubicado en {auction.zone}, {auction.city}.</p>
+          
+          <h2 className="mt-10 mb-4">Tipo de subasta y procedimiento</h2>
+          <p>Este activo se encuentra bajo un procedimiento de {auction.procedureType || 'subasta pública'}. Es fundamental entender las implicaciones legales de este tipo de ejecución antes de participar.</p>
+          
+          <h2 className="mt-10 mb-4">Contexto del mercado en {auction.city}</h2>
+          <p>La zona de {auction.zone} en {auction.city} es un área de gran interés inmobiliario. Analizar el valor de mercado es clave para determinar si la puja es rentable.</p>
+          
+          <h2 className="mt-10 mb-4">Detalles del expediente</h2>
+          <p>{auction.description || 'El expediente presenta características particulares que requieren un análisis detallado de la nota simple y las cargas asociadas.'}</p>
+          
+          <h2 className="mt-10 mb-4">¿Es una oportunidad o un riesgo?</h2>
+          <p>Toda subasta conlleva riesgos, especialmente en lo relativo a la situación posesoria ({auction.occupancy || 'desconocida'}) y las cargas previas. La clave del éxito reside en una correcta tasación y análisis de riesgos.</p>
+          
+          <h2 className="mt-10 mb-4">Qué deben analizar los inversores antes de participar en una subasta</h2>
+          <ul>
+            <li>valor real de mercado del inmueble</li>
+            <li>posibles cargas registrales</li>
+            <li>estado de ocupación</li>
+            <li>margen de seguridad en la puja</li>
+          </ul>
+
+          <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 text-center mt-12 mb-10">
+            <p className="text-lg mb-6">Antes de participar en una subasta es recomendable calcular la puja máxima para evitar pagar de más.</p>
+            <Link to={`/calcular-puja-subasta/${slug}`} className="inline-block bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-all">
+              Calcular puja máxima
+            </Link>
+          </div>
+
+          <div className="bg-brand-50 p-8 rounded-2xl border border-brand-100 mt-12 mb-10">
+            <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4 mt-0">
+              Más oportunidades de subastas en {auction.city}
+            </h2>
+            <p className="text-slate-700 mb-6">
+              Si estás analizando subastas en esta zona, puedes ver otras oportunidades detectadas recientemente en {auction.city} con mayor diferencia entre tasación y deuda.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link 
+                to={`/mejores-subastas/${auction.city?.toLowerCase()}`} 
+                className="inline-flex items-center justify-center bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors"
+              >
+                Ver las mejores subastas en {auction.city}
+              </Link>
+              <Link 
+                to={`/noticias-subastas/${auction.city?.toLowerCase()}`} 
+                className="inline-flex items-center justify-center bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-600 transition-colors"
+              >
+                Más subastas detectadas recientemente en {auction.city}
               </Link>
             </div>
+          </div>
+
+          <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 mt-12 mb-10">
+            <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4 mt-0">
+              Más subastas en {auction.zone}
+            </h2>
+            <p className="text-slate-700 mb-6">
+              Si estás analizando esta oportunidad, puedes ver otras subastas detectadas en {auction.zone}.
+            </p>
+            <Link 
+              to={`/subastas/${auction.city?.toLowerCase()}/${auction.zone?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+/, '').replace(/-+$/, '')}`} 
+              className="inline-flex items-center justify-center bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-600 transition-colors"
+            >
+              Ver subastas en {auction.zone}
+            </Link>
+          </div>
+        </div>
+
+        <TelegramCTA variant="article" />
+
+        <footer className="mt-16 border-t border-slate-200 pt-12">
+          <h3 className="text-2xl font-bold mb-6">¿Quieres analizar esta subasta?</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link to={`/ejemplo-subasta/${slug}`} className="bg-slate-900 text-white font-bold py-3 px-6 rounded-xl text-center hover:bg-brand-600">Ver análisis</Link>
+            <Link to={ROUTES.CALCULATOR} className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl text-center hover:bg-brand-700">Calculadora</Link>
+            <Link to={`/subastas-en-${auction.city?.toLowerCase()}`} className="bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-xl text-center hover:bg-slate-200">Ver más en {auction.city}</Link>
+          </div>
+          <div className="mt-12 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+            <p className="font-bold text-slate-900">¿Necesitas ayuda con esta subasta?</p>
+            <p className="text-slate-600">Nuestro equipo de expertos puede ayudarte a analizar las cargas y riesgos de esta subasta pública.</p>
           </div>
         </footer>
       </article>
