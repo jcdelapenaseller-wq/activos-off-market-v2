@@ -134,6 +134,7 @@ async function sendTelegramMessage(text) {
   const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage`;
   
   try {
+    console.log("DEBUG CHAT_ID:", process.env.CHAT_ID);
     await axios.post(url, {
       chat_id: CONFIG.CHAT_ID,
       text: text,

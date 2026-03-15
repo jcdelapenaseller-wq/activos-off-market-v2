@@ -112,5 +112,5 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2026-258334",
     boeUrl: "https://subastas.boe.es/reg/detalleSubasta.php?idSub=SUB-JA-2026-258334",
     publishedAt: "2026-03-13T18:52:47Z"
-  },
+  }
 };
