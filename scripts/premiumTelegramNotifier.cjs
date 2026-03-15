@@ -16,6 +16,32 @@ const CONFIG = {
   BASE_URL: 'https://www.activosoffmarket.es/ejemplo-subasta'
 };
 
+const HOOKS = [
+  "🔒 Análisis Premium",
+  "🔒 Oportunidad Premium detectada",
+  "🔒 Nuevo análisis exclusivo"
+];
+
+const COMMENTARY = [
+  "Este activo acaba de publicarse y puede tener un potencial interesante para inversores. He estado revisando los datos preliminares y parece que encaja bien en la estrategia de búsqueda de rentabilidad.",
+  "Acabo de detectar esta subasta y me ha llamado la atención por su ubicación. Es un activo que suele tener buena salida en el mercado de alquiler.",
+  "Revisando las novedades, este expediente destaca por su precio de salida. Creo que merece un análisis detallado antes de que empiece la puja."
+];
+
+const POSSESSION_TEXTS = [
+  "Situación posesoria no aclarada en el edicto.",
+  "Pendiente de confirmar si el activo está ocupado.",
+  "Se recomienda verificar la situación posesoria actual."
+];
+
+const CHARGE_TEXTS = [
+  "Posible necesidad de revisar cargas registrales.",
+  "Es fundamental confirmar si existen deudas de comunidad o IBI pendientes.",
+  "Recomiendo un estudio exhaustivo de las cargas que pesan sobre el activo."
+];
+
+const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
 async function sendTelegramMessage(text) {
   if (!process.env.BOT_TOKEN || !process.env.PREMIUM_CHAT_ID) {
     console.error('❌ Error: BOT_TOKEN o PREMIUM_CHAT_ID no configurados.');
@@ -70,7 +96,28 @@ async function runNotifier() {
 
   for (const item of toProcess) {
     const auction = item.auction;
-    const message = `🔒 <b>Análisis Premium</b>\n\n🏠 ${auction.propertyType} en ${auction.city} - 📍 ${auction.address}\n📅 Cierre: ${auction.auctionDate}\n\nEste activo acaba de publicarse y puede tener potencial.\n\n🔎 <b>Claves del expediente</b>\n• Procedimiento: ${auction.procedureType}\n• Situación posesoria: No indicada\n\n💰 <b>Escenario orientativo</b>\n• Valor estimado: ${auction.appraisalValue}€\n\n🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>\n\n🔎 <a href="${CONFIG.BASE_URL}/${auction.slug}">Análisis completo del activo</a>\n\nSi alguien está valorando entrar en esta subasta puedo revisar el expediente completo antes del cierre.\n\n👉 https://calendly.com/activosoffmarket`;
+    
+    const hook = getRandom(HOOKS);
+    const commentary = getRandom(COMMENTARY);
+    const possession = auction.possessionStatus || getRandom(POSSESSION_TEXTS);
+    const charges = getRandom(CHARGE_TEXTS);
+
+    const message = `${hook}\n\n` +
+      `🏠 #${auction.propertyType} #${auction.city} ${auction.zone ? '#' + auction.zone : ''} – 📍 ${auction.address}\n\n` +
+      `📅 Cierre de subasta: ${auction.auctionDate}\n\n` +
+      `${commentary}\n\n` +
+      `🔎 <b>Claves del expediente</b>\n\n` +
+      `• tipo de procedimiento: ${auction.procedureType}\n` +
+      `• ${possession}\n` +
+      `• ${charges}\n\n` +
+      `💰 <b>Escenario orientativo</b>\n\n` +
+      `• rango posible de adjudicación: ${auction.estimatedAdjudicationRange || 'Consultar análisis'}\n` +
+      `• valor estimado de mercado en la zona: ${auction.marketValue || 'Consultar análisis'}\n` +
+      `• margen potencial aproximado: ${auction.estimatedMargin || 'Consultar análisis'}\n\n` +
+      `🧮 <b>Simular inversión</b>\nhttps://www.activosoffmarket.es/calculadora-subastas\n\n` +
+      `🔎 <b>Análisis completo del activo</b>\n${CONFIG.BASE_URL}/${auction.slug}\n\n` +
+      `Si alguien está valorando entrar en esta subasta puedo revisar el expediente completo antes del cierre.\n\n` +
+      `👉 https://calendly.com/activosoffmarket`;
 
     await sendTelegramMessage(message);
     await new Promise(resolve => setTimeout(resolve, 2000));
