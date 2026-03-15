@@ -212,6 +212,14 @@ const AuctionDiscoverArticle: React.FC = () => {
               : `"Este tipo de activos en ${auction.city} suele generar bastante interés cuando empiezan las pujas. La clave del éxito aquí será validar si las cargas anteriores están realmente canceladas económicamente."`
             }
           </p>
+          <div className="mt-4">
+            <Link 
+              to={`/inversion/${auction.city?.toLowerCase()}/${auction.zone?.toLowerCase()}`} 
+              className="text-brand-700 font-bold hover:text-brand-900 flex items-center gap-1"
+            >
+              📊 Análisis del mercado en {auction.zone} →
+            </Link>
+          </div>
         </div>
 
         <section className="mb-10">
