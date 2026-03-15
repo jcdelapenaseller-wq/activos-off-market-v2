@@ -85,10 +85,10 @@ const CityInvestmentAnalysis: React.FC = () => {
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
-            <div className="bg-slate-100 p-4 rounded-xl text-center"><p className="text-sm text-slate-500">Subastas</p><p className="text-2xl font-bold">{metrics.count}</p></div>
-            <div className="bg-slate-100 p-4 rounded-xl text-center"><p className="text-sm text-slate-500">Descuento medio</p><p className="text-2xl font-bold">{metrics.avgDiscount}%</p></div>
-            <div className="bg-slate-100 p-4 rounded-xl text-center"><p className="text-sm text-slate-500">Precio m²</p><p className="text-2xl font-bold">{metrics.avgPriceM2.toLocaleString('es-ES')}€</p></div>
-            <div className="bg-slate-100 p-4 rounded-xl text-center"><p className="text-sm text-slate-500">Tipo principal</p><p className="text-2xl font-bold">{metrics.predominantType}</p></div>
+            <div className="bg-blue-50 p-4 rounded-xl text-center"><p className="text-sm text-blue-600">Subastas</p><p className="text-2xl font-bold text-blue-900">{metrics.count}</p></div>
+            <div className="bg-emerald-50 p-4 rounded-xl text-center"><p className="text-sm text-emerald-600">Descuento medio</p><p className="text-2xl font-bold text-emerald-900">{metrics.avgDiscount}%</p></div>
+            <div className="bg-slate-100 p-4 rounded-xl text-center"><p className="text-sm text-slate-600">Precio m²</p><p className="text-2xl font-bold text-slate-900">{metrics.avgPriceM2.toLocaleString('es-ES')}€</p></div>
+            <div className="bg-orange-50 p-4 rounded-xl text-center"><p className="text-sm text-orange-600">Tipo principal</p><p className="text-2xl font-bold text-orange-900">{metrics.predominantType}</p></div>
         </div>
 
         <h2 className="text-2xl font-bold mb-4">Qué está pasando con las subastas en {city}</h2>
@@ -99,11 +99,11 @@ const CityInvestmentAnalysis: React.FC = () => {
         </p>
 
         <h2 className="text-2xl font-bold mb-4">Dónde se están concentrando las oportunidades</h2>
-        <ul className="mb-4">
+        <ul className="flex flex-wrap gap-2 mb-4">
             {metrics.topZones.map(([zone, count]) => (
                 <li key={zone}>
-                    <Link to={`/inversion/${city}/${zone.toLowerCase().replace(/\s+/g, '-')}`} className="text-brand-600 font-bold hover:underline">
-                        {zone} ({count} subastas)
+                    <Link to={`/inversion/${city}/${zone.toLowerCase().replace(/\s+/g, '-')}`} className="bg-slate-100 px-3 py-1 rounded-full text-sm border border-slate-200 text-slate-700 hover:bg-slate-200">
+                        {zone} ({count})
                     </Link>
                 </li>
             ))}
@@ -131,7 +131,11 @@ const CityInvestmentAnalysis: React.FC = () => {
                         <div className="grid grid-cols-2 gap-2 text-sm text-slate-600">
                             <p>Tasación: {a.appraisalValue?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
                             <p>Deuda: {a.claimedDebt?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
-                            <p className="font-bold text-brand-700">Descuento: {a.appraisalValue && a.claimedDebt ? Math.round((1 - a.claimedDebt / a.appraisalValue) * 100) : 0}%</p>
+                            {(() => {
+                                const discount = a.appraisalValue && a.claimedDebt ? Math.round((1 - a.claimedDebt / a.appraisalValue) * 100) : 0;
+                                const discountColor = discount > 40 ? 'text-emerald-600' : discount >= 20 ? 'text-orange-600' : 'text-slate-500';
+                                return <p className={`font-bold ${discountColor}`}>Descuento: {discount}%</p>;
+                            })()}
                         </div>
                         <Link to={`/ejemplo-subasta/${a.slug}`} className="inline-block mt-4 text-brand-600 font-bold">Ver ficha →</Link>
                     </div>
