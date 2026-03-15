@@ -1,0 +1,14 @@
+[
+  {
+    "slug": "test-subasta-madrid",
+    "propertyType": "Piso",
+    "city": "Madrid",
+    "zone": "Salamanca",
+    "address": "Calle Serrano 100",
+    "appraisalValue": 500000,
+    "claimedDebt": 200000,
+    "discount": 60,
+    "auctionDate": "2026-04-15",
+    "procedureType": "Ejecución hipotecaria"
+  }
+]
