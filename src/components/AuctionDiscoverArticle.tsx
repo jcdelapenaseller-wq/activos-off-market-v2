@@ -129,7 +129,9 @@ const AuctionDiscoverArticle: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Ubicación</p>
-                <p className="font-medium">{auction.zone}, {auction.city}</p>
+                <p className="font-medium">
+                  {auction.zone}, <Link to={`/inversion/${auction.city?.toLowerCase()}`} className="hover:underline text-brand-400">{auction.city}</Link>
+                </p>
               </div>
             </div>
             
@@ -218,6 +220,12 @@ const AuctionDiscoverArticle: React.FC = () => {
               className="text-brand-700 font-bold hover:text-brand-900 flex items-center gap-1"
             >
               📊 Análisis del mercado en {auction.zone} →
+            </Link>
+            <Link 
+              to={`/inversion/${auction.city?.toLowerCase()}`} 
+              className="text-brand-700 font-bold hover:text-brand-900 flex items-center gap-1 mt-2"
+            >
+              📊 Análisis general del mercado en {auction.city} →
             </Link>
           </div>
         </div>

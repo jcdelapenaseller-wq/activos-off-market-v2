@@ -226,6 +226,15 @@ const ZoneAuctions: React.FC = () => {
             </div>
           )}
 
+          <div className="mb-8">
+            <Link 
+              to={`/inversion/${city}/${zone}`} 
+              className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-800 transition-colors"
+            >
+              📊 Análisis del mercado en {actualZoneName} →
+            </Link>
+          </div>
+
           {filteredAuctions.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
