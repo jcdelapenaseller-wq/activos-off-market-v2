@@ -78,7 +78,7 @@ const CityInvestmentAnalysis: React.FC = () => {
         <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200&auto=format&fit=crop" alt="Inversión inmobiliaria" className="w-full rounded-2xl mb-8" />
         
         <p className="lead text-xl text-slate-600 mb-6">
-            Analizar el mercado de subastas en {city} requiere una visión clara de los datos. En los últimos meses estamos detectando un aumento de subastas inmobiliarias en {city}.
+            Analizar el mercado de subastas en <Link to={`/inversion/${city?.toLowerCase()}`} className="hover:underline text-brand-600">{city}</Link> requiere una visión clara de los datos. En los últimos meses estamos detectando un aumento de subastas inmobiliarias en <Link to={`/inversion/${city?.toLowerCase()}`} className="hover:underline text-brand-600">{city}</Link>.
         </p>
         <p className="text-lg text-slate-600 mb-8">
             {city ? city.charAt(0).toUpperCase() + city.slice(1) : 'Esta ciudad'} está empezando a concentrar varias subastas inmobiliarias en distintas zonas de la ciudad. Para los inversores, entender dónde aparecen estas oportunidades puede ser tan importante como el propio descuento.
@@ -131,6 +131,7 @@ const CityInvestmentAnalysis: React.FC = () => {
                         <div className="grid grid-cols-2 gap-2 text-sm text-slate-600">
                             <p>Tasación: {a.appraisalValue?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
                             <p>Deuda: {a.claimedDebt?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
+                            <p className="font-bold text-brand-700">Descuento: {a.appraisalValue && a.claimedDebt ? Math.round((1 - a.claimedDebt / a.appraisalValue) * 100) : 0}%</p>
                         </div>
                         <Link to={`/ejemplo-subasta/${a.slug}`} className="inline-block mt-4 text-brand-600 font-bold">Ver ficha →</Link>
                     </div>

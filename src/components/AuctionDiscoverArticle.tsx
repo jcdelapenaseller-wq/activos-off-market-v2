@@ -196,9 +196,20 @@ const AuctionDiscoverArticle: React.FC = () => {
         </div>
 
         <section className="mb-10">
+          <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Qué está pasando con las subastas en {auction.city}</h2>
+          <p className="text-slate-700 mb-4">
+            Estamos detectando un aumento significativo en la actividad de subastas en <Link to={`/inversion/${auction.city?.toLowerCase()}`} className="hover:underline text-brand-600">{auction.city}</Link>, especialmente en zonas como {auction.zone}. Esto abre oportunidades interesantes para inversores que buscan activos con descuento.
+          </p>
+          <div className="flex gap-4">
+            <Link to={`/inversion/${auction.city?.toLowerCase()}`} className="text-brand-600 font-bold hover:underline">📊 Análisis completo del mercado en {auction.city} →</Link>
+            <Link to={`/inversion/${auction.city?.toLowerCase()}/${auction.zone?.toLowerCase()}`} className="text-brand-600 font-bold hover:underline">📊 Análisis del mercado en {auction.zone} →</Link>
+          </div>
+        </section>
+
+        <section className="mb-10">
           <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Lo que llama la atención de esta subasta</h2>
           <p className="text-slate-700 mb-4">
-            El descuento del {discount}% sobre el valor de tasación es el primer factor que destaca. La ubicación en {auction.zone} sitúa este activo en un punto estratégico de {auction.city}, un mercado donde la oferta de {auction.propertyType?.toLowerCase()} a precios competitivos es escasa.
+            El descuento del {discount}% sobre el valor de tasación es el primer factor que destaca. La ubicación en {auction.zone} sitúa este activo en un punto estratégico de <Link to={`/inversion/${auction.city?.toLowerCase()}`} className="hover:underline text-brand-600">{auction.city}</Link>, un mercado donde la oferta de {auction.propertyType?.toLowerCase()} a precios competitivos es escasa.
           </p>
         </section>
 
