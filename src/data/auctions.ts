@@ -112,5 +112,20 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2026-258334",
     boeUrl: "https://subastas.boe.es/reg/detalleSubasta.php?idSub=SUB-JA-2026-258334",
     publishedAt: "2026-03-13T18:52:47Z"
+  },
+  'test-subasta-madrid': {
+    propertyType: "Pisos",
+    city: "Madrid",
+    zone: "Salamanca",
+    address: "Calle Serrano 100",
+    appraisalValue: 500000,
+    claimedDebt: 200000,
+    description: "Subasta de prueba para verificar generación de páginas.",
+    boeUrl: "https://subastas.boe.es",
+    publishedAt: "2026-03-16T00:00:00Z",
+    slug: "test-subasta-madrid",
+    auctionDate: "2026-04-15",
+    discount: 60,
+    pricePerM2: 5000
   }
 };
