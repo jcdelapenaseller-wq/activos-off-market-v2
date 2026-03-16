@@ -32,9 +32,31 @@ async function runCrawler() {
   }
   premiumAuctions.push(...existingPremium);
 
-  const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
-  console.log(`\n🚀 Iniciando crawler para la fecha: ${today}\n`);
+  const dates = [];
 
+  for (let i = 0; i < 5; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0,10).replace(/-/g,"");
+    dates.push(dateStr);
+  }
+
+  for (const dateStr of dates) {
+    console.log(`🚀 Iniciando crawler para la fecha: ${dateStr}`);
+    await runCrawlerForDate(dateStr);
+  }
+
+  // 10. Guardar subastas nuevas en archivo temporal
+  if (newAuctions.length > 0) {
+    fs.writeFileSync(path.join(__dirname, 'new_auctions.json'), JSON.stringify(newAuctions, null, 2));
+    console.log(`\n📝 Archivo new_auctions.json generado con ${newAuctions.length} subastas.`);
+  }
+  // Guardar en pending_premium.json
+  fs.writeFileSync(CONFIG.PENDING_PREMIUM_FILE, JSON.stringify(premiumAuctions, null, 2));
+  console.log(`\n📝 Archivo pending_premium.json actualizado con ${premiumAuctions.length} subastas.`);
+}
+
+async function runCrawlerForDate(today) {
   try {
     // 1. Obtener sumario del día
     const summaryUrl = `https://www.boe.es/datosabiertos/api/boe/sumario/${today}`;
@@ -116,16 +138,7 @@ async function runCrawler() {
     }
 
   } catch (error) {
-    console.error(`❌ Error general en el crawler: ${error.message}`);
-  } finally {
-    // 10. Guardar subastas nuevas en archivo temporal
-    if (newAuctions.length > 0) {
-      fs.writeFileSync(path.join(__dirname, 'new_auctions.json'), JSON.stringify(newAuctions, null, 2));
-      console.log(`\n📝 Archivo new_auctions.json generado con ${newAuctions.length} subastas.`);
-    }
-    // Guardar en pending_premium.json
-    fs.writeFileSync(CONFIG.PENDING_PREMIUM_FILE, JSON.stringify(premiumAuctions, null, 2));
-    console.log(`\n📝 Archivo pending_premium.json actualizado con ${premiumAuctions.length} subastas.`);
+    console.error(`❌ Error general en el crawler para ${today}: ${error.message}`);
   }
 }
 
