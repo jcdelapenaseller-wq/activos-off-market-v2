@@ -100,12 +100,8 @@ async function runCrawlerForDate(today) {
 
     for (const diario of diariosList) {
       const secciones = [].concat(diario.seccion || []);
-      const seccionAnuncios = secciones.find(
-        s => s.nombre && s.nombre.includes("Anuncios")
-      );
-
-      if (seccionAnuncios) {
-        const departamentos = [].concat(seccionAnuncios.departamento || []);
+      for (const seccion of secciones) {
+        const departamentos = [].concat(seccion.departamento || []);
         for (const departamento of departamentos) {
           const epigrafes = [].concat(departamento.epigrafe || []);
           for (const epigrafe of epigrafes) {
