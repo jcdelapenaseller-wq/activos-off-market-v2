@@ -95,19 +95,23 @@ async function runCrawlerForDate(today) {
     }
 
     // 2. Filtrar anuncios de subastas (Sección V)
-    const diario = summaryData.data.sumario.diario[0];
-    const seccionAnuncios = diario.seccion.find(
-      s => s.nombre && s.nombre.includes("Anuncios")
-    );
-
+    const diariosList = [].concat(summaryData.data.sumario.diario || []);
     let items = [];
-    if (seccionAnuncios) {
-      const departamentos = [].concat(seccionAnuncios.departamento || []);
-      for (const departamento of departamentos) {
-        const epigrafes = [].concat(departamento.epigrafe || []);
-        for (const epigrafe of epigrafes) {
-          const itemsList = [].concat(epigrafe.item || []);
-          items = items.concat(itemsList);
+
+    for (const diario of diariosList) {
+      const secciones = [].concat(diario.seccion || []);
+      const seccionAnuncios = secciones.find(
+        s => s.nombre && s.nombre.includes("Anuncios")
+      );
+
+      if (seccionAnuncios) {
+        const departamentos = [].concat(seccionAnuncios.departamento || []);
+        for (const departamento of departamentos) {
+          const epigrafes = [].concat(departamento.epigrafe || []);
+          for (const epigrafe of epigrafes) {
+            const itemsList = [].concat(epigrafe.item || []);
+            items = items.concat(itemsList);
+          }
         }
       }
     }
