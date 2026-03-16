@@ -73,8 +73,24 @@ async function runCrawler() {
     }
 
     // 2. Filtrar anuncios de subastas (Sección V)
-    const items = summaryData.data.sumario.diario[0].seccion[4].item; // Sección V suele ser el índice 4
-    const auctionAds = (Array.isArray(items) ? items : [items]).filter(item =>
+    const diario = summaryData.data.sumario.diario[0];
+    const seccionAnuncios = diario.seccion.find(
+      s => s.nombre && s.nombre.includes("Anuncios")
+    );
+
+    let items = [];
+    if (seccionAnuncios) {
+      const departamentos = [].concat(seccionAnuncios.departamento || []);
+      for (const departamento of departamentos) {
+        const epigrafes = [].concat(departamento.epigrafe || []);
+        for (const epigrafe of epigrafes) {
+          const itemsList = [].concat(epigrafe.item || []);
+          items = items.concat(itemsList);
+        }
+      }
+    }
+
+    const auctionAds = items.filter(item =>
       item.identificador && item.identificador.startsWith("BOE-B")
     );
 
