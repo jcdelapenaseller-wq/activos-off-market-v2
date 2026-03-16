@@ -39,13 +39,12 @@ async function runCrawler() {
     // 1. Obtener sumario del día
     const summaryUrl = `https://www.boe.es/datosabiertos/api/boe/sumario/${today}`;
     const summaryRes = await axios.get(summaryUrl, {
-      headers: {
-        'User-Agent': CONFIG.USER_AGENT
-      }
+      headers: { 'User-Agent': CONFIG.USER_AGENT }
     });
 
-    if (!summaryRes.data.trim().startsWith('<')) {
-      console.warn("⚠️ BOE no devolvió XML válido");
+    if (typeof summaryRes.data !== "string" || !summaryRes.data.trim().startsWith("<")) {
+      console.log("⚠️ BOE no devolvió XML válido");
+      console.log(String(summaryRes.data).substring(0,200));
       return;
     }
 
