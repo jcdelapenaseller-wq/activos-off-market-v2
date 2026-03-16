@@ -1,10 +1,10 @@
 import React from 'react';
 import { Search, ArrowRight, TrendingUp, ShieldCheck, UserCheck, Sparkles, Star } from 'lucide-react';
-import { MetricHighlight, MetricPositive, MetricNeutral, MetricTag } from '../utils/themeClasses';
+import { MetricHighlight, MetricPositive, MetricTag } from '../utils/themeClasses';
 
 const Hero: React.FC = () => {
   return (
-    <section className="relative pb-24 md:pb-40 overflow-hidden bg-slate-50">
+    <section className="relative pt-32 md:pt-48 pb-24 md:pb-40 overflow-hidden bg-slate-50">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
         <div className="absolute -top-[10%] -right-[5%] w-2/3 h-full bg-gradient-to-l from-brand-50/80 to-transparent"></div>
@@ -40,7 +40,7 @@ const Hero: React.FC = () => {
           </p>
 
           {/* Metrics Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-14">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-14">
             <div className={`${MetricHighlight.container} shadow-sm border border-blue-100/50`}>
               <div className={MetricHighlight.value}>+500</div>
               <div className={MetricHighlight.label}>Subastas analizadas</div>
@@ -48,10 +48,6 @@ const Hero: React.FC = () => {
             <div className={`${MetricPositive.container} shadow-sm border border-emerald-100/50`}>
               <div className={MetricPositive.value}>42%</div>
               <div className={MetricPositive.label}>Descuento medio detectado</div>
-            </div>
-            <div className={`${MetricNeutral.container} shadow-sm border border-slate-200/50`}>
-              <div className={MetricNeutral.value}>+1.200</div>
-              <div className={MetricNeutral.label}>Alertas enviadas</div>
             </div>
           </div>
           
@@ -61,9 +57,9 @@ const Hero: React.FC = () => {
                 href="https://t.me/activosoffmarket" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-10 py-5 bg-brand-700 hover:bg-brand-800 text-white text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
+                className="w-full sm:w-auto px-12 py-6 bg-brand-700 hover:bg-brand-800 text-white text-xl font-bold rounded-xl shadow-xl hover:shadow-brand-500/40 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
                 >
-                <Search size={22} />
+                <Search size={24} />
                 Ver Canal Gratuito
                 </a>
                 <div className="relative w-full sm:w-auto group">
@@ -82,8 +78,16 @@ const Hero: React.FC = () => {
                 </div>
             </div>
 
+            {/* Trust Line */}
+            <div className="flex flex-col items-center gap-2 mt-2">
+              <p className="text-slate-600 font-medium">Más de 1.200 inversores reciben nuestras alertas cada semana.</p>
+              <a href="https://t.me/activosoffmarket" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-800 font-medium transition-colors flex items-center gap-1">
+                👉 Ver oportunidades en el canal gratuito
+              </a>
+            </div>
+
             {/* GOOGLE REVIEWS INTEGRATION */}
-            <div className="flex items-center gap-3 text-slate-600 animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-200 cursor-pointer hover:scale-105 transition-transform">
+            <div className="flex items-center gap-3 text-slate-600 animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-200 cursor-pointer hover:scale-105 transition-transform mt-4">
                 <div className="bg-white p-1.5 rounded-full shadow-sm border border-slate-100">
                     <svg viewBox="0 0 24 24" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />

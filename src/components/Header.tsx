@@ -49,7 +49,7 @@ const Header: React.FC = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-10">
           <Link 
             to={ROUTES.GUIDE_PILLAR} 
             className={`text-base font-medium transition-colors ${location.pathname === ROUTES.GUIDE_PILLAR ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
@@ -67,7 +67,7 @@ const Header: React.FC = () => {
           <a href="#precios" onClick={(e) => handleNavClick(e, '#precios')} className="text-base font-medium text-slate-600 hover:text-brand-700 transition-colors">Precios</a>
           <a href="#metodo" onClick={(e) => handleNavClick(e, '#metodo')} className="text-base font-medium text-slate-600 hover:text-brand-700 transition-colors">Método</a>
           
-          <div className="relative group">
+          <div className="relative group ml-2">
             <div className="absolute -top-3 -right-2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm z-10 uppercase tracking-wide flex items-center gap-1 animate-pulse">
                 <Sparkles size={8} /> Oferta
             </div>
