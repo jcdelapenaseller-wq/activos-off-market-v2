@@ -46,6 +46,32 @@ async function runCrawler() {
 
     console.log(JSON.stringify(summaryData, null, 2).substring(0,1000));
 
+    let count = 0;
+    try {
+      const diarios = [].concat(summaryData.data.sumario.diario || []);
+      for (const diario of diarios) {
+        const secciones = [].concat(diario.seccion || []);
+        for (const seccion of secciones) {
+          const departamentos = [].concat(seccion.departamento || []);
+          for (const departamento of departamentos) {
+            const epigrafes = [].concat(departamento.epigrafe || []);
+            for (const epigrafe of epigrafes) {
+              const itemsList = [].concat(epigrafe.item || []);
+              for (const item of itemsList) {
+                if (count < 20) {
+                  console.log(item.identificador);
+                  console.log(item.titulo);
+                  count++;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Error en diagnóstico:", e.message);
+    }
+
     // 2. Filtrar anuncios de subastas (Sección V)
     const items = summaryData.data.sumario.diario[0].seccion[4].item; // Sección V suele ser el índice 4
     const auctionAds = (Array.isArray(items) ? items : [items]).filter(item =>
