@@ -127,6 +127,22 @@ async function runCrawlerForDate(today) {
       }
     }
 
+    // DIAGNOSTICO
+    let countA = 0;
+    let countB = 0;
+
+    for (const item of items) {
+      if (item && item.identificador) {
+        console.log("ITEM:", item.identificador);
+
+        if (item.identificador.startsWith("BOE-A")) countA++;
+        if (item.identificador.startsWith("BOE-B")) countB++;
+      }
+    }
+
+    console.log("TOTAL BOE-A:", countA);
+    console.log("TOTAL BOE-B:", countB);
+
     const auctionAds = items.filter(item =>
       item.identificador && item.identificador.startsWith("BOE-B")
     );
