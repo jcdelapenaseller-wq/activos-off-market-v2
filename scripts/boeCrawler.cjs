@@ -102,6 +102,20 @@ async function runCrawlerForDate(today) {
       const secciones = [].concat(diario.seccion || []);
       for (const seccion of secciones) {
         console.log("SECCION:", seccion.nombre);
+
+        if (seccion.nombre && seccion.nombre.includes("Anuncios")) {
+          const departamentos = [].concat(seccion.departamento || []);
+          for (const departamento of departamentos) {
+            const epigrafes = [].concat(departamento.epigrafe || []);
+            for (const epigrafe of epigrafes) {
+              const itemsList = [].concat(epigrafe.item || []);
+              for (const item of itemsList) {
+                console.log("ANUNCIO ITEM:", item.identificador);
+              }
+            }
+          }
+        }
+
         const departamentos = [].concat(seccion.departamento || []);
         for (const departamento of departamentos) {
           const epigrafes = [].concat(departamento.epigrafe || []);
