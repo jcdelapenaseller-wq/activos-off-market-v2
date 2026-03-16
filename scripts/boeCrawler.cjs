@@ -101,6 +101,7 @@ async function runCrawlerForDate(today) {
     for (const diario of diariosList) {
       const secciones = [].concat(diario.seccion || []);
       for (const seccion of secciones) {
+        console.log("SECCION:", seccion.nombre);
         const departamentos = [].concat(seccion.departamento || []);
         for (const departamento of departamentos) {
           const epigrafes = [].concat(departamento.epigrafe || []);
