@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../routes';
-import { Calendar, User, MapPin, CircleDollarSign, Landmark, TrendingDown, Clock, MessageSquare, ExternalLink, ShieldCheck, Info, ArrowLeft } from 'lucide-react';
+import { Calendar, User, MapPin, CircleDollarSign, Landmark, TrendingDown, Clock, MessageSquare, ExternalLink, ShieldCheck, Info, ArrowLeft, ArrowRight } from 'lucide-react';
 import { generateDiscoverTitle } from '../utils/discoverTitles';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
@@ -70,11 +70,30 @@ const AuctionDiscoverArticle: React.FC = () => {
   
   const isFinished = isAuctionFinished(auction.auctionDate);
 
+  const isPublishedToday = useMemo(() => {
+    if (!auction.publishedAt) return false;
+    const pubDate = new Date(auction.publishedAt);
+    const today = new Date();
+    return pubDate.toDateString() === today.toDateString();
+  }, [auction.publishedAt]);
+
+  const relatedAuctions = useMemo(() => {
+    return Object.entries(AUCTIONS)
+      .filter(([key, data]) => data.city === auction.city && key !== slug)
+      .reverse()
+      .slice(0, 3);
+  }, [auction.city, slug]);
+
   return (
     <div className="bg-white min-h-screen">
       <article className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12">
         {/* A) Encabezado */}
         <header className="mb-8">
+          {isPublishedToday && (
+            <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-bold border border-blue-100 shadow-sm">
+              <span>⚡</span> Nueva subasta detectada hoy en {auction.city}
+            </div>
+          )}
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-slate-900 mb-6 leading-tight">
             {title}
           </h1>
@@ -330,6 +349,81 @@ const AuctionDiscoverArticle: React.FC = () => {
             <li><strong>Valida las cargas:</strong> Asegúrate de qué cargas se cancelan y cuáles te subrogas.</li>
           </ul>
         </section>
+
+        {/* J) Últimas subastas detectadas en {city} */}
+        {relatedAuctions.length > 0 && (
+          <section className="mt-16 mb-10">
+            <h2 className="text-2xl font-serif font-bold text-slate-900 mb-8 border-b border-slate-100 pb-4">
+              Últimas subastas detectadas en {auction.city}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedAuctions.map(([relatedSlug, data]) => {
+                const hasValues = data.appraisalValue && data.claimedDebt;
+                const relatedDiscount = data.discount !== undefined 
+                  ? data.discount 
+                  : (hasValues ? Math.round((1 - (data.claimedDebt! / data.appraisalValue!)) * 100) : null);
+
+                return (
+                  <div key={relatedSlug} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all flex flex-col h-full group">
+                    <div className="p-6 flex-grow">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="bg-brand-50 text-brand-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
+                          {data.propertyType || 'Inmueble'}
+                        </span>
+                        {relatedDiscount !== null && relatedDiscount > 0 && (
+                          <div className="flex flex-col items-end">
+                            <span className="flex items-center gap-1 text-xl font-black text-emerald-600 leading-none">
+                              <TrendingDown size={16} className="text-emerald-500" /> {relatedDiscount}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <h3 className="text-base font-bold text-slate-900 mb-3 group-hover:text-brand-600 transition-colors line-clamp-2">
+                        {data.propertyType || 'Inmueble'} en {data.city || 'España'}
+                      </h3>
+
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center gap-2 text-slate-600 text-xs">
+                          <MapPin size={14} className="text-slate-400" />
+                          <span className="truncate">{data.zone || data.city || 'Ubicación no disponible'}</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+                        <div>
+                          <p className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1">Tasación</p>
+                          <p className="text-xs font-bold text-slate-900">
+                            {data.appraisalValue 
+                              ? data.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) 
+                              : 'N/D'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mb-1">Deuda</p>
+                          <p className="text-xs font-bold text-slate-900">
+                            {data.claimedDebt 
+                              ? data.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) 
+                              : 'N/D'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-6 pb-6 mt-auto">
+                      <Link 
+                        to={`/noticias-subastas/${relatedSlug}`}
+                        className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-3 px-4 rounded-xl hover:bg-brand-600 transition-all shadow-md text-sm"
+                      >
+                        Ver subasta <ArrowRight size={16} />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Footer del artículo con enlaces relacionados */}
         <footer className="mt-16 pt-12 border-t border-slate-100">
