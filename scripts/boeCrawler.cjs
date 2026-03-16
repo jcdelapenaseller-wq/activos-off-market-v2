@@ -42,14 +42,7 @@ async function runCrawler() {
       headers: { 'User-Agent': CONFIG.USER_AGENT }
     });
 
-    if (typeof summaryRes.data !== "string" || !summaryRes.data.trim().startsWith("<")) {
-      console.log("⚠️ BOE no devolvió XML válido");
-      console.log(String(summaryRes.data).substring(0,200));
-      return;
-    }
-
-    const parser = new xml2js.Parser({ explicitArray: false });
-    const summaryData = await parser.parseStringPromise(summaryRes.data);
+    const summaryData = summaryRes.data;
 
     // 2. Filtrar anuncios de subastas (Sección V)
     const items = summaryData.sumario.diario.seccion[4].item; // Sección V suele ser el índice 4
