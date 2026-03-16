@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../routes';
 import Hero from './Hero';
+import RecentAuctionsHome from './RecentAuctionsHome';
 import LeadMagnetBlock from './LeadMagnetBlock';
 import Services from './Services';
 import SocialProof from './SocialProof';
@@ -17,6 +18,7 @@ const Home: React.FC = () => {
   return (
     <>
       <Hero />
+      <RecentAuctionsHome />
       <div className="max-w-7xl mx-auto px-6">
         <LeadMagnetBlock />
       </div>
@@ -25,23 +27,6 @@ const Home: React.FC = () => {
       <Pricing />
       <Process />
       <Opportunities />
-      
-      <section className="py-20 bg-slate-50 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-6">
-            Últimas subastas detectadas
-          </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-10">
-            Consulta las subastas inmobiliarias más recientes analizadas en la web.
-          </p>
-          <Link 
-            to="/subastas-recientes" 
-            className="inline-flex items-center gap-2 bg-slate-900 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-          >
-            Ver subastas recientes <ArrowRight size={20} />
-          </Link>
-        </div>
-      </section>
 
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">

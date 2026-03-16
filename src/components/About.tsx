@@ -144,7 +144,7 @@ const About: React.FC = () => {
              <div className="absolute top-6 -right-6 w-full h-full border-2 border-slate-100 rounded-3xl -z-10 hidden md:block"></div>
              <div className="w-full h-[400px] md:h-[650px] relative">
                 <img
-                  src="/jose-carlos-de-la-pena.jpg"
+                  src="/jose-de-la-pena-subastas-boe.jpg"
                   alt="José Carlos de la Peña - Especialista en Subastas BOE"
                   width="600"
                   height="800"

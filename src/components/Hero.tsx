@@ -79,11 +79,8 @@ const Hero: React.FC = () => {
             </div>
 
             {/* Trust Line */}
-            <div className="flex flex-col items-center gap-2 mt-2">
-              <p className="text-slate-600 font-medium">Más de 1.200 inversores reciben nuestras alertas cada semana.</p>
-              <a href="https://t.me/activosoffmarket" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-800 font-medium transition-colors flex items-center gap-1">
-                👉 Ver oportunidades en el canal gratuito
-              </a>
+            <div className="flex flex-col items-center mt-3">
+              <p className="text-slate-500 text-sm font-medium">Más de 1.200 inversores reciben ya estas alertas cada semana.</p>
             </div>
 
             {/* GOOGLE REVIEWS INTEGRATION */}
