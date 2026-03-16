@@ -49,7 +49,7 @@ async function runCrawler() {
     // 2. Filtrar anuncios de subastas (Sección V)
     const items = summaryData.data.sumario.diario[0].seccion[4].item; // Sección V suele ser el índice 4
     const auctionAds = (Array.isArray(items) ? items : [items]).filter(item => 
-      item.titulo.toLowerCase().includes('subasta')
+      item.titulo && item.titulo.toLowerCase().includes('subasta')
     );
 
     console.log(`Found ${auctionAds.length} potential auction announcements.`);
