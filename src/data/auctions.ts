@@ -22,6 +22,108 @@ export interface AuctionData {
 }
 
 export const AUCTIONS: Record<string, AuctionData> = {
+  'subasta-sub-ja-2023-223768': {
+    propertyType: "URBANA Planta baja compuesta de tres habitaciones, cocina, coedor y aseo. Superifice aproximada 81 metros cuadrados",
+    address: "Carrer de Salvat Papasseït, 70",
+    appraisalValue: 343500,
+    procedureType: "JUZGADO 1ª INST E INSTRUCC. 6",
+    surface: undefined,
+    description: "(Referencia SUB-JA-2023-223768) | Depósito: 17175€",
+    boeId: "SUB-JA-2023-223768",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2023-223768&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T20:00:25.949Z",
+    auctionDate: "2026-04-02"
+  },
+  'subasta-sub-ja-2025-243347': {
+    propertyType: "Inmueble",
+    description: "(Referencia SUB-JA-2025-243347)",
+    appraisalValue: 13588.61,
+    procedureType: "JUZGADO 1 INSTANCIA 7",
+    boeId: "SUB-JA-2025-243347",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-243347&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T19:45:19.473Z",
+    auctionDate: "2026-04-02"
+  },
+  'subasta-sub-ja-2025-249469': {
+    propertyType: "Inmueble",
+    description: "(Referencia SUB-JA-2025-249469)",
+    appraisalValue: 3148541.76,
+    procedureType: "JUZGADO 1 INSTANCIA 1",
+    boeId: "SUB-JA-2025-249469",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-249469&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T19:45:19.473Z",
+    auctionDate: "2026-04-02"
+  },
+  'subasta-sub-ja-2025-252973': {
+    propertyType: "Inmueble",
+    description: "(Referencia SUB-JA-2025-252973)",
+    appraisalValue: 168270.38,
+    procedureType: "JUZGADO 1 INSTANCIA 8",
+    boeId: "SUB-JA-2025-252973",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-252973&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T19:45:19.473Z",
+    auctionDate: "2026-04-02"
+  },
+  'subasta-sub-ja-2025-255215': {
+    propertyType: "Inmueble",
+    description: "(Referencia SUB-JA-2025-255215)",
+    appraisalValue: 112276.38,
+    procedureType: "JUZGADO 1 INSTANCIA 48",
+    boeId: "SUB-JA-2025-255215",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-255215&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T19:45:19.473Z",
+    auctionDate: "2026-04-02"
+  },
+  'subasta-sub-ja-2026-258214': {
+    propertyType: "Inmueble",
+    description: "(Referencia SUB-JA-2026-258214)",
+    appraisalValue: 178500,
+    procedureType: "Sección Civil TI Sabadell. Plz.n 6",
+    boeId: "SUB-JA-2026-258214",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258214&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T19:45:19.473Z",
+    auctionDate: "2026-04-02"
+  },
+  'subasta-sub-ja-2026-258618': {
+    propertyType: "Inmueble",
+    description: "(Referencia SUB-JA-2026-258618)",
+    appraisalValue: 5290514.58,
+    procedureType: "Sección Civil e Instruc TI Vilanova i la Geltrú. Plz.n 1",
+    boeId: "SUB-JA-2026-258618",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258618&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T19:45:19.473Z",
+    auctionDate: "2026-04-02"
+  },
+  'subasta-sub-ja-2025-252655': {
+    propertyType: "Inmueble",
+    description: "(Referencia SUB-JA-2025-252655)",
+    appraisalValue: 0,
+    procedureType: "JUZGADO 1 INST E INSTRUCC. 4",
+    boeId: "SUB-JA-2025-252655",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-252655&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T19:45:19.473Z",
+    auctionDate: "2026-04-01"
+  },
+  'subasta-sub-ja-2026-252144': {
+    propertyType: "Inmueble",
+    description: "(Referencia SUB-JA-2026-252144)",
+    appraisalValue: 327450,
+    procedureType: "Sección Civil e Instrucción TI Martorell. Plz.n 1",
+    boeId: "SUB-JA-2026-252144",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-252144&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T19:45:19.473Z",
+    auctionDate: "2026-04-01"
+  },
+  'subasta-sub-ja-2026-258590': {
+    propertyType: "Inmueble",
+    description: "(Referencia SUB-JA-2026-258590)",
+    appraisalValue: 0,
+    procedureType: "Sección Civil e Instruc TI Vilanova i la Geltrú. Plz.n 1",
+    boeId: "SUB-JA-2026-258590",
+    boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258590&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
+    publishedAt: "2026-03-16T19:45:19.473Z",
+    auctionDate: "2026-04-01"
+  },
   'piso-subasta-madrid-centro': {
     propertyType: "Piso",
     city: "Madrid",
