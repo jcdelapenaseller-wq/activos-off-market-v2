@@ -34,7 +34,7 @@ async function runCrawler() {
 
   const dates = [];
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 10; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     const dateStr = d.toISOString().slice(0,10).replace(/-/g,"");
