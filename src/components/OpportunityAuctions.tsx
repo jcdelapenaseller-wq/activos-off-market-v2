@@ -58,7 +58,7 @@ const OpportunityAuctions: React.FC = () => {
           <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2">
             <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
             <ChevronRight size={14} />
-            <Link to={`/subastas-en/${city}`} className="hover:text-brand-600 transition-colors">Subastas en {displayCity}</Link>
+            <Link to={`/subastas/${city}`} className="hover:text-brand-600 transition-colors">Subastas en {displayCity}</Link>
             <ChevronRight size={14} />
             <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md">Oportunidades</span>
           </nav>
@@ -87,7 +87,7 @@ const OpportunityAuctions: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="mb-8">
-          <Link to={`/subastas-en/${city}`} className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-700 transition-colors">
+          <Link to={`/subastas/${city}`} className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-700 transition-colors">
             <ArrowLeft size={20} /> Ver todas las subastas en {displayCity}
           </Link>
         </div>
@@ -138,7 +138,7 @@ const OpportunityAuctions: React.FC = () => {
 
                   <div className="space-y-3">
                     <Link 
-                      to={`/ejemplo-subasta/${slug}`}
+                      to={`/subasta/${slug}`}
                       className={`w-full inline-flex items-center justify-center font-bold py-3 px-6 rounded-xl transition-colors group ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                     >
                       Ver detalles
@@ -167,7 +167,7 @@ const OpportunityAuctions: React.FC = () => {
               Te recomendamos explorar el listado completo de subastas o volver a consultar próximamente.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to={`/subastas-en/${city}`} className="bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors">
+              <Link to={`/subastas/${city}`} className="bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors">
                 Ver todas en {displayCity}
               </Link>
               <Link to={ROUTES.HOME} className="bg-slate-100 text-slate-900 font-bold py-3 px-8 rounded-xl hover:bg-slate-200 transition-colors">

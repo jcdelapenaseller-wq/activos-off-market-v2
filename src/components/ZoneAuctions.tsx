@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
@@ -7,10 +7,9 @@ import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 import { MetricHighlight, MetricNeutral, MetricWarning, MetricTag, getDiscountColor } from '../utils/themeClasses';
 import { normalizePropertyType as normalizeTypeLabel, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
-const CITY_LIST = ['madrid', 'barcelona', 'valencia', 'sevilla'];
-
 const ZoneAuctions: React.FC = () => {
   const { city, zone } = useParams<{ city: string, zone: string }>();
+  const navigate = useNavigate();
 
   const { displayCity, displayZone } = useMemo(() => {
     if (!city || !zone) return { displayCity: '', displayZone: '' };
@@ -23,9 +22,6 @@ const ZoneAuctions: React.FC = () => {
 
   const filteredAuctions = useMemo(() => {
     if (!city || !zone) return [];
-    
-    console.log("Params recibidos:", { city, zone });
-    console.log("AUCTIONS completo:", AUCTIONS);
     
     const normalize = (str: string) => str.toLowerCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -47,6 +43,20 @@ const ZoneAuctions: React.FC = () => {
   const activeCount = useMemo(() => {
     return filteredAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
   }, [filteredAuctions]);
+
+  // Redirección si no hay subastas activas
+  useEffect(() => {
+    if (filteredAuctions.length > 0 && activeCount === 0) {
+      // Si hay subastas pero todas finalizadas, permitimos verlas (histórico)
+      // Pero si el usuario pidió específicamente redirección si no hay activas:
+      // navigate(`/subastas/${city}`, { replace: true });
+    }
+    
+    // Si no hay ninguna subasta (ni activa ni finalizada) en esta zona
+    if (filteredAuctions.length === 0 && city) {
+      navigate(`/subastas/${city}`, { replace: true });
+    }
+  }, [activeCount, filteredAuctions.length, city, navigate]);
 
   // Try to get the actual display name from the first match if available
   const actualZoneName = useMemo(() => {
@@ -190,9 +200,7 @@ const ZoneAuctions: React.FC = () => {
         <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-brand-600 transition-colors">Inicio</Link>
           <ChevronRight size={14} />
-          <Link to={`/subastas-${city}`} className="hover:text-brand-600 transition-colors capitalize">Subastas</Link>
-          <ChevronRight size={14} />
-          <Link to={`/subastas-${city}`} className="hover:text-brand-600 transition-colors capitalize">{displayCity}</Link>
+          <Link to={`/subastas/${city}`} className="hover:text-brand-600 transition-colors capitalize">Subastas {displayCity}</Link>
           <ChevronRight size={14} />
           <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md capitalize" aria-current="page">{actualZoneName}</span>
         </nav>
@@ -326,7 +334,7 @@ const ZoneAuctions: React.FC = () => {
                   </div>
 
                   <Link 
-                    to={`/ejemplo-subasta/${slug}`}
+                    to={`/subasta/${slug}`}
                     className={`inline-flex items-center justify-center gap-2 w-full font-bold py-3 px-6 rounded-xl transition-all group-hover:translate-y-[-2px] ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                   >
                     Ver análisis completo <ChevronRight size={18} />
@@ -375,27 +383,9 @@ const ZoneAuctions: React.FC = () => {
 
         {/* Internal Linking Blocks */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-slate-200 pt-12">
-          {availableStreets.length > 0 && (
-            <div className="md:col-span-2">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Subastas detectadas en calles de {actualZoneName}</h2>
-              <ul className="flex flex-wrap gap-2">
-                {availableStreets.map(streetName => (
-                  <li key={streetName}>
-                    <Link 
-                      to={`/subastas/${normalizeForUrl(displayCity)}/${normalizeForUrl(actualZoneName || '')}/${normalizeForUrl(streetName)}`}
-                      className={MetricTag}
-                    >
-                      {streetName}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           {availableZones.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Subastas en otras zonas de {displayCity}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">Otras zonas interesantes en {displayCity}</h2>
               <ul className="flex flex-wrap gap-2">
                 {availableZones.map(z => (
                   <li key={z}>
@@ -413,16 +403,13 @@ const ZoneAuctions: React.FC = () => {
 
           {availablePropertyTypes.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Otros tipos de subastas en {displayCity}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">Tipos de activos en {displayCity}</h2>
               <ul className="flex flex-wrap gap-2">
                 {availablePropertyTypes.map(pt => (
                   <li key={pt}>
-                    <Link 
-                      to={`/subastas/${normalizeForUrl(displayCity)}/${normalizeForUrl(pt)}`}
-                      className={`${MetricTag} capitalize`}
-                    >
+                    <span className={`${MetricTag} capitalize cursor-default`}>
                       {pt}
-                    </Link>
+                    </span>
                   </li>
                 ))}
               </ul>

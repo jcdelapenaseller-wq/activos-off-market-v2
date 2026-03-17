@@ -1,7 +1,32 @@
-import { RouteObject } from 'react-router-dom';
+import { RouteObject, Navigate, useParams, useLocation } from 'react-router-dom';
 import { createElement } from 'react';
 import { ROUTES } from './constants/routes';
 export { ROUTES };
+
+// Redirect components to handle dynamic params
+const RedirectCity = ({ to }: { to: string }) => {
+  const { city } = useParams();
+  const location = useLocation();
+  return createElement(Navigate, { to: to.replace(':city', city || '') + location.search + location.hash, replace: true });
+};
+
+const RedirectSlug = ({ to }: { to: string }) => {
+  const { slug } = useParams();
+  const location = useLocation();
+  return createElement(Navigate, { to: to.replace(':slug', slug || '') + location.search + location.hash, replace: true });
+};
+
+const RedirectCityZone = ({ to }: { to: string }) => {
+  const { city, zone } = useParams();
+  const location = useLocation();
+  return createElement(Navigate, { to: to.replace(':city', city || '').replace(':zone', zone || '') + location.search + location.hash, replace: true });
+};
+
+const RedirectStatic = ({ to }: { to: string }) => {
+  const location = useLocation();
+  return createElement(Navigate, { to: to + location.search + location.hash, replace: true });
+};
+
 import Home from './components/Home';
 import About from './components/About';
 import SubastasBOEPage from './components/SubastasBOEPage';
@@ -30,10 +55,6 @@ import AuctionMadridGuide from './components/AuctionMadridGuide';
 import AuctionBarcelonaGuide from './components/AuctionBarcelonaGuide';
 import AuctionValenciaGuide from './components/AuctionValenciaGuide';
 import AuctionSevillaGuide from './components/AuctionSevillaGuide';
-import AnalyzeAuctionGuide from './components/AnalyzeAuctionGuide';
-import AuctionDynamicPage from './components/AuctionDynamicPage';
-import CityAuctionsPage from './components/CityAuctionsPage';
-import AuctionExampleReport from './components/AuctionExampleReport';
 import AuctionExamplesIndex from './components/AuctionExamplesIndex';
 import CityPropertyAuctions from './components/CityPropertyAuctions';
 import ZonePropertyAuctions from './components/ZonePropertyAuctions';
@@ -46,12 +67,19 @@ import HighDiscountAuctions from './components/HighDiscountAuctions';
 import DiscoverCityArticles from './components/DiscoverCityArticles';
 import AuctionDiscoverArticle from './components/AuctionDiscoverArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
-import NeighborhoodInvestmentAnalysis from './components/NeighborhoodInvestmentAnalysis';
-import CityInvestmentAnalysis from './components/CityInvestmentAnalysis';
+import CityHub from './components/CityHub';
+import AuctionPage from './components/AuctionPage';
 import Legal from './components/Legal';
-import BestAuctionsByCity from './components/BestAuctionsByCity';
 
 export const routes: RouteObject[] = [
+  {
+    path: ROUTES.CITY_HUB,
+    element: createElement(CityHub),
+  },
+  {
+    path: ROUTES.AUCTION_PAGE,
+    element: createElement(AuctionPage),
+  },
   {
     path: ROUTES.HOME,
     element: createElement(Home),
@@ -162,51 +190,51 @@ export const routes: RouteObject[] = [
   },
   {
     path: ROUTES.CALCULAR_PUJA_CITY,
-    element: createElement(CalculateBidGuide),
+    element: createElement(RedirectCity, { to: '/subastas/:city' }),
   },
   {
     path: ROUTES.RENTABILIDAD_CITY,
-    element: createElement(CalculateBidGuide),
+    element: createElement(RedirectCity, { to: '/subastas/:city' }),
   },
   {
     path: ROUTES.CUANTO_PUJAR_CITY,
-    element: createElement(CalculateBidGuide),
+    element: createElement(RedirectCity, { to: '/subastas/:city' }),
   },
   {
     path: ROUTES.ANALIZAR_CITY,
-    element: createElement(AnalyzeAuctionGuide),
+    element: createElement(RedirectCity, { to: '/subastas/:city' }),
   },
   {
     path: '/rentabilidad-subasta/:slug',
-    element: createElement(AuctionDynamicPage),
+    element: createElement(RedirectSlug, { to: '/subasta/:slug' }),
   },
   {
     path: '/calcular-puja-subasta/:slug',
-    element: createElement(AuctionDynamicPage),
+    element: createElement(RedirectSlug, { to: '/subasta/:slug' }),
   },
   {
     path: '/analizar-subasta/:slug',
-    element: createElement(AuctionDynamicPage),
+    element: createElement(RedirectSlug, { to: '/subasta/:slug' }),
   },
   {
     path: '/subastas-en/:city',
-    element: createElement(CityAuctionsPage),
+    element: createElement(RedirectCity, { to: '/subastas/:city' }),
   },
   {
     path: ROUTES.MADRID,
-    element: createElement(AuctionMadridGuide),
+    element: createElement(RedirectStatic, { to: '/subastas/madrid' }),
   },
   {
     path: ROUTES.BARCELONA,
-    element: createElement(AuctionBarcelonaGuide),
+    element: createElement(RedirectStatic, { to: '/subastas/barcelona' }),
   },
   {
     path: ROUTES.VALENCIA,
-    element: createElement(AuctionValenciaGuide),
+    element: createElement(RedirectStatic, { to: '/subastas/valencia' }),
   },
   {
     path: ROUTES.SEVILLA,
-    element: createElement(AuctionSevillaGuide),
+    element: createElement(RedirectStatic, { to: '/subastas/sevilla' }),
   },
   {
     path: ROUTES.EXAMPLES_INDEX,
@@ -214,7 +242,7 @@ export const routes: RouteObject[] = [
   },
   {
     path: ROUTES.EXAMPLE_REPORT,
-    element: createElement(AuctionExampleReport),
+    element: createElement(RedirectSlug, { to: '/subasta/:slug' }),
   },
   {
     path: ROUTES.NOTICIAS_SUBASTAS_INDEX,
@@ -258,15 +286,15 @@ export const routes: RouteObject[] = [
   },
   {
     path: ROUTES.BEST_AUCTIONS_CITY,
-    element: createElement(BestAuctionsByCity),
+    element: createElement(RedirectCity, { to: '/subastas/:city' }),
   },
   {
     path: ROUTES.INVERSION_CITY,
-    element: createElement(CityInvestmentAnalysis),
+    element: createElement(RedirectCity, { to: '/subastas/:city' }),
   },
   {
     path: ROUTES.INVERSION_CITY_ZONE,
-    element: createElement(NeighborhoodInvestmentAnalysis),
+    element: createElement(RedirectCityZone, { to: '/subastas/:city/:zone' }),
   },
   {
     path: ROUTES.CITY_PROPERTY,

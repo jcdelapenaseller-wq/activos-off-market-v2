@@ -106,7 +106,7 @@ const RecentAuctionsHome: React.FC = () => {
 
                 <div className="px-8 pb-8 mt-auto">
                   <Link 
-                    to={`/ejemplo-subasta/${slug}`}
+                    to={`/subasta/${slug}`}
                     className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-brand-600 transition-all shadow-lg"
                   >
                     Ver Ficha <ArrowRight size={18} />

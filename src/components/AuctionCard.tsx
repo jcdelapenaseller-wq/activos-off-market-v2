@@ -125,7 +125,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
 
         <div className="space-y-3">
           <Link 
-            to={`/ejemplo-subasta/${id}`}
+            to={`/subasta/${id}`}
             className={`w-full inline-flex items-center justify-center font-bold py-3 px-6 rounded-xl transition-colors group ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
           >
             Ver detalles

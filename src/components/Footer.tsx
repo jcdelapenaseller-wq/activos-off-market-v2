@@ -63,8 +63,10 @@ const Footer: React.FC = () => {
               <li><Link to={ROUTES.ANALYSIS} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Cómo analizar una subasta</Link></li>
               <li><Link to={ROUTES.EXAMPLES_INDEX} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200 font-bold text-emerald-400">Ejemplos de análisis</Link></li>
               <li><Link to={ROUTES.PROFITABILITY_CALC_GUIDE} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Calculadora de Rentabilidad</Link></li>
-              <li><Link to={ROUTES.VALENCIA} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Subastas en Valencia</Link></li>
-              <li><Link to={ROUTES.SEVILLA} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Subastas en Sevilla</Link></li>
+              <li><Link to="/subastas/madrid" className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Subastas en Madrid</Link></li>
+              <li><Link to="/subastas/barcelona" className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Subastas en Barcelona</Link></li>
+              <li><Link to="/subastas/valencia" className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Subastas en Valencia</Link></li>
+              <li><Link to="/subastas/sevilla" className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Subastas en Sevilla</Link></li>
               <li><Link to={ROUTES.CHARGES} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Cargas en subasta judicial</Link></li>
               <li><Link to={ROUTES.OCCUPIED} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Vivienda ocupada en subasta</Link></li>
             </ul>
