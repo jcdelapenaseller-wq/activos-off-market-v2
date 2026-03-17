@@ -17,51 +17,73 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
   const cantidadReclamada = data.claimedDebt;
   
   // Ratio de Oportunidad
-  const opportunityRatio = (valorReferencia && cantidadReclamada !== undefined) 
+  const opportunityRatio = (valorReferencia && cantidadReclamada !== undefined && cantidadReclamada !== null) 
     ? Math.round(((valorReferencia - cantidadReclamada) / valorReferencia) * 100) 
     : null;
 
   const isFinished = isAuctionFinished(data.auctionDate);
 
-  // Formateo de Fecha (Esquina superior derecha)
-  const formatAuctionDate = (dateStr?: string) => {
-    if (!dateStr) return null;
-    const date = new Date(dateStr);
-    const day = date.getDate();
-    const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    return `Solo hasta el: ${day} de ${months[date.getMonth()]}`;
-  };
-
+  // Formateo de Fecha y FOMO
   const auctionDate = data.auctionDate ? new Date(data.auctionDate) : null;
-  const diffDays = auctionDate ? Math.ceil((auctionDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
-  const isUrgent = diffDays !== null && diffDays >= 0 && diffDays < 5;
+  const publishedDate = data.publishedAt ? new Date(data.publishedAt) : null;
+  const now = new Date();
   
-  const dateLabel = formatAuctionDate(data.auctionDate);
+  const diffMs = auctionDate ? auctionDate.getTime() - now.getTime() : null;
+  const diffDays = diffMs !== null ? Math.ceil(diffMs / (1000 * 60 * 60 * 24)) : null;
+  const diffHours = diffMs !== null ? Math.ceil(diffMs / (1000 * 60 * 60)) : null;
+  
+  const publishedDiffMs = publishedDate ? now.getTime() - publishedDate.getTime() : null;
+  const publishedDiffHours = publishedDiffMs !== null ? publishedDiffMs / (1000 * 60 * 60) : null;
+
+  let fomoLabel = "";
+  let fomoColor = "text-slate-500";
+
+  if (isFinished) {
+    fomoLabel = "⌛ Oportunidad perdida";
+    fomoColor = "text-slate-400";
+  } else if (diffHours !== null && diffHours > 0 && diffHours <= 24) {
+    fomoLabel = "🚨 ÚLTIMAS HORAS";
+    fomoColor = "text-red-600";
+  } else if (diffDays !== null && diffDays > 0 && diffDays <= 5) {
+    fomoLabel = "⏳ Termina pronto";
+    fomoColor = "text-amber-600";
+  } else if (publishedDiffHours !== null && publishedDiffHours <= 48) {
+    fomoLabel = "✨ Oportunidad nueva";
+    fomoColor = "text-brand-600";
+  } else {
+    fomoLabel = "🔥 Oportunidad activa";
+    fomoColor = "text-slate-500";
+  }
+
   const locationLabel = normalizeLocationLabel(data);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative">
       {isFinished && (
         <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
-          Adjudicada
+          Finalizada
         </div>
       )}
       
       <div className="p-6 flex-grow">
         <div className="flex justify-between items-start mb-4">
-          {/* Badge de Oportunidad: Solo si existe el ratio */}
-          {opportunityRatio !== null && opportunityRatio > 0 ? (
+          {/* Badge de Oportunidad o Análisis Requerido */}
+          {opportunityRatio !== null && opportunityRatio >= 18 ? (
             <span className="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               Oportunidad {opportunityRatio}%
+            </span>
+          ) : (cantidadReclamada === undefined || cantidadReclamada === null) && valorReferencia ? (
+            <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+              Análisis requerido
             </span>
           ) : (
             <div /> // Spacer
           )}
           
-          {/* Fecha Dinámica: Esquina superior derecha */}
-          {!isFinished && dateLabel && (
-            <span className={`text-[11px] font-bold text-right ${isUrgent ? 'text-red-600' : 'text-slate-400'}`}>
-              {dateLabel}
+          {/* Fecha Dinámica / FOMO */}
+          {fomoLabel && (
+            <span className={`text-[11px] font-bold text-right ${fomoColor}`}>
+              {fomoLabel}
             </span>
           )}
         </div>
@@ -73,7 +95,10 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
         <div className="space-y-3 mb-6">
           <div className="flex items-center gap-2 text-slate-500 text-sm">
             <MapPin size={16} className="text-brand-500" />
-            <span>{locationLabel}</span>
+            <span className="font-medium">
+              <span className="text-slate-900 font-bold">{data.city}</span>
+              {data.zone ? ` / ${data.zone}` : ''}
+            </span>
           </div>
           
           {valorReferencia && (

@@ -350,7 +350,19 @@ async function runCrawler() {
         const estadosIgnorar = ["Suspendida", "Cancelada", "Finalizada"];
         const esEstadoInvalido = estadosIgnorar.some(e => (generalData.estadoSubasta as string).includes(e));
 
-        if (subastaNum !== null && subastaNum >= 5000 && !esEstadoInvalido) {
+        const tipoBienLimpio = cleanPropertyType(bienesData.tipoBien || '');
+        const esTipoExcluido = tipoBienLimpio === 'Local' || tipoBienLimpio === 'Garaje';
+
+        // Cálculo de ratio para filtro (18%)
+        const valorReferencia = tasacionNum || subastaNum;
+        let esRatioBajo = false;
+        if (valorReferencia && deudaNum !== null && deudaNum !== undefined) {
+          const ratio = Math.round(((valorReferencia - deudaNum) / valorReferencia) * 100);
+          // Solo descartamos si el ratio es explícitamente < 18%
+          if (ratio < 18) esRatioBajo = true;
+        }
+
+        if (subastaNum !== null && subastaNum >= 5000 && !esEstadoInvalido && !esTipoExcluido && !esRatioBajo) {
           finalResults.push({
             idSub,
             titulo: item.titulo,
@@ -362,7 +374,7 @@ async function runCrawler() {
             estadoSubasta: generalData.estadoSubasta,
             fechaFin: generalData.fechaFin,
             urlDetalle: item.urlDetalle,
-            tipoBien: cleanPropertyType(bienesData.tipoBien || ''),
+            tipoBien: tipoBienLimpio,
             direccion: cleanAddress(bienesData.direccion || ''),
             city,
             zone,
@@ -370,7 +382,13 @@ async function runCrawler() {
             cargas: bienesData.cargas
           });
         } else {
-          console.log(` - Subasta ${idSub} descartada por calidad (Valor: ${subastaNum}, Estado: ${generalData.estadoSubasta})`);
+          let motivo = "";
+          if (esEstadoInvalido) motivo = `Estado: ${generalData.estadoSubasta}`;
+          else if (esTipoExcluido) motivo = `Tipo excluido: ${tipoBienLimpio}`;
+          else if (esRatioBajo) motivo = `Ratio insuficiente`;
+          else motivo = `Valor insuficiente: ${subastaNum}`;
+          
+          console.log(` - Subasta ${idSub} descartada por calidad (${motivo})`);
         }
       } catch (err) {
         console.error(`Error procesando subasta ${item.titulo}: ${(err as any).message}`);
