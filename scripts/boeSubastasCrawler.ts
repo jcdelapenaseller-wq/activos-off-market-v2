@@ -48,7 +48,7 @@ async function runCrawler() {
     
     const allAuctions = [];
     const processedSlugs = new Set();
-    const maxResults = 15;
+    const maxResults = 30;
 
     for (const province of provincesToTest) {
       if (allAuctions.length >= maxResults) break;
