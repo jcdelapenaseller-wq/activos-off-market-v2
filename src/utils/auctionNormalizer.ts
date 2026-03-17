@@ -19,8 +19,58 @@ export const normalizePropertyType = (type?: string): string => {
  * Infiere la ciudad a partir de la dirección o la autoridad gestora.
  */
 export const normalizeCity = (auction: AuctionData): string => {
-  if (auction.city && auction.city.trim() !== '') return auction.city;
+  if (auction.city && auction.city.trim() !== '' && auction.city !== 'España') return auction.city;
+  
+  // 1. Intentar extraer de procedureType (ej: "Sección Civil TI Madrid")
+  if (auction.procedureType) {
+    const match = auction.procedureType.match(/TI\s+([^.]+)/i);
+    if (match && match[1]) {
+      const city = match[1].trim();
+      if (city.length > 2 && !city.includes('AEAT')) return city;
+    }
+    
+    // AEAT
+    if (auction.procedureType.includes('MADRID')) return 'Madrid';
+    if (auction.procedureType.includes('BARCELONA')) return 'Barcelona';
+    if (auction.procedureType.includes('VALENCIA')) return 'Valencia';
+    if (auction.procedureType.includes('SEVILLA')) return 'Sevilla';
+    if (auction.procedureType.includes('MALAGA')) return 'Málaga';
+  }
+
+  // 2. Intentar extraer de la dirección (última parte suele ser la ciudad)
+  if (auction.address) {
+    const parts = auction.address.split(',');
+    if (parts.length > 1) {
+      const lastPart = parts[parts.length - 1].trim().replace(/\d/g, '').trim();
+      if (lastPart.length > 2 && lastPart.length < 30) return lastPart;
+    }
+  }
+
   return 'España';
+};
+
+/**
+ * Genera un título limpio: Tipo + Calle + Número
+ */
+export const normalizeTitle = (auction: AuctionData): string => {
+  const type = normalizePropertyType(auction.propertyType);
+  let address = auction.address || 'Ubicación no disponible';
+  
+  // Limpiar dirección: quedarnos con Calle + Número
+  // Ej: "Calle Mayor 1, 2º A" -> "Calle Mayor 1"
+  let cleanAddress = address.split(',')[0].trim();
+  
+  // Eliminar prefijos comunes del BOE si existen
+  cleanAddress = cleanAddress.replace(/^(CL|CALLE|AV|AVENIDA|PS|PASEO|CTRA|CARRETERA)\s+/i, '');
+  
+  const fullTitle = `${type} en ${cleanAddress}`;
+  
+  // Recortar si es muy largo
+  if (fullTitle.length > 45) {
+    return fullTitle.substring(0, 42) + '...';
+  }
+  
+  return fullTitle;
 };
 
 /**
@@ -28,9 +78,18 @@ export const normalizeCity = (auction: AuctionData): string => {
  * Formato: "Ciudad" o "Ciudad / Zona"
  */
 export const normalizeLocationLabel = (auction: AuctionData): string => {
-  const city = normalizeCity(auction);
+  let city = normalizeCity(auction);
   const zone = auction.zone && auction.zone.trim() !== '' ? auction.zone : null;
   
+  if (city === 'España') {
+    // Si no detectamos ciudad, intentar devolver la primera parte de la dirección
+    if (auction.address) {
+      const firstPart = auction.address.split(',')[0].trim();
+      if (firstPart.length > 3) return firstPart;
+    }
+    return 'Ubicación pendiente';
+  }
+
   if (zone) return `${city} / ${zone}`;
   return city;
 };
@@ -48,17 +107,29 @@ export const getOccupancyStatus = (description?: string): 'ocupado' | 'libre' | 
 };
 
 /**
- * Intenta extraer importes de cargas (para uso futuro en ficha).
+ * Intenta extraer importes de cargas de la descripción.
  */
-export const extractEstimatedCharges = (description?: string): number => {
-  if (!description) return 0;
-  // Regex para buscar importes seguidos de € o euros
-  const regex = /(\d+(?:\.\d{3})*(?:,\d{2})?)\s*(?:€|euros)/gi;
-  let total = 0;
-  let match;
-  while ((match = regex.exec(description)) !== null) {
-    const value = parseFloat(match[1].replace(/\./g, '').replace(',', '.'));
-    if (!isNaN(value)) total += value;
+export const extractEstimatedCharges = (description?: string): number | null => {
+  if (!description) return null;
+  
+  // 1. Buscar específicamente "Cargas: X,XX €" o "Cargas: X,XX euros"
+  const cargasMatch = description.match(/Cargas:.*?([\d.,]+)\s*(?:€|euros)/i);
+  if (cargasMatch) {
+    const val = parseFloat(cargasMatch[1].replace(/\./g, '').replace(',', '.'));
+    return isNaN(val) ? null : val;
   }
-  return total;
+
+  // 2. Buscar "préstamo de X,XX euros" (común en descripciones largas)
+  const prestamoMatch = description.match(/préstamo de\s*([\d.,]+)\s*(?:€|euros)/i);
+  if (prestamoMatch) {
+    const val = parseFloat(prestamoMatch[1].replace(/\./g, '').replace(',', '.'));
+    return isNaN(val) ? null : val;
+  }
+
+  // 3. Si dice "Cargas: 0,00" o similar
+  if (description.includes('Cargas: 0,00') || description.includes('Cargas: 0 €')) {
+    return 0;
+  }
+
+  return null;
 };
