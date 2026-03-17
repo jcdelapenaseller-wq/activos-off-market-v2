@@ -2,8 +2,9 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp } from 'lucide-react';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const StreetAuctions: React.FC = () => {
   const { city, zone, street } = useParams<{ city: string, zone: string, street: string }>();
@@ -24,7 +25,7 @@ const StreetAuctions: React.FC = () => {
     const normalizedStreet = normalize(street);
 
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
-      const dataCitySlug = normalize(data.city || '');
+      const dataCitySlug = normalize(normalizeCity(data));
       const dataZoneSlug = normalize(data.zone || '');
       const dataStreetSlug = normalize(data.address || '');
       
@@ -65,7 +66,7 @@ const StreetAuctions: React.FC = () => {
     const normalizedCurrentStreet = normalize(street || '');
     
     const zoneAuctions = Object.values(AUCTIONS).filter(a => 
-      normalize(a.city || '') === normalizedCity && 
+      normalize(normalizeCity(a)) === normalizedCity && 
       normalize(a.zone || '') === normalizedZone
     );
     
@@ -146,13 +147,13 @@ const StreetAuctions: React.FC = () => {
                   </div>
 
                   <h2 className="text-xl font-bold text-slate-900 mb-4 leading-snug">
-                    {data.propertyType} en subasta en {data.address}
+                    {normalizePropertyType(data.propertyType)} en subasta en {normalizeCity(data)}
                   </h2>
 
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
                       <MapPin size={16} className="text-brand-500" />
-                      <span>{data.city} / {data.zone}</span>
+                      <span>{normalizeLocationLabel(data)}</span>
                     </div>
                     {data.appraisalValue && (
                       <div className="flex items-center gap-2 text-slate-500 text-sm">

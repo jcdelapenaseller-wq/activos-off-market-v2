@@ -7,6 +7,7 @@ import { MetricHighlight, MetricNeutral, MetricWarning, MetricTag, getDiscountCo
 
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { normalizePropertyType as normalizeTypeLabel, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const CityPropertyAuctions: React.FC = () => {
   const { city: cityParam, propertyType: propertyTypeParam } = useParams<{ city: string; propertyType: string }>();
@@ -33,7 +34,8 @@ const CityPropertyAuctions: React.FC = () => {
 
   const filteredAuctions = useMemo(() => {
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
-      const cityMatch = data.city && data.city.toLowerCase() === city.toLowerCase();
+      const normalizedCity = normalizeCity(data);
+      const cityMatch = normalizedCity.toLowerCase() === city.toLowerCase();
       const typeMatch = data.propertyType && normalizePropertyType(data.propertyType) === normalizePropertyType(propertyType);
       return cityMatch && typeMatch;
     });
@@ -46,7 +48,7 @@ const CityPropertyAuctions: React.FC = () => {
 
   const availableZones = useMemo(() => {
     if (!city) return [];
-    const cityAuctions = Object.values(AUCTIONS).filter(a => a.city && a.city.toLowerCase() === city.toLowerCase());
+    const cityAuctions = Object.values(AUCTIONS).filter(a => normalizeCity(a).toLowerCase() === city.toLowerCase());
     const zones = new Set<string>();
     cityAuctions.forEach(a => {
       if (a.zone) zones.add(a.zone);
@@ -56,7 +58,7 @@ const CityPropertyAuctions: React.FC = () => {
 
   const availablePropertyTypes = useMemo(() => {
     if (!city) return [];
-    const cityAuctions = Object.values(AUCTIONS).filter(a => a.city && a.city.toLowerCase() === city.toLowerCase());
+    const cityAuctions = Object.values(AUCTIONS).filter(a => normalizeCity(a).toLowerCase() === city.toLowerCase());
     const types = new Set<string>();
     cityAuctions.forEach(a => {
       if (a.propertyType) types.add(normalizePropertyType(a.propertyType));
@@ -226,13 +228,13 @@ const CityPropertyAuctions: React.FC = () => {
                     <TrendingUp size={16} /> Análisis de oportunidad
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
-                    {data.propertyType} en subasta en {data.city}
+                    {normalizeTypeLabel(data.propertyType)} en subasta en {normalizeCity(data)}
                   </h3>
                   
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
                       <MapPin size={16} className="text-brand-500" />
-                      <span>{data.city}{data.zone ? ` / ${data.zone}` : ''}</span>
+                      <span>{normalizeLocationLabel(data)}</span>
                     </div>
                     {data.appraisalValue && (
                       <div className="flex items-center gap-2 text-slate-500 text-sm">

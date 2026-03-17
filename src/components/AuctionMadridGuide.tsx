@@ -5,10 +5,11 @@ import { ROUTES } from '../routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
 import { AUCTIONS } from '../data/auctions';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const AuctionMadridGuide: React.FC = () => {
   const cityAuctions = React.useMemo(() => {
-    const filtered = Object.entries(AUCTIONS).filter(([_, a]) => a.city === "Madrid");
+    const filtered = Object.entries(AUCTIONS).filter(([_, a]) => normalizeCity(a) === "Madrid");
     return sortActiveFirst(filtered, (item) => item[1].auctionDate);
   }, []);
   
@@ -390,12 +391,12 @@ const AuctionMadridGuide: React.FC = () => {
                             <TrendingUp size={14} /> Análisis real
                           </div>
                           <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
-                            {data.propertyType} en subasta en {data.city}
+                            {normalizePropertyType(data.propertyType)} en subasta en {normalizeCity(data)}
                           </h3>
                           <div className="space-y-2 mb-4">
                             <div className="flex items-center gap-2 text-slate-500 text-xs">
                               <MapPin size={14} className="text-brand-500" />
-                              <span>{data.zone || data.city}</span>
+                              <span>{normalizeLocationLabel(data)}</span>
                             </div>
                             {data.appraisalValue && (
                               <div className="flex items-center gap-2 text-slate-500 text-xs">

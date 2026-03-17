@@ -2,9 +2,10 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { normalizePropertyType as normalizeTypeLabel, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const ZonePropertyAuctions: React.FC = () => {
   const { city: cityParam, propertyType: propertyTypeParam, zone: zoneParam } = useParams<{ city: string; propertyType: string; zone: string }>();
@@ -15,7 +16,7 @@ const ZonePropertyAuctions: React.FC = () => {
 
   const filteredAuctions = useMemo(() => {
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
-      const cityMatch = data.city?.toLowerCase() === city.toLowerCase();
+      const cityMatch = normalizeCity(data).toLowerCase() === city.toLowerCase();
       const typeMatch = data.propertyType?.toLowerCase() === propertyType.toLowerCase();
       const zoneMatch = data.zone?.toLowerCase() === zone.toLowerCase();
       return cityMatch && typeMatch && zoneMatch;
@@ -78,13 +79,13 @@ const ZonePropertyAuctions: React.FC = () => {
                     <TrendingUp size={16} /> Análisis de oportunidad
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
-                    {data.propertyType} en subasta en {data.zone}
+                    {normalizeTypeLabel(data.propertyType)} en subasta en {normalizeCity(data)}
                   </h3>
                   
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
                       <MapPin size={16} className="text-brand-500" />
-                      <span>{data.zone}</span>
+                      <span>{normalizeLocationLabel(data)}</span>
                     </div>
                     {data.appraisalValue && (
                       <div className="flex items-center gap-2 text-slate-500 text-sm">

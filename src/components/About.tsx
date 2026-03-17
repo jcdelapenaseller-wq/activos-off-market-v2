@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { ShieldCheck, Search, XCircle, FileSearch, ArrowRight, Gavel, Scale, Home, Euro, AlertOctagon, ExternalLink, Linkedin, Star, Calendar, BookOpen, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 const About: React.FC = () => {
 

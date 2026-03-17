@@ -3,13 +3,21 @@ import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight, Percent } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../routes';
-import { isAuctionFinished, sortActiveFirst, formatDate } from '../utils/auctionHelpers';
+import { isAuctionFinished, sortAuctions, formatDate } from '../utils/auctionHelpers';
+import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
+import { AuctionCard } from './AuctionCard';
 
 const RecentAuctions: React.FC = () => {
-  // Get all auctions and reverse them to show most recent first (by insertion order)
-  const allAuctionsRaw = Object.entries(AUCTIONS).reverse().slice(0, 20);
-  const allAuctions = sortActiveFirst(allAuctionsRaw, (item) => item[1].auctionDate);
-  const activeCount = allAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
+  // Get all auctions and filter by active status (hybrid logic)
+  const allAuctionsRaw = Object.entries(AUCTIONS);
+  const activeAuctions = sortAuctions(allAuctionsRaw.filter(item => {
+    const auction = item[1];
+    if (auction.isActive === true) return true;
+    if (auction.isActive === false) return false;
+    // Legacy data: check if date is in the future
+    return !isAuctionFinished(auction.auctionDate);
+  }));
+  const activeCount = activeAuctions.length;
 
   const formatPublishedDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -78,71 +86,9 @@ const RecentAuctions: React.FC = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {allAuctions.map(([slug, data]) => {
-            const isFinished = isAuctionFinished(data.auctionDate);
-            return (
-            <div key={slug} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all group flex flex-col h-full relative">
-              {isFinished && (
-                <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm flex flex-col items-center gap-1">
-                  <span>Adjudicada</span>
-                  {data.auctionDate && (
-                    <span className="text-[10px] font-normal normal-case">Adjudicada el {formatDate(data.auctionDate)}</span>
-                  )}
-                </div>
-              )}
-              <div className="p-8 flex-grow">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 text-brand-600 font-bold text-xs uppercase tracking-widest">
-                    <Calendar size={14} /> {formatPublishedDate(data.publishedAt) || 'Reciente'}
-                  </div>
-                  <div className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-tighter">
-                    {data.procedureType || 'Subasta'}
-                  </div>
-                </div>
-
-                <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-brand-600 transition-colors leading-snug">
-                  {data.propertyType || 'Inmueble'} en {data.city || 'España'}
-                </h3>
-
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
-                      <MapPin size={16} className="text-brand-500" />
-                    </div>
-                    <span className="text-sm font-medium">{data.zone || data.city || 'Ubicación no disponible'}</span>
-                  </div>
-                  
-                  {data.appraisalValue && (
-                    <div className="flex items-center gap-3 text-slate-500">
-                      <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
-                        <DollarSign size={16} className="text-brand-500" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Valor Tasación</span>
-                        <span className="text-sm font-bold text-slate-900">
-                          {data.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <p className="text-slate-500 text-sm line-clamp-3 mb-6 leading-relaxed">
-                  {data.description || `Análisis técnico de ${(data.propertyType || 'inmueble').toLowerCase()} en subasta judicial en ${data.city || 'España'}. Revisión de cargas, estado de ocupación y potencial de rentabilidad.`}
-                </p>
-              </div>
-
-              <div className="px-8 pb-8 mt-auto">
-                <Link 
-                  to={`/ejemplo-subasta/${slug}`}
-                  className={`inline-flex items-center justify-center gap-2 w-full font-bold py-4 px-6 rounded-2xl transition-all shadow-lg ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300 shadow-none' : 'bg-slate-900 text-white hover:bg-brand-600 shadow-slate-200'}`}
-                >
-                  Ver Análisis Completo <ArrowRight size={18} />
-                </Link>
-              </div>
-            </div>
-            );
-          })}
+          {activeAuctions.map(([slug, data]) => (
+            <AuctionCard key={slug} slug={slug} data={data} />
+          ))}
         </div>
 
         <div className="mt-20 bg-brand-900 rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-2xl">

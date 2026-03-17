@@ -4,13 +4,14 @@ import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../routes';
 import { MapPin, DollarSign, ChevronRight } from 'lucide-react';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const CityAuctionsPage: React.FC = () => {
   const { city } = useParams();
   const cityName = city ? city.charAt(0).toUpperCase() + city.slice(1) : '';
 
   const cityAuctionsRaw = Object.entries(AUCTIONS).filter(
-    ([_, data]) => data.city?.toLowerCase() === city?.toLowerCase()
+    ([_, data]) => normalizeCity(data).toLowerCase() === city?.toLowerCase()
   );
   
   const cityAuctions = sortActiveFirst(cityAuctionsRaw, (item) => item[1].auctionDate);
@@ -53,12 +54,12 @@ const CityAuctionsPage: React.FC = () => {
               )}
               <div className="p-6">
                 <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
-                  {data.propertyType} en {data.zone}
+                  {normalizePropertyType(data.propertyType)} en {normalizeLocationLabel(data)}
                 </h3>
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center gap-2 text-slate-500 text-sm">
                     <MapPin size={16} className="text-brand-500" />
-                    <span>{data.zone}</span>
+                    <span>{normalizeLocationLabel(data)}</span>
                   </div>
                   {data.appraisalValue && (
                     <div className="flex items-center gap-2 text-slate-500 text-sm">

@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calculator, TrendingUp, DollarSign, Target, ArrowRight, ShieldCheck, Search, AlertOctagon, MapPin, Home, FileText, Scale, Gavel, Send, HelpCircle } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { AUCTIONS, AuctionData } from '../data/auctions';
 import RelatedAuctions from './RelatedAuctions';
 import { isAuctionFinished } from '../utils/auctionHelpers';
@@ -291,7 +291,7 @@ const AuctionExampleReport: React.FC = () => {
                     <span className="font-bold text-slate-900">{procedureType}</span>
                   </div>
                 </div>
-                {surface && (
+                {surface && surface > 0 && (
                   <div className="flex items-start gap-3">
                     <Home className="text-brand-500 mt-1" size={20} />
                     <div>
@@ -300,7 +300,7 @@ const AuctionExampleReport: React.FC = () => {
                     </div>
                   </div>
                 )}
-                {occupancy && (
+                {occupancy && occupancy !== 'N/A' && (
                   <div className="flex items-start gap-3">
                     <ShieldCheck className="text-brand-500 mt-1" size={20} />
                     <div>

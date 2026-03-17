@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, ArrowRight, TrendingDown } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
+import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const RecentAuctionsHome: React.FC = () => {
   // Get the 3 most recent auctions
@@ -60,7 +61,7 @@ const RecentAuctionsHome: React.FC = () => {
                 <div className="p-8 flex-grow">
                   <div className="flex justify-between items-start mb-6">
                     <span className="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wider mt-1">
-                      {data.propertyType || 'Inmueble'}
+                      {normalizePropertyType(data.propertyType)}
                     </span>
                     {discount !== null && discount > 0 && (
                       <div className="flex flex-col items-end">
@@ -73,13 +74,13 @@ const RecentAuctionsHome: React.FC = () => {
                   </div>
 
                   <h3 className="text-lg font-bold text-slate-900 mb-3 group-hover:text-brand-600 transition-colors line-clamp-2">
-                    {data.propertyType || 'Inmueble'} en {data.city || 'España'}
+                    {normalizePropertyType(data.propertyType)} en {data.address?.split(',')[0] || 'ubicación'}
                   </h3>
 
                   <div className="space-y-2 mb-6">
                     <div className="flex items-center gap-2 text-slate-600 text-sm">
                       <MapPin size={16} className="text-slate-400" />
-                      <span className="truncate">{data.zone || data.city || 'Ubicación no disponible'}</span>
+                      <span className="truncate">{normalizeLocationLabel(data)}</span>
                     </div>
                   </div>
 

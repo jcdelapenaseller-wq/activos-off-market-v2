@@ -2,9 +2,10 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 import { MetricHighlight, MetricNeutral, MetricWarning, MetricTag, getDiscountColor } from '../utils/themeClasses';
+import { normalizePropertyType as normalizeTypeLabel, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const CITY_LIST = ['madrid', 'barcelona', 'valencia', 'sevilla'];
 
@@ -34,20 +35,10 @@ const ZoneAuctions: React.FC = () => {
     const normalizedZone = normalize(zone);
 
     const filtered = Object.entries(AUCTIONS).filter(([slug, data]) => {
-      const dataCitySlug = normalize(data.city || '');
+      const normalizedCityFromData = normalize(normalizeCity(data));
       const dataZoneSlug = normalize(data.zone || '');
       
-      console.log("Subasta evaluada:", slug);
-      console.log("Ciudad datos:", data.city);
-      console.log("Zona datos:", data.zone);
-      console.log("Comparación normalizada:", {
-        dataCitySlug,
-        normalizedCity,
-        dataZoneSlug,
-        normalizedZone
-      });
-      
-      return dataCitySlug === normalizedCity && dataZoneSlug === normalizedZone;
+      return normalizedCityFromData === normalizedCity && dataZoneSlug === normalizedZone;
     });
     
     return sortActiveFirst(filtered, (item) => item[1].auctionDate);
@@ -72,7 +63,7 @@ const ZoneAuctions: React.FC = () => {
       .replace(/\s+/g, '-');
     const normalizedCity = normalize(city);
     
-    const cityAuctions = Object.values(AUCTIONS).filter(a => normalize(a.city || '') === normalizedCity);
+    const cityAuctions = Object.values(AUCTIONS).filter(a => normalize(normalizeCity(a)) === normalizedCity);
     const zones = new Set<string>();
     cityAuctions.forEach(a => {
       if (a.zone) zones.add(a.zone);
@@ -101,7 +92,7 @@ const ZoneAuctions: React.FC = () => {
       return map[normalized] || normalized;
     };
 
-    const cityAuctions = Object.values(AUCTIONS).filter(a => normalize(a.city || '') === normalizedCity);
+    const cityAuctions = Object.values(AUCTIONS).filter(a => normalize(normalizeCity(a)) === normalizedCity);
     const types = new Set<string>();
     cityAuctions.forEach(a => {
       if (a.propertyType) types.add(normalizePropertyType(a.propertyType));
@@ -123,7 +114,7 @@ const ZoneAuctions: React.FC = () => {
     const normalizedZone = normalizeForUrl(zone);
     
     const zoneAuctions = Object.values(AUCTIONS).filter(a => 
-      normalizeForUrl(a.city || '') === normalizedCity && 
+      normalizeForUrl(normalizeCity(a)) === normalizedCity && 
       normalizeForUrl(a.zone || '') === normalizedZone
     );
     
@@ -302,13 +293,13 @@ const ZoneAuctions: React.FC = () => {
                     <TrendingUp size={16} /> Análisis de oportunidad
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-brand-600 transition-colors">
-                    {data.propertyType} en subasta en {data.city}
+                    {normalizeTypeLabel(data.propertyType)} en subasta en {normalizeCity(data)}
                   </h3>
                   
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
                       <MapPin size={16} className="text-brand-500" />
-                      <span>{data.city}{data.zone ? ` / ${data.zone}` : ''}</span>
+                      <span>{normalizeLocationLabel(data)}</span>
                     </div>
                     {data.appraisalValue && (
                       <div className="flex items-center gap-2 text-slate-500 text-sm">

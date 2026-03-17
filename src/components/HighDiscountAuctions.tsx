@@ -2,8 +2,10 @@ import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, ArrowRight, Percent } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
+import { AuctionCard } from './AuctionCard';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const HighDiscountAuctions: React.FC = () => {
   useEffect(() => {
@@ -73,78 +75,9 @@ const HighDiscountAuctions: React.FC = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {highDiscountAuctions.map(({ slug, data, discount }) => {
-            const isFinished = isAuctionFinished(data.auctionDate);
-            return (
-            <div key={slug} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl transition-all group flex flex-col h-full relative">
-              {isFinished && (
-                <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
-                  Adjudicada
-                </div>
-              )}
-              <div className="p-8 flex-grow">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs uppercase tracking-widest">
-                    <Percent size={14} /> {discount.toFixed(0)}% Descuento
-                  </div>
-                  <div className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-tighter">
-                    {data.procedureType || 'Subasta'}
-                  </div>
-                </div>
-
-                <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-brand-600 transition-colors leading-snug">
-                  {data.propertyType || 'Inmueble'} en {data.city || 'España'}
-                </h3>
-
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
-                      <MapPin size={16} className="text-brand-500" />
-                    </div>
-                    <span className="text-sm font-medium">{data.zone || data.city || 'Ubicación no disponible'}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
-                      <DollarSign size={16} className="text-brand-500" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Valor Tasación</span>
-                      <span className="text-sm font-bold text-slate-900">
-                        {data.appraisalValue?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
-                      <TrendingUp size={16} className="text-emerald-600" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-600">Deuda Reclamada</span>
-                      <span className="text-sm font-bold text-slate-900">
-                        {data.claimedDebt?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-slate-500 text-sm line-clamp-3 mb-6 leading-relaxed">
-                  {data.description || `Oportunidad de inversión con un ${discount.toFixed(0)}% de descuento sobre tasación. Análisis técnico de ${(data.propertyType || 'inmueble').toLowerCase()} en ${data.city || 'España'}.`}
-                </p>
-              </div>
-
-              <div className="px-8 pb-8 mt-auto">
-                <Link 
-                  to={`/ejemplo-subasta/${slug}`}
-                  className={`inline-flex items-center justify-center gap-2 w-full font-bold py-4 px-6 rounded-2xl transition-all shadow-lg ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300 shadow-none' : 'bg-slate-900 text-white hover:bg-brand-600 shadow-slate-200'}`}
-                >
-                  Ver Análisis Completo <ArrowRight size={18} />
-                </Link>
-              </div>
-            </div>
-            );
-          })}
+          {highDiscountAuctions.map(({ slug, data }) => (
+            <AuctionCard key={slug} slug={slug} data={data} />
+          ))}
         </div>
 
         <div className="mt-20 bg-brand-900 rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-2xl">

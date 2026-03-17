@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import ConversionBlock from './ConversionBlock';
 import RelatedAuctions from './RelatedAuctions';
 import { 
@@ -10,6 +10,7 @@ import {
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon
 } from 'lucide-react';
 import { isAuctionFinished } from '../utils/auctionHelpers';
+import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
 
 const ITP_RATES: Record<string, number> = {
@@ -79,9 +80,9 @@ const AuctionDynamicPage: React.FC = () => {
 
   const isFinished = isAuctionFinished(auction.auctionDate);
 
-  const cityName = auction.city || 'la ciudad';
-  const propertyType = auction.propertyType || 'inmueble';
-  const zone = auction.zone || 'la zona';
+  const cityName = normalizeCity(auction);
+  const propertyType = normalizePropertyType(auction.propertyType);
+  const locationLabel = normalizeLocationLabel(auction);
 
   const getTitle = () => {
     if (isRentabilidad) return `Rentabilidad estimada de esta subasta en ${cityName}`;
@@ -320,7 +321,7 @@ const AuctionDynamicPage: React.FC = () => {
         </Link>
       </div>
       <p className="lead">
-        Analizamos los datos de este {propertyType.toLowerCase()} en {zone}, {cityName}, para ayudarte a tomar una decisión informada.
+        Analizamos los datos de este {propertyType.toLowerCase()} en {locationLabel}, para ayudarte a tomar una decisión informada.
       </p>
 
       <div className="grid md:grid-cols-3 gap-6 my-8">
@@ -342,7 +343,7 @@ const AuctionDynamicPage: React.FC = () => {
       </div>
 
       <p>
-        Este {propertyType.toLowerCase()} ubicado en {zone} presenta características particulares que deben ser analizadas frente a los precios de la zona en {cityName}.
+        Este {propertyType.toLowerCase()} ubicado en {locationLabel} presenta características particulares que deben ser analizadas frente a los precios de la zona en {cityName}.
       </p>
 
       <ConversionBlock />

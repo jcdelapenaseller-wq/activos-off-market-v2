@@ -2,8 +2,9 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, DollarSign, TrendingUp, ArrowLeft, Percent } from 'lucide-react';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const OpportunityAuctions: React.FC = () => {
   const { city } = useParams<{ city: string }>();
@@ -24,7 +25,7 @@ const OpportunityAuctions: React.FC = () => {
 
     const filtered = Object.entries(AUCTIONS)
       .filter(([_, data]) => {
-        if (normalize(data.city || '') !== normalizedCity) return false;
+        if (normalize(normalizeCity(data)) !== normalizedCity) return false;
         if (!data.appraisalValue || !data.claimedDebt) return false;
         
         const discount = (data.appraisalValue - data.claimedDebt) / data.appraisalValue;
@@ -113,13 +114,13 @@ const OpportunityAuctions: React.FC = () => {
                   </div>
 
                   <h2 className="text-xl font-bold text-slate-900 mb-4 leading-snug">
-                    {data.propertyType} en {data.address || data.zone}
+                    {normalizePropertyType(data.propertyType)} en {data.address?.split(',')[0] || 'ubicación'}
                   </h2>
 
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
                       <MapPin size={16} className="text-brand-500" />
-                      <span>{data.city} / {data.zone}</span>
+                      <span>{normalizeLocationLabel(data)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
                       <DollarSign size={16} className="text-brand-500" />

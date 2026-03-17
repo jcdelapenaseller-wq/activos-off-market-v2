@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { Calendar, ChevronRight, MapPin } from 'lucide-react';
 import { generateDiscoverTitle } from '../utils/discoverTitles';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 
 const DiscoverCityArticles: React.FC = () => {

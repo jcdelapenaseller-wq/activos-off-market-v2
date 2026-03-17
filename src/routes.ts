@@ -1,5 +1,7 @@
 import { RouteObject } from 'react-router-dom';
 import { createElement } from 'react';
+import { ROUTES } from './constants/routes';
+export { ROUTES };
 import Home from './components/Home';
 import About from './components/About';
 import SubastasBOEPage from './components/SubastasBOEPage';
@@ -39,6 +41,7 @@ import ZoneAuctions from './components/ZoneAuctions';
 import StreetAuctions from './components/StreetAuctions';
 import OpportunityAuctions from './components/OpportunityAuctions';
 import RecentAuctions from './components/RecentAuctions';
+import HistoricalAuctions from './components/HistoricalAuctions';
 import HighDiscountAuctions from './components/HighDiscountAuctions';
 import DiscoverCityArticles from './components/DiscoverCityArticles';
 import AuctionDiscoverArticle from './components/AuctionDiscoverArticle';
@@ -47,64 +50,6 @@ import NeighborhoodInvestmentAnalysis from './components/NeighborhoodInvestmentA
 import CityInvestmentAnalysis from './components/CityInvestmentAnalysis';
 import Legal from './components/Legal';
 import BestAuctionsByCity from './components/BestAuctionsByCity';
-
-export const ROUTES = {
-  HOME: '/',
-  ABOUT: '/quien-soy',
-  SUBASTAS_BOE: '/subastas-boe',
-  RECENT_AUCTIONS: '/subastas-recientes',
-  HIGH_DISCOUNT: '/subastas-descuento-50',
-  GUIDE_INDEX: '/indice-guia-subastas',
-  GUIDE_PILLAR: '/subastas-judiciales-espana',
-  ANALYSIS: '/como-analizar-subasta-judicial-paso-a-paso',
-  GLOSSARY: '/glosario-subastas',
-  COMPARISON: '/subasta-judicial-vs-aeat-diferencias',
-  DEPOSIT: '/deposito-subasta-judicial-5-por-ciento',
-  RULE_70: '/regla-70-subasta-judicial',
-  OCCUPIED: '/vivienda-ocupada-subasta-judicial',
-  CHARGES: '/cargas-subasta-judicial',
-  VISIT: '/visitar-piso-subasta',
-  ERRORS: '/errores-subasta-judicial',
-  ASSIGNMENT: '/cesion-de-remate-subasta-judicial',
-  EMPTY: '/que-pasa-si-nadie-puja-subasta-judicial',
-  WORTH_IT: '/merecen-pena-subastas-boe',
-  CALCULATOR: '/calculadora-subastas',
-  PROFITABILITY: '/como-calcular-rentabilidad-subasta-judicial',
-  PROFITABILITY_CALC_GUIDE: '/calculadora-rentabilidad-subastas',
-  HOW_MUCH_TO_PAY: '/cuanto-pagar-subasta-judicial',
-  MAX_BID: '/calcular-puja-maxima-subasta',
-  CALCULAR_PUJA: '/calcular-puja-subasta-judicial',
-  PUJA_MAXIMA_BOE: '/puja-maxima-subasta-judicial',
-  RENTABILIDAD_JUDICIAL: '/rentabilidad-subasta-judicial',
-  CUANTO_PUJAR_BOE: '/cuanto-pujar-subasta-boe',
-  CALCULAR_PUJA_CITY: '/calcular-puja-subasta/:city',
-  RENTABILIDAD_CITY: '/rentabilidad-subasta/:city',
-  CUANTO_PUJAR_CITY: '/cuanto-pujar-subasta/:city',
-  ANALIZAR_CITY: '/analizar-subasta/:city',
-  SUBASTAS_EN_CITY: '/subastas-en/:city',
-  MADRID: '/subastas-madrid',
-  BARCELONA: '/subastas-barcelona',
-  VALENCIA: '/subastas-valencia',
-  SEVILLA: '/subastas-sevilla',
-  EXAMPLES_INDEX: '/ejemplos-subastas',
-  EXAMPLE_REPORT: '/ejemplo-subasta/:slug',
-  NOTICIAS_SUBASTAS_INDEX: '/noticias-subastas',
-  NOTICIAS_SUBASTAS_CITY: '/noticias-subastas/:city',
-  NOTICIAS_SUBASTAS: '/noticias-subastas/:slug',
-  CITY_PROPERTY: '/subastas/:city/:propertyType',
-  ZONE_PROPERTY_CITY: '/subastas-:propertyType-:city-:zone',
-  STREET: '/subastas/:city/:zone/:street',
-  CITY_OPPORTUNITIES: '/subastas/:city/oportunidades',
-  ZONE: '/subastas/:city/:zone',
-  BEST_AUCTIONS_CITY: '/mejores-subastas/:city',
-  INVERSION_CITY: '/inversion/:city',
-  INVERSION_CITY_ZONE: '/inversion/:city/:zone',
-  LEGAL: '/aviso-legal',
-  PRIVACY: '/politica-privacidad',
-  COOKIES: '/politica-cookies',
-  TERMS: '/terminos-y-condiciones',
-  CONTACT: '/contacto',
-};
 
 export const routes: RouteObject[] = [
   {
@@ -122,6 +67,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.RECENT_AUCTIONS,
     element: createElement(RecentAuctions),
+  },
+  {
+    path: ROUTES.HISTORICAL_AUCTIONS,
+    element: createElement(HistoricalAuctions),
   },
   {
     path: ROUTES.HIGH_DISCOUNT,
