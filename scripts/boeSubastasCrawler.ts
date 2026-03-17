@@ -204,11 +204,12 @@ async function runCrawler() {
 
             var valorSubasta = getVal('Valor subasta');
             var valorTasacion = getVal('Tasación');
+            var cantidadReclamada = getVal('Cantidad reclamada');
             var deposito = getVal('Importe del depósito');
             var fechaFin = getVal('Fecha de conclusión') || getVal('Fecha de fin');
             var estadoSubasta = getVal('Estado') || 'Celebrándose';
 
-            return { valorSubasta: valorSubasta, valorTasacion: valorTasacion, deposito: deposito, fechaFin: fechaFin, estadoSubasta: estadoSubasta };
+            return { valorSubasta: valorSubasta, valorTasacion: valorTasacion, cantidadReclamada: cantidadReclamada, deposito: deposito, fechaFin: fechaFin, estadoSubasta: estadoSubasta };
           })()
         `) as any;
 
@@ -280,6 +281,7 @@ async function runCrawler() {
         // Normalización
         const subastaNum = parseNumber(generalData.valorSubasta as string);
         const tasacionNum = parseNumber(generalData.valorTasacion as string);
+        const deudaNum = parseNumber(generalData.cantidadReclamada as string);
         const depositoNum = parseNumber(generalData.deposito as string);
         const superficieNum = parseNumber(bienesData.superficie as string);
 
@@ -354,6 +356,7 @@ async function runCrawler() {
             titulo: item.titulo,
             valorSubasta: subastaNum,
             valorTasacion: tasacionNum,
+            claimedDebt: deudaNum,
             deposito: depositoNum,
             autoridad,
             estadoSubasta: generalData.estadoSubasta,
@@ -412,6 +415,7 @@ async function runCrawler() {
     zone: "${(s.zone || '').replace(/"/g, '\\"')}",
     address: "${(s.direccion || 'No indicada').replace(/"/g, '\\"')}",
     appraisalValue: ${s.valorTasacion || s.valorSubasta},
+    claimedDebt: ${s.claimedDebt || 'undefined'},
     valorSubasta: ${s.valorSubasta || 'undefined'},
     valorTasacion: ${s.valorTasacion || 'undefined'},
     deposito: ${s.deposito || 'undefined'},

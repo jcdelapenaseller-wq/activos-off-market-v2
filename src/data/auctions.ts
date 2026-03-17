@@ -27,12 +27,13 @@ export interface AuctionData {
 }
 
 export const AUCTIONS: Record<string, AuctionData> = {
-'subasta-sub-ja-2025-255107': {
+  'subasta-sub-ja-2025-255107': {
     propertyType: "Local",
     city: "Madrid",
     zone: "",
     address: "Calle Hilados 3",
     appraisalValue: 35625.95,
+    claimedDebt: 63915.43,
     valorSubasta: 35625.95,
     valorTasacion: undefined,
     deposito: 1781.29,
@@ -41,17 +42,18 @@ export const AUCTIONS: Record<string, AuctionData> = {
     description: "(Referencia SUB-JA-2025-255107) | Depósito: 1781.29€",
     boeId: "SUB-JA-2025-255107",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-255107&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
-    publishedAt: "2026-03-17T11:50:04.712Z",
+    publishedAt: "2026-03-17T14:51:42.746Z",
     auctionDate: "2026-04-02",
     status: "Celebrándose",
     isActive: true
   },
-'subasta-sub-ja-2026-257426': {
+  'subasta-sub-ja-2026-257426': {
     propertyType: "Inmueble",
     city: "Madrid",
     zone: "",
     address: "Calle Antonio Lopez Nº 52 1º C Exterior C/v Calle ",
     appraisalValue: 254055.06,
+    claimedDebt: 171549.77,
     valorSubasta: 254055.06,
     valorTasacion: undefined,
     deposito: 12702.75,
@@ -60,15 +62,18 @@ export const AUCTIONS: Record<string, AuctionData> = {
     description: "(Referencia SUB-JA-2026-257426) | Depósito: 12702.75€",
     boeId: "SUB-JA-2026-257426",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-257426&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
-    publishedAt: "2026-03-17T11:50:04.712Z",
-    auctionDate: "2026-04-02"
+    publishedAt: "2026-03-17T14:51:42.748Z",
+    auctionDate: "2026-04-02",
+    status: "Celebrándose",
+    isActive: true
   },
-'subasta-sub-ja-2026-258835': {
+  'subasta-sub-ja-2026-258835': {
     propertyType: "Inmueble",
     city: "Madrid",
     zone: "",
     address: "Calle Poema Sinfonico Nº 37 Letra F Planta Baja Bl",
     appraisalValue: 281400,
+    claimedDebt: 166647.35,
     valorSubasta: 281400,
     valorTasacion: undefined,
     deposito: 14070,
@@ -77,15 +82,18 @@ export const AUCTIONS: Record<string, AuctionData> = {
     description: "(Referencia SUB-JA-2026-258835) | Depósito: 14070€",
     boeId: "SUB-JA-2026-258835",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258835&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
-    publishedAt: "2026-03-17T11:50:04.712Z",
-    auctionDate: "2026-04-02"
+    publishedAt: "2026-03-17T14:51:42.749Z",
+    auctionDate: "2026-04-02",
+    status: "Celebrándose",
+    isActive: true
   },
-'subasta-sub-ja-2025-256239': {
+  'subasta-sub-ja-2025-256239': {
     propertyType: "Nave",
     city: "Madrid",
     zone: "",
     address: "Calle Prado De Las Banderillas Nº 5",
     appraisalValue: 340966.19,
+    claimedDebt: 140632.86,
     valorSubasta: 340966.19,
     valorTasacion: 340966.19,
     deposito: 17048.3,
@@ -94,7 +102,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     description: "(Referencia SUB-JA-2025-256239) | Cargas: LAS QUE CONSTAN EN LA CERTIFICACION DE CARGAS | Depósito: 17048.3€",
     boeId: "SUB-JA-2025-256239",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-256239&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
-    publishedAt: "2026-03-17T11:50:04.713Z",
+    publishedAt: "2026-03-17T14:51:42.749Z",
     auctionDate: "2026-04-01",
     status: "Celebrándose",
     isActive: true
