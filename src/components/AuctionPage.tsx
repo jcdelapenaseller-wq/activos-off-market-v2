@@ -100,57 +100,64 @@ const AuctionPage: React.FC = () => {
     const discount = opportunityRatio ? Math.round(opportunityRatio * 100) : 0;
     const isJudicial = auction.boeId?.startsWith('SUB-JA');
     
-    // Market Context Logic
+    // 10-Second Summary Logic
+    const summary = {
+      margin: discount > 40 ? 'Alto' : discount > 20 ? 'Medio' : 'Ajustado',
+      mainRisk: !auction.claimedDebt ? 'Incertidumbre de cargas' : isJudicial ? 'Situación posesoria' : 'Plazos administrativos',
+      opportunity: discount > 30 ? 'Inversión con margen de seguridad' : 'Adquisición para uso propio o patrimonio'
+    };
+
+    // Market Context Logic (Natural Language)
     let marketContext = "";
     if (auction.appraisalValue) {
-      const minRange = Math.round(auction.appraisalValue * 0.85 / 1000) * 1000;
-      const maxRange = Math.round(auction.appraisalValue * 1.05 / 1000) * 1000;
-      marketContext = `El valor de mercado en esta zona de ${cityName} para activos de tipología ${propertyType.toLowerCase()} oscila entre los ${minRange.toLocaleString('es-ES')}€ y ${maxRange.toLocaleString('es-ES')}€. La tasación oficial de ${auction.appraisalValue.toLocaleString('es-ES')}€ parece estar alineada con los precios de cierre recientes en el barrio.`;
+      marketContext = `Los niveles de mercado para activos similares en esta zona de ${cityName} validan la tasación oficial. Se trata de rangos habituales para ${propertyType.toLowerCase()} en este barrio, lo que sugiere que el valor de referencia es una base sólida para el cálculo de rentabilidad.`;
     } else {
-      marketContext = `Dada la falta de tasación oficial, el valor debe estimarse por comparación directa en ${provinceName}. Los precios medios en la zona sugieren una demanda estable, lo que reduce el riesgo de liquidez tras la adjudicación.`;
+      marketContext = `Sin una tasación oficial, el análisis debe basarse en los niveles de mercado similares en la zona de ${provinceName}. La demanda en este sector es constante, lo que aporta prudencia al escenario de salida tras la adjudicación.`;
     }
 
     // Investor Profile Logic
     let investorProfile = "";
+    const notHabitual = isJudicial ? "No es habitual para perfiles que necesiten financiación bancaria inmediata o posesión en menos de 3 meses." : "No es habitual para perfiles que busquen los tiempos flexibles de una compraventa tradicional entre particulares.";
+    
     if (discount > 45) {
-      investorProfile = "Inversores oportunistas y especialistas en 'flipping'. Este nivel de descuento permite absorber costes de desahucio y reformas integrales manteniendo una rentabilidad de doble dígito.";
+      investorProfile = `Inversores especialistas en 'flipping' o activos con gestión jurídica. ${notHabitual}`;
     } else if (discount > 25) {
-      investorProfile = "Inversores de rentabilidad (Buy-to-Rent). El margen es ideal para patrimonialistas que buscan un coste de adquisición inferior al mercado para maximizar el 'yield' por alquiler.";
+      investorProfile = `Inversores patrimonialistas (Buy-to-Rent) que buscan maximizar el flujo de caja mediante un coste de entrada reducido. ${notHabitual}`;
     } else {
-      investorProfile = "Perfil conservador o finalista. Con un margen inferior al 25%, esta subasta es atractiva principalmente para quien busca su vivienda habitual a un precio competitivo, asumiendo los tiempos del juzgado.";
+      investorProfile = `Compradores finalistas o inversores conservadores que priorizan la ubicación sobre el descuento extremo. ${notHabitual}`;
     }
 
     // Interpretation Logic
     let interpretation = "";
     if (auction.appraisalValue && auction.claimedDebt) {
       const ratio = (auction.claimedDebt / auction.appraisalValue) * 100;
-      interpretation = `La oportunidad nace de una deuda que solo representa el ${ratio.toFixed(1)}% del valor del activo. Esto indica que el acreedor (probablemente una entidad financiera) tiene un incentivo alto para cerrar el proceso rápido, permitiendo que el mercado capture el valor restante como beneficio.`;
+      interpretation = `La oportunidad real reside en la relación deuda/valor: la carga reclamada representa solo el ${ratio.toFixed(1)}% de la tasación. Esto genera un "colchón" de seguridad que permite absorber desviaciones en gastos de desahucio o IBI pendiente sin comprometer la viabilidad de la operación.`;
     } else {
-      interpretation = "La ausencia de datos de deuda en el edicto sugiere un proceso administrativo o judicial donde el interés no es puramente monetario, o bien una falta de transparencia que requiere una personación física en el juzgado para validar el expediente.";
+      interpretation = "La falta de desglose de deuda en el edicto obliga a un enfoque de 'máxima cautela'. La oportunidad aquí no es evidente por números, sino que debe buscarse en la posible ausencia de otros postores debido a la opacidad del expediente inicial.";
     }
 
     // Practical Implications
     const practicalImplications = isJudicial 
-      ? "El adjudicatario deberá solicitar el testimonio del decreto de adjudicación y el mandamiento de cancelación de cargas. Es fundamental verificar si existe derecho de retracto por parte de inquilinos o de la administración pública (especialmente en zonas tensionadas)."
-      : "Al ser una subasta administrativa (AEAT/SS), el proceso de toma de posesión suele ser más directo, pero la responsabilidad de verificar cargas anteriores recae totalmente en el postor, ya que la administración no garantiza la libertad de cargas.";
+      ? "Un inversor en este caso debe centrarse en la obtención del testimonio del decreto de adjudicación. El paso crítico no es la puja, sino la gestión posterior del lanzamiento si el inmueble no se entrega voluntariamente, algo que requiere presupuesto para procurador y cerrajería."
+      : "En este procedimiento administrativo, el éxito depende de la velocidad de liquidación. A diferencia del juzgado, aquí los plazos de pago son improrrogables y la comprobación de cargas previas es responsabilidad exclusiva del postor antes de depositar la fianza.";
 
     // Scenarios
-    const bestCase = "Adjudicación por el 50-60% del valor, inmueble en buen estado y posesión obtenida en menos de 6 meses mediante entrega voluntaria de llaves.";
-    const worstCase = "Necesidad de lanzar un proceso de desahucio (12-18 meses), existencia de deudas de IBI/Comunidad de los últimos 4 años y necesidad de reforma estructural.";
+    const bestCase = "Adjudicación cercana a la deuda mínima, inmueble vacío de ocupantes y registro de la propiedad limpio en menos de 5 meses.";
+    const worstCase = "Ocupación por terceros sin título, deudas de comunidad de propietarios de varios ejercicios y demora judicial superior a los 14 meses.";
 
     // Sense Logic
     const hasSense = discount > 25 && auction.claimedDebt;
     const senseText = hasSense 
-      ? "El margen bruto permite cubrir con seguridad el ITP, gastos de registro y una reforma media sin comprometer el capital principal."
-      : "El interés de esta subasta no es el precio de derribo, sino la exclusividad del activo o su ubicación estratégica en una zona sin stock disponible.";
+      ? "Buscas un activo con margen suficiente para delegar la gestión jurídica y aun así obtener una rentabilidad neta superior al 12%."
+      : "Buscas un activo específico por ubicación o tipología que rara vez sale al mercado abierto, aceptando un margen más estrecho a cambio de la exclusividad.";
     
     const cautionText = !auction.claimedDebt 
-      ? "Incertidumbre total sobre el precio de salida real y las cargas que se mantienen."
+      ? "No tienes capacidad para investigar el expediente en el juzgado o no cuentas con liquidez para cubrir cargas imprevistas."
       : isJudicial 
-        ? "El expediente no aclara la situación posesoria; debe asumirse que el inmueble está ocupado a efectos de cálculo de rentabilidad."
-        : "Las subastas administrativas requieren depósito inmediato y tienen plazos de pago más estrictos que las judiciales.";
+        ? "Necesitas disponer de la vivienda de forma inmediata para vivir en ella; los tiempos judiciales son incompatibles con urgencias habitacionales."
+        : "No has verificado la libertad de cargas en el Registro de la Propiedad en las últimas 48 horas.";
 
-    return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase };
+    return { summary, marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase };
   }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
 
   const results = useMemo(() => {
@@ -361,6 +368,27 @@ const AuctionPage: React.FC = () => {
               <div className="prose prose-slate max-w-none mb-12">
                 {auction.appraisalValue && auction.claimedDebt ? (
                   <div className="space-y-12">
+                    {/* 10-Second Reading Block */}
+                    <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-sm">
+                      <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <Clock size={14} className="text-brand-400" /> Lectura en 10 segundos
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                          <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Margen</p>
+                          <p className="font-bold text-lg">{analysisInsights?.summary.margin}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Riesgo Principal</p>
+                          <p className="font-bold text-lg">{analysisInsights?.summary.mainRisk}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Oportunidad</p>
+                          <p className="font-bold text-lg">{analysisInsights?.summary.opportunity}</p>
+                        </div>
+                      </div>
+                    </div>
+
                     <div>
                       <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                         <Search size={20} className="text-brand-600" /> Interpretación del expediente
@@ -433,7 +461,7 @@ const AuctionPage: React.FC = () => {
                             <CheckCircle size={14} className="text-emerald-700" />
                           </div>
                           <p className="text-slate-700">
-                            <strong>Tiene sentido si:</strong> {analysisInsights?.senseText}
+                            <strong>Sí, si buscas:</strong> {analysisInsights?.senseText}
                           </p>
                         </div>
                         <div className="flex items-start gap-3">
@@ -441,14 +469,14 @@ const AuctionPage: React.FC = () => {
                             <AlertOctagon size={14} className="text-amber-700" />
                           </div>
                           <p className="text-slate-700">
-                            <strong>Requiere precaución si:</strong> {analysisInsights?.cautionText}
+                            <strong>⚠ Requiere precaución si:</strong> {analysisInsights?.cautionText}
                           </p>
                         </div>
                       </div>
                     </div>
 
                     <p className="text-slate-500 italic text-sm mt-8">
-                      Este tipo de expedientes suele requerir revisión completa del expediente judicial y de las cargas registrales antes de tomar una decisión.
+                      Este tipo de expedientes suele requerir revisión completa del expediente judicial y de las cargas registrales antes de tomar una decisión, especialmente en este tipo de procedimientos donde pequeños detalles pueden cambiar el resultado.
                     </p>
                   </div>
                 ) : (
