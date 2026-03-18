@@ -104,10 +104,23 @@ const AuctionPage: React.FC = () => {
 
   const oppMessage = getOpportunityMessage(opportunityRatio);
 
+  const getUrgencyBadge = (date: string | undefined) => {
+    if (!date) return null;
+    const now = new Date();
+    const auctionDate = new Date(date);
+    const diffTime = auctionDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return null; // Finished
+    if (diffDays <= 3) return { text: `Cierra en ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`, color: "bg-red-500 text-white border-red-600" };
+    if (diffDays <= 7) return { text: "Cierre próximo", color: "bg-orange-500 text-white border-orange-600" };
+    return { text: "Cierre estándar", color: "bg-slate-200 text-slate-700 border-slate-300" };
+  };
+
+  const urgencyBadge = getUrgencyBadge(auction.auctionDate);
+
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
-      <Header />
-      
       <div className="max-w-5xl mx-auto px-6 pt-12 pb-20">
         {/* Breadcrumbs */}
         <nav className="flex items-center text-sm text-slate-500 mb-10 font-medium" aria-label="Breadcrumb">
@@ -126,17 +139,18 @@ const AuctionPage: React.FC = () => {
             )}
 
             <header className="mb-24">
-              <div className="flex items-center gap-3 mb-10">
-                <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${oppMessage.color}`}>
+              <div className="flex flex-wrap items-center gap-3 mb-10">
+                <span className={`px-4 py-1.5 rounded-full text-sm font-bold border ${oppMessage.color}`}>
                   {oppMessage.text}
                 </span>
-                {isFinished ? (
-                  <span className="px-4 py-1.5 rounded-full text-xs font-bold border bg-slate-100 text-slate-600 border-slate-200">
-                    Subasta Finalizada
+                {urgencyBadge && (
+                  <span className={`px-4 py-1.5 rounded-full text-sm font-bold border shadow-sm flex items-center gap-1.5 ${urgencyBadge.color}`}>
+                    <Clock size={12} /> {urgencyBadge.text}
                   </span>
-                ) : (
-                  <span className="px-4 py-1.5 rounded-full text-xs font-bold border bg-brand-50 text-brand-700 border-brand-200">
-                    Subasta Activa
+                )}
+                {isFinished && (
+                  <span className="px-4 py-1.5 rounded-full text-sm font-bold border bg-slate-100 text-slate-600 border-slate-200">
+                    Subasta Finalizada
                   </span>
                 )}
               </div>
@@ -161,26 +175,26 @@ const AuctionPage: React.FC = () => {
               {/* Quick Data Grid (Technical Block) */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-2">Valor Tasación</span>
-                  <span className="text-2xl font-bold text-slate-900">
-                    {auction.appraisalValue ? auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : 'Sin datos'}
+                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Descuento Bruto</span>
+                  <span className={`text-4xl font-black ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-700' : 'text-brand-700'}`}>
+                    {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
                   </span>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-2">Deuda Reclamada</span>
-                  <span className="text-2xl font-bold text-slate-900">
-                    {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : 'Sin datos'}
+                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Valor Tasación</span>
+                  <span className="text-xl font-bold text-slate-900">
+                    {auction.appraisalValue ? auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
                   </span>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-2">Descuento Bruto</span>
-                  <span className={`text-2xl font-bold ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-600' : 'text-brand-600'}`}>
-                    {opportunityRatio ? `${(opportunityRatio * 100).toFixed(1)}%` : '---'}
+                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Deuda Reclamada</span>
+                  <span className="text-sm font-medium text-slate-500">
+                    {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
                   </span>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-2">Tipo de Activo</span>
-                  <span className="text-xl font-bold text-slate-900 truncate" title={propertyType}>{propertyType}</span>
+                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Tipo de Activo</span>
+                  <span className="text-sm font-medium text-slate-500 truncate" title={propertyType}>{propertyType}</span>
                 </div>
               </div>
             </header>
@@ -193,10 +207,10 @@ const AuctionPage: React.FC = () => {
                 </h2>
                 <div className="flex flex-col items-end">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-bold text-brand-600 uppercase tracking-widest bg-brand-50 px-2 py-0.5 rounded border border-brand-100">
+                    <span className="text-xs font-bold text-brand-600 uppercase tracking-widest bg-brand-50 px-2 py-0.5 rounded border border-brand-100">
                       Metodología propia
                     </span>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                       Análisis basado en datos oficiales del BOE
                     </p>
                   </div>
@@ -260,20 +274,27 @@ const AuctionPage: React.FC = () => {
                   <Scale size={20} className="text-brand-600" /> 
                   Contexto del procedimiento
                 </h3>
-                <p className="text-slate-600 leading-relaxed text-lg">
+                <div className="text-slate-600 leading-relaxed text-lg space-y-4">
                   {auction.boeId?.startsWith('SUB-JA') || auction.boeUrl?.includes('subastas.boe.es') ? (
-                    "Las subastas judiciales suelen derivar de ejecuciones hipotecarias o títulos judiciales. Implican una revisión exhaustiva del decreto de adjudicación y la cancelación de cargas posteriores. El riesgo principal reside en las cargas preferentes que no se extinguen con la subasta."
+                    <p>
+                      Las subastas judiciales suelen derivar de ejecuciones hipotecarias o títulos judiciales. Implican una revisión exhaustiva del decreto de adjudicación y la cancelación de cargas posteriores. El riesgo principal reside en las cargas preferentes que no se extinguen con la subasta, por lo que es vital analizar la certificación de cargas del registro.
+                    </p>
                   ) : auction.boeId?.startsWith('SUB-AT') ? (
-                    "Las subastas de la Agencia Tributaria tienen procedimientos específicos de adjudicación y plazos de depósito distintos. Es vital verificar si existen cargas anteriores en el registro de la propiedad, ya que la AEAT no siempre las detalla en el edicto inicial."
+                    <p>
+                      Las subastas de la Agencia Tributaria tienen procedimientos específicos de adjudicación y plazos de depósito distintos. Es vital verificar si existen cargas anteriores en el registro de la propiedad, ya que la AEAT no siempre las detalla en el edicto inicial. Además, el proceso de adjudicación directa puede ser una alternativa si la subasta queda desierta.
+                    </p>
                   ) : (
-                    "Este procedimiento administrativo requiere una validación técnica de los plazos y la documentación aportada. Cada organismo (Seguridad Social, Ayuntamientos, etc.) tiene sus propias reglas de puja y adjudicación."
+                    <p>
+                      Este procedimiento administrativo requiere una validación técnica de los plazos y la documentación aportada. Cada organismo (Seguridad Social, Ayuntamientos, etc.) tiene sus propias reglas de puja y adjudicación. La clave en estos casos es la revisión del expediente administrativo completo.
+                    </p>
                   )}
-                </p>
-                {!auction.appraisalValue && (
-                  <p className="mt-4 text-slate-500 italic text-sm">
-                    * La falta de datos en el anuncio inicial suele indicar la necesidad de una investigación directa en el juzgado o administración correspondiente antes de realizar cualquier depósito.
-                  </p>
-                )}
+                  
+                  {!auction.appraisalValue && (
+                    <p className="bg-amber-50 p-4 rounded-xl border border-amber-100 text-amber-800 text-sm italic">
+                      * La falta de datos en el anuncio inicial suele indicar la necesidad de una investigación directa en el juzgado o administración correspondiente antes de realizar cualquier depósito. Sin estos valores, el riesgo de sobrepuja es elevado.
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Auction Timeline */}
@@ -302,6 +323,51 @@ const AuctionPage: React.FC = () => {
               </div>
             </section>
 
+            <section className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm mb-16">
+              <h2 className="text-2xl font-serif font-bold text-slate-900 mb-8 flex items-center gap-3">
+                <Calculator className="text-brand-600" /> Calculadora de Puja Máxima
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Valor de Mercado Estimado</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        value={valorMercado} 
+                        onChange={(e) => setValorMercado(e.target.value ? Number(e.target.value) : '')}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none transition-all"
+                        placeholder="Ej: 250000"
+                      />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Deudas y Cargas (IBI, Comunidad...)</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        value={deudas} 
+                        onChange={(e) => setDeudas(e.target.value ? Number(e.target.value) : '')}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none transition-all"
+                        placeholder="Ej: 5000"
+                      />
+                      <AlertTriangle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-brand-50 p-8 rounded-2xl border border-brand-100 flex flex-col justify-center">
+                  <p className="text-sm font-bold text-brand-700 uppercase tracking-widest mb-2">Puja Máxima Recomendada (70%)</p>
+                  <p className="text-4xl font-black text-brand-900">
+                    {results.precioMaxPuja ? results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
+                  </p>
+                  <p className="text-xs text-brand-600 mt-4 leading-relaxed">
+                    * Cálculo basado en el 70% del valor de mercado menos gastos e impuestos estimados. Este es un valor orientativo.
+                  </p>
+                </div>
+              </div>
+            </section>
+
             <ConsultingCTA 
               isHighUrgency={opportunityRatio === null} 
               province={provinceName} 
@@ -311,8 +377,6 @@ const AuctionPage: React.FC = () => {
           </div>
         </div>
       </div>
-      
-      <Footer />
     </div>
   );
 };

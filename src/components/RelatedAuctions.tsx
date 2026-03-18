@@ -11,22 +11,30 @@ interface RelatedAuctionsProps {
 
 const RelatedAuctions: React.FC<RelatedAuctionsProps> = ({ currentAuctionSlug, currentAuctionData }) => {
   const relatedAuctions = useMemo(() => {
-    const filtered = Object.entries(AUCTIONS)
-      .filter(([slug, data]) => {
-        if (slug === currentAuctionSlug) return false;
-        // Basic matching logic
-        return data.city === currentAuctionData.city || data.propertyType === currentAuctionData.propertyType;
-      });
-      
-    // Ensure unique slugs (though Object.entries already does this, we make it explicit if needed)
-    const uniqueMap = new Map();
-    filtered.forEach(([slug, data]) => {
-      if (!uniqueMap.has(slug)) {
-        uniqueMap.set(slug, data);
+    const seenSlugs = new Set([currentAuctionSlug]);
+    const matches: [string, AuctionData][] = [];
+
+    // 1. Try to find same city
+    Object.entries(AUCTIONS).forEach(([slug, data]) => {
+      if (!seenSlugs.has(slug) && data.city === currentAuctionData.city) {
+        matches.push([slug, data]);
+        seenSlugs.add(slug);
       }
     });
 
-    const sorted = sortActiveFirst(Array.from(uniqueMap.entries()), (item) => item[1].auctionDate);
+    // 2. If not enough, try same property type in same province
+    if (matches.length < 4) {
+      Object.entries(AUCTIONS).forEach(([slug, data]) => {
+        if (!seenSlugs.has(slug) && 
+            data.propertyType === currentAuctionData.propertyType && 
+            data.province === currentAuctionData.province) {
+          matches.push([slug, data]);
+          seenSlugs.add(slug);
+        }
+      });
+    }
+
+    const sorted = sortActiveFirst(matches, (item) => item[1].auctionDate);
     return sorted.slice(0, 4);
   }, [currentAuctionSlug, currentAuctionData]);
 
@@ -41,7 +49,7 @@ const RelatedAuctions: React.FC<RelatedAuctionsProps> = ({ currentAuctionSlug, c
           return (
           <Link 
             key={slug} 
-            to={`/ejemplo-subasta/${slug}`}
+            to={`/subasta/${slug}`}
             className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-brand-300 transition-all group relative"
           >
             {isFinished && (
