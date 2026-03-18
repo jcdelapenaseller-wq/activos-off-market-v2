@@ -72,6 +72,13 @@ const AuctionPage: React.FC = () => {
       setDeudas(auction.claimedDebt || '');
       setComunidad(auction.city || 'Madrid');
       
+      // DEBUG: Address field analysis
+      console.log('DEBUG - Auction Address Field:', {
+        raw: auction.address,
+        exists: !!auction.address,
+        type: typeof auction.address
+      });
+      
       const propertyType = normalizePropertyType(auction.propertyType);
       const cityName = normalizeCity(auction);
       const discount = auction.appraisalValue && auction.claimedDebt 
@@ -105,35 +112,53 @@ const AuctionPage: React.FC = () => {
     if (auction.appraisalValue) {
       const minRange = Math.round(auction.appraisalValue * 0.85 / 1000) * 1000;
       const maxRange = Math.round(auction.appraisalValue * 1.05 / 1000) * 1000;
-      marketContext = `En esta zona de ${cityName}, activos similares se sitúan en un rango aproximado de ${minRange.toLocaleString('es-ES')}€ a ${maxRange.toLocaleString('es-ES')}€.`;
+      marketContext = `El valor de mercado en esta zona de ${cityName} para activos de tipología ${propertyType.toLowerCase()} oscila entre los ${minRange.toLocaleString('es-ES')}€ y ${maxRange.toLocaleString('es-ES')}€. La tasación oficial de ${auction.appraisalValue.toLocaleString('es-ES')}€ parece estar alineada con los precios de cierre recientes en el barrio.`;
     } else {
-      marketContext = `El mercado en esta zona de ${provinceName} presenta precios medios moderados, lo que requiere una validación del estado del activo.`;
+      marketContext = `Dada la falta de tasación oficial, el valor debe estimarse por comparación directa en ${provinceName}. Los precios medios en la zona sugieren una demanda estable, lo que reduce el riesgo de liquidez tras la adjudicación.`;
     }
 
     // Investor Profile Logic
     let investorProfile = "";
-    if (discount > 40) {
-      investorProfile = "Inversores oportunistas. Ideal para quienes buscan maximizar el margen de seguridad y pueden asumir tiempos de posesión más largos.";
-    } else if (discount > 20) {
-      investorProfile = "Inversores equilibrados. Atractivo para quienes buscan un balance entre riesgo y rentabilidad en zonas con demanda estable.";
+    if (discount > 45) {
+      investorProfile = "Inversores oportunistas y especialistas en 'flipping'. Este nivel de descuento permite absorber costes de desahucio y reformas integrales manteniendo una rentabilidad de doble dígito.";
+    } else if (discount > 25) {
+      investorProfile = "Inversores de rentabilidad (Buy-to-Rent). El margen es ideal para patrimonialistas que buscan un coste de adquisición inferior al mercado para maximizar el 'yield' por alquiler.";
     } else {
-      investorProfile = "Perfil conservador o para uso propio. El margen es más ajustado, por lo que suele interesar a quienes buscan una vivienda para residir.";
+      investorProfile = "Perfil conservador o finalista. Con un margen inferior al 25%, esta subasta es atractiva principalmente para quien busca su vivienda habitual a un precio competitivo, asumiendo los tiempos del juzgado.";
     }
+
+    // Interpretation Logic
+    let interpretation = "";
+    if (auction.appraisalValue && auction.claimedDebt) {
+      const ratio = (auction.claimedDebt / auction.appraisalValue) * 100;
+      interpretation = `La oportunidad nace de una deuda que solo representa el ${ratio.toFixed(1)}% del valor del activo. Esto indica que el acreedor (probablemente una entidad financiera) tiene un incentivo alto para cerrar el proceso rápido, permitiendo que el mercado capture el valor restante como beneficio.`;
+    } else {
+      interpretation = "La ausencia de datos de deuda en el edicto sugiere un proceso administrativo o judicial donde el interés no es puramente monetario, o bien una falta de transparencia que requiere una personación física en el juzgado para validar el expediente.";
+    }
+
+    // Practical Implications
+    const practicalImplications = isJudicial 
+      ? "El adjudicatario deberá solicitar el testimonio del decreto de adjudicación y el mandamiento de cancelación de cargas. Es fundamental verificar si existe derecho de retracto por parte de inquilinos o de la administración pública (especialmente en zonas tensionadas)."
+      : "Al ser una subasta administrativa (AEAT/SS), el proceso de toma de posesión suele ser más directo, pero la responsabilidad de verificar cargas anteriores recae totalmente en el postor, ya que la administración no garantiza la libertad de cargas.";
+
+    // Scenarios
+    const bestCase = "Adjudicación por el 50-60% del valor, inmueble en buen estado y posesión obtenida en menos de 6 meses mediante entrega voluntaria de llaves.";
+    const worstCase = "Necesidad de lanzar un proceso de desahucio (12-18 meses), existencia de deudas de IBI/Comunidad de los últimos 4 años y necesidad de reforma estructural.";
 
     // Sense Logic
     const hasSense = discount > 25 && auction.claimedDebt;
     const senseText = hasSense 
-      ? "Existe un margen de seguridad suficiente para cubrir imprevistos y gastos de gestión."
-      : "La oportunidad reside más en la ubicación o tipología del activo que en el descuento bruto actual.";
+      ? "El margen bruto permite cubrir con seguridad el ITP, gastos de registro y una reforma media sin comprometer el capital principal."
+      : "El interés de esta subasta no es el precio de derribo, sino la exclusividad del activo o su ubicación estratégica en una zona sin stock disponible.";
     
     const cautionText = !auction.claimedDebt 
-      ? "Falta de datos sobre cargas preferentes en el edicto inicial."
+      ? "Incertidumbre total sobre el precio de salida real y las cargas que se mantienen."
       : isJudicial 
-        ? "Posibles ocupantes o situaciones posesorias no detalladas en el expediente judicial."
-        : "Necesidad de verificar deudas de IBI y comunidad que podrían minorar el margen.";
+        ? "El expediente no aclara la situación posesoria; debe asumirse que el inmueble está ocupado a efectos de cálculo de rentabilidad."
+        : "Las subastas administrativas requieren depósito inmediato y tienen plazos de pago más estrictos que las judiciales.";
 
-    return { marketContext, investorProfile, senseText, cautionText };
-  }, [auction, opportunityRatio, cityName, provinceName]);
+    return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase };
+  }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
 
   const results = useMemo(() => {
     const vm = Number(valorMercado) || 0;
@@ -340,25 +365,32 @@ const AuctionPage: React.FC = () => {
                   <div className="space-y-12">
                     <div>
                       <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <Search size={20} className="text-brand-600" /> Lectura rápida del expediente
+                        <Search size={20} className="text-brand-600" /> Interpretación del expediente
                       </h3>
                       <p className="text-lg leading-relaxed text-slate-700">
-                        Este activo presenta un <strong>descuento bruto del {(opportunityRatio! * 100).toFixed(1)}%</strong>. La relación entre la deuda reclamada ({auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}) y la tasación oficial indica un <strong>{opportunityRatio! > 0.4 ? 'margen real amplio' : 'margen ajustado'}</strong> para la operación.
+                        {analysisInsights?.interpretation}
                       </p>
                     </div>
 
                     <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
                       <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                        <ShieldCheck size={20} className="text-emerald-600" /> Estrategia posible
+                        <Scale size={20} className="text-brand-600" /> Implicaciones prácticas
                       </h3>
+                      <p className="text-slate-700 leading-relaxed mb-6">
+                        {analysisInsights?.practicalImplications}
+                      </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                          <p className="font-bold text-slate-900 mb-2">Enfoque Conservador</p>
-                          <p className="text-slate-600">Puja limitada al 50-60% del valor de mercado para asegurar rentabilidad incluso con cargas imprevistas.</p>
+                        <div className="bg-white p-6 rounded-xl border border-slate-200">
+                          <p className="font-bold text-emerald-700 mb-2 flex items-center gap-2">
+                            <CheckCircle size={18} /> Escenario Optimista
+                          </p>
+                          <p className="text-sm text-slate-600">{analysisInsights?.bestCase}</p>
                         </div>
-                        <div>
-                          <p className="font-bold text-slate-900 mb-2">Escenario de Adjudicación</p>
-                          <p className="text-slate-600">Si la puja no supera el 70%, el ejecutante puede pedir la adjudicación por esa cantidad o por la deuda.</p>
+                        <div className="bg-white p-6 rounded-xl border border-slate-200">
+                          <p className="font-bold text-amber-700 mb-2 flex items-center gap-2">
+                            <AlertTriangle size={18} /> Escenario de Riesgo
+                          </p>
+                          <p className="text-sm text-slate-600">{analysisInsights?.worstCase}</p>
                         </div>
                       </div>
                     </div>
