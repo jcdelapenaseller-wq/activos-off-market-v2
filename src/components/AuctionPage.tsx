@@ -56,7 +56,24 @@ const AuctionPage: React.FC = () => {
       setValorMercado(auction.appraisalValue || '');
       setDeudas(auction.claimedDebt || '');
       setComunidad(auction.city || 'Madrid');
-      document.title = `Subasta de ${normalizePropertyType(auction.propertyType)} en ${normalizeCity(auction)} | Activos Off-Market`;
+      
+      const propertyType = normalizePropertyType(auction.propertyType);
+      const cityName = normalizeCity(auction);
+      const discount = auction.appraisalValue && auction.claimedDebt 
+        ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) 
+        : 0;
+      
+      let shortStreet = '';
+      if (auction.address) {
+        const parts = auction.address.split(' ');
+        shortStreet = parts.slice(0, 3).join(' ');
+      }
+      
+      const streetPart = shortStreet ? ` (${shortStreet})` : '';
+      const discountPart = discount > 0 ? ` con ${discount}% de descuento` : '';
+      const title = `${propertyType} en subasta en ${cityName}${streetPart}${discountPart}`;
+      
+      document.title = title.length > 70 ? title.substring(0, 67) + '...' : title;
     }
   }, [slug, auction]);
 
@@ -119,6 +136,16 @@ const AuctionPage: React.FC = () => {
 
   const urgencyBadge = getUrgencyBadge(auction.auctionDate);
 
+  const getAuctionType = (boeId?: string) => {
+    if (!boeId) return 'Administrativa';
+    if (boeId.startsWith('SUB-JA')) return 'Judicial';
+    if (boeId.startsWith('SUB-AT')) return 'AEAT';
+    if (boeId.startsWith('SUB-NV')) return 'Notarial';
+    return 'Administrativa';
+  };
+
+  const auctionType = getAuctionType(auction.boeId);
+
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
       <div className="max-w-5xl mx-auto px-6 pt-12 pb-20">
@@ -174,30 +201,68 @@ const AuctionPage: React.FC = () => {
 
               {/* Quick Data Grid (Technical Block) */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
                   <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Descuento Bruto</span>
                   <span className={`text-4xl font-black ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-700' : 'text-brand-700'}`}>
                     {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
                   </span>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Valor Tasación</span>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
+                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Valor Referencia</span>
                   <span className="text-xl font-bold text-slate-900">
-                    {auction.appraisalValue ? auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
+                    {(auction.appraisalValue || auction.valorSubasta) ? (auction.appraisalValue || auction.valorSubasta)!.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
                   </span>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
                   <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Deuda Reclamada</span>
-                  <span className="text-sm font-medium text-slate-500">
+                  <span className="text-xl font-bold text-slate-900">
                     {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
                   </span>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Tipo de Activo</span>
-                  <span className="text-sm font-medium text-slate-500 truncate" title={propertyType}>{propertyType}</span>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
+                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Tipo de Subasta</span>
+                  <span className="text-xl font-bold text-slate-900">{auctionType}</span>
+                  {auction.procedureType && (
+                    <span className="text-[10px] text-slate-400 uppercase font-bold mt-1 truncate" title={auction.procedureType}>
+                      {auction.procedureType.includes('JUZGADO') || auction.procedureType.includes('Civil') ? 'Vía de apremio' : 'Adm. Pública'}
+                    </span>
+                  )}
                 </div>
               </div>
             </header>
+
+            {/* Quick Summary Block */}
+            <div className="bg-brand-900 text-white rounded-3xl p-6 mb-16 shadow-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/10 p-2 rounded-lg">
+                    <TrendingUp size={20} className="text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-brand-300 uppercase font-bold tracking-widest">Margen Estimado</p>
+                    <p className="font-bold">{opportunityRatio && opportunityRatio > 0.4 ? 'Alto' : opportunityRatio && opportunityRatio > 0.2 ? 'Medio' : 'Bajo / Análisis'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/10 p-2 rounded-lg">
+                    <AlertTriangle size={20} className="text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-brand-300 uppercase font-bold tracking-widest">Riesgo Principal</p>
+                    <p className="font-bold">{auction.claimedDebt ? 'Cargas preferentes' : 'Falta de datos oficiales'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/10 p-2 rounded-lg">
+                    <Search size={20} className="text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-brand-300 uppercase font-bold tracking-widest">Lectura General</p>
+                    <p className="font-bold">{opportunityRatio && opportunityRatio > 0.3 ? 'Oportunidad para inversión' : 'Perfil conservador / Uso propio'}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Analysis Block */}
             <section className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm mb-16">
@@ -229,21 +294,43 @@ const AuctionPage: React.FC = () => {
               
               <div className="prose prose-slate max-w-none mb-12">
                 {auction.appraisalValue && auction.claimedDebt ? (
-                  <>
-                    <p className="text-xl leading-relaxed text-slate-700">
-                      Este activo presenta un <strong>descuento bruto del {(opportunityRatio! * 100).toFixed(1)}%</strong> respecto a su valor de tasación ({auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}). La deuda reclamada por el ejecutante asciende a {auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}.
-                    </p>
-                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 mt-10">
-                      <p className="text-slate-700 mb-4 text-lg">
+                  <div className="space-y-12">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <Search size={20} className="text-brand-600" /> Lectura rápida del expediente
+                      </h3>
+                      <p className="text-lg leading-relaxed text-slate-700">
+                        Este activo presenta un <strong>descuento bruto del {(opportunityRatio! * 100).toFixed(1)}%</strong>. La relación entre la deuda reclamada ({auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}) y la tasación oficial indica un <strong>{opportunityRatio! > 0.4 ? 'margen real amplio' : 'margen ajustado'}</strong> para la operación.
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
+                      <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <ShieldCheck size={20} className="text-emerald-600" /> Estrategia posible
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                          <p className="font-bold text-slate-900 mb-2">Enfoque Conservador</p>
+                          <p className="text-slate-600">Puja limitada al 50-60% del valor de mercado para asegurar rentabilidad incluso con cargas imprevistas.</p>
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 mb-2">Escenario de Adjudicación</p>
+                          <p className="text-slate-600">Si la puja no supera el 70%, el ejecutante puede pedir la adjudicación por esa cantidad o por la deuda.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <p className="text-slate-700 text-lg">
                         <strong className="text-emerald-700 flex items-center gap-2 mb-2"><TrendingUp size={20}/> Potencial:</strong> 
-                        Existe un margen de seguridad amplio para cubrir gastos de ITP, notaría y posibles reformas, manteniendo rentabilidad.
+                        Existe un margen de seguridad para cubrir gastos de ITP, notaría y posibles reformas, manteniendo rentabilidad.
                       </p>
                       <p className="text-slate-700 text-lg">
                         <strong className="text-amber-700 flex items-center gap-2 mb-2"><AlertTriangle size={20}/> Riesgo:</strong> 
-                        Es imprescindible solicitar la certificación de cargas para descartar anotaciones preventivas o hipotecas preferentes no incluidas en la deuda reclamada, así como verificar el estado posesorio del inmueble.
+                        Es imprescindible solicitar la certificación de cargas para descartar anotaciones preventivas o hipotecas preferentes no incluidas.
                       </p>
                     </div>
-                  </>
+                  </div>
                 ) : (
                   <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-amber-800">
                     <div className="flex items-start gap-4">
@@ -357,11 +444,19 @@ const AuctionPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="bg-brand-50 p-8 rounded-2xl border border-brand-100 flex flex-col justify-center">
-                  <p className="text-sm font-bold text-brand-700 uppercase tracking-widest mb-2">Puja Máxima Recomendada (70%)</p>
-                  <p className="text-4xl font-black text-brand-900">
-                    {results.precioMaxPuja ? results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
-                  </p>
-                  <p className="text-xs text-brand-600 mt-4 leading-relaxed">
+                  <div className="mb-6">
+                    <p className="text-sm font-bold text-brand-700 uppercase tracking-widest mb-2">Puja Máxima Recomendada (70%)</p>
+                    <p className="text-4xl font-black text-brand-900">
+                      {results.precioMaxPuja ? results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
+                    </p>
+                  </div>
+                  <div className="pt-6 border-t border-brand-200">
+                    <p className="text-sm font-bold text-brand-700 uppercase tracking-widest mb-2">Margen Estimado tras Gastos</p>
+                    <p className="text-2xl font-bold text-emerald-700">
+                      {results.precioMaxPuja ? (Number(valorMercado) - results.precioMaxPuja - results.totalExpenses).toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
+                    </p>
+                  </div>
+                  <p className="text-xs text-brand-600 mt-6 leading-relaxed">
                     * Cálculo basado en el 70% del valor de mercado menos gastos e impuestos estimados. Este es un valor orientativo.
                   </p>
                 </div>
