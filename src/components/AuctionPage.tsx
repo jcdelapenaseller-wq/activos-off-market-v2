@@ -103,14 +103,14 @@ const AuctionPage: React.FC = () => {
     // Market Context Logic (Natural Language)
     let marketContext = "";
     if (auction.appraisalValue) {
-      marketContext = `En este caso, los niveles de mercado para activos similares en esta zona de ${cityName} validan la tasación oficial de forma coherente. Se trata de rangos habituales para ${propertyType.toLowerCase()} en este barrio, lo que sugiere que el valor de referencia es una base sólida para el cálculo de rentabilidad y minimiza el riesgo de sobrevaloración técnica.`;
+      marketContext = `En este caso, los niveles de mercado para activos similares en esta zona de ${cityName} validan la tasación oficial de forma coherente. Se trata de rangos habituales para ${propertyType.toLowerCase()} en este barrio, lo que sugiere que el valor de referencia es una base sólida para el cálculo de rentabilidad y minimiza la incertidumbre técnica en la valoración.`;
     } else {
       marketContext = `Al no contar con una tasación oficial detallada, el análisis debe basarse necesariamente en los niveles de mercado similares en la zona de ${provinceName}. Esto implica que la demanda en este sector es constante, lo que aporta una capa de prudencia necesaria al definir el escenario de salida tras la adjudicación.`;
     }
 
     // Investor Profile Logic
     let investorProfile = "";
-    const notHabitual = isJudicial ? "Por otro lado, cabe destacar que no es un activo habitual para perfiles que necesiten financiación bancaria inmediata o posesión en menos de 3 meses debido a los tiempos del juzgado." : "Por otro lado, es importante señalar que no es habitual para perfiles que busquen los tiempos flexibles de una compraventa tradicional entre particulares.";
+    const notHabitual = isJudicial ? "Por otro lado, conviene tener en cuenta que no es un activo habitual para perfiles que necesiten financiación bancaria inmediata o posesión en menos de 3 meses debido a los tiempos del juzgado." : "Por otro lado, es recomendable observar que no es habitual para perfiles que busquen los tiempos flexibles de una compraventa tradicional entre particulares.";
     
     if (discount > 45) {
       investorProfile = `Este activo encaja principalmente con inversores especialistas en 'flipping' o activos con gestión jurídica compleja que buscan maximizar el retorno. ${notHabitual}`;
@@ -126,7 +126,7 @@ const AuctionPage: React.FC = () => {
       const ratio = (auction.claimedDebt / auction.appraisalValue) * 100;
       interpretation = `La oportunidad real en este expediente reside en la excelente relación deuda/valor, ya que la carga reclamada representa solo el ${ratio.toFixed(1)}% de la tasación oficial. En este contexto, esto genera un "colchón" de seguridad muy relevante que permite absorber posibles desviaciones en gastos de desahucio o IBI pendiente sin comprometer la viabilidad financiera de la operación.`;
     } else {
-      interpretation = "La falta de desglose de deuda en el edicto obliga a un enfoque de 'máxima cautela' por parte del analista. En este caso, la oportunidad no es evidente por los números públicos, sino que debe buscarse en la posible ausencia de otros postores debido a la opacidad inicial del expediente, lo que requiere una investigación de campo más profunda.";
+      interpretation = "La falta de desglose de deuda en el edicto aconseja un enfoque de 'máxima cautela' por parte del analista. En este caso, la oportunidad no es evidente por los números públicos, sino que debe buscarse en la posible ausencia de otros postores debido a la opacidad inicial del expediente, lo que requiere una investigación de campo más profunda.";
     }
 
     // Practical Implications
@@ -136,7 +136,7 @@ const AuctionPage: React.FC = () => {
 
     // Scenarios
     const bestCase = "En el mejor de los escenarios, la adjudicación se produciría cerca de la deuda mínima, encontrando el inmueble vacío de ocupantes y logrando un registro de la propiedad limpio en menos de 5 meses.";
-    const worstCase = "Por el contrario, el escenario de riesgo contempla una ocupación por terceros sin título, deudas de comunidad de varios ejercicios y una demora judicial que podría superar los 14 meses hasta la toma de posesión.";
+    const worstCase = "Por el contrario, el escenario de mayor complejidad contempla una ocupación por terceros sin título, deudas de comunidad de varios ejercicios y una demora judicial que podría superar los 14 meses hasta la toma de posesión.";
 
     // Sense Logic
     const hasSense = discount > 25 && auction.claimedDebt;
@@ -145,10 +145,10 @@ const AuctionPage: React.FC = () => {
       : "En este caso, el sentido de la puja reside en buscar un activo específico por ubicación o tipología que rara vez sale al mercado abierto, aceptando un margen más estrecho a cambio de la exclusividad del inmueble.";
     
     const cautionText = !auction.claimedDebt 
-      ? "Se requiere precaución extrema si no tienes capacidad para investigar el expediente directamente en el juzgado o no cuentas con liquidez para cubrir cargas imprevistas de última hora."
+      ? "Se requiere una atención especial si no tienes capacidad para investigar el expediente directamente en el juzgado o no cuentas con liquidez para cubrir cargas imprevistas de última hora."
       : isJudicial 
-        ? "Es necesario actuar con cautela si necesitas disponer de la vivienda de forma inmediata; los tiempos judiciales en este tipo de activos son incompatibles con urgencias habitacionales."
-        : "La precaución es clave si no has verificado la libertad de cargas en el Registro de la Propiedad en las últimas 48 horas, dado el carácter administrativo del proceso.";
+        ? "Conviene revisar los tiempos si necesitas disponer de la vivienda de forma inmediata; los plazos judiciales en este tipo de activos suelen ser incompatibles con urgencias habitacionales."
+        : "Es recomendable verificar la libertad de cargas en el Registro de la Propiedad en las últimas 48 horas, dado el carácter administrativo del proceso.";
 
     return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase };
   }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
@@ -314,7 +314,7 @@ const AuctionPage: React.FC = () => {
                     <AlertTriangle size={20} className="text-amber-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-brand-300 uppercase font-bold tracking-widest">Riesgo Principal</p>
+                    <p className="text-xs text-brand-300 uppercase font-bold tracking-widest">Punto de atención</p>
                     <p className="font-bold">{auction.claimedDebt ? 'Cargas preferentes' : 'Falta de datos oficiales'}</p>
                   </div>
                 </div>
@@ -360,7 +360,7 @@ const AuctionPage: React.FC = () => {
               
               <div className="prose prose-slate max-w-none mb-12">
                 {auction.appraisalValue && auction.claimedDebt ? (
-                  <div className="space-y-12">
+                  <div className="space-y-16">
                     <div>
                       <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                         <Search size={20} className="text-brand-600" /> Interpretación del expediente
@@ -370,78 +370,78 @@ const AuctionPage: React.FC = () => {
                       </p>
                     </div>
 
-                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
+                    <div className="bg-slate-50 p-10 rounded-3xl border border-slate-100">
                       <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                         <Scale size={20} className="text-brand-600" /> Implicaciones prácticas
                       </h3>
-                      <p className="text-slate-700 leading-relaxed mb-6">
+                      <p className="text-slate-700 leading-relaxed mb-10 text-lg">
                         {analysisInsights?.practicalImplications}
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="bg-white p-6 rounded-xl border border-slate-200">
-                          <p className="font-bold text-emerald-700 mb-2 flex items-center gap-2">
+                        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                          <p className="font-bold text-emerald-700 mb-3 flex items-center gap-2">
                             <CheckCircle size={18} /> Escenario Optimista
                           </p>
-                          <p className="text-sm text-slate-600">{analysisInsights?.bestCase}</p>
+                          <p className="text-slate-600 leading-relaxed">{analysisInsights?.bestCase}</p>
                         </div>
-                        <div className="bg-white p-6 rounded-xl border border-slate-200">
-                          <p className="font-bold text-amber-700 mb-2 flex items-center gap-2">
-                            <AlertTriangle size={18} /> Escenario de Riesgo
+                        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                          <p className="font-bold text-amber-700 mb-3 flex items-center gap-2">
+                            <AlertTriangle size={18} /> Escenario de mayor complejidad
                           </p>
-                          <p className="text-sm text-slate-600">{analysisInsights?.worstCase}</p>
+                          <p className="text-slate-600 leading-relaxed">{analysisInsights?.worstCase}</p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <p className="text-slate-700 text-lg">
+                    <div className="space-y-8">
+                      <p className="text-slate-700 text-lg leading-relaxed">
                         <strong className="text-emerald-700 flex items-center gap-2 mb-2"><TrendingUp size={20}/> Potencial:</strong> 
                         Existe un margen de seguridad para cubrir gastos de ITP, notaría y posibles reformas, manteniendo rentabilidad.
                       </p>
-                      <p className="text-slate-700 text-lg">
-                        <strong className="text-amber-700 flex items-center gap-2 mb-2"><AlertTriangle size={20}/> Riesgo:</strong> 
-                        Es imprescindible solicitar la certificación de cargas para descartar anotaciones preventivas o hipotecas preferentes no incluidas.
+                      <p className="text-slate-700 text-lg leading-relaxed">
+                        <strong className="text-amber-700 flex items-center gap-2 mb-2"><AlertTriangle size={20}/> Precaución:</strong> 
+                        Es recomendable verificar la certificación de cargas para descartar anotaciones preventivas o hipotecas preferentes no incluidas.
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8 border-t border-slate-100">
+                    <div className="space-y-12 pt-12 border-t border-slate-100">
                       <div>
-                        <h3 className="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
-                          <MapPin size={18} className="text-brand-600" /> Contexto de mercado
+                        <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                          <MapPin size={20} className="text-brand-600" /> Contexto de mercado
                         </h3>
-                        <p className="text-slate-600 leading-relaxed">
+                        <p className="text-slate-700 leading-relaxed text-lg">
                           {analysisInsights?.marketContext}
                         </p>
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
-                          <User size={18} className="text-brand-600" /> Perfil inversor habitual
+                        <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                          <User size={20} className="text-brand-600" /> Perfil inversor habitual
                         </h3>
-                        <p className="text-slate-600 leading-relaxed">
+                        <p className="text-slate-700 leading-relaxed text-lg">
                           {analysisInsights?.investorProfile}
                         </p>
                       </div>
                     </div>
 
-                    <div className="bg-brand-50/50 p-8 rounded-2xl border border-brand-100">
+                    <div className="bg-brand-50/50 p-10 rounded-3xl border border-brand-100">
                       <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                         <CheckCircle size={20} className="text-brand-600" /> ¿Tiene sentido esta subasta?
                       </h3>
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <div className="mt-1 bg-emerald-100 p-1 rounded-full">
-                            <CheckCircle size={14} className="text-emerald-700" />
+                      <div className="space-y-6">
+                        <div className="flex items-start gap-4">
+                          <div className="mt-1 bg-emerald-100 p-1.5 rounded-full shrink-0">
+                            <CheckCircle size={16} className="text-emerald-700" />
                           </div>
-                          <p className="text-slate-700">
-                            <strong>Sí, si buscas:</strong> {analysisInsights?.senseText}
+                          <p className="text-slate-700 text-lg">
+                            <strong className="block text-emerald-800 mb-1">Sí, si buscas:</strong> {analysisInsights?.senseText}
                           </p>
                         </div>
-                        <div className="flex items-start gap-3">
-                          <div className="mt-1 bg-amber-100 p-1 rounded-full">
-                            <AlertOctagon size={14} className="text-amber-700" />
+                        <div className="flex items-start gap-4">
+                          <div className="mt-1 bg-amber-100 p-1.5 rounded-full shrink-0">
+                            <AlertOctagon size={16} className="text-amber-700" />
                           </div>
-                          <p className="text-slate-700">
-                            <strong>⚠ Requiere precaución si:</strong> {analysisInsights?.cautionText}
+                          <p className="text-slate-700 text-lg">
+                            <strong className="block text-amber-800 mb-1">⚠ Requiere precaución si:</strong> {analysisInsights?.cautionText}
                           </p>
                         </div>
                       </div>
@@ -484,11 +484,11 @@ const AuctionPage: React.FC = () => {
                 <div className="text-slate-600 leading-relaxed text-lg space-y-4">
                   {auction.boeId?.startsWith('SUB-JA') || auction.boeUrl?.includes('subastas.boe.es') ? (
                     <p>
-                      Las subastas judiciales suelen derivar de ejecuciones hipotecarias o títulos judiciales. Implican una revisión exhaustiva del decreto de adjudicación y la cancelación de cargas posteriores. El riesgo principal reside en las cargas preferentes que no se extinguen con la subasta, por lo que es vital analizar la certificación de cargas del registro.
+                      Las subastas judiciales suelen derivar de ejecuciones hipotecarias o títulos judiciales. Implican una revisión exhaustiva del decreto de adjudicación y la cancelación de cargas posteriores. El elemento clave reside en las cargas preferentes que no se extinguen con la subasta, por lo que conviene analizar la certificación de cargas del registro.
                     </p>
                   ) : auction.boeId?.startsWith('SUB-AT') ? (
                     <p>
-                      Las subastas de la Agencia Tributaria tienen procedimientos específicos de adjudicación y plazos de depósito distintos. Es vital verificar si existen cargas anteriores en el registro de la propiedad, ya que la AEAT no siempre las detalla en el edicto inicial. Además, el proceso de adjudicación directa puede ser una alternativa si la subasta queda desierta.
+                      Las subastas de la Agencia Tributaria tienen procedimientos específicos de adjudicación y plazos de depósito distintos. Es recomendable verificar si existen cargas anteriores en el registro de la propiedad, ya que la AEAT no siempre las detalla en el edicto inicial. Además, el proceso de adjudicación directa puede ser una alternativa si la subasta queda desierta.
                     </p>
                   ) : (
                     <p>
@@ -498,7 +498,7 @@ const AuctionPage: React.FC = () => {
                   
                   {!auction.appraisalValue && (
                     <p className="bg-amber-50 p-4 rounded-xl border border-amber-100 text-amber-800 text-sm italic">
-                      * La falta de datos en el anuncio inicial suele indicar la necesidad de una investigación directa en el juzgado o administración correspondiente antes de realizar cualquier depósito. Sin estos valores, el riesgo de sobrepuja es elevado.
+                      * La falta de datos en el anuncio inicial suele indicar la conveniencia de una investigación directa en el juzgado o administración correspondiente antes de realizar cualquier depósito. Sin estos valores, la posibilidad de sobrepuja es elevada.
                     </p>
                   )}
                 </div>
