@@ -50,6 +50,21 @@ const AuctionPage: React.FC = () => {
   const [otrosGastos, setOtrosGastos] = useState<number | ''>('');
   const [comunidad, setComunidad] = useState<string>('Madrid');
 
+  if (!auction) return <Navigate to={ROUTES.HOME} replace />;
+
+  const isFinished = isAuctionFinished(auction.auctionDate);
+  const cityName = normalizeCity(auction);
+  const provinceName = normalizeProvince(auction.province || auction.city);
+  const propertyType = normalizePropertyType(auction.propertyType);
+  const locationLabel = normalizeLocationLabel(auction);
+
+  const opportunityRatio = useMemo(() => {
+    if (auction.appraisalValue && auction.claimedDebt) {
+      return 1 - (auction.claimedDebt / auction.appraisalValue);
+    }
+    return null;
+  }, [auction]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
     if (auction) {
@@ -63,19 +78,62 @@ const AuctionPage: React.FC = () => {
         ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) 
         : 0;
       
-      let shortStreet = '';
+      let addressPart = '';
       if (auction.address) {
-        const parts = auction.address.split(' ');
-        shortStreet = parts.slice(0, 3).join(' ');
+        // Extract street and number more precisely
+        const cleanAddress = auction.address.split(',')[0].trim();
+        const words = cleanAddress.split(' ');
+        addressPart = words.slice(0, 4).join(' ');
       }
       
-      const streetPart = shortStreet ? ` (${shortStreet})` : '';
+      const streetPart = addressPart ? ` (${addressPart})` : '';
       const discountPart = discount > 0 ? ` con ${discount}% de descuento` : '';
       const title = `${propertyType} en subasta en ${cityName}${streetPart}${discountPart}`;
       
       document.title = title.length > 70 ? title.substring(0, 67) + '...' : title;
     }
   }, [slug, auction]);
+
+  const analysisInsights = useMemo(() => {
+    if (!auction) return null;
+
+    const discount = opportunityRatio ? Math.round(opportunityRatio * 100) : 0;
+    const isJudicial = auction.boeId?.startsWith('SUB-JA');
+    
+    // Market Context Logic
+    let marketContext = "";
+    if (auction.appraisalValue) {
+      const minRange = Math.round(auction.appraisalValue * 0.85 / 1000) * 1000;
+      const maxRange = Math.round(auction.appraisalValue * 1.05 / 1000) * 1000;
+      marketContext = `En esta zona de ${cityName}, activos similares se sitúan en un rango aproximado de ${minRange.toLocaleString('es-ES')}€ a ${maxRange.toLocaleString('es-ES')}€.`;
+    } else {
+      marketContext = `El mercado en esta zona de ${provinceName} presenta precios medios moderados, lo que requiere una validación del estado del activo.`;
+    }
+
+    // Investor Profile Logic
+    let investorProfile = "";
+    if (discount > 40) {
+      investorProfile = "Inversores oportunistas. Ideal para quienes buscan maximizar el margen de seguridad y pueden asumir tiempos de posesión más largos.";
+    } else if (discount > 20) {
+      investorProfile = "Inversores equilibrados. Atractivo para quienes buscan un balance entre riesgo y rentabilidad en zonas con demanda estable.";
+    } else {
+      investorProfile = "Perfil conservador o para uso propio. El margen es más ajustado, por lo que suele interesar a quienes buscan una vivienda para residir.";
+    }
+
+    // Sense Logic
+    const hasSense = discount > 25 && auction.claimedDebt;
+    const senseText = hasSense 
+      ? "Existe un margen de seguridad suficiente para cubrir imprevistos y gastos de gestión."
+      : "La oportunidad reside más en la ubicación o tipología del activo que en el descuento bruto actual.";
+    
+    const cautionText = !auction.claimedDebt 
+      ? "Falta de datos sobre cargas preferentes en el edicto inicial."
+      : isJudicial 
+        ? "Posibles ocupantes o situaciones posesorias no detalladas en el expediente judicial."
+        : "Necesidad de verificar deudas de IBI y comunidad que podrían minorar el margen.";
+
+    return { marketContext, investorProfile, senseText, cautionText };
+  }, [auction, opportunityRatio, cityName, provinceName]);
 
   const results = useMemo(() => {
     const vm = Number(valorMercado) || 0;
@@ -96,21 +154,6 @@ const AuctionPage: React.FC = () => {
     
     return { precioMaxPuja, totalExpenses };
   }, [valorMercado, reforma, deudas, otrosGastos, comunidad]);
-
-  if (!auction) return <Navigate to={ROUTES.HOME} replace />;
-
-  const isFinished = isAuctionFinished(auction.auctionDate);
-  const cityName = normalizeCity(auction);
-  const provinceName = normalizeProvince(auction.province || auction.city);
-  const propertyType = normalizePropertyType(auction.propertyType);
-  const locationLabel = normalizeLocationLabel(auction);
-
-  const opportunityRatio = useMemo(() => {
-    if (auction.appraisalValue && auction.claimedDebt) {
-      return 1 - (auction.claimedDebt / auction.appraisalValue);
-    }
-    return null;
-  }, [auction]);
 
   const getOpportunityMessage = (ratio: number | null) => {
     if (ratio === null) return { text: "Análisis requerido", color: "bg-amber-100 text-amber-800 border-amber-200" };
@@ -330,6 +373,53 @@ const AuctionPage: React.FC = () => {
                         Es imprescindible solicitar la certificación de cargas para descartar anotaciones preventivas o hipotecas preferentes no incluidas.
                       </p>
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8 border-t border-slate-100">
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
+                          <MapPin size={18} className="text-brand-600" /> Contexto de mercado
+                        </h3>
+                        <p className="text-slate-600 leading-relaxed">
+                          {analysisInsights?.marketContext}
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
+                          <User size={18} className="text-brand-600" /> Perfil inversor habitual
+                        </h3>
+                        <p className="text-slate-600 leading-relaxed">
+                          {analysisInsights?.investorProfile}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-brand-50/50 p-8 rounded-2xl border border-brand-100">
+                      <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <CheckCircle size={20} className="text-brand-600" /> ¿Tiene sentido esta subasta?
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-1 bg-emerald-100 p-1 rounded-full">
+                            <CheckCircle size={14} className="text-emerald-700" />
+                          </div>
+                          <p className="text-slate-700">
+                            <strong>Tiene sentido si:</strong> {analysisInsights?.senseText}
+                          </p>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="mt-1 bg-amber-100 p-1 rounded-full">
+                            <AlertOctagon size={14} className="text-amber-700" />
+                          </div>
+                          <p className="text-slate-700">
+                            <strong>Requiere precaución si:</strong> {analysisInsights?.cautionText}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-slate-500 italic text-sm mt-8">
+                      Este tipo de expedientes suele requerir revisión completa del expediente judicial y de las cargas registrales antes de tomar una decisión.
+                    </p>
                   </div>
                 ) : (
                   <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-amber-800">
