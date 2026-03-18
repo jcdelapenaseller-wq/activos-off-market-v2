@@ -150,7 +150,43 @@ const AuctionPage: React.FC = () => {
         ? "Conviene revisar los tiempos si necesitas disponer de la vivienda de forma inmediata; los plazos judiciales en este tipo de activos suelen ser incompatibles con urgencias habitacionales."
         : "Es recomendable verificar la libertad de cargas en el Registro de la Propiedad en las últimas 48 horas, dado el carácter administrativo del proceso.";
 
-    return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase };
+    // Procedural Context Logic (Dynamic SEO)
+    let proceduralContext = "";
+    const typeLabel = propertyType.toLowerCase();
+    const isAEAT = auction.boeId?.startsWith('SUB-AT');
+    const hasData = auction.appraisalValue && auction.claimedDebt;
+
+    if (isJudicial) {
+      const intros = [
+        `Este procedimiento judicial en ${cityName} se rige por la Ley de Enjuiciamiento Civil, lo que garantiza un marco jurídico estructurado para la adquisición de este ${typeLabel}.`,
+        `La ejecución judicial que afecta a este activo en ${provinceName} requiere una validación minuciosa del decreto de adjudicación para asegurar una transmisión de propiedad limpia.`,
+        `Al tratarse de una subasta gestionada por los juzgados de ${cityName}, el proceso de toma de posesión de este ${typeLabel} seguirá los cauces procesales habituales de la zona.`
+      ];
+      const details = hasData 
+        ? `La existencia de una tasación oficial de ${auction.appraisalValue?.toLocaleString()}€ facilita la transparencia en la puja, aunque siempre conviene contrastar las cargas preferentes.`
+        : `La ausencia de valores de referencia en el edicto judicial de este ${typeLabel} sugiere que la oportunidad puede residir en la menor concurrencia de postores no profesionales.`;
+      
+      // Use a simple selection logic based on boeId length or similar to vary
+      const index = (auction.boeId?.length || 0) % intros.length;
+      proceduralContext = `${intros[index]} ${details} El elemento clave en este expediente judicial reside en la correcta interpretación de la certificación de cargas del registro.`;
+    } else if (isAEAT) {
+      const intros = [
+        `La Agencia Tributaria (AEAT) gestiona la enajenación de este ${typeLabel} en ${cityName} mediante su sistema de subastas administrativas con plazos de depósito específicos.`,
+        `Este activo en la provincia de ${provinceName} sale a subasta vía AEAT, un procedimiento que destaca por su agilidad pero que exige una revisión previa de cargas anteriores.`,
+        `Al participar en esta subasta administrativa en ${cityName}, el postor debe tener en cuenta que la AEAT no siempre detalla el estado de ocupación del ${typeLabel}.`
+      ];
+      const index = (auction.boeId?.length || 0) % intros.length;
+      proceduralContext = `${intros[index]} Es recomendable verificar la libertad de cargas en el Registro de la Propiedad, ya que en el ámbito tributario la responsabilidad de comprobación recae totalmente en el postor.`;
+    } else {
+      proceduralContext = `Este expediente administrativo para el ${typeLabel} situado en ${cityName} presenta las particularidades propias de los organismos públicos locales o de la Seguridad Social. Requiere una validación técnica de los plazos de adjudicación y una revisión profunda del expediente completo para evitar sorpresas en la liquidación final.`;
+    }
+
+    // Appraisal warning logic integrated
+    if (!auction.appraisalValue) {
+      proceduralContext += ` Dada la falta de tasación oficial en el anuncio de ${cityName}, se aconseja realizar una investigación de campo para evitar el riesgo de sobrepuja en este ${typeLabel}.`;
+    }
+
+    return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase, proceduralContext };
   }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
 
   const results = useMemo(() => {
@@ -477,30 +513,14 @@ const AuctionPage: React.FC = () => {
 
               {/* Dynamic SEO Block */}
               <div className="mt-12 pt-10 border-t border-slate-100">
-                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <Scale size={20} className="text-brand-600" /> 
+                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <Scale size={24} className="text-brand-600" /> 
                   Contexto del procedimiento
                 </h3>
-                <div className="text-slate-600 leading-relaxed text-lg space-y-4">
-                  {auction.boeId?.startsWith('SUB-JA') || auction.boeUrl?.includes('subastas.boe.es') ? (
-                    <p>
-                      Las subastas judiciales suelen derivar de ejecuciones hipotecarias o títulos judiciales. Implican una revisión exhaustiva del decreto de adjudicación y la cancelación de cargas posteriores. El elemento clave reside en las cargas preferentes que no se extinguen con la subasta, por lo que conviene analizar la certificación de cargas del registro.
-                    </p>
-                  ) : auction.boeId?.startsWith('SUB-AT') ? (
-                    <p>
-                      Las subastas de la Agencia Tributaria tienen procedimientos específicos de adjudicación y plazos de depósito distintos. Es recomendable verificar si existen cargas anteriores en el registro de la propiedad, ya que la AEAT no siempre las detalla en el edicto inicial. Además, el proceso de adjudicación directa puede ser una alternativa si la subasta queda desierta.
-                    </p>
-                  ) : (
-                    <p>
-                      Este procedimiento administrativo requiere una validación técnica de los plazos y la documentación aportada. Cada organismo (Seguridad Social, Ayuntamientos, etc.) tiene sus propias reglas de puja y adjudicación. La clave en estos casos es la revisión del expediente administrativo completo.
-                    </p>
-                  )}
-                  
-                  {!auction.appraisalValue && (
-                    <p className="bg-amber-50 p-4 rounded-xl border border-amber-100 text-amber-800 text-sm italic">
-                      * La falta de datos en el anuncio inicial suele indicar la conveniencia de una investigación directa en el juzgado o administración correspondiente antes de realizar cualquier depósito. Sin estos valores, la posibilidad de sobrepuja es elevada.
-                    </p>
-                  )}
+                <div className="text-slate-700 leading-relaxed text-lg bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                  <p>
+                    {analysisInsights?.proceduralContext}
+                  </p>
                 </div>
               </div>
 
