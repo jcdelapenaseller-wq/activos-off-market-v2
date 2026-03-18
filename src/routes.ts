@@ -70,6 +70,7 @@ import ProvinceHub from './components/ProvinceHub';
 import AuctionPage from './components/AuctionPage';
 import Legal from './components/Legal';
 import AdminTracking from './components/AdminTracking';
+import ChecklistPage from './components/ChecklistPage';
 
 export const routes: RouteObject[] = [
   {
@@ -347,6 +348,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.ADMIN_TRACKING,
     element: createElement(AdminTracking),
+  },
+  {
+    path: ROUTES.CHECKLIST,
+    element: createElement(ChecklistPage),
   },
   {
     path: '*',
