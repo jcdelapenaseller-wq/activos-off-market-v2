@@ -100,64 +100,57 @@ const AuctionPage: React.FC = () => {
     const discount = opportunityRatio ? Math.round(opportunityRatio * 100) : 0;
     const isJudicial = auction.boeId?.startsWith('SUB-JA');
     
-    // 10-Second Summary Logic
-    const summary = {
-      margin: discount > 40 ? 'Alto' : discount > 20 ? 'Medio' : 'Ajustado',
-      mainRisk: !auction.claimedDebt ? 'Incertidumbre de cargas' : isJudicial ? 'Situación posesoria' : 'Plazos administrativos',
-      opportunity: discount > 30 ? 'Inversión con margen de seguridad' : 'Adquisición para uso propio o patrimonio'
-    };
-
     // Market Context Logic (Natural Language)
     let marketContext = "";
     if (auction.appraisalValue) {
-      marketContext = `Los niveles de mercado para activos similares en esta zona de ${cityName} validan la tasación oficial. Se trata de rangos habituales para ${propertyType.toLowerCase()} en este barrio, lo que sugiere que el valor de referencia es una base sólida para el cálculo de rentabilidad.`;
+      marketContext = `En este caso, los niveles de mercado para activos similares en esta zona de ${cityName} validan la tasación oficial de forma coherente. Se trata de rangos habituales para ${propertyType.toLowerCase()} en este barrio, lo que sugiere que el valor de referencia es una base sólida para el cálculo de rentabilidad y minimiza el riesgo de sobrevaloración técnica.`;
     } else {
-      marketContext = `Sin una tasación oficial, el análisis debe basarse en los niveles de mercado similares en la zona de ${provinceName}. La demanda en este sector es constante, lo que aporta prudencia al escenario de salida tras la adjudicación.`;
+      marketContext = `Al no contar con una tasación oficial detallada, el análisis debe basarse necesariamente en los niveles de mercado similares en la zona de ${provinceName}. Esto implica que la demanda en este sector es constante, lo que aporta una capa de prudencia necesaria al definir el escenario de salida tras la adjudicación.`;
     }
 
     // Investor Profile Logic
     let investorProfile = "";
-    const notHabitual = isJudicial ? "No es habitual para perfiles que necesiten financiación bancaria inmediata o posesión en menos de 3 meses." : "No es habitual para perfiles que busquen los tiempos flexibles de una compraventa tradicional entre particulares.";
+    const notHabitual = isJudicial ? "Por otro lado, cabe destacar que no es un activo habitual para perfiles que necesiten financiación bancaria inmediata o posesión en menos de 3 meses debido a los tiempos del juzgado." : "Por otro lado, es importante señalar que no es habitual para perfiles que busquen los tiempos flexibles de una compraventa tradicional entre particulares.";
     
     if (discount > 45) {
-      investorProfile = `Inversores especialistas en 'flipping' o activos con gestión jurídica. ${notHabitual}`;
+      investorProfile = `Este activo encaja principalmente con inversores especialistas en 'flipping' o activos con gestión jurídica compleja que buscan maximizar el retorno. ${notHabitual}`;
     } else if (discount > 25) {
-      investorProfile = `Inversores patrimonialistas (Buy-to-Rent) que buscan maximizar el flujo de caja mediante un coste de entrada reducido. ${notHabitual}`;
+      investorProfile = `El perfil ideal aquí es el de inversores patrimonialistas (Buy-to-Rent) que buscan maximizar el flujo de caja mediante un coste de entrada reducido. ${notHabitual}`;
     } else {
-      investorProfile = `Compradores finalistas o inversores conservadores que priorizan la ubicación sobre el descuento extremo. ${notHabitual}`;
+      investorProfile = `Se trata de una opción para compradores finalistas o inversores conservadores que priorizan la ubicación estratégica sobre el descuento extremo. ${notHabitual}`;
     }
 
     // Interpretation Logic
     let interpretation = "";
     if (auction.appraisalValue && auction.claimedDebt) {
       const ratio = (auction.claimedDebt / auction.appraisalValue) * 100;
-      interpretation = `La oportunidad real reside en la relación deuda/valor: la carga reclamada representa solo el ${ratio.toFixed(1)}% de la tasación. Esto genera un "colchón" de seguridad que permite absorber desviaciones en gastos de desahucio o IBI pendiente sin comprometer la viabilidad de la operación.`;
+      interpretation = `La oportunidad real en este expediente reside en la excelente relación deuda/valor, ya que la carga reclamada representa solo el ${ratio.toFixed(1)}% de la tasación oficial. En este contexto, esto genera un "colchón" de seguridad muy relevante que permite absorber posibles desviaciones en gastos de desahucio o IBI pendiente sin comprometer la viabilidad financiera de la operación.`;
     } else {
-      interpretation = "La falta de desglose de deuda en el edicto obliga a un enfoque de 'máxima cautela'. La oportunidad aquí no es evidente por números, sino que debe buscarse en la posible ausencia de otros postores debido a la opacidad del expediente inicial.";
+      interpretation = "La falta de desglose de deuda en el edicto obliga a un enfoque de 'máxima cautela' por parte del analista. En este caso, la oportunidad no es evidente por los números públicos, sino que debe buscarse en la posible ausencia de otros postores debido a la opacidad inicial del expediente, lo que requiere una investigación de campo más profunda.";
     }
 
     // Practical Implications
     const practicalImplications = isJudicial 
-      ? "Un inversor en este caso debe centrarse en la obtención del testimonio del decreto de adjudicación. El paso crítico no es la puja, sino la gestión posterior del lanzamiento si el inmueble no se entrega voluntariamente, algo que requiere presupuesto para procurador y cerrajería."
-      : "En este procedimiento administrativo, el éxito depende de la velocidad de liquidación. A diferencia del juzgado, aquí los plazos de pago son improrrogables y la comprobación de cargas previas es responsabilidad exclusiva del postor antes de depositar la fianza.";
+      ? "Un inversor en este procedimiento debe centrarse prioritariamente en la obtención del testimonio del decreto de adjudicación. Esto implica que el paso crítico no es la puja en sí, sino la gestión posterior del lanzamiento si el inmueble no se entrega voluntariamente, algo que requiere prever un presupuesto específico para procurador y cerrajería técnica."
+      : "En este procedimiento administrativo, el éxito depende críticamente de la velocidad de liquidación y el cumplimiento de hitos. A diferencia del juzgado, aquí los plazos de pago son improrrogables y la comprobación de cargas previas es responsabilidad exclusiva del postor antes de depositar la fianza, lo que exige una diligencia previa impecable.";
 
     // Scenarios
-    const bestCase = "Adjudicación cercana a la deuda mínima, inmueble vacío de ocupantes y registro de la propiedad limpio en menos de 5 meses.";
-    const worstCase = "Ocupación por terceros sin título, deudas de comunidad de propietarios de varios ejercicios y demora judicial superior a los 14 meses.";
+    const bestCase = "En el mejor de los escenarios, la adjudicación se produciría cerca de la deuda mínima, encontrando el inmueble vacío de ocupantes y logrando un registro de la propiedad limpio en menos de 5 meses.";
+    const worstCase = "Por el contrario, el escenario de riesgo contempla una ocupación por terceros sin título, deudas de comunidad de varios ejercicios y una demora judicial que podría superar los 14 meses hasta la toma de posesión.";
 
     // Sense Logic
     const hasSense = discount > 25 && auction.claimedDebt;
     const senseText = hasSense 
-      ? "Buscas un activo con margen suficiente para delegar la gestión jurídica y aun así obtener una rentabilidad neta superior al 12%."
-      : "Buscas un activo específico por ubicación o tipología que rara vez sale al mercado abierto, aceptando un margen más estrecho a cambio de la exclusividad.";
+      ? "Esta subasta tiene sentido si buscas un activo con margen suficiente para delegar la gestión jurídica y aun así obtener una rentabilidad neta superior al 12% anual."
+      : "En este caso, el sentido de la puja reside en buscar un activo específico por ubicación o tipología que rara vez sale al mercado abierto, aceptando un margen más estrecho a cambio de la exclusividad del inmueble.";
     
     const cautionText = !auction.claimedDebt 
-      ? "No tienes capacidad para investigar el expediente en el juzgado o no cuentas con liquidez para cubrir cargas imprevistas."
+      ? "Se requiere precaución extrema si no tienes capacidad para investigar el expediente directamente en el juzgado o no cuentas con liquidez para cubrir cargas imprevistas de última hora."
       : isJudicial 
-        ? "Necesitas disponer de la vivienda de forma inmediata para vivir en ella; los tiempos judiciales son incompatibles con urgencias habitacionales."
-        : "No has verificado la libertad de cargas en el Registro de la Propiedad en las últimas 48 horas.";
+        ? "Es necesario actuar con cautela si necesitas disponer de la vivienda de forma inmediata; los tiempos judiciales en este tipo de activos son incompatibles con urgencias habitacionales."
+        : "La precaución es clave si no has verificado la libertad de cargas en el Registro de la Propiedad en las últimas 48 horas, dado el carácter administrativo del proceso.";
 
-    return { summary, marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase };
+    return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase };
   }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
 
   const results = useMemo(() => {
@@ -368,27 +361,6 @@ const AuctionPage: React.FC = () => {
               <div className="prose prose-slate max-w-none mb-12">
                 {auction.appraisalValue && auction.claimedDebt ? (
                   <div className="space-y-12">
-                    {/* 10-Second Reading Block */}
-                    <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-sm">
-                      <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <Clock size={14} className="text-brand-400" /> Lectura en 10 segundos
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                          <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Margen</p>
-                          <p className="font-bold text-lg">{analysisInsights?.summary.margin}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Riesgo Principal</p>
-                          <p className="font-bold text-lg">{analysisInsights?.summary.mainRisk}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Oportunidad</p>
-                          <p className="font-bold text-lg">{analysisInsights?.summary.opportunity}</p>
-                        </div>
-                      </div>
-                    </div>
-
                     <div>
                       <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                         <Search size={20} className="text-brand-600" /> Interpretación del expediente
