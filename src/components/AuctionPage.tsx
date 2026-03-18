@@ -186,7 +186,44 @@ const AuctionPage: React.FC = () => {
       proceduralContext += ` Dada la falta de tasación oficial en el anuncio de ${cityName}, se aconseja realizar una investigación de campo para evitar el riesgo de sobrepuja en este ${typeLabel}.`;
     }
 
-    return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase, proceduralContext };
+    // Soft FOMO Logic (Dynamic & Subtle)
+    const fomoOptions = {
+      scarcity: [
+        `No es habitual encontrar este nivel de margen en activos de esta tipología en ${cityName}.`,
+        `Oportunidades con este diferencial de precio en ${provinceName} suelen ser escasas en el mercado abierto.`,
+        `La relación deuda/valor de este expediente es poco frecuente para ${typeLabel} en esta zona.`
+      ],
+      competition: [
+        `Este tipo de activos suele atraer a inversores activos que buscan rentabilidades netas de doble dígito.`,
+        `Dada la ubicación en ${cityName}, es previsible un interés profesional por parte de fondos patrimonialistas.`,
+        `Activos con estas características técnicas suelen estar en el radar de los inversores más experimentados de ${provinceName}.`
+      ],
+      opportunity: [
+        `Situaciones con este nivel de "colchón" de seguridad suelen analizarse con rapidez por perfiles especialistas.`,
+        `Este expediente representa una de las opciones más sólidas detectadas recientemente en ${cityName} por su estructura de deuda.`,
+        `El potencial de revalorización tras la gestión jurídica convierte a este ${typeLabel} en una pieza estratégica.`
+      ],
+      timing: [
+        `Este tipo de operaciones se preparan con antelación suficiente para asegurar la viabilidad del lanzamiento posterior.`,
+        `La ventana de oportunidad para analizar este expediente antes del cierre requiere una diligencia ágil pero rigurosa.`,
+        `Los inversores que logran las mejores adjudicaciones suelen ser aquellos que inician la investigación en esta fase del proceso.`
+      ]
+    };
+
+    const getFomo = (type: keyof typeof fomoOptions) => {
+      const options = fomoOptions[type];
+      const index = (auction.boeId?.length || 0) % options.length;
+      return options[index];
+    };
+
+    const fomo = {
+      interpretation: getFomo('opportunity'),
+      market: getFomo('scarcity'),
+      preCta: getFomo('competition'),
+      timing: getFomo('timing')
+    };
+
+    return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase, proceduralContext, fomo };
   }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
 
   const results = useMemo(() => {
@@ -404,6 +441,17 @@ const AuctionPage: React.FC = () => {
                       <p className="text-lg leading-relaxed text-slate-700">
                         {analysisInsights?.interpretation}
                       </p>
+                      <p className="mt-4 text-brand-700 font-medium italic border-l-2 border-brand-200 pl-4">
+                        {analysisInsights?.fomo?.interpretation}
+                      </p>
+                    </div>
+
+                    <div className="my-12">
+                      <ConsultingCTA 
+                        isHighUrgency={opportunityRatio === null} 
+                        province={provinceName} 
+                        compact={true}
+                      />
                     </div>
 
                     <div className="bg-slate-50 p-10 rounded-3xl border border-slate-100">
@@ -448,6 +496,9 @@ const AuctionPage: React.FC = () => {
                         <p className="text-slate-700 leading-relaxed text-lg">
                           {analysisInsights?.marketContext}
                         </p>
+                        <p className="mt-4 text-slate-500 italic text-sm">
+                          {analysisInsights?.fomo?.market}
+                        </p>
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
@@ -484,7 +535,7 @@ const AuctionPage: React.FC = () => {
                     </div>
 
                     <p className="text-slate-500 italic text-sm mt-8">
-                      Este tipo de expedientes suele requerir revisión completa del expediente judicial y de las cargas registrales antes de tomar una decisión, especialmente en este tipo de procedimientos donde pequeños detalles pueden cambiar el resultado.
+                      {analysisInsights?.fomo?.preCta} {analysisInsights?.fomo?.timing} Este tipo de expedientes suele requerir revisión completa del expediente judicial y de las cargas registrales antes de tomar una decisión.
                     </p>
                   </div>
                 ) : (
@@ -602,11 +653,6 @@ const AuctionPage: React.FC = () => {
                 </div>
               </div>
             </section>
-
-            <ConsultingCTA 
-              isHighUrgency={opportunityRatio === null} 
-              province={provinceName} 
-            />
 
             {slug && <div className="mt-32"><RelatedAuctions currentAuctionSlug={slug} currentAuctionData={auction} /></div>}
           </div>
