@@ -4,7 +4,8 @@ import { ChevronRight, MapPin, TrendingUp, Filter, ShieldCheck, Clock } from 'lu
 import { ROUTES } from '../constants/routes';
 import { AUCTIONS } from '../data/auctions';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
-import { normalizeCity, normalizePropertyType, normalizeLocationLabel } from '../utils/auctionNormalizer';
+import { normalizeProvince, normalizePropertyType, normalizeLocationLabel } from '../utils/auctionNormalizer';
+import { trackConversion } from '../utils/tracking';
 import { AuctionCard } from './AuctionCard';
 import Header from './Header';
 import Footer from './Footer';
@@ -22,44 +23,44 @@ const CITY_GUIDES: Record<string, React.FC> = {
   'sevilla': AuctionSevillaGuide,
 };
 
-const CityHub: React.FC = () => {
-  const { city } = useParams<{ city: string }>();
-  const normalizedCityParam = city?.toLowerCase() || '';
+const ProvinceHub: React.FC = () => {
+  const { province } = useParams<{ province: string }>();
+  const normalizedProvinceParam = province?.toLowerCase() || '';
   
-  const GuideComponent = CITY_GUIDES[normalizedCityParam];
+  const GuideComponent = CITY_GUIDES[normalizedProvinceParam];
 
-  const cityAuctions = useMemo(() => {
-    if (!city) return [];
-    const filtered = Object.entries(AUCTIONS).filter(([_, a]) => 
-      normalizeCity(a).toLowerCase() === normalizedCityParam || 
-      (a.city && a.city.toLowerCase() === normalizedCityParam)
-    );
+  const provinceAuctions = useMemo(() => {
+    if (!province) return [];
+    const filtered = Object.entries(AUCTIONS).filter(([_, a]) => {
+      const p = normalizeProvince(a.province || a.city).toLowerCase();
+      return p === normalizedProvinceParam || p.includes(normalizedProvinceParam) || normalizedProvinceParam.includes(p);
+    });
     return sortActiveFirst(filtered, (item) => item[1].auctionDate);
-  }, [city, normalizedCityParam]);
+  }, [province, normalizedProvinceParam]);
 
   const activeAuctions = useMemo(() => {
-    return cityAuctions.filter(([_, data]) => !isAuctionFinished(data.auctionDate));
-  }, [cityAuctions]);
+    return provinceAuctions.filter(([_, data]) => !isAuctionFinished(data.auctionDate));
+  }, [provinceAuctions]);
 
   const zones = useMemo(() => {
     const zoneSet = new Set<string>();
-    cityAuctions.forEach(([_, data]) => {
+    provinceAuctions.forEach(([_, data]) => {
       if (data.zone && !isAuctionFinished(data.auctionDate)) {
         zoneSet.add(data.zone);
       }
     });
     return Array.from(zoneSet).sort();
-  }, [cityAuctions]);
+  }, [provinceAuctions]);
 
   const propertyTypes = useMemo(() => {
     const typeSet = new Set<string>();
-    cityAuctions.forEach(([_, data]) => {
+    provinceAuctions.forEach(([_, data]) => {
       if (data.propertyType && !isAuctionFinished(data.auctionDate)) {
         typeSet.add(normalizePropertyType(data.propertyType));
       }
     });
     return Array.from(typeSet).sort();
-  }, [cityAuctions]);
+  }, [provinceAuctions]);
 
   const marketStats = useMemo(() => {
     if (activeAuctions.length === 0) return null;
@@ -81,14 +82,29 @@ const CityHub: React.FC = () => {
     };
   }, [activeAuctions]);
 
+  const topOpportunities = useMemo(() => {
+    return activeAuctions
+      .map(([slug, data]) => {
+        const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue;
+        const cantidadReclamada = data.claimedDebt;
+        const ratio = (valorReferencia && cantidadReclamada !== undefined && cantidadReclamada !== null) 
+          ? Math.round(((valorReferencia - cantidadReclamada) / valorReferencia) * 100)
+          : 0;
+        return { slug, data, ratio };
+      })
+      .filter(item => item.ratio > 40)
+      .sort((a, b) => b.ratio - a.ratio)
+      .slice(0, 3);
+  }, [activeAuctions]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (city) {
-      document.title = `Subastas judiciales en ${city.charAt(0).toUpperCase() + city.slice(1)} | Activos Off-Market`;
+    if (province) {
+      document.title = `Subastas en ${province.charAt(0).toUpperCase() + province.slice(1)} | Activos Off-Market`;
     }
-  }, [city]);
+  }, [province]);
 
-  if (!city) return <Navigate to={ROUTES.HOME} replace />;
+  if (!province) return <Navigate to={ROUTES.HOME} replace />;
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
@@ -104,14 +120,14 @@ const CityHub: React.FC = () => {
           <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
             <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
             <ChevronRight size={14} className="mx-2" />
-            <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md capitalize">Subastas en {city}</span>
+            <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md capitalize">Subastas en {province}</span>
           </nav>
           
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight capitalize">
-            Subastas judiciales en {city}
+          <h1 className="font-serif text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight capitalize">
+            Subastas en {province}
           </h1>
-          <p className="text-xl text-slate-600 max-w-3xl mb-12">
-            Encuentra las mejores oportunidades de inversión en subastas judiciales y administrativas en {city}. Analizamos cada activo para detectar rentabilidades reales.
+          <p className="text-lg text-slate-600 max-w-3xl mb-8 leading-relaxed">
+            Descubre el listado actualizado de subastas judiciales, notariales y de Hacienda en la provincia de <span className="capitalize font-medium">{province}</span>. Analizamos diariamente el BOE para identificar pisos, casas y locales con alto potencial de rentabilidad. Accede a los datos clave, calcula tu puja máxima y encuentra oportunidades de inversión por debajo del valor de mercado.
           </p>
         </div>
       )}
@@ -119,9 +135,18 @@ const CityHub: React.FC = () => {
       {/* Dynamic Auctions Section (Bottom) */}
       <section className="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200">
         {marketStats && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
               <div className="bg-brand-50 p-3 rounded-xl text-brand-600">
+                <ShieldCheck size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-slate-500 font-medium">Subastas activas</p>
+                <p className="text-2xl font-bold text-slate-900">{marketStats.totalActive}</p>
+              </div>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+              <div className="bg-emerald-50 p-3 rounded-xl text-emerald-600">
                 <TrendingUp size={24} />
               </div>
               <div>
@@ -129,16 +154,7 @@ const CityHub: React.FC = () => {
                 <p className="text-2xl font-bold text-slate-900">-{marketStats.avgDiscount}%</p>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-              <div className="bg-emerald-50 p-3 rounded-xl text-emerald-600">
-                <ShieldCheck size={24} />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500 font-medium">Activos analizados</p>
-                <p className="text-2xl font-bold text-slate-900">{marketStats.totalActive} subastas</p>
-              </div>
-            </div>
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
               <div className="bg-amber-50 p-3 rounded-xl text-amber-600">
                 <Clock size={24} />
               </div>
@@ -150,10 +166,37 @@ const CityHub: React.FC = () => {
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        {topOpportunities.length > 0 && (
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-serif font-bold text-slate-900 capitalize">
+                Mejores oportunidades en {province}
+              </h2>
+              <button 
+                onClick={() => document.getElementById('all-auctions')?.scrollIntoView({ behavior: 'smooth' })}
+                className="hidden md:flex items-center gap-2 text-brand-600 font-medium hover:text-brand-700 transition-colors"
+              >
+                Ver todas las oportunidades <ChevronRight size={16} />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {topOpportunities.map(({ slug, data }) => (
+                <AuctionCard key={slug} slug={slug} data={data} />
+              ))}
+            </div>
+            <button 
+              onClick={() => document.getElementById('all-auctions')?.scrollIntoView({ behavior: 'smooth' })}
+              className="mt-6 w-full md:hidden flex justify-center items-center gap-2 bg-brand-50 text-brand-700 font-bold px-4 py-3 rounded-xl border border-brand-100 hover:bg-brand-100 transition-colors"
+            >
+              Ver todas las oportunidades <ChevronRight size={18} />
+            </button>
+          </div>
+        )}
+
+        <div id="all-auctions" className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-8 border-t border-slate-200">
           <div>
-            <h2 className="text-3xl font-serif font-bold text-slate-900 mb-2">
-              Subastas activas en {city}
+            <h2 className="text-3xl font-serif font-bold text-slate-900 mb-2 capitalize">
+              Todas las subastas en {province}
             </h2>
             <p className="text-slate-500">
               {activeAuctions.length} oportunidades detectadas actualmente.
@@ -162,7 +205,8 @@ const CityHub: React.FC = () => {
           
           <div className="flex flex-wrap gap-3">
             <Link 
-              to={`/subastas/${normalizedCityParam}/oportunidades`}
+              to={`/subastas/${normalizedProvinceParam}/oportunidades`}
+              onClick={() => trackConversion(province || 'general', 'listing', 'listado')}
               className="inline-flex items-center gap-2 bg-brand-50 text-brand-700 font-bold px-4 py-2 rounded-xl border border-brand-100 hover:bg-brand-100 transition-colors"
             >
               <TrendingUp size={18} /> Ver Oportunidades
@@ -181,7 +225,7 @@ const CityHub: React.FC = () => {
                 {zones.map(zone => (
                   <Link 
                     key={zone}
-                    to={`/subastas/${normalizedCityParam}/${zone.toLowerCase().replace(/\s+/g, '-')}`}
+                    to={`/subastas/${normalizedProvinceParam}/${zone.toLowerCase().replace(/\s+/g, '-')}`}
                     className="bg-white border border-slate-200 px-4 py-2 rounded-lg text-sm font-medium hover:border-brand-500 hover:text-brand-700 transition-all shadow-sm"
                   >
                     {zone}
@@ -210,9 +254,9 @@ const CityHub: React.FC = () => {
           )}
         </div>
 
-        {cityAuctions.length > 0 ? (
+        {provinceAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {cityAuctions.map(([slug, data]) => (
+            {provinceAuctions.map(([slug, data]) => (
               <AuctionCard key={slug} slug={slug} data={data} />
             ))}
           </div>
@@ -223,7 +267,7 @@ const CityHub: React.FC = () => {
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">No hay subastas activas en este momento</h3>
             <p className="text-slate-500 max-w-md mx-auto">
-              Actualmente no hemos detectado subastas que cumplan nuestros criterios de calidad en {city}. Vuelve pronto o suscríbete a nuestras alertas.
+              Actualmente no hemos detectado subastas que cumplan nuestros criterios de calidad en la provincia de {province}. Vuelve pronto o suscríbete a nuestras alertas.
             </p>
           </div>
         )}
@@ -234,4 +278,4 @@ const CityHub: React.FC = () => {
   );
 };
 
-export default CityHub;
+export default ProvinceHub;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen, Calculator, HelpCircle, MapPin, DollarSign, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
 import { AUCTIONS } from '../data/auctions';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';

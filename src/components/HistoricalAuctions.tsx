@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Calculator, TrendingUp, Percent } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { sortAuctions, isAuctionFinished } from '../utils/auctionHelpers';
 import { AuctionCard } from './AuctionCard';
 

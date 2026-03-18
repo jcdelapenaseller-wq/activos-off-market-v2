@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Calendar, Clock, ChevronRight, Gavel, ArrowRight, BookOpen, UserX, Building2, TrendingDown, HelpCircle, AlertCircle, Percent, Info, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 const AuctionEmptyGuide: React.FC = () => {
   

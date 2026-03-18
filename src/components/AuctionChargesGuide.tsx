@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, CheckCircle, AlertTriangle, Scale, ArrowRight, BookOpen, AlertOctagon, Coins, XCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
 
 const AuctionChargesGuide: React.FC = () => {

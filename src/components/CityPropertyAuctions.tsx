@@ -2,20 +2,21 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { MetricHighlight, MetricNeutral, MetricWarning, MetricTag, getDiscountColor } from '../utils/themeClasses';
 
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
-import { normalizePropertyType as normalizeTypeLabel, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
+import { normalizePropertyType as normalizeTypeLabel, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
+import { trackConversion } from '../utils/tracking';
 
 const CityPropertyAuctions: React.FC = () => {
-  const { city: cityParam, propertyType: propertyTypeParam } = useParams<{ city: string; propertyType: string }>();
+  const { province: provinceParam, propertyType: propertyTypeParam } = useParams<{ province: string; propertyType: string }>();
 
-  const city = useMemo(() => {
-    if (!cityParam) return '';
-    return CITY_MAP[cityParam.toLowerCase()] || cityParam.charAt(0).toUpperCase() + cityParam.slice(1);
-  }, [cityParam]);
+  const province = useMemo(() => {
+    if (!provinceParam) return '';
+    return CITY_MAP[provinceParam.toLowerCase()] || provinceParam.charAt(0).toUpperCase() + provinceParam.slice(1);
+  }, [provinceParam]);
   const propertyType = useMemo(() => propertyTypeParam ? PROPERTY_TYPE_MAP[propertyTypeParam.toLowerCase()] || propertyTypeParam.charAt(0).toUpperCase() + propertyTypeParam.slice(1) : '', [propertyTypeParam]);
 
   const normalizePropertyType = (type: string): string => {
@@ -34,37 +35,43 @@ const CityPropertyAuctions: React.FC = () => {
 
   const filteredAuctions = useMemo(() => {
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
-      const normalizedCity = normalizeCity(data);
-      const cityMatch = normalizedCity.toLowerCase() === city.toLowerCase();
+      const p = normalizeProvince(data.province || data.city);
+      const provinceMatch = p.toLowerCase() === province.toLowerCase() || p.toLowerCase().includes(province.toLowerCase()) || province.toLowerCase().includes(p.toLowerCase());
       const typeMatch = data.propertyType && normalizePropertyType(data.propertyType) === normalizePropertyType(propertyType);
-      return cityMatch && typeMatch;
+      return provinceMatch && typeMatch;
     });
     return sortActiveFirst(filtered, (item) => item[1].auctionDate);
-  }, [city, propertyType]);
+  }, [province, propertyType]);
 
   const activeCount = useMemo(() => {
     return filteredAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
   }, [filteredAuctions]);
 
   const availableZones = useMemo(() => {
-    if (!city) return [];
-    const cityAuctions = Object.values(AUCTIONS).filter(a => normalizeCity(a).toLowerCase() === city.toLowerCase());
+    if (!province) return [];
+    const provinceAuctions = Object.values(AUCTIONS).filter(a => {
+      const p = normalizeProvince(a.province || a.city);
+      return p.toLowerCase() === province.toLowerCase() || p.toLowerCase().includes(province.toLowerCase()) || province.toLowerCase().includes(p.toLowerCase());
+    });
     const zones = new Set<string>();
-    cityAuctions.forEach(a => {
+    provinceAuctions.forEach(a => {
       if (a.zone) zones.add(a.zone);
     });
     return Array.from(zones).sort();
-  }, [city]);
+  }, [province]);
 
   const availablePropertyTypes = useMemo(() => {
-    if (!city) return [];
-    const cityAuctions = Object.values(AUCTIONS).filter(a => normalizeCity(a).toLowerCase() === city.toLowerCase());
+    if (!province) return [];
+    const provinceAuctions = Object.values(AUCTIONS).filter(a => {
+      const p = normalizeProvince(a.province || a.city);
+      return p.toLowerCase() === province.toLowerCase() || p.toLowerCase().includes(province.toLowerCase()) || province.toLowerCase().includes(p.toLowerCase());
+    });
     const types = new Set<string>();
-    cityAuctions.forEach(a => {
+    provinceAuctions.forEach(a => {
       if (a.propertyType) types.add(normalizePropertyType(a.propertyType));
     });
     return Array.from(types).sort();
-  }, [city]);
+  }, [province]);
 
   const normalizeForUrl = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
 
@@ -96,12 +103,12 @@ const CityPropertyAuctions: React.FC = () => {
   }, [filteredAuctions]);
 
   useEffect(() => {
-    if (city && propertyType) {
-      document.title = `Subastas de ${propertyType} en ${city} | Activos Off-Market`;
+    if (province && propertyType) {
+      document.title = `Subastas de ${propertyType} en la provincia de ${province} | Activos Off-Market`;
       
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
-        metaDesc.setAttribute('content', `Listado de subastas de ${propertyType} en ${city}. Ejemplos reales y análisis de oportunidades en subastas inmobiliarias.`);
+        metaDesc.setAttribute('content', `Listado de subastas de ${propertyType} en la provincia de ${province}. Ejemplos reales y análisis de oportunidades en subastas inmobiliarias.`);
       }
 
       // SEO: Noindex if no auctions found to avoid thin content indexing
@@ -126,7 +133,7 @@ const CityPropertyAuctions: React.FC = () => {
         metaRobots.setAttribute('content', 'index, follow');
       }
     };
-  }, [city, propertyType, filteredAuctions.length]);
+  }, [province, propertyType, filteredAuctions.length]);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 px-6 pt-10">
@@ -134,22 +141,20 @@ const CityPropertyAuctions: React.FC = () => {
         <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-brand-600 transition-colors">Inicio</Link>
           <ChevronRight size={14} />
-          <Link to={`/subastas-${city}`} className="hover:text-brand-600 transition-colors capitalize">Subastas</Link>
-          <ChevronRight size={14} />
-          <Link to={`/subastas-${city}`} className="hover:text-brand-600 transition-colors capitalize">{city}</Link>
+          <Link to={`/subastas/${provinceParam}`} className="hover:text-brand-600 transition-colors capitalize">Subastas en {province}</Link>
           <ChevronRight size={14} />
           <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md capitalize" aria-current="page">{propertyType}</span>
         </nav>
 
         <div className="mb-8">
-          <Link to={ROUTES.EXAMPLES_INDEX} className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-700 transition-colors">
-            <ArrowLeft size={20} /> Ver todos los ejemplos
+          <Link to={`/subastas/${provinceParam}`} className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-700 transition-colors">
+            <ArrowLeft size={20} /> Ver todas las subastas en {province}
           </Link>
         </div>
 
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
-            Subastas de {propertyType} en {city}
+            Subastas de {propertyType} en {province}
           </h1>
 
           {activeCount > 0 && (
@@ -184,12 +189,12 @@ const CityPropertyAuctions: React.FC = () => {
           )}
 
           <p className="text-xl text-slate-600 max-w-3xl mb-12">
-            Listado de subastas de {propertyType.toLowerCase()} en {city}. Ejemplos reales y análisis de oportunidades en subastas inmobiliarias.
+            Listado de subastas de {propertyType.toLowerCase()} en la provincia de {province}. Ejemplos reales y análisis de oportunidades en subastas inmobiliarias.
           </p>
           
           <div className="prose prose-slate max-w-3xl mx-auto space-y-6">
             <p>
-              Las subastas inmobiliarias en {city} representan una de las oportunidades de inversión más dinámicas y rentables en el mercado actual. Acceder a {propertyType.toLowerCase()} a través de subastas judiciales permite adquirir activos por debajo de su valor de mercado, pero requiere un análisis riguroso para asegurar la rentabilidad.
+              Las subastas inmobiliarias en la provincia de {province} representan una de las oportunidades de inversión más dinámicas y rentables en el mercado actual. Acceder a {propertyType.toLowerCase()} a través de subastas judiciales permite adquirir activos por debajo de su valor de mercado, pero requiere un análisis riguroso para asegurar la rentabilidad.
             </p>
 
             <div className="bg-brand-50 p-6 rounded-2xl border border-brand-100 my-8">
@@ -197,7 +202,7 @@ const CityPropertyAuctions: React.FC = () => {
                 Qué hace interesante este tipo de inmueble para invertir
               </h2>
               <ul className="space-y-2 mb-0">
-                <li>Alta demanda de {propertyType.toLowerCase()} en el mercado actual de {city}.</li>
+                <li>Alta demanda de {propertyType.toLowerCase()} en el mercado actual de {province}.</li>
                 <li>Posibilidad de adquirir activos con un descuento significativo sobre el valor de mercado.</li>
                 <li>Excelente potencial para estrategias de alquiler o reforma y venta (flipping).</li>
               </ul>
@@ -207,7 +212,7 @@ const CityPropertyAuctions: React.FC = () => {
               No se trata simplemente de buscar chollos, sino de gestionar riesgos de forma profesional. Antes de participar, es fundamental realizar una auditoría completa que incluya la revisión detallada de las cargas registrales, la situación posesoria y de ocupación del inmueble, y la determinación precisa de la puja máxima.
             </p>
             <p>
-              Solo mediante un análisis técnico exhaustivo de estos factores podrás transformar una subasta en una inversión inmobiliaria sólida y segura en {city}.
+              Solo mediante un análisis técnico exhaustivo de estos factores podrás transformar una subasta en una inversión inmobiliaria sólida y segura en {province}.
             </p>
           </div>
         </div>
@@ -276,7 +281,7 @@ const CityPropertyAuctions: React.FC = () => {
             <Home size={48} className="mx-auto text-slate-300 mb-4" />
             <h2 className="text-2xl font-bold text-slate-900 mb-2">No hay subastas disponibles</h2>
             <p className="text-slate-600 mb-8">
-              Actualmente no hay ejemplos analizados de {propertyType} en {city}.
+              Actualmente no hay ejemplos analizados de {propertyType} en {province}.
               Estamos añadiendo nuevos análisis semanalmente.
             </p>
             <Link 
@@ -290,10 +295,10 @@ const CityPropertyAuctions: React.FC = () => {
 
         <div className="mt-16 prose prose-slate max-w-3xl mx-auto space-y-6">
           <h2 className="text-3xl font-serif font-bold text-slate-900 mt-12 mb-6">
-            Qué debes analizar antes de pujar por un {propertyType.toLowerCase()} en subasta en {city}
+            Qué debes analizar antes de pujar por un {propertyType.toLowerCase()} en subasta en {province}
           </h2>
           <p>
-            La clave del éxito en las subastas de {propertyType.toLowerCase()} en {city} radica en la preparación. No te centres únicamente en el precio de salida; analiza la rentabilidad neta tras considerar todos los costes asociados: impuestos, gastos de gestión, posibles reformas y, sobre todo, la resolución de la situación posesoria.
+            La clave del éxito en las subastas de {propertyType.toLowerCase()} en {province} radica en la preparación. No te centres únicamente en el precio de salida; analiza la rentabilidad neta tras considerar todos los costes asociados: impuestos, gastos de gestión, posibles reformas y, sobre todo, la resolución de la situación posesoria.
           </p>
           <p>
             Una mala estimación de estos factores puede convertir una oportunidad aparentemente atractiva en una inversión deficitaria.
@@ -309,30 +314,39 @@ const CityPropertyAuctions: React.FC = () => {
         </div>
 
         <div className="mt-16 bg-brand-900 rounded-3xl p-10 text-center text-white">
-          <h2 className="text-3xl font-serif font-bold mb-4">¿Buscas oportunidades en {city}?</h2>
-          <p className="text-brand-200 mb-8 max-w-2xl mx-auto">
-            En nuestro canal de Telegram publicamos regularmente análisis de subastas activas en {city} y otras provincias de España.
+          <h2 className="text-3xl font-serif font-bold mb-4">¿Buscas oportunidades en {province}?</h2>
+          <p className="text-brand-200 mb-2 max-w-2xl mx-auto">
+            En nuestro canal de Telegram publicamos regularmente análisis de subastas activas en {province} y otras provincias de España.
           </p>
-          <a 
-            href="https://t.me/activosOffmarket" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-white text-brand-900 font-bold py-4 px-8 rounded-xl hover:bg-brand-50 transition-all"
-          >
-            Unirme al canal de Telegram <ChevronRight size={20} />
-          </a>
+          <p className="text-brand-300 text-sm mb-8 italic">
+            Incluye: análisis, riesgos reales y estrategia de puja. Acceso limitado para mantener calidad.
+          </p>
+          <div className="flex flex-col items-center gap-4">
+            <a 
+              href="https://t.me/activosOffmarket" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => trackConversion(province, 'listing', 'premium')}
+              className="inline-flex items-center gap-2 bg-white text-brand-900 font-bold py-4 px-8 rounded-xl hover:bg-brand-50 transition-all"
+            >
+              Unirme al canal de Telegram <ChevronRight size={20} />
+            </a>
+            <p className="text-brand-200 text-xs font-medium">
+              🔒 Nuevas oportunidades cada día que no se publican en el canal gratuito
+            </p>
+          </div>
         </div>
 
         {/* Internal Linking Blocks */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-slate-200 pt-12">
           {availableZones.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Subastas en otras zonas de {city}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">Subastas en otras zonas de {province}</h2>
               <ul className="flex flex-wrap gap-2">
                 {availableZones.map(z => (
                   <li key={z}>
                     <Link 
-                      to={`/subastas/${normalizeForUrl(city)}/${normalizeForUrl(z)}`}
+                      to={`/subastas/${normalizeForUrl(province)}/${normalizeForUrl(z)}`}
                       className={MetricTag}
                     >
                       {z}
@@ -345,12 +359,12 @@ const CityPropertyAuctions: React.FC = () => {
 
           {availablePropertyTypes.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Otros tipos de subastas en {city}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">Otros tipos de subastas en {province}</h2>
               <ul className="flex flex-wrap gap-2">
                 {availablePropertyTypes.map(pt => (
                   <li key={pt}>
                     <Link 
-                      to={`/subastas/${normalizeForUrl(city)}/${normalizeForUrl(pt)}`}
+                      to={`/subastas/${normalizeForUrl(province)}/${normalizeForUrl(pt)}`}
                       className={`${MetricTag} capitalize`}
                     >
                       {pt}

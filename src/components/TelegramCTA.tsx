@@ -1,5 +1,6 @@
 import React from 'react';
 import { Send } from 'lucide-react';
+import { trackConversion } from '../utils/tracking';
 
 interface TelegramCTAProps {
   variant?: "article" | "banner" | "sidebar";
@@ -27,6 +28,7 @@ const TelegramCTA: React.FC<TelegramCTAProps> = ({ variant = "article" }) => {
         href={telegramUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackConversion('general', 'discover', 'premium')}
         className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-600 transition-colors whitespace-nowrap"
       >
         <Send size={16} />

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight, Percent } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortAuctions, formatDate } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { AuctionCard } from './AuctionCard';

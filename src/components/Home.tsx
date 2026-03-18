@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import Hero from './Hero';
 import RecentAuctionsHome from './RecentAuctionsHome';
 import LeadMagnetBlock from './LeadMagnetBlock';
@@ -13,6 +13,8 @@ import { ArrowRight } from 'lucide-react';
 import SeoBlock from './SeoBlock';
 import FAQ from './FAQ';
 import FinalCTA from './FinalCTA';
+import { trackConversion } from '../utils/tracking';
+import PremiumValueBlock from './PremiumValueBlock';
 
 const Home: React.FC = () => {
   return (
@@ -25,61 +27,15 @@ const Home: React.FC = () => {
       <SocialProof />
       <Services />
       <Pricing />
-      <Process />
-      <Opportunities />
-
+      
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="bg-brand-50 rounded-3xl p-8 md:p-16 border border-brand-100">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-8 text-center">
-                Por qué muchos inversores siguen el canal premium
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div className="space-y-6">
-                  <p className="text-lg text-slate-700 leading-relaxed">
-                    En el canal gratuito publico únicamente algunas de las subastas con mayor potencial detectadas.
-                  </p>
-                  <p className="text-lg text-slate-700 leading-relaxed">
-                    En el canal premium analizo más activos, explico el contexto jurídico de cada oportunidad y comparto estrategias que muchos inversores utilizan antes de presentar una puja.
-                  </p>
-                  <div className="pt-4">
-                    <Link 
-                      to="/premium" 
-                      className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all shadow-lg"
-                    >
-                      Ver canal premium <ArrowRight size={20} />
-                    </Link>
-                  </div>
-                </div>
-                
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-brand-100 space-y-6">
-                  <h3 className="font-bold text-slate-900 text-xl mb-4">Ventajas del canal premium:</h3>
-                  <ul className="space-y-4">
-                    <li className="flex items-start gap-3 text-slate-700">
-                      <span className="text-2xl">🧾</span>
-                      <span><strong>Más activos detectados</strong> cada semana</span>
-                    </li>
-                    <li className="flex items-start gap-3 text-slate-700">
-                      <span className="text-2xl">⚖️</span>
-                      <span><strong>Estrategia y contexto jurídico</strong> explicado</span>
-                    </li>
-                    <li className="flex items-start gap-3 text-slate-700">
-                      <span className="text-2xl">💬</span>
-                      <span><strong>Soporte por email y Telegram</strong> en menos de 24h</span>
-                    </li>
-                    <li className="flex items-start gap-3 text-slate-700">
-                      <span className="text-2xl">🎁</span>
-                      <span><strong>20% de descuento</strong> en todas las consultorías</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PremiumValueBlock />
         </div>
       </section>
+
+      <Process />
+      <Opportunities />
 
       <section className="py-20 bg-slate-50 border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
@@ -119,6 +75,7 @@ const Home: React.FC = () => {
                 href="https://calendly.com/activosoffmarket" 
                 target="_blank" 
                 rel="noopener noreferrer"
+                onClick={() => trackConversion('general', 'home', 'consultoria')}
                 className="w-full sm:w-auto bg-white text-brand-900 font-bold py-4 px-10 rounded-xl hover:bg-brand-50 transition-all shadow-lg"
               >
                 Solicitar análisis de subasta
@@ -138,6 +95,7 @@ const Home: React.FC = () => {
           </p>
           <Link 
             to={ROUTES.EXAMPLES_INDEX} 
+            onClick={() => trackConversion('general', 'home', 'listado')}
             className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
           >
             Ver ejemplos de subastas <ArrowRight size={20} />
@@ -149,7 +107,13 @@ const Home: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="bg-brand-900 rounded-3xl p-8 md:p-12 text-center text-white flex flex-col items-center">
             <h2 className="text-2xl md:text-3xl font-serif font-bold mb-6">Herramienta gratuita: Calculadora de rentabilidad en subastas judiciales</h2>
-            <Link to={ROUTES.CALCULATOR} className="inline-block bg-white text-brand-900 font-bold py-4 px-8 rounded-xl hover:bg-brand-50 transition-all">Calcular inversión</Link>
+            <Link 
+              to={ROUTES.CALCULATOR} 
+              onClick={() => trackConversion('general', 'home', 'premium')}
+              className="inline-block bg-white text-brand-900 font-bold py-4 px-8 rounded-xl hover:bg-brand-50 transition-all"
+            >
+              Calcular inversión
+            </Link>
         </div>
       </div>
       <FAQ />

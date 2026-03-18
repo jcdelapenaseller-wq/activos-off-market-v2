@@ -5,7 +5,7 @@ import {
   AlertTriangle, CheckCircle, XCircle, Search, FileText, 
   Home, Calculator, Scale, Eye, AlertOctagon, FileWarning 
 } from 'lucide-react';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 const AuctionAnalysisStepByStep: React.FC = () => {
   

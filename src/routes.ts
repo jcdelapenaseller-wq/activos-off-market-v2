@@ -64,17 +64,17 @@ import OpportunityAuctions from './components/OpportunityAuctions';
 import RecentAuctions from './components/RecentAuctions';
 import HistoricalAuctions from './components/HistoricalAuctions';
 import HighDiscountAuctions from './components/HighDiscountAuctions';
-import DiscoverCityArticles from './components/DiscoverCityArticles';
-import AuctionDiscoverArticle from './components/AuctionDiscoverArticle';
+import DiscoverProvinceArticle from './components/DiscoverProvinceArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
-import CityHub from './components/CityHub';
+import ProvinceHub from './components/ProvinceHub';
 import AuctionPage from './components/AuctionPage';
 import Legal from './components/Legal';
+import AdminTracking from './components/AdminTracking';
 
 export const routes: RouteObject[] = [
   {
-    path: ROUTES.CITY_HUB,
-    element: createElement(CityHub),
+    path: ROUTES.PROVINCE_HUB,
+    element: createElement(ProvinceHub),
   },
   {
     path: ROUTES.AUCTION_PAGE,
@@ -249,31 +249,47 @@ export const routes: RouteObject[] = [
     element: createElement(DiscoverArticlesIndex),
   },
   {
+    path: '/noticias-subastas/provincia/:province/hoy',
+    element: createElement(DiscoverProvinceArticle, { variant: 'urgency' }),
+  },
+  {
+    path: '/noticias-subastas/provincia/:province/oportunidades',
+    element: createElement(DiscoverProvinceArticle, { variant: 'opportunity' }),
+  },
+  {
+    path: '/noticias-subastas/provincia/:province/donde-invertir',
+    element: createElement(DiscoverProvinceArticle, { variant: 'analysis' }),
+  },
+  {
+    path: '/noticias-subastas/provincia/:province',
+    element: createElement(DiscoverProvinceArticle, { variant: 'opportunity' }),
+  },
+  {
     path: '/noticias-subastas/madrid',
-    element: createElement(DiscoverCityArticles),
+    element: createElement(RedirectStatic, { to: '/noticias-subastas/provincia/madrid' }),
   },
   {
     path: '/noticias-subastas/barcelona',
-    element: createElement(DiscoverCityArticles),
+    element: createElement(RedirectStatic, { to: '/noticias-subastas/provincia/barcelona' }),
   },
   {
     path: '/noticias-subastas/valencia',
-    element: createElement(DiscoverCityArticles),
+    element: createElement(RedirectStatic, { to: '/noticias-subastas/provincia/valencia' }),
   },
   {
     path: '/noticias-subastas/sevilla',
-    element: createElement(DiscoverCityArticles),
+    element: createElement(RedirectStatic, { to: '/noticias-subastas/provincia/sevilla' }),
   },
   {
     path: ROUTES.NOTICIAS_SUBASTAS,
-    element: createElement(AuctionDiscoverArticle),
+    element: createElement(RedirectSlug, { to: '/subasta/:slug' }),
   },
   {
     path: ROUTES.STREET,
     element: createElement(StreetAuctions),
   },
   {
-    path: ROUTES.CITY_OPPORTUNITIES,
+    path: ROUTES.PROVINCE_OPPORTUNITIES,
     element: createElement(OpportunityAuctions),
   },
   {
@@ -281,7 +297,7 @@ export const routes: RouteObject[] = [
     element: createElement(ZoneAuctions),
   },
   {
-    path: ROUTES.ZONE_PROPERTY_CITY,
+    path: ROUTES.ZONE_PROPERTY_PROVINCE,
     element: createElement(ZonePropertyAuctions),
   },
   {
@@ -297,7 +313,7 @@ export const routes: RouteObject[] = [
     element: createElement(RedirectCityZone, { to: '/subastas/:city/:zone' }),
   },
   {
-    path: ROUTES.CITY_PROPERTY,
+    path: ROUTES.PROVINCE_PROPERTY,
     element: createElement(CityPropertyAuctions),
   },
   {
@@ -327,6 +343,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.CONTACT,
     element: createElement(Legal, { type: 'contacto' }),
+  },
+  {
+    path: ROUTES.ADMIN_TRACKING,
+    element: createElement(AdminTracking),
   },
   {
     path: '*',

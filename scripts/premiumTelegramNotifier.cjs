@@ -10,47 +10,40 @@ const axios = require('axios');
 
 const CONFIG = {
   PENDING_FILE: path.join(__dirname, 'pending_premium.json'),
+  SENT_FILE: path.join(__dirname, 'sent_slugs_premium.txt'),
   BOT_TOKEN: process.env.BOT_TOKEN,
   PREMIUM_CHAT_ID: process.env.PREMIUM_CHAT_ID,
   BASE_URL: 'https://www.activosoffmarket.es/ejemplo-subasta'
 };
 
 const HOOKS = [
-  "Ojo a esta subasta que acaba de aparecer en el radar.",
-  "Este expediente tiene algunos elementos interesantes.",
-  "A primera vista parece una subasta bastante limpia.",
-  "Este activo merece mirarlo con calma antes de que empiecen las pujas.",
-  "Este tipo de activos en esta zona suelen moverse rápido.",
-  "He detectado un nuevo expediente en el BOE que merece una revisión detallada.",
-  "Acaba de saltar esta oportunidad al radar y tiene algunos puntos muy interesantes.",
-  "Revisando las novedades, este activo destaca por su potencial."
+  "Ojo con esta. Acaba de entrar.",
+  "Esto no se ve todos los días.",
+  "Expediente interesante para revisar con calma.",
+  "Acaba de saltar. Pinta bien.",
+  "Atentos a los números de este activo."
 ];
 
 const INTERPRETATIONS = [
-  "La deuda representa una parte interesante del valor de subasta, lo que a veces deja margen si no aparecen cargas inesperadas.",
-  "Cuando la deuda está bastante por debajo del valor de subasta suele haber más recorrido para inversores.",
-  "Este tipo de expedientes depende mucho de la situación posesoria, es clave verificarla.",
-  "La estructura de deuda frente al valor de subasta sugiere que hay que analizar bien los costes ocultos.",
-  "Si el activo acompaña en estado y posesión, el mercado de la zona suele absorber bien este tipo de producto.",
-  "En esta zona activos comparables suelen moverse por encima del tipo de subasta."
+  "La deuda deja margen, pero hay que cruzar con cargas previas.",
+  "Si la posesión acompaña, los números cuadran.",
+  "El descuento es bueno, la clave será la competencia.",
+  "Parece limpio, pero el edicto manda.",
+  "Valor de tasación en línea con mercado, hay recorrido."
 ];
 
 const TRANSITIONS = [
-  "Desglosando el expediente, estos son los puntos clave.",
-  "Este tipo de operaciones se ganan en los detalles.",
-  "Antes de pujar conviene mirar bien estos puntos.",
-  "Analizando los números preliminares, esto es lo que tenemos:",
-  "Si entramos en detalle, el escenario se ve así:"
+  "Desglosando el expediente:",
+  "Los números preliminares son estos:",
+  "Entrando al detalle:"
 ];
 
 const FOMO_LINES = [
-  "No es un activo para improvisar.",
+  "No es para improvisar.",
   "Aquí se gana en el detalle.",
-  "Conviene revisar bien el expediente antes de consignar el depósito.",
-  "Este tipo de expedientes suele decidirse en la certificación registral.",
-  "Una revisión rápida del expediente puede cambiar completamente la estrategia de puja.",
-  "En subastas como esta la diferencia suele estar en lo que no aparece en el edicto.",
-  "No es el tipo de activo que conviene improvisar."
+  "Revisad bien antes de consignar.",
+  "La diferencia está en lo que no sale en el edicto.",
+  "Ojo a las cargas ocultas."
 ];
 
 function formatCurrency(value) {
@@ -113,53 +106,108 @@ async function runNotifier() {
 
   console.log(`📢 Procesando ${pending.length} subastas pendientes...`);
 
+  let sentSlugs = [];
+  if (fs.existsSync(CONFIG.SENT_FILE)) {
+    sentSlugs = fs.readFileSync(CONFIG.SENT_FILE, 'utf8').split('\n').filter(Boolean);
+  }
+
   const processedSlugs = [];
 
   for (const auction of pending) {
+    if (sentSlugs.includes(auction.slug)) {
+      console.log(`⏭️ Saltando duplicado: ${auction.slug}`);
+      processedSlugs.push(auction.slug);
+      continue;
+    }
+
     const hashtags = `${toHashtag(auction.propertyType)} ${toHashtag(auction.city)} ${auction.zone && auction.zone !== 'Desconocida' ? toHashtag(auction.zone) : ''}`;
     const debtRatio = auction.appraisalValue > 0 ? ((auction.claimedDebt / auction.appraisalValue) * 100).toFixed(1) : "N/A";
     
-    const message = `🔒 <b>Análisis Premium</b>
+    // FOMO Logic
+    let discountVal = auction.discount;
+    if (!discountVal && auction.appraisalValue && auction.claimedDebt) {
+       discountVal = Math.round(((auction.appraisalValue - auction.claimedDebt) / auction.appraisalValue) * 100);
+    }
+    const isHighDiscount = discountVal && discountVal > 40;
 
-🏠 ${hashtags} – 📍 ${auction.address}
-📅 <b>Cierre de subasta:</b> ${auction.auctionDate}
+    let daysLeft = null;
+    if (auction.auctionDate) {
+      const closing = new Date(auction.auctionDate);
+      const now = new Date();
+      const diffTime = closing - now;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays > 0 && diffDays < 7) {
+        daysLeft = diffDays;
+      }
+    }
 
-${getRandom(HOOKS)}
+    const similarCount = pending.filter(a => a.city === auction.city && a.propertyType === auction.propertyType).length;
+    const isScarce = similarCount < 5;
 
-🔎 <b>Claves del expediente</b>
+    const sqm = auction.squareMeters || auction.surface || 0;
+    let pricePerSqm = null;
+    if (sqm > 0 && auction.appraisalValue > 0) {
+      pricePerSqm = Math.round(auction.appraisalValue / sqm);
+    }
 
-• Procedimiento: ${auction.procedureType}
-• Situación posesoria: ${auction.occupancy || "La clave aquí suele estar en la situación posesoria y el orden de cargas"}
-• Posibles cargas a revisar: El margen real dependerá del orden de cargas en la certificación registral, conviene revisarla bien antes de plantear puja.
+    const propertyType = auction.propertyType ? auction.propertyType.charAt(0).toUpperCase() + auction.propertyType.slice(1) : 'Activo';
+    const location = auction.zone && auction.zone !== 'Desconocida' 
+      ? `${auction.city} (${auction.zone})` 
+      : `${auction.city}`;
 
-📊 <b>Lectura rápida</b>
+    let message = `🔒 <b>Análisis Premium</b>\n\n`;
+    const typeAndLocation = `🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}`;
+    const discountText = isHighDiscount ? (Math.random() > 0.5 ? `🔥 <b>¡OPORTUNIDAD: ${discountVal}% por debajo de tasación!</b>` : `🔥 <b>Descuento del ${discountVal}% detectado</b>`) : '';
+    const urgencyText = daysLeft ? `⏳ <b>¡Cierra en solo ${daysLeft} días!</b>` : '';
+    const hook = getRandom(HOOKS);
+    const introType = Math.floor(Math.random() * 3);
 
-• deuda reclamada: ${formatCurrency(auction.claimedDebt)}
-• valor de subasta: ${formatCurrency(auction.appraisalValue)}
-• ratio deuda / subasta: ${debtRatio}%
-• descuento teórico: ${auction.discount ? auction.discount + '%' : 'A determinar'}
+    if (introType === 0 && isHighDiscount) {
+      message += `${discountText}\n\n${typeAndLocation}\n\n${hook}\n\n`;
+    } else if (introType === 1) {
+      message += `${hook}\n\n${typeAndLocation}\n\n`;
+      if (discountText) message += `${discountText}\n\n`;
+    } else if (introType === 2 && daysLeft) {
+      message += `${urgencyText}\n\n${typeAndLocation}\n\n${hook}\n\n`;
+      if (discountText) message += `${discountText}\n\n`;
+    } else {
+      if (discountText) message += `${discountText}\n\n`;
+      message += `${typeAndLocation}\n\n${hook}\n\n`;
+    }
 
-${getRandom(INTERPRETATIONS)}
-
-💰 <b>Escenario orientativo</b>
-
-• rango posible de adjudicación: Estimación inicial basada en tipología
-• valor estimado de mercado en la zona: Si el activo acompaña en estado, el mercado suele absorber bien este producto
-• margen potencial aproximado: Margen a confirmar tras revisar cargas registrales
-
-${getRandom(TRANSITIONS)}
-
-🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>
-
-🔎 <a href="${CONFIG.BASE_URL}/${auction.slug}">Análisis completo del activo</a>
-
-${getRandom(FOMO_LINES)}
-
-👉 <a href="https://calendly.com/activosoffmarket">Reservar consultoría</a>`;
+    if (daysLeft && introType !== 2) {
+      message += `⏳ <b>Quedan ${daysLeft} días</b>\n`;
+    }
+    if (isScarce) {
+      message += `📉 <b>Pocas oportunidades así en esta zona</b>\n`;
+    }
+    message += `\n🔎 <b>Claves del expediente</b>\n\n`;
+    message += `• Procedimiento: ${auction.procedureType}\n`;
+    message += `• Situación posesoria: ${auction.occupancy || "La clave aquí suele estar en la situación posesoria y el orden de cargas"}\n`;
+    message += `• Posibles cargas a revisar: El margen real dependerá del orden de cargas en la certificación registral, conviene revisarla bien antes de plantear puja.\n\n`;
+    message += `📊 <b>Lectura rápida</b>\n\n`;
+    message += `• deuda reclamada: ${formatCurrency(auction.claimedDebt)}\n`;
+    message += `• valor de subasta: ${formatCurrency(auction.appraisalValue)}\n`;
+    if (pricePerSqm) message += `• ref. tasación m²: ${pricePerSqm} €/m²\n`;
+    message += `• ratio deuda / subasta: ${debtRatio}%\n`;
+    message += `• descuento teórico: ${auction.discount ? auction.discount + '%' : 'A determinar'}\n\n`;
+    message += `${getRandom(INTERPRETATIONS)}\n\n`;
+    message += `💰 <b>Escenario orientativo</b>\n\n`;
+    message += `• rango posible de adjudicación: Estimación inicial basada en tipología\n`;
+    message += `• valor estimado de mercado en la zona: Si el activo acompaña en estado, el mercado suele absorber bien este producto\n`;
+    message += `• margen potencial aproximado: Margen a confirmar tras revisar cargas registrales\n\n`;
+    message += `${getRandom(TRANSITIONS)}\n\n`;
+    message += `🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>\n\n`;
+    message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver fotos, cargas registrales y rentabilidad estimada</a>\n\n`;
+    message += `${getRandom(FOMO_LINES)}\n\n`;
+    message += `👉 <a href="https://calendly.com/activosoffmarket">Reservar consultoría</a>\n\n`;
+    message += `${hashtags}`;
 
     const success = await sendTelegramMessage(message);
     if (success) {
       console.log(`✅ Notificación premium enviada: ${auction.slug}`);
+      fs.appendFileSync(CONFIG.SENT_FILE, auction.slug + '\n');
+      sentSlugs.push(auction.slug);
       processedSlugs.push(auction.slug);
     }
     await new Promise(resolve => setTimeout(resolve, 2000));

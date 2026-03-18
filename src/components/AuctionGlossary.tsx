@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Calendar, ChevronRight, BookOpen, Search, Gavel, FileText, Scale, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 const AuctionGlossary: React.FC = () => {
   

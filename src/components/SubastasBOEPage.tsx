@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen, AlertTriangle, ShieldCheck, Search, Globe, Building2, Gavel, Scale } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 const SubastasBOEPage: React.FC = () => {
   

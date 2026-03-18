@@ -58,8 +58,11 @@ const Pricing: React.FC = () => {
                 <span className="text-4xl font-bold text-slate-900">9€</span>
                 <span className="text-base font-medium text-slate-500">/semana</span>
             </div>
-            <p className="text-slate-600 mb-8 flex-grow leading-relaxed">
+            <p className="text-slate-600 mb-2 flex-grow leading-relaxed">
               Para quien quiere pujar con los deberes hechos. Acceso al análisis completo de cargas, posesión y valoración.
+            </p>
+            <p className="text-brand-700 text-xs font-bold mb-6 italic">
+              🔒 Nuevas oportunidades cada día que no se publican en el canal gratuito. Acceso limitado para mantener calidad.
             </p>
             <a 
                 href="https://sublaunch.com/activosoffmarket" 

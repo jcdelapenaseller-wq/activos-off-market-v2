@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Gavel, Sparkles } from 'lucide-react';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);

@@ -79,8 +79,18 @@ const Hero: React.FC = () => {
             </div>
 
             {/* Trust Line */}
-            <div className="flex flex-col items-center mt-3">
+            <div className="flex flex-col items-center mt-3 gap-2">
               <p className="text-slate-500 text-sm font-medium">Más de 1.200 inversores reciben ya estas alertas cada semana.</p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                  Datos analizados del BOE
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                  Metodología propia de análisis
+                </span>
+              </div>
             </div>
 
             {/* GOOGLE REVIEWS INTEGRATION */}

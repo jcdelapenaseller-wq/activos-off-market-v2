@@ -42,13 +42,13 @@ async function runCrawler() {
 
     console.log(`Provincias encontradas con resultados: ${provinces.length}`);
     
-    // Filtrar solo para Madrid para la prueba
-    const provincesToTest = provinces.filter(p => p.value === '28');
-    console.log(`Ejecutando prueba solo para: ${provincesToTest[0].text}`);
+    // Filtrar para múltiples provincias (ej. top 10 para tener variedad)
+    const provincesToTest = provinces.slice(0, 5);
+    console.log(`Ejecutando prueba para las top ${provincesToTest.length} provincias: ${provincesToTest.map(p => p.text).join(', ')}`);
     
     const allAuctions = [];
     const processedSlugs = new Set();
-    const maxResults = 30;
+    const maxResults = 100; // Reducir límite para que no de timeout
 
     for (const province of provincesToTest) {
       if (allAuctions.length >= maxResults) break;
@@ -268,10 +268,12 @@ async function runCrawler() {
 
             var tipoBien = getVal('Tipo de bien') || getVal('Descripción');
             var direccion = getVal('Dirección') || getVal('Situación');
+            var localidad = getVal('Localidad');
+            var provincia = getVal('Provincia');
             var superficie = getVal('Superficie');
             var cargas = getVal('Cargas');
 
-            return { tipoBien: tipoBien, direccion: direccion, superficie: superficie, cargas: cargas };
+            return { tipoBien: tipoBien, direccion: direccion, localidad: localidad, provincia: provincia, superficie: superficie, cargas: cargas };
           })()
         `) as any;
 
@@ -376,6 +378,8 @@ async function runCrawler() {
             urlDetalle: item.urlDetalle,
             tipoBien: tipoBienLimpio,
             direccion: cleanAddress(bienesData.direccion || ''),
+            municipality: bienesData.localidad || city,
+            province: bienesData.provincia || item.provinceText.split(' ')[0],
             city,
             zone,
             superficie: superficieNum,
@@ -430,6 +434,8 @@ async function runCrawler() {
           const entry = `  '${slug}': {
     propertyType: "${(s.tipoBien || 'Inmueble').replace(/"/g, '\\"')}",
     city: "${(s.city || '').replace(/"/g, '\\"')}",
+    province: "${(s.province || '').replace(/"/g, '\\"')}",
+    municipality: "${(s.municipality || '').replace(/"/g, '\\"')}",
     zone: "${(s.zone || '').replace(/"/g, '\\"')}",
     address: "${(s.direccion || 'No indicada').replace(/"/g, '\\"')}",
     appraisalValue: ${s.valorTasacion || s.valorSubasta},

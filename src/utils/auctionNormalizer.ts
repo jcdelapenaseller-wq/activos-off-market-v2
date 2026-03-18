@@ -16,12 +16,85 @@ export const normalizePropertyType = (type?: string): string => {
 };
 
 /**
+ * Elimina tildes pero mantiene la ñ.
+ */
+const removeAccents = (str: string): string => {
+  return str
+    .replace(/[áàäâ]/g, 'a')
+    .replace(/[éèëê]/g, 'e')
+    .replace(/[íìïî]/g, 'i')
+    .replace(/[óòöô]/g, 'o')
+    .replace(/[úùüû]/g, 'u')
+    .replace(/[ÁÀÄÂ]/g, 'A')
+    .replace(/[ÉÈËÊ]/g, 'E')
+    .replace(/[ÍÌÏÎ]/g, 'I')
+    .replace(/[ÓÒÖÔ]/g, 'O')
+    .replace(/[ÚÙÜÛ]/g, 'U');
+};
+
+/**
+ * Limpia y normaliza nombres de localidades y provincias.
+ * Elimina tildes, convierte a Title Case, y elimina textos extra entre paréntesis o códigos postales.
+ */
+export const normalizeLocationName = (name?: string): string => {
+  if (!name) return '';
+  
+  let clean = name.toLowerCase().trim();
+  
+  // Eliminar textos entre paréntesis (ej: "Madrid (Capital)")
+  clean = clean.replace(/\([^)]*\)/g, '').trim();
+  
+  // Eliminar códigos postales o números sueltos (ej: "Móstoles, 28932" o "Móstoles 28932")
+  clean = clean.replace(/,?\s*\d{5}\b/g, '').trim();
+  
+  // Eliminar tildes
+  clean = removeAccents(clean);
+  
+  // Title Case
+  clean = clean.split(/[\s-]+/).map(word => {
+    if (['de', 'del', 'la', 'las', 'el', 'los', 'y', 'en', 'l'].includes(word)) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+  
+  // Correcciones específicas comunes
+  const corrections: Record<string, string> = {
+    'Alacant': 'Alicante',
+    'Castello': 'Castellon',
+    'Girona': 'Gerona',
+    'Lleida': 'Lerida',
+    'Ourense': 'Orense',
+    'A Coruna': 'A Coruña',
+    'Donostia': 'San Sebastian',
+    'Gasteiz': 'Vitoria',
+    'Bilbo': 'Bilbao'
+  };
+  
+  return corrections[clean] || clean;
+};
+
+/**
+ * Limpia y normaliza nombres de provincias.
+ * Usa la misma lógica que las localidades.
+ */
+export const normalizeProvince = (name?: string): string => {
+  return normalizeLocationName(name);
+};
+
+/**
  * Infiere la ciudad a partir de la dirección o la autoridad gestora.
  */
 export const normalizeCity = (auction: AuctionData): string => {
-  if (auction.city && auction.city.trim() !== '' && auction.city !== 'España') return auction.city;
+  // 1. Usar municipality si existe
+  if (auction.municipality && auction.municipality.trim() !== '') {
+    return normalizeLocationName(auction.municipality);
+  }
   
-  // 1. Intentar extraer de procedureType (ej: "Sección Civil TI Madrid")
+  // 2. Usar city si existe (retrocompatibilidad)
+  if (auction.city && auction.city.trim() !== '' && auction.city !== 'España') {
+    return normalizeLocationName(auction.city);
+  }
+  
+  // 3. Intentar extraer de procedureType (ej: "Sección Civil TI Madrid")
   if (auction.procedureType) {
     const match = auction.procedureType.match(/TI\s+([^.]+)/i);
     if (match && match[1]) {
@@ -37,12 +110,12 @@ export const normalizeCity = (auction: AuctionData): string => {
     if (auction.procedureType.includes('MALAGA')) return 'Málaga';
   }
 
-  // 2. Intentar extraer de la dirección (última parte suele ser la ciudad)
+  // 4. Intentar extraer de la dirección (última parte suele ser la ciudad)
   if (auction.address) {
     const parts = auction.address.split(',');
     if (parts.length > 1) {
       const lastPart = parts[parts.length - 1].trim().replace(/\d/g, '').trim();
-      if (lastPart.length > 2 && lastPart.length < 30) return lastPart;
+      if (lastPart.length > 2 && lastPart.length < 30) return normalizeLocationName(lastPart);
     }
   }
 
@@ -74,23 +147,22 @@ export const normalizeTitle = (auction: AuctionData): string => {
 };
 
 /**
- * Genera una etiqueta de ubicación limpia para la tarjeta.
- * Formato: "Ciudad" o "Ciudad / Zona"
+ * Genera una etiqueta de ubicación limpia para la tarjeta y ficha.
+ * Formato: "Municipio / Provincia"
  */
 export const normalizeLocationLabel = (auction: AuctionData): string => {
-  let city = normalizeCity(auction);
-  const zone = auction.zone && auction.zone.trim() !== '' ? auction.zone : null;
+  const city = normalizeCity(auction);
+  const province = normalizeProvince(auction.province || auction.city);
   
-  if (city === 'España') {
-    // Si no detectamos ciudad, intentar devolver la primera parte de la dirección
-    if (auction.address) {
-      const firstPart = auction.address.split(',')[0].trim();
-      if (firstPart.length > 3) return firstPart;
-    }
+  if (city === 'España' || !city) {
+    if (province && province !== 'España') return province;
     return 'Ubicación pendiente';
   }
 
-  if (zone) return `${city} / ${zone}`;
+  if (province && province !== 'España' && province.toLowerCase() !== city.toLowerCase()) {
+    return `${city} / ${province}`;
+  }
+  
   return city;
 };
 

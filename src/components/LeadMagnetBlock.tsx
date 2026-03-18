@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, CheckCircle } from 'lucide-react';
+import { trackConversion } from '../utils/tracking';
 
 const LeadMagnetBlock: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -52,6 +53,7 @@ const LeadMagnetBlock: React.FC = () => {
             <button
               type="submit"
               disabled={status === 'loading'}
+              onClick={() => trackConversion('general', 'lead_magnet', 'premium')}
               className="w-full bg-brand-500 text-white font-bold py-4 rounded-xl text-lg hover:bg-brand-600 transition-colors disabled:opacity-50"
             >
               {status === 'loading' ? 'Enviando...' : 'Descargar Checklist'}

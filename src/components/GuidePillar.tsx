@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, CheckCircle, ArrowRight, BookOpen, AlertTriangle, Lightbulb, Info, FileText, Scale, Landmark, MapPin, XCircle, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
 
 const GuidePillar: React.FC = () => {

@@ -22,6 +22,24 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
     : null;
 
   const isFinished = isAuctionFinished(data.auctionDate);
+  
+  const pricePerM2 = data.pricePerM2 || (data.surface && valorReferencia ? Math.round(valorReferencia / data.surface) : null);
+
+  // Ranking visual (Absoluto para no añadir complejidad a los listados)
+  let rankingLabel = null;
+  let rankingColor = "";
+  if (opportunityRatio !== null && !isFinished) {
+    if (opportunityRatio >= 50) {
+      rankingLabel = "🥇 Top oportunidad";
+      rankingColor = "bg-amber-100 text-amber-800 border-amber-300";
+    } else if (opportunityRatio >= 40) {
+      rankingLabel = "🥈 Muy interesante";
+      rankingColor = "bg-slate-100 text-slate-700 border-slate-300";
+    } else if (opportunityRatio >= 30) {
+      rankingLabel = "🥉 A seguir";
+      rankingColor = "bg-orange-50 text-orange-800 border-orange-200";
+    }
+  }
 
   // Formateo de Fecha y FOMO
   const auctionDate = data.auctionDate ? new Date(data.auctionDate) : null;
@@ -39,20 +57,20 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
   let fomoColor = "text-slate-500";
 
   if (isFinished) {
-    fomoLabel = "⌛ Oportunidad perdida";
-    fomoColor = "text-slate-400";
+    fomoLabel = "⌛ Finalizada";
+    fomoColor = "text-slate-400 bg-slate-100 border-slate-200";
   } else if (diffHours !== null && diffHours > 0 && diffHours <= 24) {
-    fomoLabel = "🚨 ÚLTIMAS HORAS";
-    fomoColor = "text-red-600";
+    fomoLabel = "🚨 Cierra en horas";
+    fomoColor = "text-red-700 bg-red-50 border-red-200";
   } else if (diffDays !== null && diffDays > 0 && diffDays <= 5) {
-    fomoLabel = "⏳ Termina pronto";
-    fomoColor = "text-amber-600";
+    fomoLabel = `⏳ Cierra en ${diffDays} días`;
+    fomoColor = "text-amber-700 bg-amber-50 border-amber-200";
   } else if (publishedDiffHours !== null && publishedDiffHours <= 48) {
-    fomoLabel = "✨ Oportunidad nueva";
-    fomoColor = "text-brand-600";
+    fomoLabel = "✨ Recién publicada";
+    fomoColor = "text-brand-700 bg-brand-50 border-brand-200";
   } else {
-    fomoLabel = "🔥 Oportunidad activa";
-    fomoColor = "text-slate-500";
+    fomoLabel = "🔥 Alta oportunidad";
+    fomoColor = "text-emerald-700 bg-emerald-50 border-emerald-200";
   }
 
   const locationLabel = normalizeLocationLabel(data);
@@ -65,15 +83,19 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
         </div>
       )}
       
-      <div className="p-6 flex-grow">
-        <div className="flex justify-between items-start mb-4">
+      <div className="p-5 flex-grow flex flex-col">
+        <div className="flex justify-between items-start mb-3 gap-2">
           {/* Badge de Oportunidad o Análisis Requerido */}
-          {opportunityRatio !== null && opportunityRatio >= 18 ? (
-            <span className="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-              Oportunidad {opportunityRatio}%
+          {opportunityRatio !== null && opportunityRatio > 40 ? (
+            <span className="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-wider shadow-sm flex items-center gap-1">
+              🔥 -{opportunityRatio}% DTO
+            </span>
+          ) : opportunityRatio !== null && opportunityRatio >= 15 ? (
+            <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-wider border border-emerald-200">
+              -{opportunityRatio}% DTO
             </span>
           ) : (cantidadReclamada === undefined || cantidadReclamada === null) && valorReferencia ? (
-            <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider border border-slate-200">
               Análisis requerido
             </span>
           ) : (
@@ -82,60 +104,65 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
           
           {/* Fecha Dinámica / FOMO */}
           {fomoLabel && (
-            <span className={`text-[11px] font-bold text-right ${fomoColor}`}>
+            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${fomoColor} whitespace-nowrap`}>
               {fomoLabel}
             </span>
           )}
         </div>
 
-        <h2 className="text-xl font-bold text-slate-900 mb-4 leading-snug">
-          {normalizePropertyType(data.propertyType)} en {data.address?.split(',')[0] || 'ubicación'}
-        </h2>
+        {rankingLabel && (
+          <div className="mb-3">
+            <span className={`inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-md border ${rankingColor}`}>
+              {rankingLabel}
+            </span>
+          </div>
+        )}
 
-        <div className="space-y-3 mb-6">
-          <div className="flex items-center gap-2 text-slate-500 text-sm">
-            <MapPin size={16} className="text-brand-500" />
-            <span className="font-medium">
-              <span className="text-slate-900 font-bold">{data.city}</span>
-              {data.zone ? ` / ${data.zone}` : ''}
+        <Link to={`/subasta/${id}`} className="block mb-4">
+          <h2 className="text-lg font-bold text-slate-900 leading-tight hover:text-brand-600 transition-colors line-clamp-2">
+            {normalizePropertyType(data.propertyType)} en {data.address?.split(',')[0] || normalizeLocationLabel(data).split(',')[0]}
+          </h2>
+        </Link>
+
+        <div className="space-y-2.5 mb-6 flex-grow">
+          <div className="flex items-start gap-2 text-slate-600 text-sm">
+            <MapPin size={16} className="text-slate-400 mt-0.5 shrink-0" />
+            <span className="font-medium leading-snug">
+              {normalizeLocationLabel(data)}
             </span>
           </div>
           
-          {valorReferencia && (
-            <div className="flex items-center gap-2 text-slate-500 text-sm">
-              <DollarSign size={16} className="text-brand-500" />
-              <span>Valor tasación: <span className="font-bold text-slate-900">{valorReferencia.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</span></span>
-            </div>
-          )}
+          <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 mt-3">
+            {valorReferencia && (
+              <div className="flex justify-between items-center text-sm mb-1">
+                <span className="text-slate-500">Tasación:</span>
+                <span className="font-bold text-slate-900">{valorReferencia.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</span>
+              </div>
+            )}
 
-          {cantidadReclamada !== undefined && cantidadReclamada !== null && (
-            <div className="flex items-center gap-2 text-slate-500 text-sm">
-              <DollarSign size={16} className="text-red-500" />
-              <span>Deuda: <span className="font-bold text-red-600">{cantidadReclamada.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</span></span>
-            </div>
-          )}
+            {cantidadReclamada !== undefined && cantidadReclamada !== null && (
+              <div className={`flex justify-between items-center text-sm ${pricePerM2 ? 'mb-1' : ''}`}>
+                <span className="text-slate-500">Deuda:</span>
+                <span className="font-bold text-red-600">{cantidadReclamada.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</span>
+              </div>
+            )}
 
-          {opportunityRatio !== null && opportunityRatio > 0 && (
-            <div className="flex items-center gap-2 text-slate-500 text-sm">
-              <Percent size={16} className="text-green-500" />
-              <span className="text-slate-500">Descuento potencial: <span className="font-bold text-green-600">-{opportunityRatio}%</span></span>
-            </div>
-          )}
+            {pricePerM2 ? (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500">Precio m²:</span>
+                <span className="font-bold text-slate-700">💸 {pricePerM2.toLocaleString('es-ES')} €/m²</span>
+              </div>
+            ) : null}
+          </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="mt-auto pt-2">
           <Link 
             to={`/subasta/${id}`}
-            className={`w-full inline-flex items-center justify-center font-bold py-3 px-6 rounded-xl transition-colors group ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
+            className={`w-full inline-flex items-center justify-center font-bold py-3.5 px-6 rounded-xl transition-all group ${isFinished ? 'bg-slate-100 text-slate-500 hover:bg-slate-200' : 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
           >
-            Ver detalles
+            {isFinished ? 'Ver resultado' : 'Ver oportunidad'}
             <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <Link 
-            to={ROUTES.CALCULATOR}
-            className="w-full inline-flex items-center justify-center bg-brand-50 text-brand-700 font-bold py-3 px-6 rounded-xl hover:bg-brand-100 transition-colors"
-          >
-            Calcular puja máxima
           </Link>
         </div>
       </div>

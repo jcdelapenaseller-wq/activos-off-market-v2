@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Gavel, Send, BookOpen } from 'lucide-react';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 const Footer: React.FC = () => {
   const navigate = useNavigate();

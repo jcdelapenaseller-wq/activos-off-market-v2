@@ -22,6 +22,8 @@ async function scrapeAuction(subId) {
     claimedDebt: null,
     deposit: null,
     address: null,
+    municipality: null,
+    province: null,
     referenceCadastral: null,
     auctionStart: null,
     auctionEnd: null,
@@ -46,6 +48,8 @@ async function scrapeAuction(subId) {
     const res3 = await axios.get(urls.asset);
     const $3 = cheerio.load(res3.data);
     results.address = extractValue($3, 'Dirección');
+    results.municipality = extractValue($3, 'Localidad');
+    results.province = extractValue($3, 'Provincia');
     results.referenceCadastral = extractValue($3, 'Referencia catastral');
     results.description = extractValue($3, 'Descripción');
 

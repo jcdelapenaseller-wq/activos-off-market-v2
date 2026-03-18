@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import ConversionBlock from './ConversionBlock';
 
 const CalculateBidGuide: React.FC = () => {

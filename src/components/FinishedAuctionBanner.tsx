@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, ArrowRight } from 'lucide-react';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 interface FinishedAuctionBannerProps {
   auctionDate?: string;

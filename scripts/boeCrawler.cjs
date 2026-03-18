@@ -249,8 +249,11 @@ async function processAuction(subId, boeId) {
   // 9. Guardar en auctions.ts
   bufferAuction(auctionEntry);
   console.log(`  ✅ Subasta bufferizada: ${auctionEntry.slug}`);
-  newAuctionsBatch.push({
-    slug: auctionEntry.slug,
+  
+  // Canal gratuito: Solo subastas con descuento > 35%
+  if (auctionEntry.discount > 35) {
+    newAuctionsBatch.push({
+      slug: auctionEntry.slug,
       city: auctionEntry.city,
       zone: auctionEntry.zone,
       propertyType: auctionEntry.propertyType,
@@ -260,24 +263,8 @@ async function processAuction(subId, boeId) {
       auctionDate: auctionEntry.auctionDate,
       address: auctionEntry.address
     });
-
-    // Add to premium queue if not exists
-    if (!premiumAuctions.find(a => a.slug === auctionEntry.slug)) {
-      premiumAuctions.push({
-        slug: auctionEntry.slug,
-        city: auctionEntry.city,
-        zone: auctionEntry.zone,
-        propertyType: auctionEntry.propertyType,
-        address: auctionEntry.address,
-        appraisalValue: auctionEntry.appraisalValue,
-        claimedDebt: auctionEntry.claimedDebt,
-        procedureType: auctionEntry.procedureType,
-        auctionDate: auctionEntry.auctionDate,
-        discount: auctionEntry.discount,
-        detectedAt: new Date().toISOString()
-      });
-    }
   }
+}
 
 async function scrapePortal(subId) {
   const urls = [

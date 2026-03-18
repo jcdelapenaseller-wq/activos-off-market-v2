@@ -1,5 +1,6 @@
 import React from 'react';
 import { Send } from 'lucide-react';
+import { trackConversion } from '../utils/tracking';
 
 const FinalCTA: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ const FinalCTA: React.FC = () => {
           href="https://t.me/activosoffmarket"
           target="_blank"
           rel="noopener noreferrer" 
+          onClick={() => trackConversion('general', 'footer', 'premium')}
           className="inline-flex items-center gap-2 bg-brand-700 text-white font-bold py-4 px-10 rounded-xl hover:bg-brand-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
         >
           <Send size={20} />

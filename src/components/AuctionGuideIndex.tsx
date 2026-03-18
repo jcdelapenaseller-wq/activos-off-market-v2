@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Calendar, Clock, ChevronRight, BookOpen, Gavel, Search, ShieldAlert, FileText, ArrowRight, Layers, GraduationCap, Scale, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 const AuctionGuideIndex: React.FC = () => {
   

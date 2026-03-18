@@ -4,10 +4,10 @@ import { AUCTIONS } from '../data/auctions';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
-import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
+import { normalizePropertyType, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const StreetAuctions: React.FC = () => {
-  const { city, zone, street } = useParams<{ city: string, zone: string, street: string }>();
+  const { city: province, zone, street } = useParams<{ city: string, zone: string, street: string }>();
 
   const normalize = (str: string) => str.toLowerCase()
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -18,34 +18,35 @@ const StreetAuctions: React.FC = () => {
     .replace(/-+$/, '');
 
   const filteredAuctions = useMemo(() => {
-    if (!city || !zone || !street) return [];
+    if (!province || !zone || !street) return [];
     
-    const normalizedCity = normalize(city);
+    const normalizedProvince = normalize(province);
     const normalizedZone = normalize(zone);
     const normalizedStreet = normalize(street);
 
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
-      const dataCitySlug = normalize(normalizeCity(data));
+      const p = normalizeProvince(data.province || data.city);
+      const provinceMatch = normalize(p) === normalizedProvince || normalize(p).includes(normalizedProvince) || normalizedProvince.includes(normalize(p));
       const dataZoneSlug = normalize(data.zone || '');
       const dataStreetSlug = normalize(data.address || '');
       
-      return dataCitySlug === normalizedCity && 
+      return provinceMatch && 
              dataZoneSlug === normalizedZone && 
              dataStreetSlug === normalizedStreet;
     });
     
     return sortActiveFirst(filtered, (item) => item[1].auctionDate);
-  }, [city, zone, street]);
+  }, [province, zone, street]);
 
   const activeCount = useMemo(() => {
     return filteredAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
   }, [filteredAuctions]);
 
-  const { displayCity, displayZone, displayStreet } = useMemo(() => {
+  const { displayProvince, displayZone, displayStreet } = useMemo(() => {
     if (filteredAuctions.length > 0) {
       const data = filteredAuctions[0][1];
       return {
-        displayCity: data.city || '',
+        displayProvince: data.province || data.city || '',
         displayZone: data.zone || '',
         displayStreet: data.address || ''
       };
@@ -53,22 +54,23 @@ const StreetAuctions: React.FC = () => {
     
     const format = (s: string) => s.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     return {
-      displayCity: city ? city.charAt(0).toUpperCase() + city.slice(1) : '',
+      displayProvince: province ? province.charAt(0).toUpperCase() + province.slice(1) : '',
       displayZone: zone ? format(zone) : '',
       displayStreet: street ? format(street) : ''
     };
-  }, [filteredAuctions, city, zone, street]);
+  }, [filteredAuctions, province, zone, street]);
 
   const availableStreets = useMemo(() => {
-    if (!city || !zone) return [];
-    const normalizedCity = normalize(city);
+    if (!province || !zone) return [];
+    const normalizedProvince = normalize(province);
     const normalizedZone = normalize(zone);
     const normalizedCurrentStreet = normalize(street || '');
     
-    const zoneAuctions = Object.values(AUCTIONS).filter(a => 
-      normalize(normalizeCity(a)) === normalizedCity && 
-      normalize(a.zone || '') === normalizedZone
-    );
+    const zoneAuctions = Object.values(AUCTIONS).filter(a => {
+      const p = normalizeProvince(a.province || a.city);
+      return (normalize(p) === normalizedProvince || normalize(p).includes(normalizedProvince) || normalizedProvince.includes(normalize(p))) && 
+      normalize(a.zone || '') === normalizedZone;
+    });
     
     const streets = new Set<string>();
     zoneAuctions.forEach(a => {
@@ -77,14 +79,14 @@ const StreetAuctions: React.FC = () => {
       }
     });
     return Array.from(streets).sort().slice(0, 5);
-  }, [city, zone, street]);
+  }, [province, zone, street]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     if (displayStreet) {
-      document.title = `Subastas inmobiliarias en ${displayStreet}, ${displayZone} (${displayCity}) | Activos Off-Market`;
+      document.title = `Subastas inmobiliarias en ${displayStreet}, ${displayZone} (${displayProvince}) | Activos Off-Market`;
     }
-  }, [displayCity, displayZone, displayStreet]);
+  }, [displayProvince, displayZone, displayStreet]);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
@@ -95,15 +97,15 @@ const StreetAuctions: React.FC = () => {
             <ChevronRight size={14} />
             <Link to={ROUTES.GUIDE_PILLAR} className="hover:text-brand-600 transition-colors">Guía Subastas</Link>
             <ChevronRight size={14} />
-            <Link to={`/subastas-en/${city}`} className="hover:text-brand-600 transition-colors">Subastas en {displayCity}</Link>
+            <Link to={`/subastas/${province}`} className="hover:text-brand-600 transition-colors">Subastas en {displayProvince}</Link>
             <ChevronRight size={14} />
-            <Link to={`/subastas/${city}/${zone}`} className="hover:text-brand-600 transition-colors">{displayZone}</Link>
+            <Link to={`/subastas/${province}/${zone}`} className="hover:text-brand-600 transition-colors">{displayZone}</Link>
             <ChevronRight size={14} />
             <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md">{displayStreet}</span>
           </nav>
 
           <h1 className="font-serif text-3xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-            Subastas inmobiliarias en {displayStreet}, {displayZone} ({displayCity})
+            Subastas inmobiliarias en {displayStreet}, {displayZone} ({displayProvince})
           </h1>
 
           {activeCount > 0 && (
@@ -118,7 +120,7 @@ const StreetAuctions: React.FC = () => {
 
           <div className="max-w-3xl">
             <p className="text-lg text-slate-600 leading-relaxed mb-6">
-              Explora las oportunidades de inversión mediante subastas judiciales y administrativas localizadas específicamente en la calle <strong>{displayStreet}</strong>, dentro del barrio de <strong>{displayZone}</strong> en <strong>{displayCity}</strong>. Esta zona destaca por su dinamismo inmobiliario y su excelente ubicación, lo que convierte a cualquier activo en subasta en una opción potencialmente muy rentable. Analizar el mercado hiperlocal es clave para determinar el valor real de los inmuebles y establecer una estrategia de puja ganadora. En esta página encontrarás el listado actualizado de activos disponibles, incluyendo su valor de tasación oficial y la deuda reclamada, permitiéndote calcular el descuento potencial de cada operación antes de participar en el proceso de licitación pública.
+              Explora las oportunidades de inversión mediante subastas judiciales y administrativas localizadas específicamente en la calle <strong>{displayStreet}</strong>, dentro del barrio de <strong>{displayZone}</strong> en <strong>{displayProvince}</strong>. Esta zona destaca por su dinamismo inmobiliario y su excelente ubicación, lo que convierte a cualquier activo en subasta en una opción potencialmente muy rentable. Analizar el mercado hiperlocal es clave para determinar el valor real de los inmuebles y establecer una estrategia de puja ganadora. En esta página encontrarás el listado actualizado de activos disponibles, incluyendo su valor de tasación oficial y la deuda reclamada, permitiéndote calcular el descuento potencial de cada operación antes de participar en el proceso de licitación pública.
             </p>
           </div>
         </div>
@@ -195,11 +197,11 @@ const StreetAuctions: React.FC = () => {
             <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">No hay subastas activas en esta calle</h2>
             <p className="text-slate-600 mb-8">
               Actualmente no hemos detectado subastas judiciales o administrativas en la calle {displayStreet}. 
-              Te recomendamos explorar otras zonas de {displayCity} o utilizar nuestra calculadora para estar preparado.
+              Te recomendamos explorar otras zonas de {displayProvince} o utilizar nuestra calculadora para estar preparado.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to={`/subastas-en/${city}`} className="bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors">
-                Ver subastas en {displayCity}
+              <Link to={`/subastas/${province}`} className="bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors">
+                Ver subastas en {displayProvince}
               </Link>
               <Link to={ROUTES.CALCULATOR} className="bg-slate-100 text-slate-900 font-bold py-3 px-8 rounded-xl hover:bg-slate-200 transition-colors">
                 Calculadora de subastas
@@ -214,7 +216,7 @@ const StreetAuctions: React.FC = () => {
           </h2>
           <div className="text-slate-600 leading-relaxed space-y-4">
             <p>
-              El mercado inmobiliario en la calle <strong>{displayStreet}</strong> y sus alrededores dentro del barrio de <strong>{displayZone}</strong> se caracteriza por una demanda sostenida y una oferta limitada, lo que mantiene los precios estables y atractivos para la inversión. Esta zona de <strong>{displayCity}</strong> es especialmente valorada por su consolidación urbana, acceso a servicios y conectividad, factores que minimizan el riesgo de desocupación y maximizan el potencial de rentabilidad por alquiler.
+              El mercado inmobiliario en la calle <strong>{displayStreet}</strong> y sus alrededores dentro del barrio de <strong>{displayZone}</strong> se caracteriza por una demanda sostenida y una oferta limitada, lo que mantiene los precios estables y atractivos para la inversión. Esta zona de <strong>{displayProvince}</strong> es especialmente valorada por su consolidación urbana, acceso a servicios y conectividad, factores que minimizan el riesgo de desocupación y maximizan el potencial de rentabilidad por alquiler.
             </p>
             <p>
               Para los inversores en subastas, esta ubicación representa una oportunidad estratégica. Los activos que salen a licitación pública en esta calle suelen atraer un interés considerable debido a su liquidez. Participar en una subasta aquí requiere un análisis exhaustivo del valor de mercado hiperlocal, ya que incluso pequeñas variaciones en la ubicación dentro del barrio pueden influir significativamente en la tasación final. El contexto de subastas en esta zona suele estar marcado por procedimientos de ejecución hipotecaria o administrativos, donde el conocimiento previo de la calle permite ajustar la puja máxima con mayor seguridad.
@@ -238,7 +240,7 @@ const StreetAuctions: React.FC = () => {
               {availableStreets.map(streetName => (
                 <Link 
                   key={streetName}
-                  to={`/subastas/${normalize(city || '')}/${normalize(zone || '')}/${normalize(streetName)}`}
+                  to={`/subastas/${normalize(province || '')}/${normalize(zone || '')}/${normalize(streetName)}`}
                   className="bg-white border border-slate-200 rounded-xl p-3 text-sm text-brand-600 hover:text-brand-800 hover:border-brand-200 hover:shadow-sm transition-all flex items-center gap-2 font-medium"
                 >
                   <ChevronRight size={14} className="flex-shrink-0" />

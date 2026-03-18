@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, ChevronRight, Scale, Building2, ArrowRight, BookOpen, AlertTriangle, CheckCircle, XCircle, Landmark, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 
 const AuctionComparisonGuide: React.FC = () => {
   

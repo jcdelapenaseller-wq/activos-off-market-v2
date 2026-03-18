@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../constants/routes';
 import { Calendar, User, MapPin, CircleDollarSign, Landmark, TrendingDown, Clock, MessageSquare, ExternalLink, ShieldCheck, Info, ArrowLeft, ArrowRight } from 'lucide-react';
 import { generateDiscoverTitle } from '../utils/discoverTitles';
 import { isAuctionFinished } from '../utils/auctionHelpers';
+import { normalizeProvince } from '../utils/auctionNormalizer';
+import { trackConversion } from '../utils/tracking';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
 
 const AuctionDiscoverArticle: React.FC = () => {
@@ -76,6 +78,8 @@ const AuctionDiscoverArticle: React.FC = () => {
     const today = new Date();
     return pubDate.toDateString() === today.toDateString();
   }, [auction.publishedAt]);
+
+  const provinceName = useMemo(() => normalizeProvince(auction.province || auction.city || ''), [auction.province, auction.city]);
 
   const relatedAuctions = useMemo(() => {
     return Object.entries(AUCTIONS)
@@ -290,6 +294,7 @@ const AuctionDiscoverArticle: React.FC = () => {
             href="https://t.me/activosOffmarket" 
             target="_blank" 
             rel="noopener noreferrer"
+            onClick={() => trackConversion(provinceName, 'discover', 'premium')}
             className="inline-flex items-center gap-2 bg-sky-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-sky-600 transition-all shadow-lg shadow-sky-200"
           >
             👉 Seguir el canal Telegram
@@ -331,6 +336,7 @@ const AuctionDiscoverArticle: React.FC = () => {
               href="https://calendly.com/activosoffmarket" 
               target="_blank" 
               rel="noopener noreferrer"
+              onClick={() => trackConversion(provinceName, 'discover', 'consultoria')}
               className="inline-flex items-center gap-2 bg-brand-500 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-600 transition-all shadow-lg shadow-brand-900/50"
             >
               📅 Reservar análisis de subasta
