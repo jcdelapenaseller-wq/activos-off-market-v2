@@ -123,18 +123,65 @@ export const normalizeCity = (auction: AuctionData): string => {
 };
 
 /**
+ * Limpia y normaliza la dirección para mostrar Calle + Número.
+ */
+export const formatAddress = (rawAddress: string | undefined): string => {
+  if (!rawAddress) return '';
+  
+  // 1. Basic cleanup: split by comma (often contains extra info like floor, door)
+  let address = rawAddress.split(',')[0].trim();
+  
+  // 2. Normalize common street types and remove "DEL", "DE LA", etc. immediately after
+  const streetTypes = [
+    { raw: /^CALLE (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Calle ' },
+    { raw: /^AVENIDA (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Av. ' },
+    { raw: /^AV\.? (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Av. ' },
+    { raw: /^CARRER (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Carrer ' },
+    { raw: /^PLAZA (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Plaza ' },
+    { raw: /^PZ\.? (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Plaza ' },
+    { raw: /^PASEO (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Paseo ' },
+    { raw: /^PS\.? (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Paseo ' },
+    { raw: /^URBANIZACI[ÓO]N (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Urb. ' },
+    { raw: /^URB\.? (?:DEL? |DE LA |DE LOS |DE LAS )?/i, clean: 'Urb. ' },
+  ];
+
+  for (const type of streetTypes) {
+    if (type.raw.test(address)) {
+      address = address.replace(type.raw, type.clean);
+      break;
+    }
+  }
+
+  // 3. Title Case
+  const toTitleCase = (str: string) => {
+    const lowercaseWords = ['de', 'del', 'la', 'el', 'los', 'las', 'en', 'y'];
+    return str.toLowerCase().split(' ').map((word, index) => {
+      if (lowercaseWords.includes(word) && index !== 0) {
+        return word;
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    }).join(' ');
+  };
+
+  address = toTitleCase(address);
+
+  // 4. Handle number at the end
+  const numberRegex = /(?:\s+N[º°.]?\s*|\s+NUMERO\s+|\s+)(\d+[A-Z]?)$/i;
+  if (numberRegex.test(address)) {
+    address = address.replace(numberRegex, ', $1');
+  }
+
+  return address.trim();
+};
+
+/**
  * Genera un título limpio: Tipo + Calle + Número
  */
 export const normalizeTitle = (auction: AuctionData): string => {
   const type = normalizePropertyType(auction.propertyType);
-  let address = auction.address || 'Ubicación no disponible';
+  const cleanAddress = formatAddress(auction.address);
   
-  // Limpiar dirección: quedarnos con Calle + Número
-  // Ej: "Calle Mayor 1, 2º A" -> "Calle Mayor 1"
-  let cleanAddress = address.split(',')[0].trim();
-  
-  // Eliminar prefijos comunes del BOE si existen
-  cleanAddress = cleanAddress.replace(/^(CL|CALLE|AV|AVENIDA|PS|PASEO|CTRA|CARRETERA)\s+/i, '');
+  if (!cleanAddress) return `${type} en subasta`;
   
   const fullTitle = `${type} en ${cleanAddress}`;
   

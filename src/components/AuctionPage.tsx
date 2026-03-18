@@ -9,7 +9,7 @@ import {
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished } from '../utils/auctionHelpers';
-import { normalizePropertyType, normalizeCity, normalizeLocationLabel, normalizeProvince } from '../utils/auctionNormalizer';
+import { normalizePropertyType, normalizeCity, normalizeLocationLabel, normalizeProvince, formatAddress } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
 import ConversionBlock from './ConversionBlock';
@@ -85,14 +85,7 @@ const AuctionPage: React.FC = () => {
         ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) 
         : 0;
       
-      let addressPart = '';
-      if (auction.address) {
-        // Extract street and number more precisely
-        const cleanAddress = auction.address.split(',')[0].trim();
-        const words = cleanAddress.split(' ');
-        addressPart = words.slice(0, 4).join(' ');
-      }
-      
+      const addressPart = formatAddress(auction.address);
       const streetPart = addressPart ? ` (${addressPart})` : '';
       const discountPart = discount > 0 ? ` con ${discount}% de descuento` : '';
       const title = `${propertyType} en subasta en ${cityName}${streetPart}${discountPart}`;
@@ -252,6 +245,11 @@ const AuctionPage: React.FC = () => {
               
               <h1 className="text-4xl md:text-6xl font-serif font-bold text-slate-900 mb-8 leading-tight">
                 {propertyType} en subasta en {cityName}
+                {formatAddress(auction.address) && (
+                  <span className="block text-2xl md:text-3xl text-slate-500 mt-4 font-sans font-normal">
+                    ({formatAddress(auction.address)})
+                  </span>
+                )}
               </h1>
               
               <div className="flex flex-wrap items-center gap-8 text-slate-500 text-base mb-12">
