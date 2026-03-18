@@ -35,6 +35,7 @@ const ChecklistPage: React.FC = () => {
     {
       title: "1. Cargas Registrales",
       icon: <FileText className="text-brand-600" size={24} />,
+      tip: "Punto clave: La Nota Simple es tu única protección real ante deudas ocultas.",
       items: [
         "Solicitar Nota Simple actualizada (no más de 48h antes de la subasta).",
         "Identificar cargas anteriores: Estas se mantienen y deberás pagarlas tú.",
@@ -46,6 +47,7 @@ const ChecklistPage: React.FC = () => {
     {
       title: "2. Situación Posesoria",
       icon: <Home className="text-brand-600" size={24} />,
+      tip: "Ojo con: Los contratos de alquiler 'fantasma' firmados justo antes de la ejecución.",
       items: [
         "Confirmar si el inmueble está ocupado por el deudor o por terceros.",
         "Verificar si existe contrato de alquiler vigente y si es oponible.",
@@ -56,6 +58,7 @@ const ChecklistPage: React.FC = () => {
     {
       title: "3. Valor de Mercado Real",
       icon: <Search className="text-brand-600" size={24} />,
+      tip: "Error típico: Confiar en el valor de tasación del BOE como si fuera el precio de venta.",
       items: [
         "Ignorar la tasación del BOE: Suele estar inflada o muy desactualizada.",
         "Realizar un estudio de mercado con testigos reales vendidos recientemente.",
@@ -66,6 +69,7 @@ const ChecklistPage: React.FC = () => {
     {
       title: "4. Cálculo de Puja Máxima",
       icon: <Calculator className="text-brand-600" size={24} />,
+      tip: "Punto clave: No olvides que el ITP se paga sobre el valor de referencia, no sobre tu puja.",
       items: [
         "Calcular el ITP exacto según la Comunidad Autónoma.",
         "Prever gastos de Registro de la Propiedad y Notaría.",
@@ -76,6 +80,7 @@ const ChecklistPage: React.FC = () => {
     {
       title: "5. Riesgos Ocultos y Legales",
       icon: <AlertTriangle className="text-brand-600" size={24} />,
+      tip: "Precaución: Una subasta puede anularse meses después si el deudor no fue bien notificado.",
       items: [
         "Verificar derechos de retracto (inquilinos, colindantes, administraciones).",
         "Comprobar si hay tercerías de dominio interpuestas.",
@@ -94,9 +99,12 @@ const ChecklistPage: React.FC = () => {
             <ShieldCheck size={16} />
             Contenido Exclusivo para Suscriptores
           </div>
-          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4 leading-tight">
             Checklist profesional para analizar subastas del BOE
           </h1>
+          <p className="text-brand-400 font-medium mb-8 text-lg">
+            “Este checklist es el mismo que utilizo antes de consignar el 5% en el BOE.”
+          </p>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto font-light print:text-slate-600">
             El proceso paso a paso que utilizo para filtrar oportunidades y evitar errores costosos antes de pujar.
           </p>
@@ -122,7 +130,7 @@ const ChecklistPage: React.FC = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900">{section.title}</h2>
               </div>
-              <ul className="space-y-4">
+              <ul className="space-y-4 mb-6">
                 {section.items.map((item, i) => (
                   <li key={i} className="flex items-start gap-3 text-slate-700">
                     <CheckCircle2 className="text-emerald-500 shrink-0 mt-1" size={20} />
@@ -130,6 +138,9 @@ const ChecklistPage: React.FC = () => {
                   </li>
                 ))}
               </ul>
+              <div className="pt-4 border-t border-slate-200/60 text-brand-700 font-medium italic text-sm">
+                {section.tip}
+              </div>
             </section>
           ))}
         </div>
@@ -158,8 +169,11 @@ const ChecklistPage: React.FC = () => {
           <h2 className="text-3xl font-serif font-bold text-slate-900 mb-4">
             ¿Quieres ir un paso más allá?
           </h2>
-          <p className="text-lg text-slate-600 mb-10 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-600 mb-4 max-w-2xl mx-auto">
             Si has encontrado una subasta que cumple todos los puntos pero quieres una segunda opinión profesional antes de comprometer tu capital.
+          </p>
+          <p className="text-slate-900 font-bold mb-10 italic">
+            “La mayoría de errores en subastas no vienen de la puja… sino de no revisar bien esto.”
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a 
@@ -190,13 +204,18 @@ const ChecklistPage: React.FC = () => {
       {/* Print Styles */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
+          @page { margin: 2cm; }
           nav, .print\\:hidden { display: none !important; }
           body { background: white !important; color: black !important; }
           main { width: 100% !important; max-width: none !important; padding: 0 !important; }
-          .bg-slate-50, .bg-brand-50 { background: white !important; border: 1px solid #e2e8f0 !important; }
-          h1 { font-size: 24pt !important; }
-          h2 { font-size: 18pt !important; }
-          .text-lg { font-size: 12pt !important; }
+          .bg-slate-50, .bg-brand-50 { background: white !important; border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
+          .rounded-3xl { border-radius: 1rem !important; }
+          h1 { font-size: 24pt !important; margin-bottom: 10pt !important; }
+          h2 { font-size: 18pt !important; margin-bottom: 8pt !important; }
+          .text-lg { font-size: 11pt !important; color: #1e293b !important; }
+          .text-slate-700, .text-slate-600 { color: #1e293b !important; }
+          .border-t { border-color: #e2e8f0 !important; }
+          .shadow-sm, .shadow-xl { box-shadow: none !important; }
         }
       `}} />
     </div>
