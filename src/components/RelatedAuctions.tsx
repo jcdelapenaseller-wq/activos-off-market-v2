@@ -14,10 +14,20 @@ const RelatedAuctions: React.FC<RelatedAuctionsProps> = ({ currentAuctionSlug, c
     const filtered = Object.entries(AUCTIONS)
       .filter(([slug, data]) => {
         if (slug === currentAuctionSlug) return false;
+        // Basic matching logic
         return data.city === currentAuctionData.city || data.propertyType === currentAuctionData.propertyType;
       });
       
-    return sortActiveFirst(filtered, (item) => item[1].auctionDate).slice(0, 4);
+    // Ensure unique slugs (though Object.entries already does this, we make it explicit if needed)
+    const uniqueMap = new Map();
+    filtered.forEach(([slug, data]) => {
+      if (!uniqueMap.has(slug)) {
+        uniqueMap.set(slug, data);
+      }
+    });
+
+    const sorted = sortActiveFirst(Array.from(uniqueMap.entries()), (item) => item[1].auctionDate);
+    return sorted.slice(0, 4);
   }, [currentAuctionSlug, currentAuctionData]);
 
   if (relatedAuctions.length === 0) return null;

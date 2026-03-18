@@ -16,9 +16,14 @@ const RecentAuctionsHome: React.FC = () => {
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-2">
               Subastas detectadas recientemente
             </h2>
-            <p className="text-slate-600">
-              Oportunidades reales analizadas en los últimos días.
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <p className="text-slate-600">
+                Oportunidades reales analizadas en los últimos días.
+              </p>
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-brand-600 uppercase tracking-widest bg-brand-50 px-2 py-0.5 rounded border border-brand-100 w-fit">
+                Sistema de detección automática
+              </span>
+            </div>
           </div>
           <Link 
             to="/subastas-recientes" 

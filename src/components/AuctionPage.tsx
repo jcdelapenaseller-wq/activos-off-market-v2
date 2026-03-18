@@ -108,9 +108,9 @@ const AuctionPage: React.FC = () => {
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-6 pt-12 pb-20">
+      <div className="max-w-5xl mx-auto px-6 pt-12 pb-20">
         {/* Breadcrumbs */}
-        <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
+        <nav className="flex items-center text-sm text-slate-500 mb-10 font-medium" aria-label="Breadcrumb">
           <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
           <ChevronRight size={14} className="mx-2" />
           <Link to={`/subastas/${provinceName.toLowerCase()}`} className="hover:text-brand-600 transition-colors capitalize">Subastas en {provinceName}</Link>
@@ -118,165 +118,125 @@ const AuctionPage: React.FC = () => {
           <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md">Ficha de activo</span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="space-y-20">
           {/* Main Content */}
-          <main className="lg:col-span-8">
+          <div className="w-full">
             {isFinished && auction.auctionDate && (
               <FinishedAuctionBanner auctionDate={auction.auctionDate} />
             )}
 
-            <header className="mb-12">
-              <div className="flex items-center gap-3 mb-6">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${oppMessage.color}`}>
+            <header className="mb-24">
+              <div className="flex items-center gap-3 mb-10">
+                <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${oppMessage.color}`}>
                   {oppMessage.text}
                 </span>
                 {isFinished ? (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold border bg-slate-100 text-slate-600 border-slate-200">
+                  <span className="px-4 py-1.5 rounded-full text-xs font-bold border bg-slate-100 text-slate-600 border-slate-200">
                     Subasta Finalizada
                   </span>
                 ) : (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold border bg-brand-50 text-brand-700 border-brand-200">
+                  <span className="px-4 py-1.5 rounded-full text-xs font-bold border bg-brand-50 text-brand-700 border-brand-200">
                     Subasta Activa
                   </span>
                 )}
               </div>
               
-              <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6 leading-tight">
+              <h1 className="text-4xl md:text-6xl font-serif font-bold text-slate-900 mb-8 leading-tight">
                 {propertyType} en subasta en {cityName}
               </h1>
               
-              <div className="flex flex-wrap items-center gap-6 text-slate-500 text-sm mb-8">
+              <div className="flex flex-wrap items-center gap-8 text-slate-500 text-base mb-12">
                 <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-brand-500" />
+                  <MapPin size={20} className="text-brand-500" />
                   <span>{locationLabel}</span>
                 </div>
                 {auction.auctionDate && (
                   <div className="flex items-center gap-2">
-                    <Calendar size={16} className="text-brand-500" />
+                    <Calendar size={20} className="text-brand-500" />
                     <span>Finaliza: {new Date(auction.auctionDate).toLocaleDateString('es-ES')}</span>
                   </div>
                 )}
               </div>
 
-              {/* Quick Data Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-1">Valor Tasación</span>
-                  <span className="text-xl font-bold text-slate-900">
+              {/* Quick Data Grid (Technical Block) */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
+                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-2">Valor Tasación</span>
+                  <span className="text-2xl font-bold text-slate-900">
                     {auction.appraisalValue ? auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : 'Sin datos'}
                   </span>
                 </div>
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-1">Deuda Reclamada</span>
-                  <span className="text-xl font-bold text-slate-900">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
+                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-2">Deuda Reclamada</span>
+                  <span className="text-2xl font-bold text-slate-900">
                     {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : 'Sin datos'}
                   </span>
                 </div>
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-1">Descuento Bruto</span>
-                  <span className={`text-xl font-bold ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-600' : 'text-brand-600'}`}>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
+                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-2">Descuento Bruto</span>
+                  <span className={`text-2xl font-bold ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-600' : 'text-brand-600'}`}>
                     {opportunityRatio ? `${(opportunityRatio * 100).toFixed(1)}%` : '---'}
                   </span>
                 </div>
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
-                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-1">Tipo de Activo</span>
-                  <span className="text-lg font-bold text-slate-900 truncate" title={propertyType}>{propertyType}</span>
-                </div>
-              </div>
-
-              {/* CTAs Above the Fold */}
-              <div className="bg-white p-6 md:p-8 rounded-2xl border-2 border-brand-100 shadow-md mb-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
-                  <div>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-2">¿Te interesa esta subasta?</h3>
-                    <p className="text-amber-700 font-medium flex items-center gap-2">
-                      <Clock size={18} /> Este tipo de oportunidades no duran mucho
-                    </p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                    <div className="flex flex-col gap-2 w-full md:w-auto">
-                      <a 
-                        href="https://calendly.com/activosoffmarket" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        onClick={() => trackConversion(provinceName, 'ficha', 'premium')}
-                        className="bg-slate-900 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-slate-800 transition-colors text-center flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
-                      >
-                        🔒 Ver análisis completo (premium)
-                      </a>
-                      <p className="text-[10px] text-slate-500 text-center font-medium">
-                        Nuevas oportunidades cada día que no se publican en el canal gratuito
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-2 w-full md:w-auto">
-                      <a 
-                        href="https://calendly.com/activosoffmarket" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        onClick={() => trackConversion(provinceName, 'ficha', 'consultoria')}
-                        className="bg-brand-600 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-brand-700 transition-colors text-center flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
-                      >
-                        📞 Analizar conmigo esta subasta
-                      </a>
-                      <p className="text-[10px] text-slate-500 text-center font-medium">
-                        Incluye: análisis, riesgos reales y estrategia de puja
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-slate-100">
-                  <p className="text-slate-500 text-sm flex items-center justify-center gap-2">
-                    <CheckCircle size={16} className="text-emerald-500" /> Inversores ya usan este análisis para decidir antes de pujar
-                  </p>
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
+                  <span className="text-xs text-slate-500 uppercase tracking-wider font-bold block mb-2">Tipo de Activo</span>
+                  <span className="text-xl font-bold text-slate-900 truncate" title={propertyType}>{propertyType}</span>
                 </div>
               </div>
             </header>
 
             {/* Analysis Block */}
-            <section className="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm mb-12">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <h2 className="text-2xl font-serif font-bold text-slate-900 flex items-center gap-3">
-                  <FileText className="text-brand-600" /> Análisis Técnico
+            <section className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm mb-16">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+                <h2 className="text-3xl font-serif font-bold text-slate-900 flex items-center gap-3">
+                  <FileText className="text-brand-600" /> Análisis del Activo
                 </h2>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                  Análisis basado en datos oficiales del BOE
-                </p>
-                {auction.boeUrl && (
-                  <a 
-                    href={auction.boeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1"
-                  >
-                    Ver edicto BOE <ArrowRight size={14} />
-                  </a>
-                )}
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-bold text-brand-600 uppercase tracking-widest bg-brand-50 px-2 py-0.5 rounded border border-brand-100">
+                      Metodología propia
+                    </span>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Análisis basado en datos oficiales del BOE
+                    </p>
+                  </div>
+                  {auction.boeUrl && (
+                    <a 
+                      href={auction.boeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1 mt-1"
+                    >
+                      Ver edicto original <ArrowRight size={14} />
+                    </a>
+                  )}
+                </div>
               </div>
               
-              <div className="prose prose-slate max-w-none mb-10">
+              <div className="prose prose-slate max-w-none mb-12">
                 {auction.appraisalValue && auction.claimedDebt ? (
                   <>
-                    <p className="text-lg leading-relaxed text-slate-700">
+                    <p className="text-xl leading-relaxed text-slate-700">
                       Este activo presenta un <strong>descuento bruto del {(opportunityRatio! * 100).toFixed(1)}%</strong> respecto a su valor de tasación ({auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}). La deuda reclamada por el ejecutante asciende a {auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}.
                     </p>
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 mt-6">
-                      <p className="text-slate-700 mb-3">
-                        <strong className="text-emerald-700 flex items-center gap-2 mb-1"><TrendingUp size={18}/> Potencial:</strong> 
+                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 mt-10">
+                      <p className="text-slate-700 mb-4 text-lg">
+                        <strong className="text-emerald-700 flex items-center gap-2 mb-2"><TrendingUp size={20}/> Potencial:</strong> 
                         Existe un margen de seguridad amplio para cubrir gastos de ITP, notaría y posibles reformas, manteniendo rentabilidad.
                       </p>
-                      <p className="text-slate-700">
-                        <strong className="text-amber-700 flex items-center gap-2 mb-1"><AlertTriangle size={18}/> Riesgo:</strong> 
+                      <p className="text-slate-700 text-lg">
+                        <strong className="text-amber-700 flex items-center gap-2 mb-2"><AlertTriangle size={20}/> Riesgo:</strong> 
                         Es imprescindible solicitar la certificación de cargas para descartar anotaciones preventivas o hipotecas preferentes no incluidas en la deuda reclamada, así como verificar el estado posesorio del inmueble.
                       </p>
                     </div>
                   </>
                 ) : (
-                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800">
-                    <div className="flex items-start gap-3">
-                      <AlertTriangle className="shrink-0 mt-1" size={24} />
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-amber-800">
+                    <div className="flex items-start gap-4">
+                      <AlertTriangle className="shrink-0 mt-1" size={28} />
                       <div>
-                        <h3 className="font-bold text-lg mb-2">Información incompleta en el edicto</h3>
-                        <p className="mb-4 text-amber-900/80">
+                        <h3 className="font-bold text-xl mb-3">Información incompleta en el edicto</h3>
+                        <p className="mb-6 text-amber-900/80 text-lg leading-relaxed">
                           El expediente judicial publicado no detalla la deuda reclamada o el valor de tasación. <strong>Es necesario revisar la certificación de cargas y el edicto completo</strong> para calcular la viabilidad de esta inversión y evitar adjudicaciones con deudas ocultas.
                         </p>
                         <a 
@@ -284,9 +244,9 @@ const AuctionPage: React.FC = () => {
                           target="_blank" 
                           rel="noopener noreferrer" 
                           onClick={() => trackConversion(provinceName, 'ficha', 'consultoria')}
-                          className="inline-flex items-center gap-2 bg-amber-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-amber-900 transition-colors shadow-sm"
+                          className="inline-flex items-center gap-2 bg-amber-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-amber-900 transition-colors shadow-md"
                         >
-                          Solicitar revisión del expediente <ChevronRight size={16} />
+                          Solicitar análisis <ChevronRight size={18} />
                         </a>
                       </div>
                     </div>
@@ -294,26 +254,48 @@ const AuctionPage: React.FC = () => {
                 )}
               </div>
 
+              {/* Dynamic SEO Block */}
+              <div className="mt-12 pt-10 border-t border-slate-100">
+                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <Scale size={20} className="text-brand-600" /> 
+                  Contexto del procedimiento
+                </h3>
+                <p className="text-slate-600 leading-relaxed text-lg">
+                  {auction.boeId?.startsWith('SUB-JA') || auction.boeUrl?.includes('subastas.boe.es') ? (
+                    "Las subastas judiciales suelen derivar de ejecuciones hipotecarias o títulos judiciales. Implican una revisión exhaustiva del decreto de adjudicación y la cancelación de cargas posteriores. El riesgo principal reside en las cargas preferentes que no se extinguen con la subasta."
+                  ) : auction.boeId?.startsWith('SUB-AT') ? (
+                    "Las subastas de la Agencia Tributaria tienen procedimientos específicos de adjudicación y plazos de depósito distintos. Es vital verificar si existen cargas anteriores en el registro de la propiedad, ya que la AEAT no siempre las detalla en el edicto inicial."
+                  ) : (
+                    "Este procedimiento administrativo requiere una validación técnica de los plazos y la documentación aportada. Cada organismo (Seguridad Social, Ayuntamientos, etc.) tiene sus propias reglas de puja y adjudicación."
+                  )}
+                </p>
+                {!auction.appraisalValue && (
+                  <p className="mt-4 text-slate-500 italic text-sm">
+                    * La falta de datos en el anuncio inicial suele indicar la necesidad de una investigación directa en el juzgado o administración correspondiente antes de realizar cualquier depósito.
+                  </p>
+                )}
+              </div>
+
               {/* Auction Timeline */}
-              <div className="border-t border-slate-100 pt-10">
-                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8 flex items-center gap-2">
+              <div className="border-t border-slate-100 pt-10 mt-12">
+                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-10 flex items-center gap-2">
                   <Clock size={14} /> Estado de la subasta
                 </h3>
-                <div className="relative">
+                <div className="relative max-w-2xl mx-auto">
                   <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2"></div>
                   <div className="relative flex justify-between">
                     <div className="bg-white pr-4 relative z-10">
-                      <div className="w-4 h-4 rounded-full bg-brand-600 border-4 border-brand-100 mb-2"></div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Publicación</p>
+                      <div className="w-5 h-5 rounded-full bg-brand-600 border-4 border-brand-100 mb-3"></div>
+                      <p className="text-xs font-bold text-slate-400 uppercase">Publicación</p>
                     </div>
                     <div className="bg-white px-4 relative z-10 text-center">
-                      <div className="w-4 h-4 rounded-full bg-brand-600 border-4 border-brand-100 mb-2 mx-auto"></div>
-                      <p className="text-[10px] font-bold text-brand-600 uppercase">En curso</p>
+                      <div className="w-5 h-5 rounded-full bg-brand-600 border-4 border-brand-100 mb-3 mx-auto"></div>
+                      <p className="text-xs font-bold text-brand-600 uppercase">En curso</p>
                     </div>
                     <div className="bg-white pl-4 relative z-10 text-right">
-                      <div className={`w-4 h-4 rounded-full mb-2 ml-auto ${isFinished ? 'bg-slate-300' : 'bg-slate-100 border-2 border-slate-200'}`}></div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase">Finalización</p>
-                      <p className="text-[10px] text-slate-400">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}</p>
+                      <div className={`w-5 h-5 rounded-full mb-3 ml-auto ${isFinished ? 'bg-slate-300' : 'bg-slate-100 border-2 border-slate-200'}`}></div>
+                      <p className="text-xs font-bold text-slate-400 uppercase">Finalización</p>
+                      <p className="text-xs text-slate-400 mt-1">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}</p>
                     </div>
                   </div>
                 </div>
@@ -325,141 +307,8 @@ const AuctionPage: React.FC = () => {
               province={provinceName} 
             />
 
-            <PremiumValueBlock />
-
-            {/* Calculator Section */}
-            {auction.appraisalValue && (
-              <section id="calculadora" className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden mb-12">
-                <div className="bg-brand-900 text-white p-8">
-                  <div className="flex items-center gap-4">
-                    <Calculator className="text-brand-300" size={32} />
-                    <div>
-                      <h2 className="text-xl font-bold">Calculadora de puja máxima</h2>
-                      <p className="text-brand-200 text-sm">Ajusta los valores para este activo en {cityName}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-8 md:p-10 grid md:grid-cols-2 gap-10">
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-                        <DollarSign size={16} className="text-brand-600" /> Valor de tasación estimado (€)
-                      </label>
-                      <input 
-                        type="number" 
-                        value={valorMercado} 
-                        onChange={(e) => setValorMercado(e.target.value === '' ? '' : Number(e.target.value))} 
-                        className="w-full p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all"
-                        placeholder="Ej: 250000"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-                        <AlertOctagon size={16} className="text-brand-600" /> Deudas y cargas anteriores (€)
-                      </label>
-                      <input 
-                        type="number" 
-                        value={deudas} 
-                        onChange={(e) => setDeudas(e.target.value === '' ? '' : Number(e.target.value))} 
-                        className="w-full p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all"
-                        placeholder="Ej: 15000"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-                        <TrendingUp size={16} className="text-brand-600" /> Reforma estimada (€)
-                      </label>
-                      <input 
-                        type="number" 
-                        value={reforma} 
-                        onChange={(e) => setReforma(e.target.value === '' ? '' : Number(e.target.value))} 
-                        className="w-full p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none transition-all"
-                        placeholder="Ej: 30000"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2">Comunidad Autónoma (para ITP)</label>
-                      <select 
-                        value={comunidad} 
-                        onChange={(e) => setComunidad(e.target.value)} 
-                        className="w-full p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white"
-                      >
-                        {Object.keys(ITP_RATES).map(c => <option key={c} value={c}>{c}</option>)}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50 rounded-2xl p-8 flex flex-col justify-center items-center text-center border border-slate-100">
-                    <span className="text-slate-500 font-medium uppercase tracking-wider text-xs mb-2">Puja máxima recomendada</span>
-                    <span className="text-4xl md:text-5xl font-bold text-brand-900 mb-4">
-                      {results.precioMaxPuja === null 
-                        ? <span className="text-2xl text-slate-400 font-normal">Introduce valores</span>
-                        : results.precioMaxPuja > 0 
-                          ? results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})
-                          : <span className="text-red-500">Inviable</span>}
-                    </span>
-                    <div className="bg-emerald-100 text-emerald-800 px-4 py-1 rounded-full text-sm font-bold mb-6 flex items-center gap-1">
-                      <CheckCircle size={14} /> Margen de seguridad del 30%
-                    </div>
-                    <p className="text-slate-500 text-sm leading-relaxed">
-                      Este cálculo incluye una estimación de ITP ({ITP_RATES[comunidad] * 100}%), gastos de registro, notaría y gestoría.
-                    </p>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            <ConversionBlock />
-            
-            {slug && <div className="mt-16"><RelatedAuctions currentAuctionSlug={slug} currentAuctionData={auction} /></div>}
-          </main>
-
-          {/* Sidebar */}
-          <aside className="lg:col-span-4">
-            <div className="sticky top-24 space-y-8">
-              <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl border border-slate-800">
-                <span className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-4 block">Asesoría Premium</span>
-                <h3 className="font-serif text-2xl font-bold mb-4">¿Quieres pujar con seguridad?</h3>
-                <p className="text-slate-300 mb-8 text-sm leading-relaxed">
-                  Analizamos el expediente judicial completo y la certificación de cargas para que no asumas riesgos innecesarios.
-                </p>
-                <a 
-                  href="https://calendly.com/activosoffmarket" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  onClick={() => trackConversion(provinceName, 'ficha', 'consultoria')}
-                  className="block w-full bg-white text-slate-900 font-bold py-4 px-4 rounded-xl text-center hover:bg-brand-50 transition-all flex items-center justify-center gap-2"
-                >
-                  Solicitar análisis <ArrowRight size={16}/>
-                </a>
-              </div>
-
-              <div className="bg-white border border-slate-200 p-8 rounded-3xl shadow-sm">
-                <h4 className="font-bold text-slate-900 mb-6 flex items-center gap-2 text-sm uppercase tracking-wide">
-                  <Info size={18} className="text-brand-600"/>
-                  Datos de la subasta
-                </h4>
-                <div className="space-y-4 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">BOE ID:</span>
-                    <span className="font-mono text-slate-900">{auction.boeId || 'Consultar'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Estado:</span>
-                    <span className={`font-bold ${isFinished ? 'text-slate-400' : 'text-emerald-600'}`}>{isFinished ? 'Finalizada' : 'Activa'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Provincia:</span>
-                    <span className="text-slate-900">{cityName}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
+            {slug && <div className="mt-32"><RelatedAuctions currentAuctionSlug={slug} currentAuctionData={auction} /></div>}
+          </div>
         </div>
       </div>
       
