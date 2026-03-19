@@ -26,7 +26,7 @@ const Pricing: React.FC = () => {
               Recibe las alertas básicas (título + precio) para estar al día de lo que sale.
             </p>
             <a href="https://t.me/activosoffmarket" target="_blank" rel="noopener noreferrer" className="block w-full py-4 px-6 bg-slate-100 text-slate-800 font-bold rounded-xl text-center hover:bg-slate-200 transition-colors mb-8 text-lg">
-              Entrar al Canal
+              Acceder
             </a>
             <ul className="space-y-4 text-slate-700">
               <li className="flex items-center gap-3">
@@ -58,11 +58,8 @@ const Pricing: React.FC = () => {
                 <span className="text-4xl font-bold text-slate-900">9€</span>
                 <span className="text-base font-medium text-slate-500">/semana</span>
             </div>
-            <p className="text-slate-600 mb-2 flex-grow leading-relaxed">
-              Para quien quiere pujar con los deberes hechos. Acceso al análisis completo de cargas, posesión y valoración.
-            </p>
-            <p className="text-brand-700 text-xs font-bold mb-6 italic">
-              🔒 Nuevas oportunidades cada día que no se publican en el canal gratuito. Acceso limitado para mantener calidad.
+            <p className="text-slate-600 mb-8 flex-grow leading-relaxed">
+              Acceso al análisis completo de cargas, posesión y valoración de cada oportunidad.
             </p>
             <a 
                 href="https://sublaunch.com/activosoffmarket" 
@@ -70,7 +67,7 @@ const Pricing: React.FC = () => {
                 rel="noopener noreferrer" 
                 className="block w-full py-5 px-6 bg-brand-700 text-white font-bold rounded-xl text-center hover:bg-brand-800 transition-all mb-8 shadow-lg hover:shadow-brand-500/30 text-lg transform active:scale-95"
             >
-              Suscribirme ahora
+              Ver Oferta
             </a>
             <ul className="space-y-4 text-slate-700">
               <li className="flex items-center gap-3">
