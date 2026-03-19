@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, ArrowRight, Percent } from 'lucide-react';
-import { AUCTIONS } from '../data/auctions';
+import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { ROUTES } from '../constants/routes';
 import { AuctionCard } from './AuctionCard';
-import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const HighDiscountAuctions: React.FC = () => {
@@ -17,26 +17,19 @@ const HighDiscountAuctions: React.FC = () => {
   }, []);
 
   const highDiscountAuctions = useMemo(() => {
-    const filtered = Object.entries(AUCTIONS)
-      .map(([slug, data]) => {
-        const appraisalValue = data.appraisalValue || 0;
-        const claimedDebt = data.claimedDebt || 0;
-        const discount = appraisalValue > 0 ? (appraisalValue - claimedDebt) / appraisalValue : 0;
-        
-        return {
-          slug,
-          data,
-          discount: discount * 100
-        };
-      })
-      .filter(item => item.discount >= 50)
-      .sort((a, b) => b.discount - a.discount);
-      
-    return sortActiveFirst(filtered, (item) => item.data.auctionDate);
+    const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
+      const appraisalValue = data.appraisalValue || 0;
+      if (data.claimedDebt === undefined || data.claimedDebt === null) return false;
+      if (data.claimedDebt === 0) return false;
+      const claimedDebt = data.claimedDebt;
+      const discount = appraisalValue > 0 ? (appraisalValue - claimedDebt) / appraisalValue : 0;
+      return discount * 100 >= 50 && discount * 100 <= 85;
+    });
+    return sortAuctions(filtered);
   }, []);
 
   const activeCount = useMemo(() => {
-    return highDiscountAuctions.filter(item => !isAuctionFinished(item.data.auctionDate)).length;
+    return highDiscountAuctions.filter((item: [string, any]) => item[1].status !== 'closed' && !isAuctionFinished(item[1].auctionDate)).length;
   }, [highDiscountAuctions]);
 
   return (
@@ -75,7 +68,7 @@ const HighDiscountAuctions: React.FC = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {highDiscountAuctions.map(({ slug, data }) => (
+          {highDiscountAuctions.map(([slug, data]: [string, any]) => (
             <AuctionCard key={slug} slug={slug} data={data} />
           ))}
         </div>

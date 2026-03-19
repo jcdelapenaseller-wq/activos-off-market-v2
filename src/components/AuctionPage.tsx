@@ -6,7 +6,7 @@ import {
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon,
   Clock, Calendar, User, Share2, Printer
 } from 'lucide-react';
-import { AUCTIONS } from '../data/auctions';
+import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel, normalizeProvince, formatAddress } from '../utils/auctionNormalizer';
@@ -52,15 +52,23 @@ const AuctionPage: React.FC = () => {
 
   if (!auction) return <Navigate to={ROUTES.HOME} replace />;
 
-  const isFinished = isAuctionFinished(auction.auctionDate);
+  const isFinished = auction.status === 'closed' || isAuctionFinished(auction.auctionDate);
+  const isSuspended = auction.status === 'suspended';
+  const isUpcoming = auction.status === 'upcoming';
+  const isActive = auction.status === 'active' || (!isFinished && !isSuspended && !isUpcoming);
+
   const cityName = normalizeCity(auction);
-  const provinceName = normalizeProvince(auction.province || auction.city);
+  const provinceName = normalizeProvince(auction.province || normalizeCity(auction));
   const propertyType = normalizePropertyType(auction.propertyType);
   const locationLabel = normalizeLocationLabel(auction);
 
   const opportunityRatio = useMemo(() => {
-    if (auction.appraisalValue && auction.claimedDebt) {
-      return 1 - (auction.claimedDebt / auction.appraisalValue);
+    if (auction.appraisalValue && auction.claimedDebt !== undefined && auction.claimedDebt !== null) {
+      const ratio = 1 - (auction.claimedDebt / auction.appraisalValue);
+      if (auction.claimedDebt === 0 || ratio > 0.85) {
+        return null;
+      }
+      return ratio;
     }
     return null;
   }, [auction]);
@@ -70,7 +78,7 @@ const AuctionPage: React.FC = () => {
     if (auction) {
       setValorMercado(auction.appraisalValue || '');
       setDeudas(auction.claimedDebt || '');
-      setComunidad(auction.city || 'Madrid');
+      setComunidad(normalizeCity(auction) || 'Madrid');
       
       // DEBUG: Address field analysis
       console.log('DEBUG - Auction Address Field:', {
@@ -87,7 +95,16 @@ const AuctionPage: React.FC = () => {
       
       const addressPart = formatAddress(auction.address);
       const streetPart = addressPart ? ` (${addressPart})` : '';
-      const discountPart = discount > 0 ? ` con ${discount}% de descuento` : '';
+      
+      let discountPart = '';
+      if (auction.claimedDebt === 0) {
+        discountPart = ' (Sin cargas declaradas)';
+      } else if (discount > 85) {
+        discountPart = ' (Oportunidad a analizar)';
+      } else if (discount > 0) {
+        discountPart = ` con ${discount}% de descuento`;
+      }
+      
       const title = `${propertyType} en subasta en ${cityName}${streetPart}${discountPart}`;
       
       document.title = title.length > 70 ? title.substring(0, 67) + '...' : title;
@@ -97,7 +114,13 @@ const AuctionPage: React.FC = () => {
   const analysisInsights = useMemo(() => {
     if (!auction) return null;
 
-    const discount = opportunityRatio ? Math.round(opportunityRatio * 100) : 0;
+    let discount = 0;
+    if (auction.appraisalValue && auction.claimedDebt !== undefined && auction.claimedDebt !== null) {
+      discount = Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100);
+      if (auction.claimedDebt === 0 || discount > 85) {
+        discount = 0;
+      }
+    }
     const isJudicial = auction.boeId?.startsWith('SUB-JA');
     
     // Market Context Logic (Natural Language)
@@ -309,6 +332,16 @@ const AuctionPage: React.FC = () => {
                     <Clock size={12} /> {urgencyBadge.text}
                   </span>
                 )}
+                {isSuspended && (
+                  <span className="px-4 py-1.5 rounded-full text-sm font-bold border bg-amber-100 text-amber-700 border-amber-200 flex items-center gap-1.5">
+                    <AlertTriangle size={14} /> Pausada temporalmente
+                  </span>
+                )}
+                {isUpcoming && (
+                  <span className="px-4 py-1.5 rounded-full text-sm font-bold border bg-blue-100 text-blue-700 border-blue-200 flex items-center gap-1.5">
+                    <Clock size={14} /> Próxima apertura
+                  </span>
+                )}
                 {isFinished && (
                   <span className="px-4 py-1.5 rounded-full text-sm font-bold border bg-slate-100 text-slate-600 border-slate-200">
                     Subasta Finalizada
@@ -342,9 +375,15 @@ const AuctionPage: React.FC = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
                   <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Descuento Bruto</span>
-                  <span className={`text-4xl font-black ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-700' : 'text-brand-700'}`}>
-                    {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
-                  </span>
+                  {auction.claimedDebt === 0 ? (
+                    <span className="text-xl font-bold text-slate-700">Sin cargas declaradas</span>
+                  ) : (auction.appraisalValue && auction.claimedDebt && (1 - auction.claimedDebt / auction.appraisalValue) > 0.85) ? (
+                    <span className="text-xl font-bold text-slate-700">Oportunidad a analizar</span>
+                  ) : (
+                    <span className={`text-4xl font-black ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-700' : 'text-brand-700'}`}>
+                      {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
+                    </span>
+                  )}
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
                   <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Valor Referencia</span>
@@ -359,16 +398,67 @@ const AuctionPage: React.FC = () => {
                   </span>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
-                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Tipo de Subasta</span>
-                  <span className="text-xl font-bold text-slate-900">{auctionType}</span>
-                  {auction.procedureType && (
-                    <span className="text-[10px] text-slate-400 uppercase font-bold mt-1 truncate" title={auction.procedureType}>
-                      {auction.procedureType.includes('JUZGADO') || auction.procedureType.includes('Civil') ? 'Vía de apremio' : 'Adm. Pública'}
-                    </span>
-                  )}
+                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Tipo de subasta</span>
+                  <span className="text-xl font-bold text-slate-900 capitalize">
+                    {auction.procedureType || 'Judicial'}
+                  </span>
                 </div>
               </div>
             </header>
+
+            {/* Status-specific Messages */}
+            {isUpcoming && (
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8 mb-16 text-blue-800 shadow-sm">
+                <div className="flex items-start gap-5">
+                  <div className="bg-blue-100 p-3 rounded-xl shrink-0">
+                    <Clock className="text-blue-600" size={28} />
+                  </div>
+                  <div>
+                    <h3 className="font-serif font-bold text-2xl mb-2 text-blue-900">Esta subasta aún no ha comenzado</h3>
+                    <p className="text-blue-800/80 text-lg leading-relaxed mb-4">
+                      Se abrirá próximamente para la recepción de pujas. <span className="font-bold">Las mejores oportunidades se preparan antes de su apertura</span> para asegurar una estrategia de inversión sólida.
+                    </p>
+                    <div className="flex items-center gap-2 text-sm font-bold text-blue-700 uppercase tracking-widest">
+                      <ShieldCheck size={16} /> Fase de análisis recomendada
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {isSuspended && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 mb-16 text-amber-800 shadow-sm">
+                <div className="flex items-start gap-5">
+                  <div className="bg-amber-100 p-3 rounded-xl shrink-0">
+                    <AlertTriangle className="text-amber-600" size={28} />
+                  </div>
+                  <div>
+                    <h3 className="font-serif font-bold text-2xl mb-2 text-amber-900">Subasta pausada temporalmente</h3>
+                    <p className="text-amber-800/80 text-lg leading-relaxed">
+                      El procedimiento se encuentra en pausa técnica o administrativa. <span className="font-bold text-amber-900">Puede reactivarse en cualquier momento</span> tras la resolución del incidente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {isActive && !isFinished && !isUpcoming && !isSuspended && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-8 mb-16 text-emerald-800 shadow-sm">
+                <div className="flex items-start gap-5">
+                  <div className="bg-emerald-100 p-3 rounded-xl shrink-0">
+                    <TrendingUp className="text-emerald-600" size={28} />
+                  </div>
+                  <div>
+                    <h3 className="font-serif font-bold text-2xl mb-2 text-emerald-900">Subasta en curso</h3>
+                    <p className="text-emerald-800/80 text-lg leading-relaxed">
+                      El periodo de pujas está abierto y activo. {auction.auctionDate && (
+                        <span>La fecha límite para consignar y pujar es el <strong className="text-emerald-900">{new Date(auction.auctionDate).toLocaleDateString('es-ES')}</strong>.</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Quick Summary Block */}
             <div className="bg-brand-900 text-white rounded-3xl p-6 mb-16 shadow-lg">
@@ -446,13 +536,15 @@ const AuctionPage: React.FC = () => {
                       </p>
                     </div>
 
-                    <div className="my-12">
-                      <ConsultingCTA 
-                        isHighUrgency={opportunityRatio === null} 
-                        province={provinceName} 
-                        compact={true}
-                      />
-                    </div>
+                    {!isFinished && (
+                      <div className="my-12">
+                        <ConsultingCTA 
+                          isHighUrgency={opportunityRatio === null} 
+                          province={provinceName} 
+                          compact={true}
+                        />
+                      </div>
+                    )}
 
                     <div className="bg-slate-50 p-10 rounded-3xl border border-slate-100">
                       <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
@@ -547,15 +639,17 @@ const AuctionPage: React.FC = () => {
                         <p className="mb-6 text-amber-900/80 text-lg leading-relaxed">
                           El expediente judicial publicado no detalla la deuda reclamada o el valor de tasación. <strong>Es necesario revisar la certificación de cargas y el edicto completo</strong> para calcular la viabilidad de esta inversión y evitar adjudicaciones con deudas ocultas.
                         </p>
-                        <a 
-                          href="https://calendly.com/activosoffmarket" 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          onClick={() => trackConversion(provinceName, 'ficha', 'consultoria')}
-                          className="inline-flex items-center gap-2 bg-amber-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-amber-900 transition-colors shadow-md"
-                        >
-                          Solicitar análisis <ChevronRight size={18} />
-                        </a>
+                        {!isFinished && (
+                          <a 
+                            href="https://calendly.com/activosoffmarket" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            onClick={() => trackConversion(provinceName, 'ficha', 'consultoria')}
+                            className="inline-flex items-center gap-2 bg-amber-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-amber-900 transition-colors shadow-md"
+                          >
+                            Solicitar análisis <ChevronRight size={18} />
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -588,8 +682,10 @@ const AuctionPage: React.FC = () => {
                       <p className="text-xs font-bold text-slate-400 uppercase">Publicación</p>
                     </div>
                     <div className="bg-white px-4 relative z-10 text-center">
-                      <div className="w-5 h-5 rounded-full bg-brand-600 border-4 border-brand-100 mb-3 mx-auto"></div>
-                      <p className="text-xs font-bold text-brand-600 uppercase">En curso</p>
+                      <div className={`w-5 h-5 rounded-full border-4 mb-3 mx-auto ${isSuspended ? 'bg-amber-500 border-amber-100' : isUpcoming ? 'bg-blue-500 border-blue-100' : 'bg-brand-600 border-brand-100'}`}></div>
+                      <p className={`text-xs font-bold uppercase ${isSuspended ? 'text-amber-600' : isUpcoming ? 'text-blue-600' : 'text-brand-600'}`}>
+                        {isSuspended ? 'Pausada' : isUpcoming ? 'Próxima' : 'En curso'}
+                      </p>
                     </div>
                     <div className="bg-white pl-4 relative z-10 text-right">
                       <div className={`w-5 h-5 rounded-full mb-3 ml-auto ${isFinished ? 'bg-slate-300' : 'bg-slate-100 border-2 border-slate-200'}`}></div>

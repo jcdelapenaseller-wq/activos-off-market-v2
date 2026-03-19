@@ -1,8 +1,10 @@
 import { AuctionData } from '../data/auctions';
 
 export function formatPublishedDate(dateString?: string) {
-  if (!dateString) return null;
+  if (!dateString || dateString === 'null' || dateString === 'undefined') return null;
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return null;
+  
   const now = new Date();
   const diffTime = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -18,7 +20,7 @@ export function formatPublishedDate(dateString?: string) {
 
 export function getOpportunityThreshold(auctions: Record<string, AuctionData>): number {
   const discounts = Object.values(auctions)
-    .map(a => calculateDiscount(a.valorTasacion, a.valorSubasta))
+    .map(a => calculateDiscount(a.valorTasacion, a.valorSubasta, a.claimedDebt))
     .filter((d): d is number => d !== null && d > 0)
     .sort((a, b) => b - a);
   
@@ -30,20 +32,34 @@ export function getOpportunityThreshold(auctions: Record<string, AuctionData>): 
 
 export function sortAuctions(items: [string, AuctionData][]): [string, AuctionData][] {
   return [...items].sort((a, b) => {
-    const aFinished = isAuctionFinished(a[1].auctionDate);
-    const bFinished = isAuctionFinished(b[1].auctionDate);
-    if (aFinished && !bFinished) return 1;
-    if (!aFinished && bFinished) return -1;
+    const aData = a[1];
+    const bData = b[1];
+    
+    // Priorizar status sobre fecha
+    const aClosed = aData.status ? aData.status === 'closed' : isAuctionFinished(aData.auctionDate);
+    const bClosed = bData.status ? bData.status === 'closed' : isAuctionFinished(bData.auctionDate);
+    
+    if (aClosed && !bClosed) return 1;
+    if (!aClosed && bClosed) return -1;
+    
+    // Si no están cerradas, priorizar activas sobre próximas/pausadas
+    const aActive = aData.status ? isAuctionActive(aData.status) : !isAuctionFinished(aData.auctionDate);
+    const bActive = bData.status ? isAuctionActive(bData.status) : !isAuctionFinished(bData.auctionDate);
+    
+    if (aActive && !bActive) return -1;
+    if (!aActive && bActive) return 1;
 
-    const aDiscount = calculateDiscount(a[1].valorTasacion, a[1].valorSubasta) || 0;
-    const bDiscount = calculateDiscount(b[1].valorTasacion, b[1].valorSubasta) || 0;
+    const aDiscount = calculateDiscount(aData.valorTasacion, aData.valorSubasta, aData.claimedDebt) || 0;
+    const bDiscount = calculateDiscount(bData.valorTasacion, bData.valorSubasta, bData.claimedDebt) || 0;
     return bDiscount - aDiscount;
   });
 }
 
-export function calculateDiscount(valorTasacion?: number, valorSubasta?: number): number | null {
-  if (valorTasacion && valorSubasta && valorTasacion > 0) {
-    const discount = ((valorTasacion - valorSubasta) / valorTasacion) * 100;
+export function calculateDiscount(valorTasacion?: number, valorSubasta?: number, claimedDebt?: number): number | null {
+  const valorReferencia = valorTasacion || valorSubasta;
+
+  if (valorReferencia && valorReferencia > 0 && claimedDebt !== undefined && claimedDebt > 0) {
+    const discount = ((valorReferencia - claimedDebt) / valorReferencia) * 100;
     return Math.round(discount);
   }
   return null;
@@ -52,21 +68,76 @@ export function calculateDiscount(valorTasacion?: number, valorSubasta?: number)
 export function isAuctionFinished(auctionDate?: string): boolean {
   if (!auctionDate) return false;
   
-  // Parse date string. If it's a valid date, compare it with now.
-  const endDate = new Date(auctionDate);
+  // Parsear asegurando formato UTC para evitar problemas de timezone
+  const endDate = new Date(auctionDate.includes('T') ? auctionDate : `${auctionDate}T00:00:00Z`);
   if (isNaN(endDate.getTime())) return false; // Invalid date
 
   const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  endDate.setHours(0, 0, 0, 0);
-  
-  return now > endDate;
+  return now.getTime() > endDate.getTime();
 }
 
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return '';
   return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+export function isAuctionActive(status?: string, auctionDate?: string): boolean {
+  if (status) {
+    return status === 'active' || status === 'upcoming' || status === 'suspended';
+  }
+  // Fallback: si status es missing, incluir si la fecha es futura
+  return auctionDate ? !isAuctionFinished(auctionDate) : false;
+}
+
+export function isAuctionClosed(status?: string, auctionDate?: string): boolean {
+  if (status) {
+    return status === 'closed';
+  }
+  // Fallback: si status es missing, incluir si la fecha es pasada
+  return auctionDate ? isAuctionFinished(auctionDate) : false;
+}
+
+export function getFilteredAuctions(
+  auctions: Record<string, AuctionData>, 
+  statusFilter: 'active' | 'closed' | 'all' = 'active'
+): Record<string, AuctionData> {
+  const filtered: Record<string, AuctionData> = {};
+  for (const [slug, data] of Object.entries(auctions)) {
+    // 1. Filtro de estado con fallback
+    if (statusFilter === 'active' && !isAuctionActive(data.status, data.auctionDate)) continue;
+    if (statusFilter === 'closed' && !isAuctionClosed(data.status, data.auctionDate)) continue;
+
+    // 2. Filtro de calidad (valor/deuda)
+    const valorTasacion = data.valorTasacion || data.appraisalValue;
+    const valorSubasta = data.valorSubasta;
+    const claimedDebt = data.claimedDebt;
+    
+    const valorReferencia = valorTasacion || valorSubasta;
+    
+    let esValorBajo = false;
+    if (valorTasacion !== null && valorTasacion !== undefined && valorTasacion < 100000) {
+      esValorBajo = true;
+    }
+    
+    let esDeudaCero = false;
+    if (claimedDebt === 0) {
+      esDeudaCero = true;
+    }
+    
+    let esRatioExcesivo = false;
+    if (valorReferencia && claimedDebt !== null && claimedDebt !== undefined) {
+      const ratio = Math.round(((valorReferencia - claimedDebt) / valorReferencia) * 100);
+      if (ratio > 85) {
+        esRatioExcesivo = true;
+      }
+    }
+    
+    if (!esValorBajo && !esDeudaCero && !esRatioExcesivo) {
+      filtered[slug] = data;
+    }
+  }
+  return filtered;
 }
 
 export function sortActiveFirst<T>(

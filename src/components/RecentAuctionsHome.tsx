@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, ArrowRight, TrendingDown } from 'lucide-react';
-import { AUCTIONS } from '../data/auctions';
+import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
+import { sortAuctions, isAuctionFinished } from '../utils/auctionHelpers';
 
 const RecentAuctionsHome: React.FC = () => {
-  // Get the 3 most recent auctions
-  const recentAuctions = Object.entries(AUCTIONS).reverse().slice(0, 3);
+  // Get the 3 most relevant recent auctions (prioritizing active)
+  const recentAuctions = sortAuctions(Object.entries(AUCTIONS)).slice(0, 3);
 
   return (
     <section className="py-16 bg-white border-b border-slate-100">
@@ -36,32 +37,55 @@ const RecentAuctionsHome: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
           {recentAuctions.map(([slug, data], index) => {
             // Use existing discount if available, otherwise calculate it
-            const hasValues = data.appraisalValue && data.claimedDebt;
-            const discount = data.discount !== undefined 
+            const hasValues = data.appraisalValue && data.claimedDebt !== undefined && data.claimedDebt !== null;
+            let discount = data.discount !== undefined 
               ? data.discount 
               : (hasValues ? Math.round((1 - (data.claimedDebt! / data.appraisalValue!)) * 100) : null);
+              
+            if (data.claimedDebt === 0 || (discount !== null && discount > 85)) {
+              discount = null;
+            }
 
             const isOpportunity = discount !== null && discount > 35;
             const isNew = index < 3; // Since we slice(0, 3), all of them are new
 
+            const isFinished = data.status === 'closed' || isAuctionFinished(data.auctionDate);
+            const isSuspended = data.status === 'suspended';
+            const isUpcoming = data.status === 'upcoming';
+            const isActive = data.status === 'active' || (!isFinished && !isSuspended && !isUpcoming);
+
             return (
-              <div key={slug} className="relative bg-white rounded-3xl shadow-sm border border-slate-200 hover:shadow-xl transition-all flex flex-col h-full group mt-4 md:mt-0">
+              <div key={slug} className={`relative bg-white rounded-3xl shadow-sm border border-slate-200 hover:shadow-xl transition-all flex flex-col h-full group mt-4 md:mt-0 ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}>
                 
                 {/* Etiquetas flotantes encima de la tarjeta */}
-                {(isNew || isOpportunity) && (
-                  <div className="absolute -top-3.5 left-0 w-full flex items-center justify-center gap-1.5 md:gap-2 z-10 px-2">
-                    {isNew && (
-                      <span className="bg-blue-100 text-blue-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full flex items-center gap-1 md:gap-1.5 shadow-sm border border-blue-200 whitespace-nowrap">
-                        <span>⚡</span> Nueva subasta
-                      </span>
-                    )}
-                    {isOpportunity && (
-                      <span className="bg-emerald-100 text-emerald-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full flex items-center gap-1 md:gap-1.5 shadow-sm border border-emerald-200 whitespace-nowrap">
-                        <span>🔥</span> Oportunidad detectada
-                      </span>
-                    )}
-                  </div>
-                )}
+                <div className="absolute -top-3.5 left-0 w-full flex items-center justify-center gap-1.5 md:gap-2 z-10 px-2">
+                  {isFinished ? (
+                    <span className="bg-slate-900/90 text-white text-[10px] md:text-[11px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full flex items-center gap-1 md:gap-1.5 shadow-sm border border-white/20 whitespace-nowrap">
+                      <span>⌛</span> Finalizada
+                    </span>
+                  ) : isSuspended ? (
+                    <span className="bg-amber-600/90 text-white text-[10px] md:text-[11px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full flex items-center gap-1 md:gap-1.5 shadow-sm border border-white/20 whitespace-nowrap">
+                      <span>⏸️</span> Pausada
+                    </span>
+                  ) : isUpcoming ? (
+                    <span className="bg-blue-600/90 text-white text-[10px] md:text-[11px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full flex items-center gap-1 md:gap-1.5 shadow-sm border border-white/20 whitespace-nowrap">
+                      <span>📅</span> Próxima apertura
+                    </span>
+                  ) : (
+                    <>
+                      {isNew && (
+                        <span className="bg-blue-100 text-blue-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full flex items-center gap-1 md:gap-1.5 shadow-sm border border-blue-200 whitespace-nowrap">
+                          <span>⚡</span> Nueva
+                        </span>
+                      )}
+                      {isOpportunity && (
+                        <span className="bg-emerald-100 text-emerald-700 text-[10px] md:text-[11px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full flex items-center gap-1 md:gap-1.5 shadow-sm border border-emerald-200 whitespace-nowrap">
+                          <span>🔥</span> Oportunidad
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
 
                 <div className="p-8 flex-grow">
                   <div className="flex justify-between items-start mb-6">

@@ -41,6 +41,11 @@ export const normalizeLocationName = (name?: string): string => {
   
   let clean = name.toLowerCase().trim();
   
+  // Si hay una barra (ej: "Alicante/Alacant"), tomar solo la primera parte
+  if (clean.includes('/')) {
+    clean = clean.split('/')[0].trim();
+  }
+  
   // Eliminar textos entre paréntesis (ej: "Madrid (Capital)")
   clean = clean.replace(/\([^)]*\)/g, '').trim();
   
@@ -206,8 +211,9 @@ export const normalizeLocationLabel = (auction: AuctionData): string => {
     return 'Ubicación pendiente';
   }
 
+  // Si la ciudad y la provincia son lo mismo (ej: Madrid / Madrid), solo mostrar una
   if (province && province !== 'España' && province.toLowerCase() !== city.toLowerCase()) {
-    return `${city} / ${province}`;
+    return `${city} · ${province}`;
   }
   
   return city;

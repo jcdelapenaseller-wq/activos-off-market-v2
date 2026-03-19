@@ -21,15 +21,22 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
     ? Math.round(((valorReferencia - cantidadReclamada) / valorReferencia) * 100) 
     : null;
 
-  const isFinished = isAuctionFinished(data.auctionDate);
+  const isFinished = data.status === 'closed' || isAuctionFinished(data.auctionDate);
+  const isSuspended = data.status === 'suspended';
+  const isUpcoming = data.status === 'upcoming';
+  const isActive = data.status === 'active' || (!isFinished && !isSuspended && !isUpcoming);
   
   const pricePerM2 = data.pricePerM2 || (data.surface && valorReferencia ? Math.round(valorReferencia / data.surface) : null);
 
   // Ranking visual (Absoluto para no añadir complejidad a los listados)
   let rankingLabel = null;
   let rankingColor = "";
-  if (opportunityRatio !== null && !isFinished) {
-    if (opportunityRatio >= 50) {
+  if (opportunityRatio !== null && !isFinished && !isSuspended && !isUpcoming) {
+    if (cantidadReclamada === 0) {
+      // Already handled in the main badge
+    } else if (opportunityRatio > 85) {
+      // Already handled in the main badge
+    } else if (opportunityRatio >= 50) {
       rankingLabel = "🥇 Top oportunidad";
       rankingColor = "bg-amber-100 text-amber-800 border-amber-300";
     } else if (opportunityRatio >= 40) {
@@ -59,6 +66,12 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
   if (isFinished) {
     fomoLabel = "⌛ Finalizada";
     fomoColor = "text-slate-400 bg-slate-100 border-slate-200";
+  } else if (isSuspended) {
+    fomoLabel = "⏸️ Pausada";
+    fomoColor = "text-amber-700 bg-amber-50 border-amber-200";
+  } else if (isUpcoming) {
+    fomoLabel = "📅 Próxima apertura";
+    fomoColor = "text-blue-700 bg-blue-50 border-blue-200";
   } else if (diffHours !== null && diffHours > 0 && diffHours <= 24) {
     fomoLabel = "🚨 Cierra en horas";
     fomoColor = "text-red-700 bg-red-50 border-red-200";
@@ -76,52 +89,79 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
   const locationLabel = normalizeLocationLabel(data);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative">
-      {isFinished && (
-        <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
-          Finalizada
-        </div>
-      )}
-      
+    <div className={`bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}>
       <div className="p-5 flex-grow flex flex-col">
-        <div className="flex justify-between items-start mb-3 gap-2">
-          {/* Badge de Oportunidad o Análisis Requerido */}
-          {opportunityRatio !== null && opportunityRatio > 40 ? (
-            <span className="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-wider shadow-sm flex items-center gap-1">
-              🔥 -{opportunityRatio}% DTO
-            </span>
-          ) : opportunityRatio !== null && opportunityRatio >= 15 ? (
-            <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-wider border border-emerald-200">
-              -{opportunityRatio}% DTO
-            </span>
-          ) : (cantidadReclamada === undefined || cantidadReclamada === null) && valorReferencia ? (
-            <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider border border-slate-200">
-              Análisis requerido
-            </span>
-          ) : (
-            <div /> // Spacer
-          )}
-          
-          {/* Fecha Dinámica / FOMO */}
-          {fomoLabel && (
-            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${fomoColor} whitespace-nowrap`}>
-              {fomoLabel}
-            </span>
-          )}
-        </div>
+        {/* Top Badges Row: Commercial (Left) vs Status (Right) */}
+        <div className="flex justify-between items-start mb-4 gap-2">
+          {/* Left: Commercial Badges */}
+          <div className="flex flex-col gap-2">
+            {cantidadReclamada === 0 ? (
+              <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-slate-200 w-fit">
+                Sin cargas declaradas
+              </span>
+            ) : opportunityRatio !== null && opportunityRatio > 85 ? (
+              <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-slate-200 w-fit">
+                Oportunidad a analizar
+              </span>
+            ) : opportunityRatio !== null && opportunityRatio > 40 ? (
+              <span className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider shadow-sm flex items-center gap-1 w-fit">
+                🔥 -{opportunityRatio}% DTO
+              </span>
+            ) : opportunityRatio !== null && opportunityRatio >= 15 ? (
+              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-emerald-200 w-fit">
+                -{opportunityRatio}% DTO
+              </span>
+            ) : (cantidadReclamada === undefined || cantidadReclamada === null) && valorReferencia ? (
+              <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-slate-200 w-fit">
+                Análisis requerido
+              </span>
+            ) : null}
 
-        {rankingLabel && (
-          <div className="mb-3">
-            <span className={`inline-flex items-center text-[11px] font-bold px-2.5 py-1 rounded-md border ${rankingColor}`}>
-              {rankingLabel}
-            </span>
+            {rankingLabel && (
+              <span className={`inline-flex items-center text-[10px] font-bold px-2.5 py-1.5 rounded-md border ${rankingColor} w-fit`}>
+                {rankingLabel}
+              </span>
+            )}
           </div>
-        )}
+
+          {/* Right: Status & FOMO */}
+          <div className="flex flex-col items-end gap-2">
+            {isFinished ? (
+              <span className="bg-slate-200 text-slate-600 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-slate-300">
+                Finalizada
+              </span>
+            ) : isSuspended ? (
+              <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-amber-200">
+                Pausada
+              </span>
+            ) : isUpcoming ? (
+              <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-blue-200">
+                Próxima apertura
+              </span>
+            ) : (
+              <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-emerald-200">
+                En curso
+              </span>
+            )}
+
+            {fomoLabel && !isFinished && !isSuspended && !isUpcoming && (
+              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${fomoColor} whitespace-nowrap`}>
+                {fomoLabel}
+              </span>
+            )}
+          </div>
+        </div>
 
         <Link to={`/subasta/${id}`} className="block mb-4">
           <h2 className="text-lg font-bold text-slate-900 leading-tight hover:text-brand-600 transition-colors line-clamp-2">
             {normalizePropertyType(data.propertyType)} en {data.address?.split(',')[0] || normalizeLocationLabel(data).split(',')[0]}
           </h2>
+          {isUpcoming && (
+            <div className="mt-2 text-[11px] font-medium text-blue-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+              Disponible próximamente
+            </div>
+          )}
         </Link>
 
         <div className="space-y-2.5 mb-6 flex-grow">
@@ -143,7 +183,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
             {cantidadReclamada !== undefined && cantidadReclamada !== null && (
               <div className={`flex justify-between items-center text-sm ${pricePerM2 ? 'mb-1' : ''}`}>
                 <span className="text-slate-500">Deuda:</span>
-                <span className="font-bold text-red-600">{cantidadReclamada.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</span>
+                <span className="font-bold text-rose-700/90">{cantidadReclamada.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</span>
               </div>
             )}
 
@@ -157,11 +197,16 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
         </div>
 
         <div className="mt-auto pt-2">
+          {isActive && !isFinished && !isSuspended && !isUpcoming && (
+            <div className="text-center mb-2">
+              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Disponible ahora</span>
+            </div>
+          )}
           <Link 
             to={`/subasta/${id}`}
-            className={`w-full inline-flex items-center justify-center font-bold py-3.5 px-6 rounded-xl transition-all group ${isFinished ? 'bg-slate-100 text-slate-500 hover:bg-slate-200' : 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
+            className={`w-full inline-flex items-center justify-center font-bold py-3.5 px-6 rounded-xl transition-all group ${isFinished ? 'bg-slate-100 text-slate-500 hover:bg-slate-200' : isSuspended ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
           >
-            {isFinished ? 'Ver resultado' : 'Ver oportunidad'}
+            {isFinished ? 'Ver resultado' : isSuspended ? 'Ver detalles' : 'Ver oportunidad'}
             <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

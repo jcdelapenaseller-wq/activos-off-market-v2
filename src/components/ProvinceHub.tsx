@@ -2,8 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { ChevronRight, MapPin, TrendingUp, Filter, ShieldCheck, Clock } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
-import { AUCTIONS } from '../data/auctions';
-import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
+import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
 import { normalizeProvince, normalizePropertyType, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
 import { AuctionCard } from './AuctionCard';
@@ -35,16 +35,16 @@ const ProvinceHub: React.FC = () => {
       const p = normalizeProvince(a.province || a.city).toLowerCase();
       return p === normalizedProvinceParam || p.includes(normalizedProvinceParam) || normalizedProvinceParam.includes(p);
     });
-    return sortActiveFirst(filtered, (item) => item[1].auctionDate);
+    return sortAuctions(filtered);
   }, [province, normalizedProvinceParam]);
 
   const activeAuctions = useMemo(() => {
-    return provinceAuctions.filter(([_, data]) => !isAuctionFinished(data.auctionDate));
+    return provinceAuctions.filter(([_, data]: [string, any]) => data.status !== 'closed' && !isAuctionFinished(data.auctionDate));
   }, [provinceAuctions]);
 
   const zones = useMemo(() => {
     const zoneSet = new Set<string>();
-    provinceAuctions.forEach(([_, data]) => {
+    provinceAuctions.forEach(([_, data]: [string, any]) => {
       if (data.zone && !isAuctionFinished(data.auctionDate)) {
         zoneSet.add(data.zone);
       }
@@ -54,7 +54,7 @@ const ProvinceHub: React.FC = () => {
 
   const propertyTypes = useMemo(() => {
     const typeSet = new Set<string>();
-    provinceAuctions.forEach(([_, data]) => {
+    provinceAuctions.forEach(([_, data]: [string, any]) => {
       if (data.propertyType && !isAuctionFinished(data.auctionDate)) {
         typeSet.add(normalizePropertyType(data.propertyType));
       }
@@ -66,9 +66,12 @@ const ProvinceHub: React.FC = () => {
     if (activeAuctions.length === 0) return null;
     let validAuctionsCount = 0;
     const totalDiscount = activeAuctions.reduce((acc, [_, a]) => {
-      if (a.appraisalValue && a.claimedDebt && a.appraisalValue > a.claimedDebt) {
-        validAuctionsCount++;
-        return acc + (1 - a.claimedDebt / a.appraisalValue);
+      if (a.appraisalValue && a.claimedDebt !== undefined && a.claimedDebt !== null && a.appraisalValue > a.claimedDebt) {
+        const discount = 1 - a.claimedDebt / a.appraisalValue;
+        if (a.claimedDebt !== 0 && discount <= 0.85) {
+          validAuctionsCount++;
+          return acc + discount;
+        }
       }
       return acc;
     }, 0);
@@ -84,12 +87,15 @@ const ProvinceHub: React.FC = () => {
 
   const topOpportunities = useMemo(() => {
     return activeAuctions
-      .map(([slug, data]) => {
+      .map(([slug, data]: [string, any]) => {
         const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue;
         const cantidadReclamada = data.claimedDebt;
-        const ratio = (valorReferencia && cantidadReclamada !== undefined && cantidadReclamada !== null) 
+        let ratio = (valorReferencia && cantidadReclamada !== undefined && cantidadReclamada !== null) 
           ? Math.round(((valorReferencia - cantidadReclamada) / valorReferencia) * 100)
           : 0;
+        if (cantidadReclamada === 0 || ratio > 85) {
+          ratio = 0;
+        }
         return { slug, data, ratio };
       })
       .filter(item => item.ratio > 40)
@@ -180,7 +186,7 @@ const ProvinceHub: React.FC = () => {
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {topOpportunities.map(({ slug, data }) => (
+              {topOpportunities.map(({ slug, data }: { slug: string, data: any }) => (
                 <AuctionCard key={slug} slug={slug} data={data} />
               ))}
             </div>
@@ -256,7 +262,7 @@ const ProvinceHub: React.FC = () => {
 
         {provinceAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {provinceAuctions.map(([slug, data]) => (
+            {provinceAuctions.map(([slug, data]: [string, any]) => (
               <AuctionCard key={slug} slug={slug} data={data} />
             ))}
           </div>

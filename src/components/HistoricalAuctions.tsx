@@ -1,21 +1,13 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Calculator, TrendingUp, Percent } from 'lucide-react';
-import { AUCTIONS } from '../data/auctions';
+import { CLOSED_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { ROUTES } from '../constants/routes';
-import { sortAuctions, isAuctionFinished } from '../utils/auctionHelpers';
+import { sortAuctions } from '../utils/auctionHelpers';
 import { AuctionCard } from './AuctionCard';
 
 const HistoricalAuctions: React.FC = () => {
-  // Get all auctions and filter by historical status (hybrid logic)
-  const allAuctionsRaw = Object.entries(AUCTIONS);
-  const historicalAuctions = sortAuctions(allAuctionsRaw.filter(item => {
-    const auction = item[1];
-    if (auction.isActive === true) return false;
-    if (auction.isActive === false) return true;
-    // Legacy data: check if date is in the past
-    return isAuctionFinished(auction.auctionDate);
-  }));
+  const historicalAuctions = sortAuctions(Object.entries(AUCTIONS));
   const historicalCount = historicalAuctions.length;
 
   useEffect(() => {
@@ -39,6 +31,7 @@ const HistoricalAuctions: React.FC = () => {
           <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-8 leading-tight">
             Archivo histórico de subastas
           </h1>
+          <p className="text-xl text-slate-600 mb-8 font-medium">Subastas finalizadas · Archivo histórico de oportunidades</p>
 
           <div className="prose prose-lg prose-slate max-w-3xl">
             <div className="bg-slate-100 border border-slate-200 rounded-2xl p-6 mb-8">
@@ -60,7 +53,7 @@ const HistoricalAuctions: React.FC = () => {
 
         {historicalCount > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {historicalAuctions.map(([slug, data]) => (
+            {historicalAuctions.map(([slug, data]: [string, any]) => (
               <AuctionCard key={slug} slug={slug} data={data} />
             ))}
           </div>

@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { AUCTIONS } from '../data/auctions';
+import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
-import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { AuctionCard } from './AuctionCard';
+import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const StreetAuctions: React.FC = () => {
@@ -35,11 +36,11 @@ const StreetAuctions: React.FC = () => {
              dataStreetSlug === normalizedStreet;
     });
     
-    return sortActiveFirst(filtered, (item) => item[1].auctionDate);
+    return sortAuctions(filtered);
   }, [province, zone, street]);
 
   const activeCount = useMemo(() => {
-    return filteredAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
+    return filteredAuctions.filter((item: [string, any]) => item[1].status !== 'closed' && !isAuctionFinished(item[1].auctionDate)).length;
   }, [filteredAuctions]);
 
   const { displayProvince, displayZone, displayStreet } = useMemo(() => {
@@ -129,65 +130,9 @@ const StreetAuctions: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 py-12">
         {filteredAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAuctions.map(([slug, data]) => {
-              const isFinished = isAuctionFinished(data.auctionDate);
-              return (
-              <div key={slug} className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative">
-                {isFinished && (
-                  <div className="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border border-white/20 shadow-sm">
-                    Adjudicada
-                  </div>
-                )}
-                <div className="p-6 flex-grow">
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="bg-brand-50 text-brand-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                      {data.propertyType}
-                    </span>
-                    <span className="text-slate-400 text-xs font-mono">
-                      {data.boeId}
-                    </span>
-                  </div>
-
-                  <h2 className="text-xl font-bold text-slate-900 mb-4 leading-snug">
-                    {normalizePropertyType(data.propertyType)} en subasta en {normalizeCity(data)}
-                  </h2>
-
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center gap-2 text-slate-500 text-sm">
-                      <MapPin size={16} className="text-brand-500" />
-                      <span>{normalizeLocationLabel(data)}</span>
-                    </div>
-                    {data.appraisalValue && (
-                      <div className="flex items-center gap-2 text-slate-500 text-sm">
-                        <DollarSign size={16} className="text-brand-500" />
-                        <span>Valor tasación: <span className="font-bold text-slate-900">{data.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
-                      </div>
-                    )}
-                    {data.claimedDebt && (
-                      <div className="flex items-center gap-2 text-slate-500 text-sm">
-                        <DollarSign size={16} className="text-red-500" />
-                        <span>Deuda: <span className="font-bold text-red-600">{data.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span></span>
-                      </div>
-                    )}
-                    {data.appraisalValue && data.claimedDebt && (
-                      <div className="flex items-center gap-2 text-slate-500 text-sm">
-                        <TrendingUp size={16} className={((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100) > 40 ? 'text-green-500' : 'text-slate-400'} />
-                        <span className="text-slate-500">Descuento potencial: <span className={`font-bold ${((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100) > 40 ? 'text-green-600' : 'text-slate-900'}`}>-{Math.round((data.appraisalValue - data.claimedDebt) / data.appraisalValue * 100)} %</span></span>
-                      </div>
-                    )}
-                  </div>
-
-                  <Link 
-                    to={`/ejemplo-subasta/${slug}`}
-                    className={`w-full inline-flex items-center justify-center font-bold py-3 px-6 rounded-xl transition-colors group ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
-                  >
-                    Ver detalles
-                    <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
-              </div>
-              );
-            })}
+            {filteredAuctions.map(([slug, data]: [string, any]) => (
+              <AuctionCard key={slug} slug={slug} data={data} />
+            ))}
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-2xl mx-auto">

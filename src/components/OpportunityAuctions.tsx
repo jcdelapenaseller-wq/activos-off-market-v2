@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { AUCTIONS } from '../data/auctions';
+import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { ChevronRight, MapPin, DollarSign, TrendingUp, ArrowLeft, Percent } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
@@ -27,10 +27,11 @@ const OpportunityAuctions: React.FC = () => {
       .filter(([_, data]) => {
         const p = normalizeProvince(data.province || data.city);
         if (normalize(p) !== normalizedProvince && !normalize(p).includes(normalizedProvince) && !normalizedProvince.includes(normalize(p))) return false;
-        if (!data.appraisalValue || !data.claimedDebt) return false;
+        if (!data.appraisalValue || data.claimedDebt === undefined || data.claimedDebt === null) return false;
+        if (data.claimedDebt === 0) return false;
         
         const discount = (data.appraisalValue - data.claimedDebt) / data.appraisalValue;
-        return discount >= 0.4;
+        return discount >= 0.4 && discount <= 0.85;
       })
       .map(([slug, data]) => {
         const discount = (data.appraisalValue! - data.claimedDebt!) / data.appraisalValue!;

@@ -206,10 +206,11 @@ async function runCrawler() {
             var valorTasacion = getVal('Tasación');
             var cantidadReclamada = getVal('Cantidad reclamada');
             var deposito = getVal('Importe del depósito');
+            var fechaInicio = getVal('Fecha de inicio');
             var fechaFin = getVal('Fecha de conclusión') || getVal('Fecha de fin');
             var estadoSubasta = getVal('Estado') || 'Celebrándose';
 
-            return { valorSubasta: valorSubasta, valorTasacion: valorTasacion, cantidadReclamada: cantidadReclamada, deposito: deposito, fechaFin: fechaFin, estadoSubasta: estadoSubasta };
+            return { valorSubasta: valorSubasta, valorTasacion: valorTasacion, cantidadReclamada: cantidadReclamada, deposito: deposito, fechaInicio: fechaInicio, fechaFin: fechaFin, estadoSubasta: estadoSubasta };
           })()
         `) as any;
 
@@ -355,16 +356,21 @@ async function runCrawler() {
         const tipoBienLimpio = cleanPropertyType(bienesData.tipoBien || '');
         const esTipoExcluido = tipoBienLimpio === 'Local' || tipoBienLimpio === 'Garaje';
 
-        // Cálculo de ratio para filtro (18%)
+        // Cálculo de ratio para filtro (18% - 85%)
         const valorReferencia = tasacionNum || subastaNum;
         let esRatioBajo = false;
+        let esRatioExcesivo = false;
         if (valorReferencia && deudaNum !== null && deudaNum !== undefined) {
           const ratio = Math.round(((valorReferencia - deudaNum) / valorReferencia) * 100);
-          // Solo descartamos si el ratio es explícitamente < 18%
+          // Descartamos si el ratio es explícitamente < 18% o > 85%
           if (ratio < 18) esRatioBajo = true;
+          if (ratio > 85) esRatioExcesivo = true;
         }
 
-        if (subastaNum !== null && subastaNum >= 5000 && !esEstadoInvalido && !esTipoExcluido && !esRatioBajo) {
+        const esValorBajo = tasacionNum !== null && tasacionNum < 100000;
+        const esDeudaCero = deudaNum === 0;
+
+        if (subastaNum !== null && subastaNum >= 5000 && !esEstadoInvalido && !esTipoExcluido && !esRatioBajo && !esRatioExcesivo && !esValorBajo && !esDeudaCero) {
           finalResults.push({
             idSub,
             titulo: item.titulo,
@@ -374,6 +380,7 @@ async function runCrawler() {
             deposito: depositoNum,
             autoridad,
             estadoSubasta: generalData.estadoSubasta,
+            fechaInicio: generalData.fechaInicio,
             fechaFin: generalData.fechaFin,
             urlDetalle: item.urlDetalle,
             tipoBien: tipoBienLimpio,
@@ -390,6 +397,9 @@ async function runCrawler() {
           if (esEstadoInvalido) motivo = `Estado: ${generalData.estadoSubasta}`;
           else if (esTipoExcluido) motivo = `Tipo excluido: ${tipoBienLimpio}`;
           else if (esRatioBajo) motivo = `Ratio insuficiente`;
+          else if (esRatioExcesivo) motivo = `Ratio excesivo (>85%)`;
+          else if (esValorBajo) motivo = `Valor tasación bajo (<100k)`;
+          else if (esDeudaCero) motivo = `Deuda cero`;
           else motivo = `Valor insuficiente: ${subastaNum}`;
           
           console.log(` - Subasta ${idSub} descartada por calidad (${motivo})`);
@@ -406,32 +416,97 @@ async function runCrawler() {
     const output = {
       totalEncontradas: allAuctions.length,
       totalValidas: finalResults.length,
-      totalNuevas: nuevas.length,
-      subastasInsertadas: 0
+      totalNuevas: 0,
+      totalActualizadas: 0,
+      subastasInsertadas: 0,
+      subastasActualizadas: 0
     };
 
-    if (nuevas.length > 0) {
+    if (finalResults.length > 0) {
       try {
         let auctionsContent = fs.readFileSync(auctionsFilePath, 'utf-8');
         
-        const newEntries = nuevas.map(s => {
+        // Mapeo de estados para el frontend
+        const mapStatus = (rawStatus: string): string => {
+          const s = rawStatus.toLowerCase();
+          if (s.includes('próxima') || s.includes('proxima')) return 'upcoming';
+          if (s.includes('celebrándose') || s.includes('celebrandose')) return 'active';
+          if (s.includes('suspendida')) return 'suspended';
+          if (s.includes('finalizada') || s.includes('cancelada') || s.includes('concluida')) return 'closed';
+          return 'active'; // Default
+        };
+
+        for (const s of finalResults) {
           const slug = `subasta-${s.idSub.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+          const boeId = s.idSub;
           
           let auctionDate = s.fechaFin;
+          let startDate = s.fechaInicio;
           let isActive = false;
-          const isoMatch = (s.fechaFin || '').match(/ISO:\s*([^)]+)/);
-          if (isoMatch) {
-            auctionDate = isoMatch[1].split('T')[0];
-            const endDate = new Date(isoMatch[1]);
+          
+          const isoMatchFin = (s.fechaFin || '').match(/ISO:\s*([^)]+)/);
+          if (isoMatchFin) {
+            auctionDate = isoMatchFin[1].split('T')[0];
+            const endDate = new Date(isoMatchFin[1]);
             isActive = new Date() < endDate;
           }
 
-          // Combinar descripción y cargas
-          let desc = s.titulo;
-          if (s.cargas) desc += ` | Cargas: ${s.cargas}`;
-          if (s.deposito) desc += ` | Depósito: ${s.deposito}€`;
+          const isoMatchInicio = (s.fechaInicio || '').match(/ISO:\s*([^)]+)/);
+          if (isoMatchInicio) {
+            startDate = isoMatchInicio[1].split('T')[0];
+          }
 
-          const entry = `  '${slug}': {
+          const mappedStatus = mapStatus(s.estadoSubasta || '');
+          const now = new Date().toISOString();
+
+          // Verificar si ya existe en el archivo
+          const slugPattern = new RegExp(`'${slug}':\\s*{`, 'g');
+          const exists = slugPattern.test(auctionsContent);
+
+          if (exists) {
+            // ACTUALIZAR SOLO: status, auctionDate, startDate, isActive, lastCheckedAt
+            console.log(`Actualizando subasta existente: ${slug}`);
+            
+            // Usar regex para reemplazar campos específicos dentro del bloque de la subasta
+            const blockRegex = new RegExp(`('${slug}':\\s*{[\\s\\S]*?})`, 'g');
+            auctionsContent = auctionsContent.replace(blockRegex, (match) => {
+              let updated = match;
+              
+              // Actualizar status
+              updated = updated.replace(/status:\s*"[^"]*"/, `status: "${mappedStatus}"`);
+              
+              // Actualizar auctionDate
+              updated = updated.replace(/auctionDate:\s*"[^"]*"/, `auctionDate: "${auctionDate}"`);
+              
+              // Actualizar startDate (si existe, si no añadirlo)
+              if (updated.includes('startDate:')) {
+                updated = updated.replace(/startDate:\s*"[^"]*"/, `startDate: "${startDate}"`);
+              } else {
+                updated = updated.replace(/auctionDate:/, `startDate: "${startDate}",\n    auctionDate:`);
+              }
+              
+              // Actualizar isActive
+              updated = updated.replace(/isActive:\s*(true|false)/, `isActive: ${isActive}`);
+              
+              // Actualizar lastCheckedAt (si existe, si no añadirlo)
+              if (updated.includes('lastCheckedAt:')) {
+                updated = updated.replace(/lastCheckedAt:\s*"[^"]*"/, `lastCheckedAt: "${now}"`);
+              } else {
+                updated = updated.replace(/(publishedAt:\s*"[^"]*",?)/, `$1\n    lastCheckedAt: "${now}",`);
+              }
+
+              return updated;
+            });
+            output.subastasActualizadas++;
+          } else {
+            // INSERTAR NUEVA
+            console.log(`Insertando nueva subasta: ${slug}`);
+            
+            let desc = s.titulo;
+            if (s.cargas) desc += ` | Cargas: ${s.cargas}`;
+            if (s.deposito) desc += ` | Depósito: ${s.deposito}€`;
+
+            const entry = `  '${slug}': {
     propertyType: "${(s.tipoBien || 'Inmueble').replace(/"/g, '\\"')}",
     city: "${(s.city || '').replace(/"/g, '\\"')}",
     province: "${(s.province || '').replace(/"/g, '\\"')}",
@@ -448,22 +523,27 @@ async function runCrawler() {
     description: "${desc.replace(/"/g, '\\"').replace(/\n/g, ' ')}",
     boeId: "${s.idSub}",
     boeUrl: "${s.urlDetalle}",
-    publishedAt: "${new Date().toISOString()}",
+    publishedAt: "${startDate || auctionDate || now}",
+    lastCheckedAt: "${now}",
+    startDate: "${startDate}",
     auctionDate: "${auctionDate}",
-    status: "${(s.estadoSubasta || 'Celebrándose').replace(/"/g, '\\"')}",
+    status: "${mappedStatus}",
     isActive: ${isActive}
   },`;
-          console.log(`Ejemplo de subasta (${slug}):\n${entry}`);
-          return entry;
-        }).join('\n');
 
-        const insertionPoint = auctionsContent.indexOf('export const AUCTIONS: Record<string, AuctionData> = {');
-        if (insertionPoint !== -1) {
-          const openBraceIndex = auctionsContent.indexOf('{', insertionPoint);
-          const updatedContent = auctionsContent.slice(0, openBraceIndex + 1) + '\n' + newEntries + auctionsContent.slice(openBraceIndex + 1);
-          fs.writeFileSync(auctionsFilePath, updatedContent);
-          output.subastasInsertadas = nuevas.length;
+            const insertionPoint = auctionsContent.indexOf('export const AUCTIONS: Record<string, AuctionData> = {');
+            if (insertionPoint !== -1) {
+              const openBraceIndex = auctionsContent.indexOf('{', insertionPoint);
+              auctionsContent = auctionsContent.slice(0, openBraceIndex + 1) + '\n' + entry + auctionsContent.slice(openBraceIndex + 1);
+              output.subastasInsertadas++;
+            }
+          }
         }
+        
+        fs.writeFileSync(auctionsFilePath, auctionsContent);
+        output.totalNuevas = output.subastasInsertadas;
+        output.totalActualizadas = output.subastasActualizadas;
+        
       } catch (err) {
         console.error('Error al actualizar auctions.ts:', (err as any).message);
       }

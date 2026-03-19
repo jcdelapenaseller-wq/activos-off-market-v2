@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
-import { AUCTIONS } from '../data/auctions';
+import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { Calendar, ChevronRight, TrendingUp, MapPin, ArrowRight } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
@@ -43,9 +43,11 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
     let maxDiscount = 0;
     
     activeAuctions.forEach(([_, a]) => {
-      if (a.appraisalValue && a.claimedDebt && a.appraisalValue > a.claimedDebt) {
+      if (a.appraisalValue && a.claimedDebt !== undefined && a.claimedDebt !== null && a.appraisalValue > a.claimedDebt) {
         const discount = Math.round((1 - a.claimedDebt / a.appraisalValue) * 100);
-        if (discount > maxDiscount) maxDiscount = discount;
+        if (a.claimedDebt !== 0 && discount <= 85 && discount > maxDiscount) {
+          maxDiscount = discount;
+        }
       }
     });
     

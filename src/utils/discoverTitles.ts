@@ -1,9 +1,10 @@
+import { normalizeCity } from './auctionNormalizer';
 import { AuctionData } from '../data/auctions';
 
 export function generateDiscoverTitle(slug: string, auction: AuctionData): string {
   const type = auction.propertyType?.toLowerCase() || 'inmueble';
-  const location = auction.zone || auction.city || 'España';
-  const city = auction.city || 'España';
+  const location = auction.zone || normalizeCity(auction) || 'España';
+  const city = normalizeCity(auction) || 'España';
   
   const appraisal = auction.appraisalValue || 0;
   const debt = auction.claimedDebt || 0;

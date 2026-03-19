@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight, Percent } from 'lucide-react';
-import { AUCTIONS } from '../data/auctions';
+import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortAuctions, formatDate } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
@@ -10,14 +10,12 @@ import { AuctionCard } from './AuctionCard';
 const RecentAuctions: React.FC = () => {
   // Get all auctions and filter by active status (hybrid logic)
   const allAuctionsRaw = Object.entries(AUCTIONS);
-  const activeAuctions = sortAuctions(allAuctionsRaw.filter(item => {
+  const sortedAuctions = sortAuctions(allAuctionsRaw);
+  const activeCount = allAuctionsRaw.filter(item => {
     const auction = item[1];
-    if (auction.isActive === true) return true;
-    if (auction.isActive === false) return false;
-    // Legacy data: check if date is in the future
-    return !isAuctionFinished(auction.auctionDate);
-  }));
-  const activeCount = activeAuctions.length;
+    const isClosed = auction.status === 'closed' || isAuctionFinished(auction.auctionDate);
+    return !isClosed;
+  }).length;
 
   const formatPublishedDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -86,7 +84,7 @@ const RecentAuctions: React.FC = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {activeAuctions.map(([slug, data]) => (
+          {sortedAuctions.map(([slug, data]) => (
             <AuctionCard key={slug} slug={slug} data={data} />
           ))}
         </div>

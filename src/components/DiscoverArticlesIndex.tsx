@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { AUCTIONS } from '../data/auctions';
+import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { Calendar, ChevronRight, MapPin } from 'lucide-react';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import { normalizeProvince } from '../utils/auctionNormalizer';
@@ -24,9 +24,13 @@ const DiscoverArticlesIndex: React.FC = () => {
       const p = normalizeProvince(a.province || a.city);
       if (!p) return;
       
-      const discount = a.appraisalValue && a.claimedDebt && a.appraisalValue > a.claimedDebt
+      let discount = a.appraisalValue && a.claimedDebt !== undefined && a.claimedDebt !== null && a.appraisalValue > a.claimedDebt
         ? Math.round((1 - a.claimedDebt / a.appraisalValue) * 100)
         : 0;
+        
+      if (a.claimedDebt === 0 || discount > 85) {
+        discount = 0; // Don't use this discount for the maxDiscount calculation
+      }
         
       if (!provincesMap.has(p)) {
         provincesMap.set(p, { count: 1, maxDiscount: discount });
