@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
+import { AUCTIONS } from '../data/auctions';
+import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { ChevronRight, MapPin, DollarSign, TrendingUp, ArrowLeft, Percent } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';

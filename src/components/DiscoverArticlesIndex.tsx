@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
+import { AUCTIONS } from '../data/auctions';
+import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { Calendar, ChevronRight, MapPin } from 'lucide-react';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import { normalizeProvince } from '../utils/auctionNormalizer';

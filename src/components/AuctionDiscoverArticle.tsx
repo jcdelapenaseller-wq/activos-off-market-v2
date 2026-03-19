@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
+import { AUCTIONS } from '../data/auctions';
+import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { ROUTES } from '../constants/routes';
 import { Calendar, User, MapPin, CircleDollarSign, Landmark, TrendingDown, Clock, MessageSquare, ExternalLink, ShieldCheck, Info, ArrowLeft, ArrowRight } from 'lucide-react';
 import { generateDiscoverTitle } from '../utils/discoverTitles';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import { normalizeCity, normalizeProvince } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
+import { generateEditorialContent } from '../utils/editorialGenerator';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
 
 const AuctionDiscoverArticle: React.FC = () => {
@@ -26,6 +28,8 @@ const AuctionDiscoverArticle: React.FC = () => {
     if (type.includes('nave')) return 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop';
     return 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop';
   }, [auction]);
+
+  const cityName = useMemo(() => auction ? (normalizeCity(auction) || 'España') : 'España', [auction]);
 
   const formattedCurrency = (value: number | undefined) => {
     if (value === undefined) return 'Consultar';
@@ -47,8 +51,8 @@ const AuctionDiscoverArticle: React.FC = () => {
         "@context": "https://schema.org",
         "@type": "NewsArticle",
         "headline": title,
-        "description": `Análisis de la subasta de un ${auction.propertyType?.toLowerCase() || 'inmueble'} en ${auction.zone}, ${normalizeCity(auction)}. Datos clave, riesgos y cómo participar.`,
-        "image": [`https://picsum.photos/seed/real-estate-${normalizeCity(auction).toLowerCase()}-${slug}/1200/675`],
+        "description": `Análisis de la subasta de un ${auction.propertyType?.toLowerCase() || 'inmueble'} en ${auction.zone}, ${cityName}. Datos clave, riesgos y cómo participar.`,
+        "image": [imageUrl],
         "datePublished": auction.publishedAt || new Date().toISOString(),
         "author": [{
             "@type": "Person",
@@ -79,14 +83,18 @@ const AuctionDiscoverArticle: React.FC = () => {
     return pubDate.toDateString() === today.toDateString();
   }, [auction.publishedAt]);
 
-  const provinceName = useMemo(() => normalizeProvince(auction.province || normalizeCity(auction) || ''), [auction.province, normalizeCity(auction)]);
+  const provinceName = useMemo(() => normalizeProvince(auction.province || cityName || ''), [auction.province, cityName]);
+
+  const editorialParagraphs = useMemo(() => {
+    return generateEditorialContent(auction);
+  }, [auction]);
 
   const relatedAuctions = useMemo(() => {
     return Object.entries(AUCTIONS)
-      .filter(([key, data]) => data.city === normalizeCity(auction) && key !== slug)
+      .filter(([key, data]) => data.city === cityName && key !== slug)
       .reverse()
       .slice(0, 3);
-  }, [normalizeCity(auction), slug]);
+  }, [cityName, slug]);
 
   return (
     <div className="bg-white min-h-screen">
@@ -95,7 +103,7 @@ const AuctionDiscoverArticle: React.FC = () => {
         <header className="mb-8">
           {isPublishedToday && (
             <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-bold border border-blue-100 shadow-sm">
-              <span>⚡</span> Nueva subasta detectada hoy en {normalizeCity(auction)}
+              <span>⚡</span> Nueva subasta detectada hoy en {cityName}
             </div>
           )}
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-slate-900 mb-6 leading-tight">
@@ -131,7 +139,7 @@ const AuctionDiscoverArticle: React.FC = () => {
         <div className="mb-10">
           <img 
             src={imageUrl} 
-            alt={`Subasta de ${auction.propertyType} en ${normalizeCity(auction)}`} 
+            alt={`Subasta de ${auction.propertyType} en ${cityName}`} 
             className="w-full rounded-2xl object-cover aspect-video shadow-lg"
             referrerPolicy="no-referrer"
           />
@@ -153,7 +161,7 @@ const AuctionDiscoverArticle: React.FC = () => {
               <div>
                 <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Ubicación</p>
                 <p className="font-medium">
-                  {auction.zone}, <Link to={`/subastas/${normalizeCity(auction).toLowerCase()}`} className="hover:underline text-brand-400">{normalizeCity(auction)}</Link>
+                  {auction.zone}, <Link to={`/subastas/${cityName.toLowerCase()}`} className="hover:underline text-brand-400">{cityName}</Link>
                 </p>
               </div>
             </div>
@@ -200,39 +208,35 @@ const AuctionDiscoverArticle: React.FC = () => {
           </div>
         </section>
 
-        {/* D) Explicación breve */}
+        {/* D) Explicación breve (Dinámica) */}
         <div className="prose prose-slate prose-lg max-w-none mb-10">
-          <p className="mb-6">
-            Se ha publicado una nueva oportunidad en el portal de subastas del BOE. Se trata de un {auction.propertyType?.toLowerCase() || 'inmueble'} ubicado en {auction.zone}, una de las áreas con mayor movimiento de {normalizeCity(auction)}.
-          </p>
-          <p className="mb-6">
-            Este activo sale a subasta bajo un procedimiento de {auction.procedureType || 'ejecución judicial'}. Para un inversor, este tipo de activos representan una oportunidad de adquirir inmuebles por debajo de su precio de mercado, aunque requieren un análisis técnico riguroso.
-          </p>
-          {auction.description && (
-            <p className="mb-6">
-              {auction.description.length > 250 ? `${auction.description.substring(0, 250)}...` : auction.description}
+          {editorialParagraphs.map((paragraph, index) => (
+            <p key={index} className="mb-6">
+              {paragraph}
             </p>
+          ))}
+          {auction.description && (
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm text-slate-600 italic mt-6">
+              <strong>Nota del edicto:</strong> {auction.description.length > 300 ? `${auction.description.substring(0, 300)}...` : auction.description}
+            </div>
           )}
-          <p className="mb-6">
-            El contexto actual del mercado en {normalizeCity(auction)} muestra una demanda sólida, lo que hace que activos con descuentos significativos como este sean especialmente atractivos para estrategias de comprar, reformar y vender, o para rentabilidad por alquiler.
-          </p>
         </div>
 
         <section className="mb-10">
-          <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Qué está pasando con las subastas en {normalizeCity(auction)}</h2>
+          <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Qué está pasando con las subastas en {cityName}</h2>
           <p className="text-slate-700 mb-4">
-            Estamos detectando un aumento significativo en la actividad de subastas en <Link to={`/subastas/${normalizeCity(auction).toLowerCase()}`} className="hover:underline text-brand-600">{normalizeCity(auction)}</Link>, especialmente en zonas como {auction.zone}. Esto abre oportunidades interesantes para inversores que buscan activos con descuento.
+            Estamos detectando un aumento significativo en la actividad de subastas en <Link to={`/subastas/${cityName.toLowerCase()}`} className="hover:underline text-brand-600">{cityName}</Link>, especialmente en zonas como {auction.zone}. Esto abre oportunidades interesantes para inversores que buscan activos con descuento.
           </p>
           <div className="flex gap-4">
-            <Link to={`/subastas/${normalizeCity(auction).toLowerCase()}`} className="text-brand-600 font-bold hover:underline">📊 Análisis completo del mercado en {normalizeCity(auction)} →</Link>
-            <Link to={`/subastas/${normalizeCity(auction).toLowerCase()}/${auction.zone?.toLowerCase().replace(/\s+/g, '-')}`} className="text-brand-600 font-bold hover:underline">📊 Análisis del mercado en {auction.zone} →</Link>
+            <Link to={`/subastas/${cityName.toLowerCase()}`} className="text-brand-600 font-bold hover:underline">📊 Análisis completo del mercado en {cityName} →</Link>
+            <Link to={`/subastas/${cityName.toLowerCase()}/${auction.zone?.toLowerCase().replace(/\s+/g, '-')}`} className="text-brand-600 font-bold hover:underline">📊 Análisis del mercado en {auction.zone} →</Link>
           </div>
         </section>
 
         <section className="mb-10">
           <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Lo que llama la atención de esta subasta</h2>
           <p className="text-slate-700 mb-4">
-            El descuento del {discount}% sobre el valor de tasación es el primer factor que destaca. La ubicación en {auction.zone} sitúa este activo en un punto estratégico de <Link to={`/subastas/${normalizeCity(auction).toLowerCase()}`} className="hover:underline text-brand-600">{normalizeCity(auction)}</Link>, un mercado donde la oferta de {auction.propertyType?.toLowerCase()} a precios competitivos es escasa.
+            El descuento del {discount}% sobre el valor de tasación es el primer factor que destaca. La ubicación en {auction.zone} sitúa este activo en un punto estratégico de <Link to={`/subastas/${cityName.toLowerCase()}`} className="hover:underline text-brand-600">{cityName}</Link>, un mercado donde la oferta de {auction.propertyType?.toLowerCase()} a precios competitivos es escasa.
           </p>
         </section>
 
@@ -245,21 +249,21 @@ const AuctionDiscoverArticle: React.FC = () => {
           <p className="text-slate-700 italic">
             {auction.description 
               ? `"${auction.description.split('.')[0]}."`
-              : `"Este tipo de activos en ${normalizeCity(auction)} suele generar bastante interés cuando empiezan las pujas. La clave del éxito aquí será validar si las cargas anteriores están realmente canceladas económicamente."`
+              : `"Este tipo de activos en ${cityName} suele generar bastante interés cuando empiezan las pujas. La clave del éxito aquí será validar si las cargas anteriores están realmente canceladas económicamente."`
             }
           </p>
           <div className="mt-4">
             <Link 
-              to={`/subastas/${normalizeCity(auction).toLowerCase()}/${auction.zone?.toLowerCase().replace(/\s+/g, '-')}`} 
+              to={`/subastas/${cityName.toLowerCase()}/${auction.zone?.toLowerCase().replace(/\s+/g, '-')}`} 
               className="text-brand-700 font-bold hover:text-brand-900 flex items-center gap-1"
             >
               📊 Análisis del mercado en {auction.zone} →
             </Link>
             <Link 
-              to={`/subastas/${normalizeCity(auction).toLowerCase()}`} 
+              to={`/subastas/${cityName.toLowerCase()}`} 
               className="text-brand-700 font-bold hover:text-brand-900 flex items-center gap-1 mt-2"
             >
-              📊 Análisis general del mercado en {normalizeCity(auction)} →
+              📊 Análisis general del mercado en {cityName} →
             </Link>
           </div>
         </div>
@@ -277,7 +281,7 @@ const AuctionDiscoverArticle: React.FC = () => {
         <section className="mb-10">
           <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Por qué esta subasta puede interesar</h2>
           <p className="text-slate-700 mb-4">
-            La ratio entre la deuda reclamada ({formattedCurrency(auction.claimedDebt)}) y el valor de tasación ({formattedCurrency(auction.appraisalValue)}) sugiere un margen de maniobra interesante. La demanda de {auction.propertyType?.toLowerCase()} en {normalizeCity(auction)} es constante, lo que garantiza una alta liquidez si el precio de adjudicación es el adecuado.
+            La ratio entre la deuda reclamada ({formattedCurrency(auction.claimedDebt)}) y el valor de tasación ({formattedCurrency(auction.appraisalValue)}) sugiere un margen de maniobra interesante. La demanda de {auction.propertyType?.toLowerCase()} en {cityName} es constante, lo que garantiza una alta liquidez si el precio de adjudicación es el adecuado.
           </p>
         </section>
 
@@ -360,7 +364,7 @@ const AuctionDiscoverArticle: React.FC = () => {
         {relatedAuctions.length > 0 && (
           <section className="mt-16 mb-10">
             <h2 className="text-2xl font-serif font-bold text-slate-900 mb-8 border-b border-slate-100 pb-4">
-              Últimas subastas detectadas en {normalizeCity(auction)}
+              Últimas subastas detectadas en {cityName}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedAuctions.map(([relatedSlug, data]) => {

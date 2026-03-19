@@ -47,19 +47,16 @@ async function runCrawler() {
     const provincesToTest = provinces.slice(0, 5);
     console.log(`Ejecutando prueba para las top ${provincesToTest.length} provincias: ${provincesToTest.map(p => p.text).join(', ')}`);
     
-    const allAuctions = [];
+    const allAuctions: any[] = [];
     const processedSlugs = new Set();
-    const maxResults = 100; // Reducir límite para que no de timeout
 
     for (const province of provincesToTest) {
-      if (allAuctions.length >= maxResults) break;
-
       console.log(`Seleccionando provincia: ${province.text} (valor: ${province.value})`);
       
       // Reset paginación por provincia
       const visitedPages = new Set();
       let currentPage = 1;
-      const maxPagesPerProvince = 100;
+      const maxPagesPerProvince = 2; // Límite controlado: máximo 2 páginas por provincia
       let hasNextPage = true;
 
       try {
@@ -108,25 +105,33 @@ async function runCrawler() {
           console.log(` - Página ${currentPage}: Encontradas ${provinceResults.length} subastas.`);
 
           for (const res of provinceResults) {
-            if (allAuctions.length < maxResults && !processedSlugs.has(res.urlDetalle)) {
+            if (!processedSlugs.has(res.urlDetalle)) {
               processedSlugs.add(res.urlDetalle);
               allAuctions.push({ ...res, provinceText: province.text });
             }
           }
 
-          if (allAuctions.length >= maxResults) break;
+          if (currentPage >= maxPagesPerProvince) {
+            console.log(` - Límite de páginas alcanzado (${maxPagesPerProvince}) para ${province.text}.`);
+            break;
+          }
 
           const nextPageLink = await page.$('a[href*="accion=Mas"]');
           if (nextPageLink) {
-            const delay = Math.floor(Math.random() * 1000) + 1000;
+            const delay = Math.floor(Math.random() * 1000) + 1000; // Delay 1-2s
             await new Promise(resolve => setTimeout(resolve, delay));
 
-            await Promise.all([
-              nextPageLink.click(),
-              page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-              page.waitForSelector('ul.resultado-busqueda li')
-            ]);
-            currentPage++;
+            try {
+              await Promise.all([
+                nextPageLink.click(),
+                page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+                page.waitForSelector('ul.resultado-busqueda li', { timeout: 10000 })
+              ]);
+              currentPage++;
+            } catch (navError) {
+              console.warn(` - Error al navegar a la siguiente página en ${province.text}: ${(navError as any).message}`);
+              hasNextPage = false; // Parar si falla la navegación
+            }
           } else {
             hasNextPage = false;
           }
@@ -135,9 +140,11 @@ async function runCrawler() {
         console.error(`Error al procesar provincia ${province.text}: ${(e as any).message}`);
       }
 
-      // Volver a la página de búsqueda si necesitamos más
-      if (allAuctions.length < maxResults) {
+      // Volver a la página de búsqueda para la siguiente provincia
+      try {
         await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+      } catch (navError) {
+        console.warn(`Error al volver a la página principal: ${(navError as any).message}`);
       }
     }
 

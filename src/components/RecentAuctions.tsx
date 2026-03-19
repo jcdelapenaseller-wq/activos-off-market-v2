@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight, Percent } from 'lucide-react';
-import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
+import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../constants/routes';
-import { isAuctionFinished, sortAuctions, formatDate } from '../utils/auctionHelpers';
+import { getFilteredAuctions, isAuctionFinished, sortAuctions, formatDate } from '../utils/auctionHelpers';
 import { AuctionCard } from './AuctionCard';
 import { AuctionFilters } from './AuctionFilters';
 import { AuctionData } from '../data/auctions';
 
 const RecentAuctions: React.FC = () => {
-  const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(AUCTIONS);
+  const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(() => getFilteredAuctions(AUCTIONS));
   const sortedAuctions = sortAuctions(Object.entries(filteredAuctions));
   const activeCount = Object.keys(filteredAuctions).length;
 

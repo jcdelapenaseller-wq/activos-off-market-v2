@@ -86,10 +86,11 @@ export const normalizeProvince = (name?: string): string => {
 };
 
 /**
- * Infiere la ciudad a partir de la dirección o la autoridad gestora.
+ * Obtiene la ciudad a partir de los campos oficiales del BOE.
+ * No infiere desde la dirección para evitar falsos positivos.
  */
-export const normalizeCity = (auction: AuctionData): string => {
-  // 1. Usar municipality si existe
+export const normalizeCity = (auction: AuctionData): string | undefined => {
+  // 1. Usar municipality si existe (campo oficial más preciso)
   if (auction.municipality && auction.municipality.trim() !== '') {
     return normalizeLocationName(auction.municipality);
   }
@@ -99,32 +100,7 @@ export const normalizeCity = (auction: AuctionData): string => {
     return normalizeLocationName(auction.city);
   }
   
-  // 3. Intentar extraer de procedureType (ej: "Sección Civil TI Madrid")
-  if (auction.procedureType) {
-    const match = auction.procedureType.match(/TI\s+([^.]+)/i);
-    if (match && match[1]) {
-      const city = match[1].trim();
-      if (city.length > 2 && !city.includes('AEAT')) return city;
-    }
-    
-    // AEAT
-    if (auction.procedureType.includes('MADRID')) return 'Madrid';
-    if (auction.procedureType.includes('BARCELONA')) return 'Barcelona';
-    if (auction.procedureType.includes('VALENCIA')) return 'Valencia';
-    if (auction.procedureType.includes('SEVILLA')) return 'Sevilla';
-    if (auction.procedureType.includes('MALAGA')) return 'Málaga';
-  }
-
-  // 4. Intentar extraer de la dirección (última parte suele ser la ciudad)
-  if (auction.address) {
-    const parts = auction.address.split(',');
-    if (parts.length > 1) {
-      const lastPart = parts[parts.length - 1].trim().replace(/\d/g, '').trim();
-      if (lastPart.length > 2 && lastPart.length < 30) return normalizeLocationName(lastPart);
-    }
-  }
-
-  return 'España';
+  return undefined;
 };
 
 /**

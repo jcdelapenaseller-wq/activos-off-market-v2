@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Calculator, TrendingUp, Percent } from 'lucide-react';
-import { CLOSED_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
+import { AUCTIONS } from '../data/auctions';
+import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { ROUTES } from '../constants/routes';
 import { sortAuctions } from '../utils/auctionHelpers';
 import { AuctionCard } from './AuctionCard';

@@ -3,7 +3,8 @@ import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen, Calculator, HelpCi
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import LeadMagnetBlock from './LeadMagnetBlock';
-import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
+import { AUCTIONS } from '../data/auctions';
+import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 

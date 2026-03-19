@@ -6,7 +6,8 @@ import {
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon,
   Clock, Calendar, User, Share2, Printer
 } from 'lucide-react';
-import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
+import { AUCTIONS } from '../data/auctions';
+import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel, normalizeProvince, formatAddress } from '../utils/auctionNormalizer';
@@ -57,8 +58,8 @@ const AuctionPage: React.FC = () => {
   const isUpcoming = auction.status === 'upcoming';
   const isActive = auction.status === 'active' || (!isFinished && !isSuspended && !isUpcoming);
 
-  const cityName = normalizeCity(auction);
-  const provinceName = normalizeProvince(auction.province || normalizeCity(auction));
+  const cityName = normalizeCity(auction) || 'España';
+  const provinceName = normalizeProvince(auction.province || cityName);
   const propertyType = normalizePropertyType(auction.propertyType);
   const locationLabel = normalizeLocationLabel(auction);
 
@@ -88,7 +89,7 @@ const AuctionPage: React.FC = () => {
       });
       
       const propertyType = normalizePropertyType(auction.propertyType);
-      const cityName = normalizeCity(auction);
+      const cityName = normalizeCity(auction) || 'España';
       const discount = auction.appraisalValue && auction.claimedDebt 
         ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) 
         : 0;

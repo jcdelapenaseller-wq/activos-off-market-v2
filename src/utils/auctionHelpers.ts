@@ -1,5 +1,6 @@
 import { AuctionData } from '../data/auctions';
 import { AuctionStatus } from '../types';
+import { normalizeCity, normalizeProvince } from './auctionNormalizer';
 
 export function normalizeStatus(boeStatus: string): AuctionStatus {
   const s = boeStatus.toLowerCase();
@@ -112,57 +113,65 @@ export function formatDate(dateString: string): string {
   return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-export function isAuctionActive(status?: string, auctionDate?: string): boolean {
-  return getComputedStatus({ status, auctionDate }) === 'active';
+export function isAuctionActive(data: AuctionData): boolean {
+  return ['active', 'upcoming', 'suspended'].includes(data.status || '');
 }
 
-export function isAuctionClosed(status?: string, auctionDate?: string): boolean {
-  return getComputedStatus({ status, auctionDate }) === 'closed';
+export function isAuctionClosed(data: AuctionData): boolean {
+  return data.status === 'closed';
+}
+
+export function applyBasicFilters(data: AuctionData): boolean {
+  const valorReferencia = data.valorTasacion || data.valorSubasta || 0;
+  return valorReferencia >= 100000;
 }
 
 export function getFilteredAuctions(
-  auctions: Record<string, AuctionData>, 
-  statusFilter: 'active' | 'closed' | 'all' = 'active'
+  auctions: Record<string, AuctionData>
 ): Record<string, AuctionData> {
   const filtered: Record<string, AuctionData> = {};
   for (const [slug, data] of Object.entries(auctions)) {
-    // 1. Filtro de estado estricto
-    const isClosed = isAuctionClosed(data.status, data.auctionDate);
-    const isActive = isAuctionActive(data.status, data.auctionDate);
-
-    if (statusFilter === 'active' && !isActive) continue;
-    if (statusFilter === 'closed' && !isClosed) continue;
-
-    // 2. Filtro de calidad (valor/deuda)
-    const valorTasacion = data.valorTasacion || data.appraisalValue;
-    const valorSubasta = data.valorSubasta;
-    const claimedDebt = data.claimedDebt;
-    
-    const valorReferencia = valorTasacion || valorSubasta;
-    
-    let esValorBajo = false;
-    if (valorTasacion !== null && valorTasacion !== undefined && valorTasacion < 100000) {
-      esValorBajo = true;
-    }
-    
-    let esDeudaCero = false;
-    if (claimedDebt === 0) {
-      esDeudaCero = true;
-    }
-    
-    let esRatioExcesivo = false;
-    if (valorReferencia && claimedDebt !== null && claimedDebt !== undefined) {
-      const ratio = Math.round(((valorReferencia - claimedDebt) / valorReferencia) * 100);
-      if (ratio > 85) {
-        esRatioExcesivo = true;
-      }
-    }
-    
-    if (!esValorBajo && !esDeudaCero && !esRatioExcesivo) {
+    if (isAuctionActive(data) && applyBasicFilters(data)) {
       filtered[slug] = data;
     }
   }
   return filtered;
+}
+
+export function isCapital(data: AuctionData): boolean {
+  const normalize = (text: string) => text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  const city = normalizeCity(data);
+  const province = normalizeProvince(data.province || data.city);
+  if (!city || !province) return false;
+  return city !== 'España' && normalize(city) === normalize(province);
+}
+
+export function isConflictZone(auction: AuctionData): boolean {
+  if (!auction.address && !auction.description) return false;
+  
+  // Códigos postales comúnmente asociados a zonas de especial análisis (ejemplos muy conservadores)
+  // Madrid: 28031 (Villa de Vallecas), 28041 (Usera), 28053 (Entrevías)
+  // Barcelona/Sant Adrià: 08930 (La Mina)
+  // Sevilla: 41006 (Los Pajaritos), 41009 (Polígono Norte), 41013 (Polígono Sur)
+  // Alicante: 03009 (Virgen del Remedio), 03011 (Juan XXIII), 03014 (Colonia Requena)
+  const conflictPostalCodes = [
+    '28031', '28041', '28053', 
+    '08930', 
+    '41006', '41009', '41013',
+    '03009', '03011', '03014'
+  ];
+  
+  const address = (auction.address || '').toLowerCase();
+  for (const pc of conflictPostalCodes) {
+    if (address.includes(pc)) return true;
+  }
+  
+  const desc = (auction.description || '').toLowerCase();
+  if (desc.includes('okupa') || desc.includes('ocupado sin título') || desc.includes('ocupado ilegalmente')) {
+    return true;
+  }
+  
+  return false;
 }
 
 export function sortActiveFirst<T>(

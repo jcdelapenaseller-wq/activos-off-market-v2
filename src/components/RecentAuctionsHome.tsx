@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, ArrowRight, TrendingDown } from 'lucide-react';
-import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
+import { AUCTIONS } from '../data/auctions';
+import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { sortAuctions, isAuctionFinished } from '../utils/auctionHelpers';
 
 const RecentAuctionsHome: React.FC = () => {
   // Get the 3 most relevant recent auctions (prioritizing active)
-  const recentAuctions = sortAuctions(Object.entries(AUCTIONS)).slice(0, 3);
+  const filtered = getFilteredAuctions(AUCTIONS);
+  const recentAuctions = sortAuctions(Object.entries(filtered)).slice(0, 3);
 
   return (
     <section className="py-16 bg-white border-b border-slate-100">

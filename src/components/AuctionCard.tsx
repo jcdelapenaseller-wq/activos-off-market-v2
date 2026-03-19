@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, ChevronRight, Percent } from 'lucide-react';
 import { AuctionData } from '../data/auctions';
-import { isAuctionFinished, getComputedStatus } from '../utils/auctionHelpers';
+import { isAuctionFinished, getComputedStatus, isConflictZone } from '../utils/auctionHelpers';
 import { normalizeLocationLabel, normalizePropertyType, normalizeCity, normalizeProvince } from '../utils/auctionNormalizer';
 import { ROUTES } from '../constants/routes';
 
@@ -31,15 +31,16 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
 
   const city = normalizeCity(data);
   const province = normalizeProvince(data.province || data.city);
-  const isCityCapital = city !== 'España' && city.toLowerCase() === province.toLowerCase();
+  const isCityCapital = city && city !== 'España' && city.toLowerCase() === province.toLowerCase();
+  const hasConflict = isConflictZone(data);
 
   // Ranking visual (Absoluto para no añadir complejidad a los listados)
   let rankingLabel = null;
   let rankingColor = "";
   if (!isFinished && !isSuspended && !isUpcoming) {
-    if (isCityCapital) {
-      rankingLabel = "👉 Ubicación Top";
-      rankingColor = "bg-indigo-50 text-indigo-700 border-indigo-200";
+    if (hasConflict) {
+      rankingLabel = "⚠️ Zona a analizar";
+      rankingColor = "bg-rose-50 text-rose-700 border-rose-200";
     } else if (opportunityRatio !== null) {
       if (cantidadReclamada === 0) {
         // Already handled in the main badge
@@ -105,29 +106,31 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
         <div className="flex justify-between items-start mb-4 gap-2">
           {/* Left: Commercial Badges */}
           <div className="flex flex-col gap-2">
-            {cantidadReclamada === 0 ? (
+            {isCityCapital ? (
+              <span className="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-indigo-200 w-fit flex items-center gap-1">
+                👉 Ubicación Top
+              </span>
+            ) : cantidadReclamada === 0 ? (
               <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-slate-200 w-fit">
                 Sin cargas declaradas
               </span>
-            ) : opportunityRatio !== null && opportunityRatio > 85 ? (
-              <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-slate-200 w-fit">
-                Oportunidad a analizar
-              </span>
-            ) : opportunityRatio !== null && opportunityRatio > 40 ? (
-              <span className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider shadow-sm flex items-center gap-1 w-fit">
-                🔥 -{opportunityRatio}% DTO
-              </span>
-            ) : opportunityRatio !== null && opportunityRatio >= 15 ? (
-              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-emerald-200 w-fit">
-                -{opportunityRatio}% DTO
-              </span>
+            ) : (opportunityRatio !== null && opportunityRatio <= 80) ? (
+              opportunityRatio > 40 ? (
+                <span className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider shadow-sm flex items-center gap-1 w-fit">
+                  🔥 -{opportunityRatio}% DTO
+                </span>
+              ) : opportunityRatio >= 15 ? (
+                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-emerald-200 w-fit">
+                  -{opportunityRatio}% DTO
+                </span>
+              ) : null
             ) : (cantidadReclamada === undefined || cantidadReclamada === null) && valorReferencia ? (
               <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-slate-200 w-fit">
                 Análisis requerido
               </span>
             ) : null}
 
-            {rankingLabel && (
+            {rankingLabel && (!isCityCapital || hasConflict) && (
               <span className={`inline-flex items-center text-[10px] font-bold px-2.5 py-1.5 rounded-md border ${rankingColor} w-fit`}>
                 {rankingLabel}
               </span>
