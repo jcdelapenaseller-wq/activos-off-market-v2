@@ -24,7 +24,12 @@ export function generateEditorialContent(auction: AuctionData): string[] {
   const city = normalizeCity(auction) || 'España';
   const zone = auction.zone || city;
   const propType = normalizePropertyType(auction.propertyType).toLowerCase();
-  const procedure = getAuctionType(auction.boeId).toLowerCase();
+  const type = getAuctionType(auction.boeId);
+  let procedure = 'subasta administrativa';
+  if (type === 'Judicial') procedure = 'subasta judicial';
+  if (type === 'AEAT') procedure = 'subasta de la AEAT';
+  if (type === 'Seguridad Social') procedure = 'subasta de la Seguridad Social';
+  if (type === 'Notarial') procedure = 'subasta notarial';
   
   const valorReferencia = auction.valorTasacion || auction.valorSubasta || auction.appraisalValue;
   const deuda = auction.claimedDebt;

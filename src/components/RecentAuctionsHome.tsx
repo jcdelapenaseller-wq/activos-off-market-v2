@@ -24,7 +24,7 @@ const RecentAuctionsHome: React.FC = () => {
                 Oportunidades reales analizadas en los últimos días.
               </p>
               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-brand-600 uppercase tracking-widest bg-brand-50 px-2 py-0.5 rounded border border-brand-100 w-fit">
-                Sistema de detección automática
+                Análisis profesional de subastas
               </span>
             </div>
           </div>

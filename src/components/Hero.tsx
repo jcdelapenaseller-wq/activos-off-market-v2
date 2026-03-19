@@ -47,7 +47,7 @@ const Hero: React.FC = () => {
             </div>
             <div className={`${MetricPositive.container} shadow-sm border border-emerald-100/50`}>
               <div className={MetricPositive.value}>42%</div>
-              <div className={MetricPositive.label}>Descuento medio detectado</div>
+              <div className={MetricPositive.label}>Descuento medio analizado</div>
             </div>
           </div>
           

@@ -81,7 +81,7 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
       return {
         title: total > 0 ? `Subastas en ${provinceName} hoy: ${total} expedientes a punto de cerrar` : `Subastas en ${provinceName} hoy: Análisis de mercado`,
         meta: `El tiempo es clave. Revisa las ${total} subastas activas hoy en ${provinceName} antes de que finalice el plazo.`,
-        intro: `El tiempo es clave en las subastas judiciales y administrativas. Hoy, nuestro sistema monitoriza **${total} expedientes activos** en la provincia de **${provinceName}**. Revisa estas oportunidades antes de que finalice el plazo de pujas y desaparezcan del BOE.`,
+        intro: `El tiempo es clave en las subastas judiciales y administrativas. Hoy, monitorizamos **${total} expedientes activos** en la provincia de **${provinceName}**. Revisa estas oportunidades antes de que finalice el plazo de pujas y desaparezcan del BOE.`,
         cta: `Ver subastas activas hoy en ${provinceName}`,
         image: 'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1200&q=80'
       };
@@ -99,7 +99,7 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
     return {
       title: total > 0 ? `Nuevas oportunidades en ${provinceName}: hasta ${maxDesc}% de descuento` : `Oportunidades de subastas en ${provinceName}`,
       meta: `Nuevas oportunidades de inversión inmobiliaria en ${provinceName}. ${total} activos disponibles con descuentos de hasta el ${maxDesc}%.`,
-      intro: `El mercado de subastas en **${provinceName}** acaba de actualizarse. Nuestro algoritmo ha detectado **${total} oportunidades activas** hoy, alcanzando descuentos de **hasta un ${maxDesc}%** frente a su valor de mercado real.`,
+      intro: `El mercado de subastas en **${provinceName}** acaba de actualizarse. Hemos seleccionado **${total} oportunidades activas** hoy, alcanzando descuentos de **hasta un ${maxDesc}%** frente a su valor de mercado real.`,
       cta: `Ver las ${total} oportunidades en ${provinceName}`,
       image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80'
     };

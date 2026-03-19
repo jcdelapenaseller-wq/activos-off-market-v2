@@ -42,15 +42,17 @@ export function getOpportunityThreshold(auctions: Record<string, AuctionData>): 
 }
 
 export function getAuctionType(boeId?: string): string {
-  if (!boeId) return 'OTRA';
-  if (boeId.startsWith('SUB-JA')) return 'JUDICIAL EN VÍA DE APREMIO';
-  if (boeId.startsWith('SUB-JV')) return 'JUDICIAL VOLUNTARIA';
-  if (boeId.startsWith('SUB-JC')) return 'JUDICIAL CONCURSAL';
-  if (boeId.startsWith('SUB-AT')) return 'AGENCIA TRIBUTARIA';
-  if (boeId.startsWith('SUB-SS')) return 'SEGURIDAD SOCIAL';
-  if (boeId.startsWith('SUB-NV')) return 'NOTARIAL VOLUNTARIA';
-  if (boeId.startsWith('SUB-NC')) return 'NOTARIAL';
-  return 'OTRA';
+  if (!boeId) return 'Administrativa';
+  const id = boeId.toUpperCase();
+  if (id.startsWith('SUB-JA') || id.startsWith('SUB-JV') || id.startsWith('SUB-JC')) return 'Judicial';
+  if (id.startsWith('SUB-AT')) return 'AEAT';
+  if (id.startsWith('SUB-SS')) return 'Seguridad Social';
+  if (id.startsWith('SUB-NV') || id.startsWith('SUB-NC')) return 'Notarial';
+  return 'Administrativa';
+}
+
+export function getProcedureType(auction: AuctionData): string {
+  return auction.procedureType || 'No especificado';
 }
 
 export function getComputedStatus(data: { status?: string; auctionDate?: string }): string {

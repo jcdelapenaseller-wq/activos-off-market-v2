@@ -7,9 +7,8 @@ import {
   Clock, Calendar, User, Share2, Printer
 } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
-import { getFilteredAuctions } from '../utils/auctionHelpers';
+import { getFilteredAuctions, isAuctionFinished, getAuctionType, getProcedureType } from '../utils/auctionHelpers';
 import { ROUTES } from '../constants/routes';
-import { isAuctionFinished } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel, normalizeProvince, formatAddress } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
@@ -294,16 +293,6 @@ const AuctionPage: React.FC = () => {
 
   const urgencyBadge = getUrgencyBadge(auction.auctionDate);
 
-  const getAuctionType = (boeId?: string) => {
-    if (!boeId) return 'Administrativa';
-    if (boeId.startsWith('SUB-JA')) return 'Judicial';
-    if (boeId.startsWith('SUB-AT')) return 'AEAT';
-    if (boeId.startsWith('SUB-NV')) return 'Notarial';
-    return 'Administrativa';
-  };
-
-  const auctionType = getAuctionType(auction.boeId);
-
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
       <div className="max-w-5xl mx-auto px-6 pt-12 pb-20">
@@ -377,9 +366,9 @@ const AuctionPage: React.FC = () => {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
                   <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Descuento Bruto</span>
                   {auction.claimedDebt === 0 ? (
-                    <span className="text-xl font-bold text-slate-700">Sin cargas declaradas</span>
+                    <span className="text-xl font-bold text-slate-700">Sin cargas</span>
                   ) : (auction.appraisalValue && auction.claimedDebt && (1 - auction.claimedDebt / auction.appraisalValue) > 0.85) ? (
-                    <span className="text-xl font-bold text-slate-700">Oportunidad a analizar</span>
+                    <span className="text-xl font-bold text-slate-700">Oportunidad</span>
                   ) : (
                     <span className={`text-4xl font-black ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-700' : 'text-brand-700'}`}>
                       {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
@@ -400,8 +389,8 @@ const AuctionPage: React.FC = () => {
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
                   <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Tipo de subasta</span>
-                  <span className="text-xl font-bold text-slate-900 capitalize">
-                    {auction.procedureType || 'Judicial'}
+                  <span className="text-xl font-bold text-slate-900">
+                    {getAuctionType(auction.boeId)}
                   </span>
                 </div>
               </div>
@@ -417,7 +406,7 @@ const AuctionPage: React.FC = () => {
                   <div>
                     <h3 className="font-serif font-bold text-2xl mb-2 text-blue-900">Esta subasta aún no ha comenzado</h3>
                     <p className="text-blue-800/80 text-lg leading-relaxed mb-4">
-                      Se abrirá próximamente para la recepción de pujas. <span className="font-bold">Las mejores oportunidades se preparan antes de su apertura</span> para asegurar una estrategia de inversión sólida.
+                      Se abrirá próximamente para pujas. <span className="font-bold">Anticípate: el éxito se decide antes de la apertura.</span>
                     </p>
                     <div className="flex items-center gap-2 text-sm font-bold text-blue-700 uppercase tracking-widest">
                       <ShieldCheck size={16} /> Fase de análisis recomendada

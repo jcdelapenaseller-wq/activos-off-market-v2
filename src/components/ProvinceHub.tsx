@@ -206,7 +206,7 @@ const ProvinceHub: React.FC = () => {
               Todas las subastas en {province}
             </h2>
             <p className="text-slate-500">
-              {activeAuctions.length} oportunidades detectadas actualmente.
+              {activeAuctions.length} oportunidades analizadas actualmente.
             </p>
           </div>
           
@@ -274,7 +274,7 @@ const ProvinceHub: React.FC = () => {
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">No hay subastas activas en este momento</h3>
             <p className="text-slate-500 max-w-md mx-auto">
-              Actualmente no hemos detectado subastas que cumplan nuestros criterios de calidad en la provincia de {province}. Vuelve pronto o suscríbete a nuestras alertas.
+              Actualmente no hay subastas que cumplan nuestros criterios de calidad en la provincia de {province}. Vuelve pronto o suscríbete a nuestras alertas.
             </p>
           </div>
         )}

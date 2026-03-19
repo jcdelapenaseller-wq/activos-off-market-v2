@@ -17,10 +17,10 @@ const ConsultingCTA: React.FC<Props> = ({ isHighUrgency, province, compact = fal
             {isHighUrgency ? (
               <>
                 <AlertTriangle className="text-amber-600 shrink-0" size={compact ? 22 : 28} />
-                Este tipo de operaciones se preparan con antelación
+                Anticípate: el éxito se decide antes de pujar
               </>
             ) : (
-              "Las mejores oportunidades se estudian antes, no durante la subasta"
+              "La rentabilidad se asegura antes de pujar"
             )}
           </h3>
           <p className={`${isHighUrgency ? 'text-amber-800' : 'text-slate-600'} ${compact ? 'text-sm' : 'font-medium'}`}>

@@ -56,7 +56,7 @@ const DiscoverArticlesIndex: React.FC = () => {
         id: `${slugBase}-opportunity`,
         url: `/noticias-subastas/provincia/${slugBase}/oportunidades`,
         title: `Nuevas oportunidades en ${province}: hasta ${stats.maxDiscount}% de descuento`,
-        excerpt: `El mercado de subastas en ${province} acaba de actualizarse. Nuestro sistema ha detectado ${stats.count} oportunidades activas hoy con grandes descuentos.`,
+        excerpt: `El mercado de subastas en ${province} acaba de actualizarse. Se han seleccionado ${stats.count} oportunidades activas hoy con grandes descuentos.`,
         date: dateOpp,
         imageUrl: `https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80`,
         tag: 'Oportunidad',
@@ -115,7 +115,7 @@ const DiscoverArticlesIndex: React.FC = () => {
           </p>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-[10px] font-bold uppercase tracking-widest">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
-            Sistema que detecta oportunidades automáticamente
+            Análisis profesional de subastas
           </div>
         </header>
 
