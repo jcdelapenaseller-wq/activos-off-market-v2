@@ -1,12 +1,18 @@
 export type TrackingOrigin = 'discover' | 'listing' | 'ficha' | 'home' | 'footer' | 'lead_magnet' | 'calculator';
-export type TrackingClickType = 'listado' | 'premium' | 'consultoria' | 'download' | 'calculator' | 'pro_checkout' | 'pro_unlock';
+export type TrackingClickType = 'listado' | 'premium' | 'consultoria' | 'download' | 'calculator' | 'pro_checkout' | 'pro_unlock' | 'email_submit';
 
-export const trackConversion = (province: string, origin: TrackingOrigin, clickType: TrackingClickType) => {
+export const trackConversion = (
+  province: string, 
+  origin: TrackingOrigin, 
+  clickType: TrackingClickType,
+  metadata?: { roi?: number | string; precio?: number | string; tipo_subasta?: string }
+) => {
   const event = {
     timestamp: new Date().toISOString(),
     province: province.toLowerCase(),
     origin,
-    clickType
+    clickType,
+    ...metadata
   };
 
   // 1. Console log estructurado

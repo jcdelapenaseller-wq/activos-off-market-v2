@@ -170,7 +170,15 @@ const AuctionCalculator: React.FC = () => {
       } catch (e) {
         console.error('Error saving pro status', e);
       }
-      trackConversion(params.get('city') || params.get('ccaa') || params.get('comunidad') || 'madrid', 'calculator', 'pro_unlock');
+      trackConversion(
+        params.get('city') || params.get('ccaa') || params.get('comunidad') || 'madrid', 
+        'calculator', 
+        'pro_unlock',
+        {
+          precio: Number(params.get('precio')) || 0,
+          tipo_subasta: 'Judicial'
+        }
+      );
     }
   }, []);
 
@@ -253,6 +261,12 @@ const AuctionCalculator: React.FC = () => {
           <div className="absolute top-0 right-0 w-96 h-96 bg-brand-600 rounded-full -translate-y-1/2 translate-x-1/3 blur-[100px] opacity-30"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-400 rounded-full translate-y-1/2 -translate-x-1/2 blur-[80px] opacity-20"></div>
           
+          {isPro && (
+            <div className="absolute top-6 right-6 md:top-8 md:right-8 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs px-3 py-1.5 rounded-full font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-sm">
+              <CheckCircle size={14} /> Acceso PRO activo (48h)
+            </div>
+          )}
+
           <div className="relative z-10 flex flex-col items-center text-center mb-10 border-b border-white/10 pb-10">
             <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-slate-900/40 backdrop-blur-md border border-slate-700/50 text-slate-200 rounded-full text-sm font-bold uppercase tracking-wider mb-4 shadow-sm">
               <Lock size={14} className="text-amber-400" /> Puja Máxima Recomendada (PMR)
@@ -275,12 +289,23 @@ const AuctionCalculator: React.FC = () => {
                   href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout')}
-                  className="bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-500 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 text-lg"
+                  onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
+                  className="bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-500 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 text-lg w-full sm:w-auto"
                 >
                   👉 Ver mi límite de puja
                 </a>
-                <p className="text-slate-400 text-sm mt-4 font-medium">Acceso inmediato • 9€ • sin suscripción</p>
+                <p className="text-slate-400 text-sm mt-4 font-medium">Acceso inmediato • 9€ • pago único</p>
+                
+                <div className="mt-6 pt-6 border-t border-white/10 flex flex-col items-center w-full max-w-2xl">
+                  <p className="text-brand-200 text-base font-medium mb-5 text-center">
+                    Calcula en segundos lo que te llevaría horas <br className="hidden sm:block"/>(y evita errores de miles de €)
+                  </p>
+                  <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 text-sm text-slate-300">
+                    <span className="flex items-center justify-center gap-2"><CheckCircle size={16} className="text-emerald-400" /> Evita pagar de más</span>
+                    <span className="flex items-center justify-center gap-2"><CheckCircle size={16} className="text-emerald-400" /> Incluye costes ocultos</span>
+                    <span className="flex items-center justify-center gap-2"><CheckCircle size={16} className="text-emerald-400" /> Simula escenarios reales</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -373,8 +398,8 @@ const AuctionCalculator: React.FC = () => {
                     />
                     <span className={`absolute right-4 top-1/2 -translate-y-1/2 font-medium ${input.isProOnly && !isPro ? 'text-slate-300' : 'text-slate-400'}`}>€</span>
                     {input.isProOnly && !isPro && (
-                      <a href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" target="_blank" rel="noopener noreferrer" onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout')} className="absolute inset-0 z-10 flex items-center justify-center opacity-0 hover:opacity-100 bg-white/60 backdrop-blur-[1px] rounded-xl transition-opacity">
-                        <span className="bg-white text-brand-600 text-xs font-bold px-2 py-1 rounded shadow-sm flex items-center gap-1"><Lock size={12}/> Activar</span>
+                      <a href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" target="_blank" rel="noopener noreferrer" onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })} className="absolute inset-0 z-10 flex items-center justify-center opacity-0 hover:opacity-100 bg-white/60 backdrop-blur-[1px] rounded-xl transition-opacity">
+                        <span className="bg-white text-brand-600 text-xs font-bold px-2 py-1 rounded shadow-sm flex items-center gap-1">👉 Ver mi límite de puja</span>
                       </a>
                     )}
                   </div>
@@ -453,7 +478,11 @@ const AuctionCalculator: React.FC = () => {
                   {hasData && !isDataIncoherent ? roiStatus.alert : 'Basado en el ROI estimado y el margen de seguridad de la operación.'}
                 </p>
                 {hasData && !isDataIncoherent && (roiStatus.label === 'Margen bajo' || roiStatus.label === 'Pérdida estimada') && (
-                  <Link to={ROUTES.CONSULTORIA} className="mt-4 inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 gap-2 w-full sm:w-auto">
+                  <Link 
+                    to={ROUTES.CONSULTORIA} 
+                    onClick={() => trackConversion(comunidad, 'calculator', 'consultoria', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
+                    className="mt-4 inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 gap-2 w-full sm:w-auto"
+                  >
                     <AlertTriangle size={16} className="text-amber-400" />
                     Analizar esta subasta conmigo (Evita errores)
                   </Link>
@@ -485,7 +514,12 @@ const AuctionCalculator: React.FC = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                  Escenarios de Rentabilidad {!isPro && <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded-md uppercase font-bold tracking-wider">PRO</span>}
+                  Escenarios de Rentabilidad 
+                  {!isPro ? (
+                    <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded-md uppercase font-bold tracking-wider">PRO</span>
+                  ) : (
+                    <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded-md uppercase font-bold tracking-wider">Acceso PRO activo (48h)</span>
+                  )}
                 </h2>
                 <p className="text-slate-600 text-sm mt-1">Proyección de riesgo según tiempo de posesión y desvíos de reforma.</p>
               </div>
@@ -525,11 +559,19 @@ const AuctionCalculator: React.FC = () => {
                     href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout')}
+                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
                     className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full"
                   >
-                    Desbloquear ahora
+                    👉 Ver mi límite de puja
                   </a>
+                  <p className="text-xs text-slate-500 mt-4 font-medium leading-relaxed">
+                    Calcula en segundos lo que te llevaría horas<br/>(y evita errores de miles de €)
+                  </p>
+                  <div className="mt-4 flex flex-col gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    <span className="flex items-center justify-center gap-1.5"><CheckCircle size={12} className="text-emerald-500" /> Evita pagar de más</span>
+                    <span className="flex items-center justify-center gap-1.5"><CheckCircle size={12} className="text-emerald-500" /> Incluye costes ocultos</span>
+                    <span className="flex items-center justify-center gap-1.5"><CheckCircle size={12} className="text-emerald-500" /> Simula escenarios reales</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -569,6 +611,13 @@ const AuctionCalculator: React.FC = () => {
                         tipo_subasta: 'Judicial'
                       }
                     });
+                    
+                    trackConversion(comunidad, 'calculator', 'email_submit', { 
+                      roi: results.roi.toFixed(1), 
+                      precio: adjudicacion, 
+                      tipo_subasta: 'Judicial' 
+                    });
+                    
                     setIsSubmitting(false);
                     if (success) setIsSubscribed(true);
                   }}
