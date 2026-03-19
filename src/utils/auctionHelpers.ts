@@ -1,4 +1,14 @@
 import { AuctionData } from '../data/auctions';
+import { AuctionStatus } from '../types';
+
+export function normalizeStatus(boeStatus: string): AuctionStatus {
+  const s = boeStatus.toLowerCase();
+  if (s.includes('próxima') || s.includes('proxima') || s.includes('próxima apertura')) return 'upcoming';
+  if (s.includes('celebrándose') || s.includes('celebrandose') || s.includes('en curso')) return 'active';
+  if (s.includes('suspendida') || s.includes('pausada')) return 'suspended';
+  if (s.includes('finalizada') || s.includes('cancelada') || s.includes('concluida') || s.includes('adjudicada')) return 'closed';
+  return 'active';
+}
 
 export function formatPublishedDate(dateString?: string) {
   if (!dateString || dateString === 'null' || dateString === 'undefined') return null;
@@ -30,21 +40,41 @@ export function getOpportunityThreshold(auctions: Record<string, AuctionData>): 
   return discounts[topIndex] || 0;
 }
 
+export function getAuctionType(boeId?: string): string {
+  if (!boeId) return 'OTRA';
+  if (boeId.startsWith('SUB-JA')) return 'JUDICIAL EN VÍA DE APREMIO';
+  if (boeId.startsWith('SUB-JV')) return 'JUDICIAL VOLUNTARIA';
+  if (boeId.startsWith('SUB-JC')) return 'JUDICIAL CONCURSAL';
+  if (boeId.startsWith('SUB-AT')) return 'AGENCIA TRIBUTARIA';
+  if (boeId.startsWith('SUB-SS')) return 'SEGURIDAD SOCIAL';
+  if (boeId.startsWith('SUB-NV')) return 'NOTARIAL VOLUNTARIA';
+  if (boeId.startsWith('SUB-NC')) return 'NOTARIAL';
+  return 'OTRA';
+}
+
+export function getComputedStatus(data: { status?: string; auctionDate?: string }): string {
+  if (data.status === 'closed' || isAuctionFinished(data.auctionDate)) return 'closed';
+  if (data.status === 'suspended') return 'suspended';
+  if (data.status === 'upcoming') return 'upcoming';
+  return 'active';
+}
+
 export function sortAuctions(items: [string, AuctionData][]): [string, AuctionData][] {
   return [...items].sort((a, b) => {
     const aData = a[1];
     const bData = b[1];
     
-    // Priorizar status sobre fecha
-    const aClosed = aData.status ? aData.status === 'closed' : isAuctionFinished(aData.auctionDate);
-    const bClosed = bData.status ? bData.status === 'closed' : isAuctionFinished(bData.auctionDate);
+    const aStatus = getComputedStatus(aData);
+    const bStatus = getComputedStatus(bData);
+    
+    const aClosed = aStatus === 'closed';
+    const bClosed = bStatus === 'closed';
     
     if (aClosed && !bClosed) return 1;
     if (!aClosed && bClosed) return -1;
     
-    // Si no están cerradas, priorizar activas sobre próximas/pausadas
-    const aActive = aData.status ? isAuctionActive(aData.status) : !isAuctionFinished(aData.auctionDate);
-    const bActive = bData.status ? isAuctionActive(bData.status) : !isAuctionFinished(bData.auctionDate);
+    const aActive = aStatus === 'active';
+    const bActive = bStatus === 'active';
     
     if (aActive && !bActive) return -1;
     if (!aActive && bActive) return 1;
@@ -83,19 +113,11 @@ export function formatDate(dateString: string): string {
 }
 
 export function isAuctionActive(status?: string, auctionDate?: string): boolean {
-  if (status) {
-    return status === 'active' || status === 'upcoming' || status === 'suspended';
-  }
-  // Fallback: si status es missing, incluir si la fecha es futura
-  return auctionDate ? !isAuctionFinished(auctionDate) : false;
+  return getComputedStatus({ status, auctionDate }) === 'active';
 }
 
 export function isAuctionClosed(status?: string, auctionDate?: string): boolean {
-  if (status) {
-    return status === 'closed';
-  }
-  // Fallback: si status es missing, incluir si la fecha es pasada
-  return auctionDate ? isAuctionFinished(auctionDate) : false;
+  return getComputedStatus({ status, auctionDate }) === 'closed';
 }
 
 export function getFilteredAuctions(
@@ -104,9 +126,12 @@ export function getFilteredAuctions(
 ): Record<string, AuctionData> {
   const filtered: Record<string, AuctionData> = {};
   for (const [slug, data] of Object.entries(auctions)) {
-    // 1. Filtro de estado con fallback
-    if (statusFilter === 'active' && !isAuctionActive(data.status, data.auctionDate)) continue;
-    if (statusFilter === 'closed' && !isAuctionClosed(data.status, data.auctionDate)) continue;
+    // 1. Filtro de estado estricto
+    const isClosed = isAuctionClosed(data.status, data.auctionDate);
+    const isActive = isAuctionActive(data.status, data.auctionDate);
+
+    if (statusFilter === 'active' && !isActive) continue;
+    if (statusFilter === 'closed' && !isClosed) continue;
 
     // 2. Filtro de calidad (valor/deuda)
     const valorTasacion = data.valorTasacion || data.appraisalValue;

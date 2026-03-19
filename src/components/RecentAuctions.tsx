@@ -1,37 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight, Percent } from 'lucide-react';
 import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished, sortAuctions, formatDate } from '../utils/auctionHelpers';
-import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { AuctionCard } from './AuctionCard';
+import { AuctionFilters } from './AuctionFilters';
+import { AuctionData } from '../data/auctions';
 
 const RecentAuctions: React.FC = () => {
-  // Get all auctions and filter by active status (hybrid logic)
-  const allAuctionsRaw = Object.entries(AUCTIONS);
-  const sortedAuctions = sortAuctions(allAuctionsRaw);
-  const activeCount = allAuctionsRaw.filter(item => {
-    const auction = item[1];
-    const isClosed = auction.status === 'closed' || isAuctionFinished(auction.auctionDate);
-    return !isClosed;
-  }).length;
-
-  const formatPublishedDate = (dateString?: string) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    const now = new Date('2026-03-13T20:19:35Z'); // Updated to current runtime date
-    const diffTime = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return "Publicado hoy";
-    } else if (diffDays < 30) {
-      return `Publicado hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`;
-    } else {
-      return `Publicado el ${date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-    }
-  };
+  const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(AUCTIONS);
+  const sortedAuctions = sortAuctions(Object.entries(filteredAuctions));
+  const activeCount = Object.keys(filteredAuctions).length;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -54,26 +34,12 @@ const RecentAuctions: React.FC = () => {
           <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-8 leading-tight">
             Últimas subastas inmobiliarias detectadas
           </h1>
-
-          <div className="prose prose-lg prose-slate max-w-3xl">
-            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-6 mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-2 mt-0">Últimas subastas detectadas recientemente</h2>
-              <p className="text-slate-700 mb-0">
-                Estas son las últimas subastas inmobiliarias detectadas y analizadas recientemente a partir de los anuncios publicados en el BOE y otros procedimientos públicos.
-              </p>
-            </div>
-
-            <p className="text-xl leading-relaxed text-slate-600">
-              El mercado de subastas públicas en España es extremadamente dinámico, con cientos de nuevos activos publicados cada semana en el Portal del BOE. Mantenerse actualizado es la clave para detectar oportunidades antes que la competencia.
-            </p>
-            <p className="text-slate-600">
-              En Activos Off-Market publicamos regularmente nuevas subastas analizadas para que no te pierdas ninguna oportunidad de inversión. Nuestro equipo rastrea diariamente el BOE y otros portales oficiales para identificar los activos con mayor potencial de rentabilidad. Analizamos desde la certificación de cargas hasta el entorno inmobiliario local para ofrecerte una visión clara del potencial de cada activo.
-            </p>
-          </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-16">
+        <AuctionFilters auctions={AUCTIONS} onFilteredChange={setFilteredAuctions} />
+        
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
             <span className="relative flex h-3 w-3">

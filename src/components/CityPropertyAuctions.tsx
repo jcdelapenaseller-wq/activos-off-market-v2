@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
@@ -7,6 +7,8 @@ import { MetricHighlight, MetricNeutral, MetricWarning, MetricTag, getDiscountCo
 
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 import { AuctionCard } from './AuctionCard';
+import { AuctionFilters } from './AuctionFilters';
+import { AuctionData } from '../data/auctions';
 import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
 import { normalizePropertyType as normalizeTypeLabel, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
@@ -34,19 +36,24 @@ const CityPropertyAuctions: React.FC = () => {
     return map[normalized] || normalized;
   };
 
-  const filteredAuctions = useMemo(() => {
+  const initialFiltered = useMemo(() => {
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
       const p = normalizeProvince(data.province || data.city);
       const provinceMatch = p.toLowerCase() === province.toLowerCase() || p.toLowerCase().includes(province.toLowerCase()) || province.toLowerCase().includes(p.toLowerCase());
       const typeMatch = data.propertyType && normalizePropertyType(data.propertyType) === normalizePropertyType(propertyType);
       return provinceMatch && typeMatch;
     });
-    return sortAuctions(filtered);
+    return Object.fromEntries(filtered);
   }, [province, propertyType]);
 
-  const activeCount = useMemo(() => {
-    return filteredAuctions.filter((item: [string, any]) => item[1].status !== 'closed' && !isAuctionFinished(item[1].auctionDate)).length;
-  }, [filteredAuctions]);
+  const [userFiltered, setUserFiltered] = useState<Record<string, AuctionData>>(initialFiltered);
+
+  useEffect(() => {
+    setUserFiltered(initialFiltered);
+  }, [initialFiltered]);
+
+  const sortedAuctions = useMemo(() => sortAuctions(Object.entries(userFiltered)), [userFiltered]);
+  const activeCount = Object.keys(userFiltered).length;
 
   const availableZones = useMemo(() => {
     if (!province) return [];
@@ -77,7 +84,7 @@ const CityPropertyAuctions: React.FC = () => {
   const normalizeForUrl = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
 
   const metrics = useMemo(() => {
-    const count = filteredAuctions.length;
+    const count = sortedAuctions.length;
     if (count === 0) return { count: 0, avgAppraisal: 0, avgDebt: 0 };
 
     let totalAppraisal = 0;
@@ -85,7 +92,7 @@ const CityPropertyAuctions: React.FC = () => {
     let appraisalCount = 0;
     let debtCount = 0;
 
-    filteredAuctions.forEach(([_, data]: [string, any]) => {
+    sortedAuctions.forEach(([_, data]: [string, any]) => {
       if (data.appraisalValue) {
         totalAppraisal += data.appraisalValue;
         appraisalCount++;
@@ -101,7 +108,7 @@ const CityPropertyAuctions: React.FC = () => {
       avgAppraisal: appraisalCount > 0 ? totalAppraisal / appraisalCount : 0,
       avgDebt: debtCount > 0 ? totalDebt / debtCount : 0
     };
-  }, [filteredAuctions]);
+  }, [sortedAuctions]);
 
   useEffect(() => {
     if (province && propertyType) {
@@ -114,7 +121,7 @@ const CityPropertyAuctions: React.FC = () => {
 
       // SEO: Noindex if no auctions found to avoid thin content indexing
       let metaRobots = document.querySelector('meta[name="robots"]');
-      if (filteredAuctions.length === 0) {
+      if (sortedAuctions.length === 0) {
         if (!metaRobots) {
           metaRobots = document.createElement('meta');
           metaRobots.setAttribute('name', 'robots');
@@ -130,11 +137,11 @@ const CityPropertyAuctions: React.FC = () => {
     return () => {
       // Cleanup robots tag on unmount
       const metaRobots = document.querySelector('meta[name="robots"]');
-      if (metaRobots && filteredAuctions.length === 0) {
+      if (metaRobots && sortedAuctions.length === 0) {
         metaRobots.setAttribute('content', 'index, follow');
       }
     };
-  }, [province, propertyType, filteredAuctions.length]);
+  }, [province, propertyType, sortedAuctions.length]);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 px-6 pt-10">
@@ -158,6 +165,8 @@ const CityPropertyAuctions: React.FC = () => {
             Subastas de {propertyType} en {province}
           </h1>
 
+          <AuctionFilters auctions={initialFiltered} onFilteredChange={setUserFiltered} />
+
           {activeCount > 0 && (
             <div className="mb-8 inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
               <span className="relative flex h-3 w-3">
@@ -168,7 +177,7 @@ const CityPropertyAuctions: React.FC = () => {
             </div>
           )}
 
-          {filteredAuctions.length > 0 && (
+          {sortedAuctions.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className={MetricHighlight.container}>
                 <p className={MetricHighlight.label}>Subastas detectadas</p>
@@ -218,9 +227,9 @@ const CityPropertyAuctions: React.FC = () => {
           </div>
         </div>
 
-        {filteredAuctions.length > 0 ? (
+        {sortedAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAuctions.map(([slug, data]: [string, any]) => (
+            {sortedAuctions.map(([slug, data]: [string, any]) => (
               <AuctionCard key={slug} slug={slug} data={data} />
             ))}
           </div>

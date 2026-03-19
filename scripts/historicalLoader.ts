@@ -1,4 +1,4 @@
-import { calculateDiscount } from '../src/utils/auctionHelpers';
+import { calculateDiscount, normalizeStatus } from '../src/utils/auctionHelpers';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { Parser } from 'xml2js';
@@ -166,7 +166,7 @@ async function processAuction(subId: string, publishedAt: string) {
   const city = extractCityFromDescription(data.description || "") || "Desconocida";
   const slug = generateSlug(city, subId);
 
-  const status = mapStatus(data.status);
+  const status = normalizeStatus(data.status || '');
   const isActive = status === 'active' || status === 'upcoming';
 
   const auctionEntry = {
@@ -266,15 +266,6 @@ function mapPropertyType(description: string) {
   return 'Inmueble';
 }
 
-function mapStatus(rawStatus: string | null): string {
-  if (!rawStatus) return 'active';
-  const s = rawStatus.toLowerCase();
-  if (s.includes('próxima') || s.includes('proxima')) return 'upcoming';
-  if (s.includes('celebrándose') || s.includes('celebrandose')) return 'active';
-  if (s.includes('suspendida')) return 'suspended';
-  if (s.includes('finalizada') || s.includes('cancelada') || s.includes('concluida')) return 'closed';
-  return 'active';
-}
 
 function extractCityFromDescription(description: string) {
   // Intento básico de extraer ciudad si aparece tras "en" o similar

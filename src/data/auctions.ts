@@ -1,3 +1,5 @@
+import { AuctionStatus } from '../types';
+
 export interface AuctionData {
   propertyType?: string;
   city?: string;
@@ -21,7 +23,7 @@ export interface AuctionData {
   slug?: string;
   startDate?: string;
   auctionDate?: string;
-  status?: string;
+  status?: AuctionStatus;
   isActive?: boolean;
   discount?: number;
   pricePerM2?: number;
@@ -50,7 +52,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2024-239235&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "upcoming",
     isActive: true
   },
   'subasta-sub-ja-2025-255141': {
@@ -72,7 +74,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-255141&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "suspended",
     isActive: true
   },
   'subasta-sub-ja-2025-256055': {
@@ -94,7 +96,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-256055&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-256966': {
@@ -116,8 +118,8 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-256966&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
-    isActive: true
+    status: "closed",
+    isActive: false
   },
   'subasta-sub-ja-2026-257072': {
     propertyType: "Piso",
@@ -138,7 +140,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-257072&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258779': {
@@ -160,7 +162,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258779&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258832': {
@@ -182,7 +184,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258832&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258892': {
@@ -204,7 +206,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258892&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258908': {
@@ -226,7 +228,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258908&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-259002': {
@@ -248,7 +250,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-259002&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2025-254624': {
@@ -270,7 +272,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-254624&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-02",
     auctionDate: "2026-04-02",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258383': {
@@ -292,7 +294,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258383&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-01",
     auctionDate: "2026-04-01",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258778': {
@@ -314,7 +316,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258778&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-04-01",
     auctionDate: "2026-04-01",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2025-250658': {
@@ -336,7 +338,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-250658&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2025-256237': {
@@ -358,7 +360,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-256237&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-257245': {
@@ -380,7 +382,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-257245&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258063': {
@@ -402,7 +404,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258063&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258576': {
@@ -424,7 +426,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258576&idBus=cmN4VGgycVZtckZ2NG9jRk1pNGptSlVGeU1UUGs3bVZueEdtK3VRdXd6ZmFxeC9jbUtXWlZTVjB0SklqbnZacGZZVlVJcGJpM3ZhTXZJK0MweEp1ZnVsTzhMWTRwWTZ5YWtNNHRtc2h2dDVzb1dmMHhpd0NOVHJiOVViOWNTVHZiUk5FdnVKZDJzdFRoUlZWb1Y4UGF3c29qcFpHbjRZL3A1YXFUaktVUkx2aFFiQmdTZm5IbHJsMDNLSGFnTUgyTFB5QVo2L0x3ZTZWSlN5NjQ5OFljcWx1dnFmZ1pFbmp0bnJZd3c1NkJFN2ttS2ErSHQ5ZFh1aHVKSjdkSmpxVUIxYmVYYW1od21TbjN0aGEvMFZLYmViZHZWQ0kwQU04SFlld21zOWRva3VYMXhwZTQrK2EvYkJ6eWhwOFllZG1yQmdhTmtMUVVHUkw5L3F1WmFOSHA3WllMNmIyK0lzdlJtOFRsdjNDMDVrPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-at-2026-26r0886001014': {
@@ -446,7 +448,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-26R0886001014&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-at-2026-26r0886001018': {
@@ -468,7 +470,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-26R0886001018&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2022-190786': {
@@ -490,7 +492,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2022-190786&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2024-232380': {
@@ -512,7 +514,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2024-232380&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2025-244624': {
@@ -534,7 +536,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-244624&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2025-253882': {
@@ -556,7 +558,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-253882&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2025-254676': {
@@ -578,7 +580,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-254676&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258049': {
@@ -600,7 +602,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258049&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258463': {
@@ -622,7 +624,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258463&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258840': {
@@ -644,7 +646,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258840&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258987': {
@@ -666,7 +668,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258987&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-jv-2026-258825': {
@@ -688,7 +690,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JV-2026-258825&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-06",
     auctionDate: "2026-04-06",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2025-252973': {
@@ -710,7 +712,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-252973&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-02",
     auctionDate: "2026-04-02",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2025-255215': {
@@ -732,7 +734,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-255215&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-02",
     auctionDate: "2026-04-02",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258214': {
@@ -754,7 +756,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258214&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-02",
     auctionDate: "2026-04-02",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258618': {
@@ -776,7 +778,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258618&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-02",
     auctionDate: "2026-04-02",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-252144': {
@@ -798,7 +800,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-252144&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-04-01",
     auctionDate: "2026-04-01",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-at-2026-22r0886001424': {
@@ -820,7 +822,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-22R0886001424&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-at-2026-25r0886001569': {
@@ -842,7 +844,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-25R0886001569&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-at-2026-25r0886001719': {
@@ -864,7 +866,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-25R0886001719&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-256851': {
@@ -886,7 +888,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-256851&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-257570': {
@@ -908,7 +910,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-257570&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-257951': {
@@ -930,7 +932,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-257951&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258261': {
@@ -952,7 +954,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258261&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258387': {
@@ -974,7 +976,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258387&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258540': {
@@ -996,7 +998,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258540&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2026-258541': {
@@ -1018,7 +1020,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258541&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZmp4RHZhcVYzZzlkaTV2STZORmpNNmNyZnV5ZkxZTkJISTR1TjNIMENoSGdQSHlNRkErRm52aG1xMkFVNjFBbEZ4QXc4eTJQck9PL2NEUHNuRktHRFAyc0Z2cFdOam4xWUxsUGYyTE9CRlZ0TkduRTN0MURqamZWVGhMcHVhK2FMQU1iWGoxQzF1RHNyS05UNytQT2xOcVcyelNYbm9QTXlkKzlCc242cXVQbmd2Q0lTTVRtQ0VtQmVvVjhPVXVIcDBFcGRSRFhEVDFwc1VHTWNsTm5CNENnbDJLS3RpNy90bDRIY2o2cUw1U1F0RUx2cGJjMEhPWnZsQU9ETVR0WlJWK0dnaXpGL0ZUN1lzT1BtQ0tKUmlmWEo3ZlpiM2Vuc1A4V0NWQ0U3TW5TS2YzMTRzY0JtcUNiei9YaDZYZFNaOG1qUnJFYlhRL1MzdEFiVTBWVGFRPQ,,--50",
     publishedAt: "2026-03-30",
     auctionDate: "2026-03-30",
-    status: "Celebrándose",
+    status: "active",
     isActive: true
   },
   'subasta-sub-ja-2023-219865': {
@@ -1038,7 +1040,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1059,7 +1061,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1080,7 +1082,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1101,7 +1103,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 48
   },
@@ -1122,7 +1124,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-03-18T23:39:31.416Z",
     startDate: "2026-03-18T23:39:31.416Z",
     auctionDate: "2026-03-18T23:39:31.416Z",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 46
   },
@@ -1143,7 +1145,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 66
   },
@@ -1164,7 +1166,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 32
   },
@@ -1185,7 +1187,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 45
   },
@@ -1206,7 +1208,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1227,7 +1229,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1248,7 +1250,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-03-18T23:39:31.416Z",
     startDate: "2026-03-18T23:39:31.416Z",
     auctionDate: "2026-03-18T23:39:31.416Z",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 56
   },
@@ -1269,7 +1271,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-03-18T23:39:31.416Z",
     startDate: "2026-03-18T23:39:31.416Z",
     auctionDate: "2026-03-18T23:39:31.416Z",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 54
   },
@@ -1290,7 +1292,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1311,7 +1313,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 39
   },
@@ -1332,7 +1334,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-03-18T23:39:31.416Z",
     startDate: "2026-03-18T23:39:31.416Z",
     auctionDate: "2026-03-18T23:39:31.416Z",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1353,7 +1355,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1374,7 +1376,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-03-18T23:39:31.416Z",
     startDate: "2026-03-18T23:39:31.416Z",
     auctionDate: "2026-03-18T23:39:31.416Z",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1395,7 +1397,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-03-18T23:39:31.416Z",
     startDate: "2026-03-18T23:39:31.416Z",
     auctionDate: "2026-03-18T23:39:31.416Z",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1416,7 +1418,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 47
   },
@@ -1437,7 +1439,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1458,7 +1460,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1479,7 +1481,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 74
   },
@@ -1500,7 +1502,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1521,7 +1523,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1542,7 +1544,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1563,7 +1565,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1584,7 +1586,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1605,7 +1607,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1626,7 +1628,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1647,7 +1649,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1668,7 +1670,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1689,7 +1691,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1710,7 +1712,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1731,7 +1733,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1752,7 +1754,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1773,7 +1775,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1794,7 +1796,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1815,7 +1817,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1836,7 +1838,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   },
@@ -1857,7 +1859,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     publishedAt: "2026-02-17",
     startDate: "2026-02-17",
     auctionDate: "2026-03-09",
-    status: "Celebrándose",
+    status: "active",
     isActive: false,
     discount: 0
   }

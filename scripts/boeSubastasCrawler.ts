@@ -1,3 +1,4 @@
+import { normalizeStatus } from '../src/utils/auctionHelpers';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
@@ -427,15 +428,6 @@ async function runCrawler() {
         let auctionsContent = fs.readFileSync(auctionsFilePath, 'utf-8');
         
         // Mapeo de estados para el frontend
-        const mapStatus = (rawStatus: string): string => {
-          const s = rawStatus.toLowerCase();
-          if (s.includes('próxima') || s.includes('proxima')) return 'upcoming';
-          if (s.includes('celebrándose') || s.includes('celebrandose')) return 'active';
-          if (s.includes('suspendida')) return 'suspended';
-          if (s.includes('finalizada') || s.includes('cancelada') || s.includes('concluida')) return 'closed';
-          return 'active'; // Default
-        };
-
         for (const s of finalResults) {
           const slug = `subasta-${s.idSub.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
           const boeId = s.idSub;
@@ -456,7 +448,7 @@ async function runCrawler() {
             startDate = isoMatchInicio[1].split('T')[0];
           }
 
-          const mappedStatus = mapStatus(s.estadoSubasta || '');
+          const mappedStatus = normalizeStatus(s.estadoSubasta || '');
           const now = new Date().toISOString();
 
           // Verificar si ya existe en el archivo

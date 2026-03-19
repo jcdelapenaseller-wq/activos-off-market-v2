@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, ChevronRight, Percent } from 'lucide-react';
 import { AuctionData } from '../data/auctions';
-import { isAuctionFinished } from '../utils/auctionHelpers';
-import { normalizeLocationLabel, normalizePropertyType } from '../utils/auctionNormalizer';
+import { isAuctionFinished, getComputedStatus } from '../utils/auctionHelpers';
+import { normalizeLocationLabel, normalizePropertyType, normalizeCity, normalizeProvince } from '../utils/auctionNormalizer';
 import { ROUTES } from '../constants/routes';
 
 interface AuctionCardProps {
@@ -21,30 +21,40 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
     ? Math.round(((valorReferencia - cantidadReclamada) / valorReferencia) * 100) 
     : null;
 
-  const isFinished = data.status === 'closed' || isAuctionFinished(data.auctionDate);
-  const isSuspended = data.status === 'suspended';
-  const isUpcoming = data.status === 'upcoming';
-  const isActive = data.status === 'active' || (!isFinished && !isSuspended && !isUpcoming);
+  const computedStatus = getComputedStatus(data);
+  const isFinished = computedStatus === 'closed';
+  const isSuspended = computedStatus === 'suspended';
+  const isUpcoming = computedStatus === 'upcoming';
+  const isActive = computedStatus === 'active';
   
   const pricePerM2 = data.pricePerM2 || (data.surface && valorReferencia ? Math.round(valorReferencia / data.surface) : null);
+
+  const city = normalizeCity(data);
+  const province = normalizeProvince(data.province || data.city);
+  const isCityCapital = city !== 'España' && city.toLowerCase() === province.toLowerCase();
 
   // Ranking visual (Absoluto para no añadir complejidad a los listados)
   let rankingLabel = null;
   let rankingColor = "";
-  if (opportunityRatio !== null && !isFinished && !isSuspended && !isUpcoming) {
-    if (cantidadReclamada === 0) {
-      // Already handled in the main badge
-    } else if (opportunityRatio > 85) {
-      // Already handled in the main badge
-    } else if (opportunityRatio >= 50) {
-      rankingLabel = "🥇 Top oportunidad";
-      rankingColor = "bg-amber-100 text-amber-800 border-amber-300";
-    } else if (opportunityRatio >= 40) {
-      rankingLabel = "🥈 Muy interesante";
-      rankingColor = "bg-slate-100 text-slate-700 border-slate-300";
-    } else if (opportunityRatio >= 30) {
-      rankingLabel = "🥉 A seguir";
-      rankingColor = "bg-orange-50 text-orange-800 border-orange-200";
+  if (!isFinished && !isSuspended && !isUpcoming) {
+    if (isCityCapital) {
+      rankingLabel = "👉 Ubicación Top";
+      rankingColor = "bg-indigo-50 text-indigo-700 border-indigo-200";
+    } else if (opportunityRatio !== null) {
+      if (cantidadReclamada === 0) {
+        // Already handled in the main badge
+      } else if (opportunityRatio > 85) {
+        // Already handled in the main badge
+      } else if (opportunityRatio >= 50) {
+        rankingLabel = "🥇 Top oportunidad";
+        rankingColor = "bg-amber-100 text-amber-800 border-amber-300";
+      } else if (opportunityRatio >= 40) {
+        rankingLabel = "🥈 Muy interesante";
+        rankingColor = "bg-slate-100 text-slate-700 border-slate-300";
+      } else if (opportunityRatio >= 30) {
+        rankingLabel = "🥉 A seguir";
+        rankingColor = "bg-orange-50 text-orange-800 border-orange-200";
+      }
     }
   }
 

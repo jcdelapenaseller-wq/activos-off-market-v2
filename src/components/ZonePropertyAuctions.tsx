@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ACTIVE_AUCTIONS as AUCTIONS } from '../data/filteredAuctions';
 import { ChevronRight, MapPin, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 import { AuctionCard } from './AuctionCard';
+import { AuctionFilters } from './AuctionFilters';
+import { AuctionData } from '../data/auctions';
 import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
 import { normalizePropertyType as normalizeTypeLabel, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
@@ -24,7 +26,7 @@ const ZonePropertyAuctions: React.FC = () => {
     .replace(/^-+/, '')
     .replace(/-+$/, '');
 
-  const filteredAuctions = useMemo(() => {
+  const initialFiltered = useMemo(() => {
     const normalizedProvince = normalize(province);
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
       const p = normalizeProvince(data.province || data.city);
@@ -33,12 +35,17 @@ const ZonePropertyAuctions: React.FC = () => {
       const zoneMatch = data.zone?.toLowerCase() === zone.toLowerCase();
       return provinceMatch && typeMatch && zoneMatch;
     });
-    return sortAuctions(filtered);
+    return Object.fromEntries(filtered);
   }, [province, propertyType, zone]);
 
-  const activeCount = useMemo(() => {
-    return filteredAuctions.filter((item: [string, any]) => item[1].status !== 'closed' && !isAuctionFinished(item[1].auctionDate)).length;
-  }, [filteredAuctions]);
+  const [userFiltered, setUserFiltered] = useState<Record<string, AuctionData>>(initialFiltered);
+
+  useEffect(() => {
+    setUserFiltered(initialFiltered);
+  }, [initialFiltered]);
+
+  const sortedAuctions = useMemo(() => sortAuctions(Object.entries(userFiltered)), [userFiltered]);
+  const activeCount = Object.keys(userFiltered).length;
 
   useEffect(() => {
     if (province && propertyType && zone) {
@@ -64,6 +71,9 @@ const ZonePropertyAuctions: React.FC = () => {
             Descubre las oportunidades de inversión en subastas de {propertyType.toLowerCase()} en la zona de {zone}, {province}. 
             Analizamos el mercado local para ayudarte a encontrar las mejores opciones.
           </p>
+
+          <AuctionFilters auctions={initialFiltered} onFilteredChange={setUserFiltered} />
+
           {activeCount > 0 && (
             <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
               <span className="relative flex h-3 w-3">
@@ -75,9 +85,9 @@ const ZonePropertyAuctions: React.FC = () => {
           )}
         </div>
 
-        {filteredAuctions.length > 0 ? (
+        {sortedAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAuctions.map(([slug, data]: [string, any]) => (
+            {sortedAuctions.map(([slug, data]: [string, any]) => (
               <AuctionCard key={slug} slug={slug} data={data} />
             ))}
           </div>
