@@ -2,8 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Calculator, TrendingUp, AlertTriangle, CheckCircle, Info, ArrowRight, BookOpen, Mail, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
-import LeadMagnetBlock from './LeadMagnetBlock';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
+import { trackConversion } from '../utils/tracking';
+import { subscribeToMailerLite } from '../utils/mailerlite';
 
 const ITP_RATES: Record<string, number> = {
   'Madrid': 0.06,
@@ -116,10 +117,12 @@ const AuctionCalculator: React.FC = () => {
   const [comunidad, setComunidad] = useState<string>('Madrid');
   const [deudas, setDeudas] = useState<number>(0);
   const [otrosGastos, setOtrosGastos] = useState<number>(0);
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ibi, setIbi] = useState<number>(0);
+  const [deudaComunidad, setDeudaComunidad] = useState<number>(0);
+  const [isPro, setIsPro] = useState(false);
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   // Load from URL
   useEffect(() => {
@@ -138,520 +141,459 @@ const AuctionCalculator: React.FC = () => {
     else if (params.get('comunidad')) setComunidad(params.get('comunidad') || 'Madrid');
     if (params.get('deudas')) setDeudas(Number(params.get('deudas')));
     if (params.get('otros')) setOtrosGastos(Number(params.get('otros')));
-  }, []);
 
-  const handlePremiumAction = (action: () => void) => {
-    if (isUnlocked) {
-      action();
-    } else {
-      setIsModalOpen(true);
+    // PRO Protection Logic
+    const PRO_STORAGE_KEY = 'aom_pro_access';
+    const PRO_EXPIRATION_MS = 48 * 60 * 60 * 1000; // 48 hours
+
+    try {
+      const storedPro = localStorage.getItem(PRO_STORAGE_KEY);
+      if (storedPro) {
+        const { timestamp } = JSON.parse(storedPro);
+        if (Date.now() - timestamp < PRO_EXPIRATION_MS) {
+          setIsPro(true);
+        } else {
+          localStorage.removeItem(PRO_STORAGE_KEY);
+        }
+      }
+    } catch (e) {
+      console.error('Error reading pro status', e);
     }
-  };
 
-  const shareCalculation = () => {
-    const params = new URLSearchParams({
-      precio: adjudicacion.toString(),
-      mercado: valorMercado.toString(),
-      tasacion: tasacionBOE.toString(),
-      reforma: reforma.toString(),
-      ccaa: comunidad,
-      deudas: deudas.toString(),
-      otros: otrosGastos.toString(),
-    });
-    const url = `${window.location.origin}${ROUTES.CALCULATOR}?${params.toString()}`;
-    navigator.clipboard.writeText(url);
-    alert('Enlace de cálculo copiado al portapapeles');
-  };
-
-  const copyReport = () => {
-    const text = `Análisis de subasta:
-Precio adjudicación: ${adjudicacion.toLocaleString('es-ES')} €
-Valor mercado: ${valorMercado.toLocaleString('es-ES')} €
-Coste total estimado: ${results.costeTotalInversion.toLocaleString('es-ES')} €
-ROI estimado: ${results.roi.toFixed(2)}%
-Beneficio estimado: ${results.beneficio.toLocaleString('es-ES')} €
-Puja máxima recomendada: ${results.precioMaxPuja.toLocaleString('es-ES')} €
-
-Calculado con la herramienta de Activos Off-Market.`;
-    navigator.clipboard.writeText(text);
-    alert('Resumen de inversión copiado al portapapeles');
-  };
-
-  const createPublicLink = () => {
-    const params = new URLSearchParams({
-      precio: adjudicacion.toString(),
-      mercado: valorMercado.toString(),
-      tasacion: tasacionBOE.toString(),
-      reforma: reforma.toString(),
-      ccaa: comunidad,
-      deudas: deudas.toString(),
-      otros: otrosGastos.toString(),
-    });
-    // Generate a slug-like part for the URL
-    const slug = `${comunidad.toLowerCase().replace(/\s+/g, '-')}-${Math.round(adjudicacion/1000)}k`;
-    const url = `${window.location.origin}/ejemplo-subasta/${slug}?${params.toString()}`;
-    navigator.clipboard.writeText(url);
-    alert('Enlace público generado y copiado al portapapeles');
-  };
+    if (params.get('pro') === 'true') {
+      setIsPro(true);
+      try {
+        localStorage.setItem(PRO_STORAGE_KEY, JSON.stringify({ timestamp: Date.now() }));
+        // Clean URL to prevent sharing the unlock link
+        const newUrl = window.location.pathname + window.location.search.replace(/([&?])pro=true&?/, '$1').replace(/&$/, '').replace(/\?$/, '');
+        window.history.replaceState({}, '', newUrl);
+      } catch (e) {
+        console.error('Error saving pro status', e);
+      }
+      trackConversion(params.get('city') || params.get('ccaa') || params.get('comunidad') || 'madrid', 'calculator', 'pro_unlock');
+    }
+  }, []);
 
   const results = useMemo(() => {
     const itpRate = ITP_RATES[comunidad] || 0.08;
     const itp = adjudicacion * itpRate;
     const registroNotaria = adjudicacion * 0.012;
     const gestoria = 500;
-    const costeTotalInversion = adjudicacion + itp + registroNotaria + gestoria + reforma + deudas + otrosGastos;
+    const costeTotalInversion = adjudicacion + itp + registroNotaria + gestoria + reforma + deudas + otrosGastos + ibi + deudaComunidad;
     const beneficio = valorMercado - costeTotalInversion;
     const roi = costeTotalInversion > 0 ? (beneficio / costeTotalInversion) * 100 : 0;
-    const precioMaxPuja = (valorMercado * 0.7) - (itp + registroNotaria + gestoria + reforma + deudas + otrosGastos);
+    const precioMaxPuja = (valorMercado * 0.7) - (itp + registroNotaria + gestoria + reforma + deudas + otrosGastos + ibi + deudaComunidad);
     const margenSeguridad = valorMercado * 0.3; // Assuming 30% margin
-    const escenarioConservador = beneficio * 0.8;
-    const escenarioOptimista = beneficio * 1.2;
-
+    const escenarioConservador = beneficio - (reforma * 0.2) - (costeTotalInversion * 0.03); // +20% reforma, +3% costes financieros/tiempo
+    const escenarioOptimista = beneficio + (reforma * 0.1); // Ahorro 10% reforma
+    
     return { itp, registroNotaria, gestoria, costeTotalInversion, beneficio, roi, precioMaxPuja, margenSeguridad, escenarioConservador, escenarioOptimista };
-  }, [adjudicacion, valorMercado, reforma, comunidad, deudas, otrosGastos]);
+  }, [adjudicacion, valorMercado, reforma, comunidad, deudas, otrosGastos, ibi, deudaComunidad]);
 
   const hasData = adjudicacion > 0 || valorMercado > 0 || tasacionBOE > 0 || reforma > 0 || deudas > 0;
+  const isDataIncoherent = hasData && valorMercado > 0 && (
+    reforma >= valorMercado ||
+    adjudicacion >= valorMercado * 2 ||
+    deudas >= valorMercado
+  );
 
-  const getRoiStatus = (roi: number) => {
-    if (!hasData) return { label: 'Introduce los datos de la subasta para calcular el riesgo de la inversión.', traffic: 'bg-slate-200' };
-    if (roi > 20) return { color: 'text-green-600', label: 'Excelente', bg: 'bg-green-100', traffic: 'bg-green-500' };
-    if (roi >= 10) return { color: 'text-yellow-600', label: 'Aceptable', bg: 'bg-yellow-100', traffic: 'bg-yellow-500' };
-    return { color: 'text-red-600', label: 'Arriesgado', bg: 'bg-red-100', traffic: 'bg-red-500' };
+  const getRoiStatus = (roi: number, beneficio: number) => {
+    if (!hasData) return { label: 'Introduce los datos de la subasta para calcular el margen de seguridad de la inversión.', traffic: 'bg-slate-200', alert: '' };
+    if (beneficio < 0) return { color: 'text-red-600', label: 'Pérdida estimada', bg: 'bg-red-100', traffic: 'bg-red-600', alert: 'Estás pagando de más. Operación en pérdidas.' };
+    if (roi > 20) return { color: 'text-emerald-600', label: 'Alto margen de seguridad', bg: 'bg-emerald-100', traffic: 'bg-emerald-500', alert: 'Operación sólida. Tienes margen para imprevistos.' };
+    if (roi >= 10) return { color: 'text-amber-600', label: 'Margen ajustado', bg: 'bg-amber-100', traffic: 'bg-amber-500', alert: 'Margen muy ajustado. Cualquier desvío en la reforma puede eliminar tu beneficio.' };
+    return { color: 'text-red-600', label: 'Margen bajo', bg: 'bg-red-100', traffic: 'bg-red-500', alert: 'Riesgo alto. El beneficio no justifica la inmovilización del capital.' };
   };
 
-  const roiStatus = getRoiStatus(results.roi);
+  const roiStatus = getRoiStatus(results.roi, results.beneficio);
 
   const chartData = [
-    { name: 'Coste Total', value: results.costeTotalInversion },
-    { name: 'Valor Mercado', value: valorMercado },
+    { 
+      name: 'Coste Total', 
+      Adjudicación: adjudicacion,
+      Impuestos: results.itp + results.registroNotaria + results.gestoria,
+      Reforma: reforma,
+      Deudas: deudas + ibi + deudaComunidad,
+      Otros: otrosGastos,
+      'Valor Mercado': 0
+    },
+    { 
+      name: 'Valor Mercado', 
+      Adjudicación: 0,
+      Impuestos: 0,
+      Reforma: 0,
+      Deudas: 0,
+      Otros: 0,
+      'Valor Mercado': valorMercado
+    },
   ];
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus('loading');
-    try {
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          source: 'calculadora',
-          fields: {
-            precio_maximo_puja: results.precioMaxPuja,
-            roi_estimado: results.roi,
-            margen_seguridad: results.margenSeguridad
-          }
-        }),
-      });
-      if (response.ok) {
-        setStatus('success');
-        setIsUnlocked(true);
-        setTimeout(() => setIsModalOpen(false), 3000);
-      } else {
-        setStatus('error');
-      }
-    } catch (error) {
-      setStatus('error');
-    }
-  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 pb-12">
       <div className="mb-12">
-        <h1 className="text-4xl font-serif font-bold text-slate-900 mb-6">Calculadora de Rentabilidad para Subastas Judiciales</h1>
+        <h1 className="text-4xl font-serif font-bold text-slate-900 mb-6">
+          {hasData ? "Estás analizando esta subasta. Ajusta tu rentabilidad" : "Calculadora de Rentabilidad para Subastas Judiciales"}
+        </h1>
         <p className="text-lg text-slate-600">Herramienta gratuita para calcular rentabilidad, ITP, costes y precio máximo de puja en subastas judiciales en España.</p>
       </div>
 
-      {/* Step-by-Step Guide */}
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
-        {[
-          { step: "Paso 1", title: "Introduce los datos de la subasta" },
-          { step: "Paso 2", title: "La calculadora estima rentabilidad y riesgo" },
-          { step: "Paso 3", title: "Introduce tu email para desbloquear el informe completo de inversión" }
-        ].map((item, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <span className="text-brand-600 font-bold text-sm uppercase tracking-wider">{item.step}</span>
-            <h3 className="text-lg font-bold text-slate-900 mt-1">{item.title}</h3>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-12">
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Datos de la Subasta</h2>
-          <p className="text-slate-600 mb-6">Introduce los datos de la subasta para estimar la rentabilidad y calcular la puja máxima recomendada.</p>
-          {[
-            { label: 'Precio adjudicación (€)', value: adjudicacion, setter: setAdjudicacion },
-            { label: 'Valor mercado estimado (€)', value: valorMercado, setter: setValorMercado },
-            { label: 'Valor de tasación BOE (€)', value: tasacionBOE, setter: setTasacionBOE },
-            { label: 'Coste reforma (€)', value: reforma, setter: setReforma },
-            { label: 'Deudas heredadas (€)', value: deudas, setter: setDeudas },
-            { label: 'Otros gastos (€)', value: otrosGastos, setter: setOtrosGastos },
-          ].map((input, i) => (
-            <div key={i}>
-              <label className="block text-sm font-bold text-slate-700 mb-2">{input.label}</label>
-              <input type="number" value={input.value || ''} onChange={(e) => input.setter(Number(e.target.value))} className="w-full p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500" />
-            </div>
-          ))}
+      {/* Main Result Highlight - High Visibility */}
+      {isDataIncoherent && (
+        <div className="mb-8 bg-red-50 border border-red-200 p-5 rounded-2xl flex items-start gap-4 text-red-700 shadow-sm">
+          <AlertTriangle className="shrink-0 mt-0.5" size={24} />
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Comunidad Autónoma</label>
-            <select value={comunidad} onChange={(e) => setComunidad(e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500">
-              {Object.keys(ITP_RATES).map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <p className="font-bold text-lg">Revisa los valores introducidos</p>
+            <p className="opacity-90 mt-1">Los datos actuales (reforma, deudas o adjudicación muy superiores al valor de mercado) generan resultados irreales.</p>
           </div>
         </div>
+      )}
 
-        <div className="space-y-6">
-          <div className="flex items-center gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-            <div className={`w-16 h-16 rounded-full ${roiStatus.traffic}`}></div>
-            <div>
-                <h3 className="text-xl font-bold text-slate-900">{hasData ? `Estado: ${roiStatus.label}` : 'Estado de la inversión'}</h3>
-                <p className="text-slate-600">{hasData ? `Tu inversión parece ${roiStatus.label.toLowerCase()}.` : roiStatus.label}</p>
-            </div>
-          </div>
+      {hasData && !isDataIncoherent && (
+        <div className="mb-12 bg-gradient-to-br from-brand-900 to-slate-900 text-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl overflow-hidden relative border border-brand-800/50">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-brand-600 rounded-full -translate-y-1/2 translate-x-1/3 blur-[100px] opacity-30"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-400 rounded-full translate-y-1/2 -translate-x-1/2 blur-[80px] opacity-20"></div>
           
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-            <span className="block text-sm text-slate-500 mb-1">Precio máximo estimado de puja</span>
-            <span className="text-2xl font-bold text-slate-900">{results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-          </div>
-
-          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative">
-            <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-              {!isUnlocked && <Lock size={20} className="text-slate-400" />} Análisis completo de inversión
-            </h3>
-            
-            <div className={`space-y-4 ${!isUnlocked ? 'blur-sm select-none pointer-events-none' : ''}`}>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <span className="block text-xs text-slate-500 uppercase">ROI estimado</span>
-                  <span className="text-lg font-bold text-slate-900">{results.roi.toFixed(2)}%</span>
+          <div className="relative z-10 flex flex-col items-center text-center mb-10 border-b border-white/10 pb-10">
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-slate-900/40 backdrop-blur-md border border-slate-700/50 text-slate-200 rounded-full text-sm font-bold uppercase tracking-wider mb-4 shadow-sm">
+              <Lock size={14} className="text-amber-400" /> Puja Máxima Recomendada (PMR)
+            </span>
+            {isPro ? (
+              <>
+                <div className="text-6xl md:text-7xl font-bold mb-4 text-emerald-400 tracking-tighter drop-shadow-lg">
+                  {results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}
                 </div>
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <span className="block text-xs text-slate-500 uppercase">Margen seguridad</span>
-                  <span className="text-lg font-bold text-slate-900">{results.margenSeguridad.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                <p className="text-slate-300 text-lg font-medium">Este número decide si ganas o pierdes.</p>
+                <p className="text-slate-400 text-sm mt-2 max-w-lg mx-auto">Por encima de este precio empiezas a perder dinero.</p>
+              </>
+            ) : (
+              <div className="flex flex-col items-center">
+                <div className="text-6xl md:text-7xl font-bold mb-4 text-white/20 tracking-tighter blur-[8px] select-none">
+                  € 145.000
                 </div>
-              </div>
-              <div className="bg-slate-50 p-4 rounded-xl">
-                <span className="block text-xs text-slate-500 uppercase">Rentabilidad estimada</span>
-                <span className="text-lg font-bold text-slate-900">{results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <span className="block text-xs text-slate-500 uppercase">Escenario conservador</span>
-                  <span className="text-lg font-bold text-slate-900">{results.escenarioConservador.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <span className="block text-xs text-slate-500 uppercase">Escenario optimista</span>
-                  <span className="text-lg font-bold text-slate-900">{results.escenarioOptimista.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-                </div>
-              </div>
-            </div>
-
-            {!isUnlocked && (
-              <div className="mt-8 bg-brand-50 p-6 rounded-2xl border border-brand-100 text-center">
-                <p className="text-slate-700 mb-4">Introduce tu email para desbloquear el análisis completo de esta subasta.</p>
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  {status === 'success' ? (
-                    <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-center gap-3 text-emerald-700 font-bold">
-                        <CheckCircle size={20} /> ✔ Análisis desbloqueado. También te hemos enviado el resumen por email.
-                    </div>
-                  ) : (
-                    <>
-                      <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                        <input 
-                          type="email" 
-                          value={email} 
-                          onChange={(e) => setEmail(e.target.value)} 
-                          placeholder="Tu mejor email" 
-                          required 
-                          className="w-full bg-white text-slate-900 border border-slate-200 rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-brand-500 outline-none transition-all" 
-                        />
-                      </div>
-                      <button 
-                        type="submit" 
-                        disabled={status === 'loading'} 
-                        className="w-full bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-700 transition-all shadow-lg flex items-center justify-center gap-2"
-                      >
-                        {status === 'loading' ? 'Desbloqueando...' : 'Desbloquear análisis completo'}
-                      </button>
-                      {status === 'error' && <p className="text-red-600 text-sm font-bold">Hubo un error, inténtalo de nuevo.</p>}
-                    </>
-                  )}
-                </form>
+                <p className="text-slate-300 text-lg font-medium mb-6">Tu puja máxima real está bloqueada.</p>
+                <a 
+                  href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout')}
+                  className="bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-500 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 text-lg"
+                >
+                  👉 Ver mi límite de puja
+                </a>
+                <p className="text-slate-400 text-sm mt-4 font-medium">Acceso inmediato • 9€ • sin suscripción</p>
               </div>
             )}
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-64">
+          <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center text-center">
+            <div className="md:col-span-1 md:border-r md:border-white/10">
+              <span className="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/10 text-brand-100 rounded-full text-xs font-bold uppercase tracking-wider mb-3 shadow-sm">
+                Beneficio Neto
+              </span>
+              <h2 className="text-3xl md:text-4xl font-serif font-bold mb-1 tracking-tight">
+                {results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}
+              </h2>
+            </div>
+            
+            <div className="md:col-span-1 flex flex-col items-center">
+              <span className="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/10 text-brand-100 rounded-full text-xs font-bold uppercase tracking-wider mb-3 shadow-sm">
+                ROI Estimado
+              </span>
+              <div className="text-3xl md:text-4xl font-bold mb-1 tracking-tighter drop-shadow-lg flex items-center gap-3">
+                {results.roi.toFixed(1)}<span className="text-xl md:text-2xl opacity-60 font-medium">%</span>
+                <div className={`w-3 h-3 rounded-full ${roiStatus.traffic} shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse`}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step-by-Step Guide */}
+      {!hasData && (
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {[
+            { step: "Paso 1", title: "Introduce los datos de la subasta" },
+            { step: "Paso 2", title: "La calculadora estima rentabilidad y margen de seguridad" },
+            { step: "Paso 3", title: "Introduce tu email para desbloquear el informe completo de inversión" }
+          ].map((item, i) => (
+            <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <span className="text-brand-600 font-bold text-sm uppercase tracking-wider">{item.step}</span>
+              <h3 className="text-lg font-bold text-slate-900 mt-1">{item.title}</h3>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="grid lg:grid-cols-2 gap-12">
+        <div className="space-y-8">
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">Datos de la Subasta</h2>
+                <p className="text-slate-600">Ajusta los valores para ver cómo cambia tu rentabilidad.</p>
+              </div>
+              <div className="bg-brand-50 p-3 rounded-2xl">
+                <Calculator className="text-brand-600" size={24} />
+              </div>
+            </div>
+
+            {/* Juega con los números block */}
+            <div className="bg-slate-50 p-5 rounded-2xl border border-dashed border-slate-300 mb-6">
+              <p className="text-slate-900 font-bold flex items-center gap-2">
+                <TrendingUp size={18} className="text-brand-600" />
+                ¿Y si la reforma cambia? ¿Y si pujas más?
+              </p>
+              <p className="text-sm text-slate-600 mt-1">Modifica los inputs de abajo para ver el impacto real en tu margen.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {[
+                { label: 'Precio adjudicación', value: adjudicacion, setter: setAdjudicacion },
+                { label: 'Valor mercado estimado', value: valorMercado, setter: setValorMercado },
+                { label: 'Valor de tasación BOE', value: tasacionBOE, setter: setTasacionBOE },
+                { label: 'Coste reforma', value: reforma, setter: setReforma },
+                { label: 'Deuda IBI (4 años)', value: ibi, setter: setIbi, isProOnly: true },
+                { label: 'Deuda Comunidad (3 años)', value: deudaComunidad, setter: setDeudaComunidad, isProOnly: true },
+                { label: 'Deudas heredadas', value: deudas, setter: setDeudas },
+                { label: 'Otros gastos', value: otrosGastos, setter: setOtrosGastos },
+              ].map((input, i) => (
+                <div key={i} className="relative">
+                  <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
+                    {input.label}
+                    {input.isProOnly && !isPro && <span className="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">PRO</span>}
+                  </label>
+                  <div className="relative">
+                    <input 
+                      type="number" 
+                      value={input.value || ''} 
+                      onChange={(e) => input.setter(Number(e.target.value))} 
+                      disabled={input.isProOnly && !isPro}
+                      className={`w-full p-3 pl-4 pr-10 rounded-xl border transition-all outline-none text-slate-900 font-medium ${input.isProOnly && !isPro ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border-slate-200 hover:border-brand-300 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500'}`} 
+                      placeholder="0"
+                    />
+                    <span className={`absolute right-4 top-1/2 -translate-y-1/2 font-medium ${input.isProOnly && !isPro ? 'text-slate-300' : 'text-slate-400'}`}>€</span>
+                    {input.isProOnly && !isPro && (
+                      <a href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" target="_blank" rel="noopener noreferrer" onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout')} className="absolute inset-0 z-10 flex items-center justify-center opacity-0 hover:opacity-100 bg-white/60 backdrop-blur-[1px] rounded-xl transition-opacity">
+                        <span className="bg-white text-brand-600 text-xs font-bold px-2 py-1 rounded shadow-sm flex items-center gap-1"><Lock size={12}/> Activar</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-bold text-slate-700 mb-2">Comunidad Autónoma (Cálculo de ITP)</label>
+                <select value={comunidad} onChange={(e) => setComunidad(e.target.value)} className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-brand-300 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all outline-none text-slate-900 font-medium cursor-pointer">
+                  {Object.keys(ITP_RATES).map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Simulador de Puja */}
+            {hasData && !isDataIncoherent && (
+              <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+                  <TrendingUp className="text-brand-600" size={20} />
+                  Simulador de Puja
+                </h3>
+                <p className="text-sm text-slate-500 mb-4 font-medium">Aquí es donde la mayoría se equivoca.</p>
+                <div className="mb-6">
+                  <div className="flex justify-between text-sm font-medium text-slate-600 mb-2">
+                    <span>0 €</span>
+                    <span className="text-brand-700 font-bold">{adjudicacion.toLocaleString('es-ES')} €</span>
+                    <span>{valorMercado > 0 ? valorMercado.toLocaleString('es-ES') : '1.000.000'} €</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max={valorMercado > 0 ? valorMercado : 1000000} 
+                    step="1000"
+                    value={adjudicacion}
+                    onChange={(e) => setAdjudicacion(Number(e.target.value))}
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                    <div className="text-xs text-slate-500 uppercase font-bold mb-1">Beneficio</div>
+                    <div className={`font-bold ${results.beneficio > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {results.beneficio.toLocaleString('es-ES', {maximumFractionDigits: 0})} €
+                    </div>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                    <div className="text-xs text-slate-500 uppercase font-bold mb-1">ROI</div>
+                    <div className={`font-bold ${results.roi >= 10 ? 'text-emerald-600' : results.roi > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                      {results.roi.toFixed(1)}%
+                    </div>
+                  </div>
+                  <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                    <div className="text-xs text-slate-500 uppercase font-bold mb-1">Margen</div>
+                    <div className={`font-bold ${results.beneficio > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {valorMercado > 0 ? ((results.beneficio / valorMercado) * 100).toFixed(1) : '0.0'}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className={`flex items-center gap-5 p-6 rounded-3xl border ${hasData ? roiStatus.bg + ' border-transparent' : 'bg-white border-slate-200'} shadow-sm transition-colors duration-300`}>
+            <div className={`relative flex items-center justify-center w-16 h-16 rounded-full ${roiStatus.traffic} shrink-0 shadow-inner`}>
+              {hasData && (
+                <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-white"></div>
+              )}
+              <div className="w-6 h-6 bg-white rounded-full opacity-90 shadow-sm"></div>
+            </div>
+            <div>
+                <h3 className={`text-xl font-bold ${hasData && !isDataIncoherent ? roiStatus.color : 'text-slate-900'}`}>
+                  {hasData && !isDataIncoherent ? roiStatus.label : 'Estado de la inversión'}
+                </h3>
+                <p className={`text-sm mt-1 ${hasData && !isDataIncoherent ? roiStatus.color + ' opacity-80' : 'text-slate-600'}`}>
+                  {hasData && !isDataIncoherent ? roiStatus.alert : 'Basado en el ROI estimado y el margen de seguridad de la operación.'}
+                </p>
+                {hasData && !isDataIncoherent && (roiStatus.label === 'Margen bajo' || roiStatus.label === 'Pérdida estimada') && (
+                  <Link to={ROUTES.CONSULTORIA} className="mt-4 inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 gap-2 w-full sm:w-auto">
+                    <AlertTriangle size={16} className="text-amber-400" />
+                    Analizar esta subasta conmigo (Evita errores)
+                  </Link>
+                )}
+            </div>
+          </div>
+
+
+
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-80">
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
+                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <XAxis dataKey="name" />
-                    <YAxis />
+                    <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} />
                     <Tooltip formatter={(value: any) => typeof value === 'number' ? value.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : value}/>
-                    <Bar dataKey="value">
-                        {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={index === 0 ? '#426385' : '#324e6b'} />
-                        ))}
-                    </Bar>
+                    <Legend />
+                    <Bar dataKey="Adjudicación" stackId="a" fill="#0f172a" />
+                    <Bar dataKey="Impuestos" stackId="a" fill="#334155" />
+                    <Bar dataKey="Reforma" stackId="a" fill="#475569" />
+                    <Bar dataKey="Deudas" stackId="a" fill="#64748b" />
+                    <Bar dataKey="Otros" stackId="a" fill="#94a3b8" />
+                    <Bar dataKey="Valor Mercado" stackId="b" fill="#10b981" />
                 </BarChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mt-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Informe de inversión</h2>
-            <div className={`space-y-4 text-slate-700 ${!isUnlocked ? 'blur-sm select-none pointer-events-none' : ''}`}>
-                <p className="flex justify-between border-b border-slate-100 pb-2">
-                    <span>Precio de adjudicación:</span> 
-                    <span className="font-bold">{adjudicacion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-                </p>
-                <p className="flex justify-between border-b border-slate-100 pb-2">
-                    <span>Valor de mercado:</span> 
-                    <span className="font-bold">{valorMercado.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-                </p>
-                <p className="flex justify-between border-b border-slate-100 pb-2">
-                    <span>Coste total:</span> 
-                    <span className="font-bold">{results.costeTotalInversion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-                </p>
-                <p className="flex justify-between border-b border-slate-100 pb-2">
-                    <span>Beneficio estimado:</span> 
-                    <span className="font-bold">{results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-                </p>
-                <p className="flex justify-between border-b border-slate-100 pb-2">
-                    <span>ROI:</span> 
-                    <span className="font-bold">{results.roi.toFixed(2)}%</span>
-                </p>
-                <p className="flex justify-between border-b border-slate-100 pb-2">
-                    <span>Puja máxima recomendada:</span> 
-                    <span className="font-bold">{results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-                </p>
+          {/* ESCENARIOS PRO */}
+          <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mt-8 relative overflow-hidden">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                  Escenarios de Rentabilidad {!isPro && <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded-md uppercase font-bold tracking-wider">PRO</span>}
+                </h2>
+                <p className="text-slate-600 text-sm mt-1">Proyección de riesgo según tiempo de posesión y desvíos de reforma.</p>
+              </div>
             </div>
-            
-            {!isUnlocked && (
-                <div className="bg-white border-2 border-brand-100 p-8 rounded-3xl mt-8 shadow-md">
-                    <div className="flex flex-col items-center text-center gap-6">
-                        <div className="w-full max-w-lg">
-                            <h2 className="text-2xl font-bold text-slate-900 mb-3">
-                                Ver la puja máxima recomendada y el informe completo de inversión
-                            </h2>
-                            <p className="text-slate-600 mb-6 text-base">
-                                Introduce tu email para ver el informe completo de esta subasta, incluyendo:
-                            </p>
-                            <ul className="grid grid-cols-2 gap-3 text-slate-700 font-medium text-sm text-left">
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle size={16} className="text-brand-600" />
-                                    <span>Puja máxima recomendada</span>
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle size={16} className="text-brand-600" />
-                                    <span>Margen de seguridad</span>
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle size={16} className="text-brand-600" />
-                                    <span>ROI estimado completo</span>
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle size={16} className="text-brand-600" />
-                                    <span>Informe profesional</span>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div className="w-full max-w-sm">
-                            <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }} className="space-y-3">
-                                <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                                    <input 
-                                        type="email" 
-                                        value={email} 
-                                        onChange={(e) => setEmail(e.target.value)} 
-                                        placeholder="Tu mejor email" 
-                                        required 
-                                        className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-brand-500 outline-none transition-all text-base" 
-                                    />
-                                </div>
-                                <button 
-                                    type="submit" 
-                                    className="w-full bg-brand-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 text-base"
-                                >
-                                    Desbloquear puja máxima recomendada <ArrowRight size={20} />
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+
+            <div className={`grid md:grid-cols-3 gap-4 ${!isPro ? 'blur-[6px] select-none pointer-events-none opacity-60' : ''}`}>
+              {/* Conservador */}
+              <div className="p-5 rounded-2xl border border-red-100 bg-red-50/50">
+                <h4 className="text-red-800 font-bold mb-1">Conservador</h4>
+                <p className="text-xs text-red-600/80 mb-3">+20% reforma, +6 meses</p>
+                <div className="text-2xl font-bold text-red-700">{results.escenarioConservador.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</div>
+              </div>
+              {/* Realista */}
+              <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50">
+                <h4 className="text-slate-800 font-bold mb-1">Realista</h4>
+                <p className="text-xs text-slate-500 mb-3">Cálculo base actual</p>
+                <div className="text-2xl font-bold text-slate-700">{results.beneficio.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</div>
+              </div>
+              {/* Optimista */}
+              <div className="p-5 rounded-2xl border border-emerald-100 bg-emerald-50/50">
+                <h4 className="text-emerald-800 font-bold mb-1">Optimista</h4>
+                <p className="text-xs text-emerald-600/80 mb-3">Venta rápida, sin desvíos</p>
+                <div className="text-2xl font-bold text-emerald-700">{results.escenarioOptimista.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</div>
+              </div>
+            </div>
+
+            {!isPro && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[2px]">
+                <div className="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 text-center max-w-sm mx-auto">
+                  <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Lock className="text-amber-600" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">Escenarios Bloqueados</h3>
+                  <p className="text-sm text-slate-600 mb-3">Desbloquea la versión PRO para visualizar tus escenarios de riesgo.</p>
+                  <p className="text-brand-600 font-bold text-sm bg-brand-50 py-1.5 px-3 rounded-lg inline-block mb-4">Tu beneficio puede variar hasta ±40%</p>
+                  <a 
+                    href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout')}
+                    className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full"
+                  >
+                    Desbloquear ahora
+                  </a>
                 </div>
+              </div>
             )}
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-                <button onClick={() => handlePremiumAction(copyReport)} className="bg-white border border-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
-                    Copiar resumen
-                </button>
-                <button onClick={() => handlePremiumAction(shareCalculation)} className="bg-white border border-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
-                    Compartir cálculo
-                </button>
-                <div className="sm:col-span-2 pt-4 border-t border-slate-100">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Guardar este análisis como ejemplo de inversión</p>
-                    <button onClick={() => handlePremiumAction(createPublicLink)} className="w-full bg-white border border-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-sm">
-                        Crear enlace público
-                    </button>
-                </div>
-            </div>
           </div>
-        </div>
-      </div>
 
-      {/* CONVERSION MODAL */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl p-8 md:p-10 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in duration-300">
-                <button 
-                    onClick={() => setIsModalOpen(false)} 
-                    className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
+          {/* EMAIL CAPTURE */}
+          {hasData && !isDataIncoherent && (
+            <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl mt-8 text-white">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="bg-brand-500/20 p-3 rounded-2xl">
+                  <Mail className="text-brand-400" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1">Guarda este análisis</h3>
+                  <p className="text-slate-400 text-sm">Recibe un resumen detallado con los escenarios y el cálculo de rentabilidad en tu email.</p>
+                </div>
+              </div>
+              
+              {isSubscribed ? (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-center gap-3 text-emerald-400">
+                  <CheckCircle size={20} />
+                  <span className="font-medium">¡Análisis enviado correctamente! Revisa tu bandeja de entrada.</span>
+                </div>
+              ) : (
+                <form 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!email) return;
+                    setIsSubmitting(true);
+                    const success = await subscribeToMailerLite({
+                      email,
+                      fields: {
+                        roi_type: roiStatus.label,
+                        source: 'Calculadora Subastas',
+                        roi: results.roi.toFixed(1),
+                        precio: adjudicacion,
+                        tipo_subasta: 'Judicial'
+                      }
+                    });
+                    setIsSubmitting(false);
+                    if (success) setIsSubscribed(true);
+                  }}
+                  className="flex flex-col sm:flex-row gap-3"
                 >
-                    <ArrowRight className="rotate-180" size={24} />
-                </button>
-                
-                <div className="text-center">
-                    <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <TrendingUp className="text-brand-600" size={32} />
-                    </div>
-                    <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Ver puja máxima recomendada</h2>
-                    <p className="text-slate-600 mb-8">Introduce tu email para ver el informe completo de inversión generado por la calculadora.</p>
-                    
-                    {status === 'success' ? (
-                        <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-center justify-center gap-3 text-emerald-700 font-bold">
-                            <CheckCircle size={20} /> ✔ Análisis desbloqueado. También te hemos enviado el resumen por email.
-                        </div>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                                <input 
-                                    type="email" 
-                                    value={email} 
-                                    onChange={(e) => setEmail(e.target.value)} 
-                                    placeholder="Tu mejor email" 
-                                    required 
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-brand-500 outline-none" 
-                                />
-                            </div>
-                            <button 
-                                type="submit" 
-                                disabled={status === 'loading'} 
-                                className="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-all disabled:opacity-50 shadow-lg shadow-brand-500/20"
-                            >
-                                {status === 'loading' ? 'Desbloqueando...' : 'Desbloquear puja máxima'}
-                            </button>
-                            {status === 'error' && <p className="text-red-600 text-sm font-bold">Hubo un error, inténtalo de nuevo.</p>}
-                        </form>
-                    )}
-                </div>
+                  <input 
+                    type="email" 
+                    placeholder="Tu mejor email..." 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? 'Enviando...' : 'Enviar análisis'}
+                  </button>
+                </form>
+              )}
             </div>
+          )}
         </div>
-      )}
-
-      <article className="prose prose-slate max-w-none mt-20">
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-                    <Calculator className="text-brand-600" /> Cómo usar esta calculadora
-                </h2>
-                <p className="text-slate-600">Introduce los datos de la subasta (precio de adjudicación, valor de mercado, tasación BOE, reforma, deudas heredadas y otros gastos) y selecciona tu Comunidad Autónoma para calcular automáticamente el ITP, los gastos de gestión, el ROI y el precio máximo recomendado para tu puja.</p>
-            </div>
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-                    <AlertTriangle className="text-amber-600" /> Errores comunes
-                </h2>
-                <p className="text-slate-600">El error más frecuente es no incluir todos los costes asociados (IBI, comunidad, desalojo, reformas inesperadas) o utilizar el valor de tasación del BOE como valor de mercado real. Utiliza siempre comparables de mercado actualizados para una valoración precisa.</p>
-            </div>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm col-span-2">
-                <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-                    <TrendingUp className="text-brand-600" /> Cómo calcular si una subasta es rentable
-                </h2>
-                <p className="text-slate-600">La rentabilidad en subastas judiciales no es solo la diferencia entre el precio de adjudicación y el valor de mercado. Debes considerar todos los costes asociados, el tiempo de espera y el riesgo de ocupación.</p>
-            </div>
-            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3">
-                    <Info className="text-brand-600" /> Qué costes incluir
-                </h2>
-                <p className="text-slate-600 text-sm">ITP, Registro, Notaría, Gestoría, deudas de comunidad e IBI, costes de desalojo y posibles reformas.</p>
-            </div>
-        </div>
-
-        <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-xl mb-12">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                <Calculator className="text-brand-400" /> Cómo calcular la puja máxima según Art 670 LEC
-            </h2>
-            <p className="text-slate-300">La puja máxima debe garantizar que, tras todos los gastos, el ROI sea atractivo. No pujes por encima del 70% del valor de mercado si no tienes un margen de seguridad claro.</p>
-        </div>
-
-        <h2 className="text-3xl font-bold text-slate-900 mb-6">Ejemplos reales de cálculo en subastas judiciales</h2>
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {[
-                { title: "Piso en Madrid", mercado: 250000, adjudicacion: 180000, reforma: 30000, itp: 10800, gastos: 5000 },
-                { title: "Apartamento Costa", mercado: 150000, adjudicacion: 90000, reforma: 15000, itp: 6300, gastos: 3000 },
-                { title: "Local Comercial", mercado: 300000, adjudicacion: 200000, reforma: 50000, itp: 20000, gastos: 8000 }
-            ].map((ej, i) => {
-                const total = ej.adjudicacion + ej.reforma + ej.itp + ej.gastos;
-                const beneficio = ej.mercado - total;
-                const roi = (beneficio / total) * 100;
-                return (
-                    <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                        <h3 className="font-bold text-lg mb-4">{ej.title}</h3>
-                        <p className="text-sm text-slate-500">Mercado: {ej.mercado.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
-                        <p className="text-sm text-slate-500">Adjudicación: {ej.adjudicacion.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</p>
-                        <p className="text-sm font-bold mt-4 text-brand-700">ROI: {roi.toFixed(1)}%</p>
-                    </div>
-                )
-            })}
-        </div>
-
-        <h2 className="text-3xl font-bold text-slate-900 mb-6">Preguntas frecuentes sobre calcular la rentabilidad de una subasta judicial</h2>
-        <div className="space-y-6">
-            {[
-                { q: "¿Cómo calcular la rentabilidad de una subasta judicial?", a: "Para calcular la rentabilidad real debes comparar el valor de mercado actual del inmueble con el coste total de la inversión. Este coste incluye el precio de adjudicación, el ITP (que varía según la comunidad autónoma), gastos de reforma, notaría, registro y posibles cargas anteriores o deudas de comunidad. Nuestra calculadora de subastas te permite estimar todos estos valores automáticamente." },
-                { q: "¿Cuánto dinero necesito para participar en una subasta judicial?", a: "Para participar necesitas inicialmente el 5% del valor de tasación del bien en concepto de consignación o depósito. Si resultas adjudicatario, deberás abonar el resto del precio de adjudicación en el plazo legal (normalmente 40 días hábiles en subastas judiciales) más los impuestos y gastos asociados." },
-                { q: "¿Qué impuestos se pagan al comprar en una subasta judicial?", a: "El principal es el ITP (Impuesto de Transmisiones Patrimoniales). El tipo impositivo depende de la Comunidad Autónoma donde se encuentre el inmueble, oscilando generalmente entre el 4% y el 10%. En subastas judiciales no se suele pagar IVA, salvo en casos muy específicos de ejecuciones entre empresas." },
-                { q: "¿Cómo calcular la puja máxima en una subasta?", a: "La puja máxima se calcula restando del valor de mercado real todos los costes previstos (impuestos, reformas, cargas, gastos) y aplicando un margen de seguridad mínimo (beneficio deseado). Una regla común es no superar el 70% del valor de mercado tras descontar todos los gastos." }
-            ].map((faq, i) => (
-                <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 className="font-bold text-lg mb-2">{faq.q}</h3>
-                    <p className="text-slate-600 text-sm">{faq.a}</p>
-                </div>
-            ))}
-        </div>
-
-        <div className="my-12 p-8 bg-slate-50 rounded-3xl border border-slate-200">
-            <h3 className="font-bold text-slate-900 mb-4">Más información</h3>
-            <nav className="grid md:grid-cols-2 gap-4">
-                <Link to={ROUTES.RULE_70} className="text-brand-700 hover:underline">Regla del 70% en subastas</Link>
-                <Link to={ROUTES.CHARGES} className="text-brand-700 hover:underline">Cargas en subastas</Link>
-                <Link to={ROUTES.OCCUPIED} className="text-brand-700 hover:underline">Vivienda ocupada</Link>
-                <Link to={ROUTES.ANALYSIS} className="text-brand-700 hover:underline">Cómo analizar subastas</Link>
-            </nav>
-        </div>
-
-        <h2 className="text-3xl font-bold text-slate-900 mb-6">Calculadora de subastas judiciales por ciudad</h2>
-        <nav className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
-            {[
-                { name: "Madrid", path: "/calculadora-subastas?ciudad=madrid" },
-                { name: "Barcelona", path: "/calculadora-subastas?ciudad=barcelona" },
-                { name: "Valencia", path: "/calculadora-subastas?ciudad=valencia" },
-                { name: "Sevilla", path: "/calculadora-subastas?ciudad=sevilla" },
-                { name: "Málaga", path: "/calculadora-subastas?ciudad=malaga" }
-            ].map((city) => (
-                <Link key={city.name} to={city.path} className="bg-white p-4 rounded-xl border border-slate-200 text-center font-bold text-brand-700 hover:bg-brand-50 transition-all">
-                    {city.name}
-                </Link>
-            ))}
-        </nav>
-      </article>
-      
-      <div className="mt-12">
-        <LeadMagnetBlock />
       </div>
     </div>
   );

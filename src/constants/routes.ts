@@ -59,4 +59,5 @@ export const ROUTES = {
   CONTACT: '/contacto',
   ADMIN_TRACKING: '/admin/tracking',
   CHECKLIST: '/checklist-subastas',
+  CONSULTORIA: '/consultoria',
 };

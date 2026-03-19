@@ -19,36 +19,13 @@ import RelatedAuctions from './RelatedAuctions';
 import Header from './Header';
 import Footer from './Footer';
 
-const ITP_RATES: Record<string, number> = {
-  'Madrid': 0.06,
-  'Andalucía': 0.07,
-  'Cataluña': 0.10,
-  'Valencia': 0.10,
-  'Castilla y León': 0.08,
-  'Galicia': 0.10,
-  'País Vasco': 0.04,
-  'Baleares': 0.08,
-  'Canarias': 0.065,
-  'Murcia': 0.08,
-  'Aragón': 0.08,
-  'Castilla La Mancha': 0.09,
-  'Extremadura': 0.08,
-  'Asturias': 0.08,
-  'Cantabria': 0.09,
-  'Navarra': 0.06,
-  'La Rioja': 0.07,
-};
-
 const AuctionPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const auction = slug ? AUCTIONS[slug] : null;
 
   // Calculator State
   const [valorMercado, setValorMercado] = useState<number | ''>('');
-  const [reforma, setReforma] = useState<number | ''>('');
   const [deudas, setDeudas] = useState<number | ''>('');
-  const [otrosGastos, setOtrosGastos] = useState<number | ''>('');
-  const [comunidad, setComunidad] = useState<string>('Madrid');
 
   if (!auction) return <Navigate to={ROUTES.HOME} replace />;
 
@@ -78,7 +55,6 @@ const AuctionPage: React.FC = () => {
     if (auction) {
       setValorMercado(auction.appraisalValue || '');
       setDeudas(auction.claimedDebt || '');
-      setComunidad(normalizeCity(auction) || 'Madrid');
       
       // DEBUG: Address field analysis
       console.log('DEBUG - Auction Address Field:', {
@@ -248,26 +224,6 @@ const AuctionPage: React.FC = () => {
 
     return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase, proceduralContext, fomo };
   }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
-
-  const results = useMemo(() => {
-    const vm = Number(valorMercado) || 0;
-    const ref = Number(reforma) || 0;
-    const deu = Number(deudas) || 0;
-    const og = Number(otrosGastos) || 0;
-
-    if (vm === 0) return { precioMaxPuja: null, totalExpenses: 0 };
-
-    const itpRate = ITP_RATES[comunidad] || 0.08;
-    const baseBid = vm * 0.7;
-    const itp = baseBid * itpRate;
-    const registroNotaria = baseBid * 0.012;
-    const gestoria = 500;
-    
-    const totalExpenses = itp + registroNotaria + gestoria + ref + deu + og;
-    const precioMaxPuja = baseBid - totalExpenses;
-    
-    return { precioMaxPuja, totalExpenses };
-  }, [valorMercado, reforma, deudas, otrosGastos, comunidad]);
 
   const getOpportunityMessage = (ratio: number | null) => {
     if (ratio === null) return { text: "Análisis requerido", color: "bg-amber-100 text-amber-800 border-amber-200" };
@@ -687,56 +643,25 @@ const AuctionPage: React.FC = () => {
               </div>
             </section>
 
-            <section className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm mb-16">
-              <h2 className="text-2xl font-serif font-bold text-slate-900 mb-8 flex items-center gap-3">
-                <Calculator className="text-brand-600" /> Calculadora de Puja Máxima
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Valor de Mercado Estimado</label>
-                    <div className="relative">
-                      <input 
-                        type="number" 
-                        value={valorMercado} 
-                        onChange={(e) => setValorMercado(e.target.value ? Number(e.target.value) : '')}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none transition-all"
-                        placeholder="Ej: 250000"
-                      />
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Deudas y Cargas (IBI, Comunidad...)</label>
-                    <div className="relative">
-                      <input 
-                        type="number" 
-                        value={deudas} 
-                        onChange={(e) => setDeudas(e.target.value ? Number(e.target.value) : '')}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none transition-all"
-                        placeholder="Ej: 5000"
-                      />
-                      <AlertTriangle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    </div>
-                  </div>
+            {/* CTA Calculadora Interactiva */}
+            <section className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm mb-16 text-center">
+              <div className="max-w-2xl mx-auto">
+                <div className="bg-brand-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Calculator className="text-brand-600" size={32} />
                 </div>
-                <div className="bg-brand-50 p-8 rounded-2xl border border-brand-100 flex flex-col justify-center">
-                  <div className="mb-6">
-                    <p className="text-sm font-bold text-brand-700 uppercase tracking-widest mb-2">Puja Máxima Recomendada (70%)</p>
-                    <p className="text-4xl font-black text-brand-900">
-                      {results.precioMaxPuja ? results.precioMaxPuja.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
-                    </p>
-                  </div>
-                  <div className="pt-6 border-t border-brand-200">
-                    <p className="text-sm font-bold text-brand-700 uppercase tracking-widest mb-2">Margen Estimado tras Gastos</p>
-                    <p className="text-2xl font-bold text-emerald-700">
-                      {results.precioMaxPuja ? (Number(valorMercado) - results.precioMaxPuja - results.totalExpenses).toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
-                    </p>
-                  </div>
-                  <p className="text-xs text-brand-600 mt-6 leading-relaxed">
-                    * Cálculo basado en el 70% del valor de mercado menos gastos e impuestos estimados. Este es un valor orientativo.
-                  </p>
-                </div>
+                <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
+                  Tienes los números. Ajusta tu rentabilidad en 30 segundos
+                </h2>
+                <p className="text-lg text-slate-600 mb-8">
+                  Simula reforma, impuestos y riesgos antes de pujar
+                </p>
+                <Link 
+                  to={`${ROUTES.CALCULATOR}?mercado=${valorMercado}&deudas=${deudas}&ccaa=${provinceName}&tasacion=${auction.appraisalValue || ''}`}
+                  onClick={() => trackConversion(auction.province || 'unknown', 'ficha', 'calculator')}
+                  className="inline-flex items-center justify-center gap-2 bg-brand-600 text-white font-bold px-10 py-4 rounded-xl hover:bg-brand-700 transition-all shadow-lg hover:shadow-brand-500/30 text-lg transform active:scale-95"
+                >
+                  Calcular mi puja real <ArrowRight size={20} />
+                </Link>
               </div>
             </section>
 

@@ -1,5 +1,5 @@
-export type TrackingOrigin = 'discover' | 'listing' | 'ficha' | 'home' | 'footer' | 'lead_magnet';
-export type TrackingClickType = 'listado' | 'premium' | 'consultoria' | 'download';
+export type TrackingOrigin = 'discover' | 'listing' | 'ficha' | 'home' | 'footer' | 'lead_magnet' | 'calculator';
+export type TrackingClickType = 'listado' | 'premium' | 'consultoria' | 'download' | 'calculator' | 'pro_checkout' | 'pro_unlock';
 
 export const trackConversion = (province: string, origin: TrackingOrigin, clickType: TrackingClickType) => {
   const event = {
