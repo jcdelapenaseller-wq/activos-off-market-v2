@@ -21,5 +21,15 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "test_puppeteer*.ts",
+    "check_data.ts",
+    "test-normalizer.ts",
+    "scripts/**/*Test.ts",
+    "scripts/test*.ts",
+    "scripts/check*.ts",
+    "app/applet/scripts/test_boe.ts",
+    "app/applet/test_boe.ts"
+  ]
 }
