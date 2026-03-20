@@ -1,4 +1,4 @@
-export type TrackingOrigin = 'discover' | 'listing' | 'ficha' | 'home' | 'footer' | 'lead_magnet' | 'calculator';
+export type TrackingOrigin = 'discover' | 'discover-auction' | 'listing' | 'ficha' | 'home' | 'footer' | 'lead_magnet' | 'calculator';
 export type TrackingClickType = 'listado' | 'premium' | 'consultoria' | 'download' | 'calculator' | 'pro_checkout' | 'pro_unlock' | 'email_submit';
 
 export const trackConversion = (

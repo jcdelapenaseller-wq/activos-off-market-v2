@@ -42,6 +42,7 @@ export const ROUTES = {
   EXAMPLE_REPORT: '/ejemplo-subasta/:slug',
   NOTICIAS_SUBASTAS_INDEX: '/noticias-subastas',
   NOTICIAS_SUBASTAS_PROVINCE: '/noticias-subastas/provincia/:province',
+  NOTICIAS_SUBASTAS_ANALYSIS: '/noticias-subastas/analisis/:slug',
   NOTICIAS_SUBASTAS: '/noticias-subastas/:slug',
   AUCTION_PAGE: '/subasta/:slug',
   PROVINCE_PROPERTY: '/subastas/:province/:propertyType',

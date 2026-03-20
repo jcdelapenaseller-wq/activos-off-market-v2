@@ -4,8 +4,9 @@ import { AUCTIONS } from '../data/auctions';
 import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { Calendar, ChevronRight, MapPin } from 'lucide-react';
 import { isAuctionFinished } from '../utils/auctionHelpers';
-import { normalizeProvince } from '../utils/auctionNormalizer';
+import { normalizeProvince, normalizePropertyType } from '../utils/auctionNormalizer';
 import TelegramCTA from './TelegramCTA';
+import DiscoverSingleAuctionArticle from './DiscoverSingleAuctionArticle';
 
 const DiscoverArticlesIndex: React.FC = () => {
   useEffect(() => {
@@ -16,7 +17,7 @@ const DiscoverArticlesIndex: React.FC = () => {
     }
   }, []);
 
-  const articles = useMemo(() => {
+  const { auctionArticles, provinceArticles } = useMemo(() => {
     // 1. Get unique provinces with active auctions
     const activeAuctions = Object.values(AUCTIONS).filter(a => !isAuctionFinished(a.auctionDate));
     const provincesMap = new Map<string, { count: number, maxDiscount: number }>();
@@ -42,7 +43,7 @@ const DiscoverArticlesIndex: React.FC = () => {
       }
     });
 
-    const generatedArticles: any[] = [];
+    const provinceArticles: any[] = [];
     let dayOffset = 0;
 
     // 2. For each province, generate variants based on volume
@@ -52,10 +53,19 @@ const DiscoverArticlesIndex: React.FC = () => {
       // 1. Siempre generamos la variante "Oportunidad" (para < 5 subastas)
       const dateOpp = new Date();
       dateOpp.setDate(dateOpp.getDate() - dayOffset);
-      generatedArticles.push({
+      
+      const oppTitles = [
+        `Ojo a estas subastas en ${province}: hay descuentos poco habituales`,
+        `Este inmueble en ${province} podría venderse muy por debajo de su valor`,
+        `Lo que está pasando con estas subastas en ${province} no es normal`,
+        `Detectada oportunidad en ${province} con un ${stats.maxDiscount}% de descuento`
+      ];
+      const oppTitle = oppTitles[province.length % oppTitles.length].substring(0, 90);
+
+      provinceArticles.push({
         id: `${slugBase}-opportunity`,
         url: `/noticias-subastas/provincia/${slugBase}/oportunidades`,
-        title: `Nuevas oportunidades en ${province}: hasta ${stats.maxDiscount}% de descuento`,
+        title: oppTitle,
         excerpt: `El mercado de subastas en ${province} acaba de actualizarse. Se han seleccionado ${stats.count} oportunidades activas hoy con grandes descuentos.`,
         date: dateOpp,
         imageUrl: `https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80`,
@@ -68,10 +78,18 @@ const DiscoverArticlesIndex: React.FC = () => {
       if (stats.count >= 5) {
         const dateUrg = new Date();
         dateUrg.setDate(dateUrg.getDate() - dayOffset);
-        generatedArticles.push({
+        
+        const urgTitles = [
+          `Última ventana en ${province}: ${stats.count} subastas clave cierran hoy`,
+          `Si buscas en ${province}, estas ${stats.count} subastas están a punto de desaparecer`,
+          `Cierre inminente en ${province}: ${stats.count} expedientes que no deberías ignorar`
+        ];
+        const urgTitle = urgTitles[province.length % urgTitles.length].substring(0, 90);
+
+        provinceArticles.push({
           id: `${slugBase}-urgency`,
           url: `/noticias-subastas/provincia/${slugBase}/hoy`,
-          title: `Subastas en ${province} hoy: ${stats.count} expedientes a punto de cerrar`,
+          title: urgTitle,
           excerpt: `El tiempo es clave en las subastas judiciales. Hoy tenemos ${stats.count} expedientes activos en la provincia de ${province}. Revisa estas oportunidades antes de que finalice el plazo.`,
           date: dateUrg,
           imageUrl: `https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=800&q=80`,
@@ -85,10 +103,18 @@ const DiscoverArticlesIndex: React.FC = () => {
       if (stats.count > 10) {
         const dateAna = new Date();
         dateAna.setDate(dateAna.getDate() - dayOffset);
-        generatedArticles.push({
+        
+        const anaTitles = [
+          `La realidad de las subastas en ${province}: ¿oportunidad o riesgo?`,
+          `Analizamos las ${stats.count} subastas de ${province}: dónde está el margen real`,
+          `Lo que nadie te cuenta de invertir en subastas en ${province} hoy`
+        ];
+        const anaTitle = anaTitles[province.length % anaTitles.length].substring(0, 90);
+
+        provinceArticles.push({
           id: `${slugBase}-analysis`,
           url: `/noticias-subastas/provincia/${slugBase}/donde-invertir`,
-          title: `Dónde invertir en subastas en ${province}: Análisis de mercado`,
+          title: anaTitle,
           excerpt: `¿Buscando rentabilidad en ${province}? Analizamos el estado actual de las subastas públicas en la región. Con ${stats.count} activos disponibles, el mercado ofrece opciones estratégicas.`,
           date: dateAna,
           imageUrl: `https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80`,
@@ -98,8 +124,52 @@ const DiscoverArticlesIndex: React.FC = () => {
         dayOffset += 1;
       }
     });
+    provinceArticles.sort((a, b) => b.date.getTime() - a.date.getTime());
 
-    return generatedArticles.sort((a, b) => b.date.getTime() - a.date.getTime());
+    // 3. Add individual auction articles (Top 5 by discount)
+    const activeAuctionEntries = Object.entries(AUCTIONS).filter(([_, a]) => !isAuctionFinished(a.auctionDate));
+    
+    const topIndividualAuctions = activeAuctionEntries
+      .map(([slug, data]) => {
+        const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue;
+        const cantidadReclamada = data.claimedDebt;
+        const discount = (valorReferencia && cantidadReclamada !== undefined && cantidadReclamada !== null && valorReferencia > cantidadReclamada) 
+          ? Math.round(((valorReferencia - cantidadReclamada) / valorReferencia) * 100)
+          : 0;
+        return { slug, data, discount };
+      })
+      .filter(a => a.discount > 30 && a.discount < 85)
+      .sort((a, b) => b.discount - a.discount)
+      .slice(0, 5);
+
+    const auctionArticles = topIndividualAuctions.map((item, index) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (index % 3)); // Spread them over the last 3 days
+      
+      const type = normalizePropertyType(item.data.propertyType).toLowerCase();
+      const location = item.data.city || item.data.province;
+      
+      const titles = [
+        `Este ${type} en ${location} podría venderse por un ${item.discount}% menos de su valor`,
+        `Oportunidad detectada: ${normalizePropertyType(item.data.propertyType)} en ${location} con deuda reducida`,
+        `Análisis técnico: ¿Merece la pena pujar por este ${type} en ${location}?`,
+        `Lo que oculta la subasta de este ${type} en ${location}: precio vs valor real`
+      ];
+      const title = titles[item.slug.length % titles.length].substring(0, 90);
+
+      return {
+        id: `auction-${item.slug}`,
+        url: `/noticias-subastas/analisis/${item.slug}`,
+        title: title,
+        excerpt: `Analizamos en profundidad la subasta de este ${type} en ${location}. Con un valor de tasación de ${Math.round((item.data.valorTasacion || item.data.appraisalValue || 0) / 1000)}k€, el margen es notable.`,
+        date: date,
+        imageUrl: `https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80`,
+        tag: 'Análisis Activo',
+        tagColor: 'bg-emerald-600'
+      };
+    });
+
+    return { auctionArticles, provinceArticles };
   }, []);
 
   return (
@@ -120,7 +190,17 @@ const DiscoverArticlesIndex: React.FC = () => {
         </header>
 
         <div className="grid grid-cols-1 gap-8">
-          {articles.map((article) => {
+          {/* Featured Auctions */}
+          {auctionArticles.map(article => (
+            <div key={`featured-${article.id}`}>
+              <DiscoverSingleAuctionArticle 
+                auction={AUCTIONS[article.id.replace('auction-', '') as keyof typeof AUCTIONS]} 
+                slug={article.id.replace('auction-', '')} 
+              />
+            </div>
+          ))}
+
+          {provinceArticles.map((article) => {
             return (
             <article key={article.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all flex flex-col md:flex-row relative">
               <Link to={article.url} className="md:w-2/5 shrink-0 block relative group">
