@@ -18,6 +18,25 @@ const AuctionBarcelonaGuide: React.FC = () => {
     return cityAuctions.filter(item => !isAuctionFinished(item[1].auctionDate)).length;
   }, [cityAuctions]);
 
+  const summary = React.useMemo(() => {
+    const active = cityAuctions.filter(item => !isAuctionFinished(item[1].auctionDate));
+    const count = active.length;
+    if (count === 0) return null;
+    
+    const totalDiscount = active.reduce((acc, curr) => acc + (curr[1].discount || 0), 0);
+    const avgDiscount = (totalDiscount / count).toFixed(1);
+    
+    const typeCounts: Record<string, number> = {};
+    active.forEach(item => {
+      const type = normalizePropertyType(item[1].propertyType || "Otros");
+      typeCounts[type] = (typeCounts[type] || 0) + 1;
+    });
+    
+    const dominantType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0][0];
+    
+    return { count, avgDiscount, dominantType };
+  }, [cityAuctions]);
+
   const IMG_HERO = "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&q=80&w=1200&h=630"; 
 
   const currentDate = new Date();
@@ -132,50 +151,9 @@ const AuctionBarcelonaGuide: React.FC = () => {
                 Subastas judiciales en Barcelona: cómo encontrarlas y analizarlas
             </h1>
 
-            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-6 mb-8">
-              <h2 className="text-xl font-serif font-bold text-slate-900 mb-2">
-                Las subastas más interesantes detectadas en Barcelona
-              </h2>
-              <p className="text-slate-700 mb-4">
-                Algunas subastas destacan por la gran diferencia entre su valor de tasación y la deuda reclamada, lo que puede suponer una oportunidad única de inversión.
-              </p>
-              <Link 
-                to="/mejores-subastas/barcelona" 
-                className="inline-flex items-center justify-center bg-brand-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-brand-700 transition-colors"
-              >
-                Ver las mejores subastas en Barcelona
-              </Link>
-            </div>
-
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-8 shadow-sm">
-              <h2 className="text-xl font-serif font-bold text-slate-900 mb-2">
-                Subastas con mayor descuento en Barcelona
-              </h2>
-              <p className="text-slate-600 mb-4">
-                Estas son las subastas inmobiliarias detectadas en Barcelona con mayor diferencia entre tasación y deuda.
-              </p>
-              <Link 
-                to="/subastas/barcelona/oportunidades" 
-                className="inline-flex items-center justify-center bg-slate-900 text-white font-bold py-2 px-6 rounded-xl hover:bg-brand-600 transition-colors"
-              >
-                Ver oportunidades en Barcelona
-              </Link>
-            </div>
-
-            <div className="bg-brand-50 border border-brand-100 rounded-2xl p-6 mb-8">
-              <h2 className="text-xl font-serif font-bold text-slate-900 mb-2">
-                Últimas subastas publicadas
-              </h2>
-              <p className="text-slate-700 mb-4 text-sm">
-                Accede al listado de las subastas más recientes detectadas en la web.
-              </p>
-              <Link 
-                to="/subastas-recientes" 
-                className="inline-flex items-center justify-center bg-brand-600 text-white font-bold py-2 px-6 rounded-xl hover:bg-brand-700 transition-colors text-sm"
-              >
-                Ver subastas recientes
-              </Link>
-            </div>
+            <p className="text-lg text-slate-600 mb-12 max-w-3xl">
+              Las subastas judiciales en Barcelona ofrecen oportunidades de inversión únicas para adquirir inmuebles con importantes descuentos. A continuación, analizamos las claves para encontrar, evaluar y pujar con seguridad en esta provincia.
+            </p>
 
             <div className="flex flex-wrap items-center gap-6 text-slate-500 text-sm border-t border-slate-100 pt-6">
                 <div className="flex items-center gap-3">
@@ -218,8 +196,26 @@ const AuctionBarcelonaGuide: React.FC = () => {
                 />
               </figure>
 
-              <p className="text-xl leading-relaxed mb-8 font-light first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-brand-700 first-letter:mr-3 first-letter:float-left">
-                Las subastas inmobiliarias en Barcelona representan una de las vías más interesantes para adquirir propiedades con importantes descuentos sobre el valor de mercado. Este sistema público permite a los inversores acceder a viviendas, locales, garajes y naves industriales procedentes de embargos o ejecuciones hipotecarias. La principal oportunidad de inversión radica en la diferencia entre el valor de tasación del inmueble y su precio de adjudicación final, que en muchas ocasiones permite obtener márgenes de rentabilidad muy superiores a los de la compraventa tradicional. Sin embargo, participar en subastas judiciales o administrativas en Barcelona no está exento de riesgos y requiere un conocimiento técnico profundo. Es absolutamente fundamental realizar un estudio exhaustivo antes de pujar. Esto implica analizar detalladamente la certificación de cargas del Registro de la Propiedad para identificar deudas previas, embargos o hipotecas que el adjudicatario deba asumir. Igualmente crítico es verificar la situación posesoria y de ocupación del inmueble, ya que adquirir una propiedad con inquilinos o precaristas puede retrasar significativamente la toma de posesión y mermar la rentabilidad esperada. Una estrategia de inversión exitosa en subastas exige rigor, análisis y una correcta evaluación de todos estos factores.
+              <p className="text-xl leading-relaxed mb-6 font-light first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-brand-700 first-letter:mr-3 first-letter:float-left">
+                Las subastas inmobiliarias en Barcelona representan una de las vías más interesantes para adquirir propiedades con **importantes descuentos** sobre el valor de mercado. Este sistema público permite a los inversores acceder a viviendas, locales, garajes y naves industriales procedentes de embargos o ejecuciones hipotecarias.
+              </p>
+
+              {summary && (
+                <div className="bg-slate-50 border-l-4 border-brand-600 p-6 rounded-r-lg my-8">
+                  <h3 className="text-xl font-bold text-brand-900 mb-4">Resumen rápido del mercado en Barcelona</h3>
+                  <ul className="space-y-2 text-lg">
+                    <li><strong>Subastas activas:</strong> {summary.count}</li>
+                    <li><strong>Descuento medio:</strong> {summary.avgDiscount}%</li>
+                    <li><strong>Activo dominante:</strong> {summary.dominantType}</li>
+                  </ul>
+                </div>
+              )}
+
+              <p className="text-xl leading-relaxed mb-6 font-light">
+                La principal oportunidad de inversión radica en la diferencia entre el valor de tasación del inmueble y su precio de adjudicación final, permitiendo obtener márgenes de rentabilidad muy superiores a los de la compraventa tradicional.
+              </p>
+              <p className="text-xl leading-relaxed mb-8 font-light">
+                Sin embargo, participar en subastas judiciales o administrativas en Barcelona no está exento de riesgos y requiere un **conocimiento técnico profundo**. Es fundamental realizar un estudio exhaustivo antes de pujar, analizando detalladamente la certificación de cargas del Registro de la Propiedad y verificando la situación posesoria del inmueble.
               </p>
 
               <h2 className="text-3xl font-bold mt-12 mb-6">Dónde encontrar subastas judiciales en Barcelona</h2>
@@ -299,7 +295,7 @@ const AuctionBarcelonaGuide: React.FC = () => {
               <div className="bg-white border border-brand-200 p-8 rounded-2xl my-12 shadow-sm">
                   <h3 className="font-bold text-slate-900 mb-4">¿Quieres saber cuánto pujar?</h3>
                   <p className="text-slate-600 mb-6">
-                      Calcular la puja máxima es clave para no perder dinero. Hemos creado una herramienta específica para analizar subastas en Barcelona.
+                      Calcular la puja máxima es clave para no perder dinero. Usa nuestra herramienta para evitar errores al pujar.
                   </p>
                   <Link to={`/calcular-puja-subasta/barcelona`} className="inline-flex items-center gap-2 bg-slate-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-600 transition-all">
                       Calcular la puja en subastas en Barcelona <ArrowRight size={18} />

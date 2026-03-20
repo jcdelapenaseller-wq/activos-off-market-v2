@@ -78,12 +78,22 @@ const ProvinceHub: React.FC = () => {
       return acc;
     }, 0);
     
-    if (validAuctionsCount === 0) return null;
+    const typeCounts: Record<string, number> = {};
+    activeAuctions.forEach(([_, a]) => {
+      if (a.propertyType) {
+        const type = normalizePropertyType(a.propertyType);
+        typeCounts[type] = (typeCounts[type] || 0) + 1;
+      }
+    });
+    const dominantType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'inmueble';
+
+    if (validAuctionsCount === 0) return { avgDiscount: 0, totalActive: activeAuctions.length, dominantType };
     
     const avgDiscount = (totalDiscount / validAuctionsCount) * 100;
     return {
       avgDiscount: Math.round(avgDiscount),
-      totalActive: activeAuctions.length
+      totalActive: activeAuctions.length,
+      dominantType
     };
   }, [activeAuctions]);
 
@@ -135,7 +145,9 @@ const ProvinceHub: React.FC = () => {
             Subastas en {province}
           </h1>
           <p className="text-lg text-slate-600 max-w-3xl mb-8 leading-relaxed">
-            Descubre el listado actualizado de subastas judiciales, notariales y de Hacienda en la provincia de <span className="capitalize font-medium">{province}</span>. Analizamos diariamente el BOE para identificar pisos, casas y locales con alto potencial de rentabilidad. Accede a los datos clave, calcula tu puja máxima y encuentra oportunidades de inversión por debajo del valor de mercado.
+            Actualmente monitorizamos {marketStats?.totalActive || 0} subastas activas en la provincia de <span className="capitalize font-medium">{province}</span>. 
+            Con un descuento medio del {marketStats?.avgDiscount || 0}%, el tipo de activo predominante es {marketStats?.dominantType.toLowerCase()}. 
+            Analizamos diariamente el BOE para identificar las mejores oportunidades de inversión por debajo del valor de mercado.
           </p>
         </div>
       )}

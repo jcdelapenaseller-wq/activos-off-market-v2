@@ -32,6 +32,9 @@ export interface AuctionData {
   valorTasacion?: number;
   deposito?: number;
   isNew?: boolean;
+  finalPrice?: number;
+  auctionResultStatus?: 'adjudicated' | 'deserted' | 'suspended';
+  resultCheckedAt?: string;
 }
 
 export const AUCTIONS: Record<string, AuctionData> = {

@@ -112,6 +112,20 @@ const CityPropertyAuctions: React.FC = () => {
     };
   }, [sortedAuctions]);
 
+  const schema = useMemo(() => {
+    if (sortedAuctions.length === 0) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "itemListElement": sortedAuctions.map(([slug, data], index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `https://activosoffmarket.es/subasta/${slug}`,
+        "name": `${data.propertyType} en ${data.city || data.province}`
+      }))
+    };
+  }, [sortedAuctions]);
+
   useEffect(() => {
     if (province && propertyType) {
       document.title = `Subastas de ${propertyType} en la provincia de ${province} | Activos Off-Market`;
@@ -147,6 +161,11 @@ const CityPropertyAuctions: React.FC = () => {
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 px-6 pt-10">
+      {schema && (
+        <script type="application/ld+json">
+          {JSON.stringify(schema)}
+        </script>
+      )}
       <div className="max-w-6xl mx-auto">
         <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-brand-600 transition-colors">Inicio</Link>
@@ -179,49 +198,81 @@ const CityPropertyAuctions: React.FC = () => {
             </div>
           )}
 
-          {sortedAuctions.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <div className={MetricHighlight.container}>
-                <p className={MetricHighlight.label}>Subastas detectadas</p>
-                <p className={MetricHighlight.value}>{metrics.count}</p>
-              </div>
-              <div className={MetricNeutral.container}>
-                <p className={MetricNeutral.label}>Tasación media</p>
-                <p className={MetricNeutral.value}>
-                  {metrics.avgAppraisal > 0 ? metrics.avgAppraisal.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
-                </p>
-              </div>
-              <div className={MetricWarning.container}>
-                <p className={MetricWarning.label}>Deuda media</p>
-                <p className={MetricWarning.value}>
-                  {metrics.avgDebt > 0 ? metrics.avgDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
-                </p>
-              </div>
-            </div>
-          )}
-
           <p className="text-xl text-slate-600 max-w-3xl mb-12">
             Listado de subastas de {propertyType.toLowerCase()} en la provincia de {province}. Ejemplos reales y análisis de oportunidades en subastas inmobiliarias.
           </p>
+
+          {sortedAuctions.length > 0 && (
+            <div className="flex flex-wrap gap-4 mb-12 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-3 pr-6 border-r border-slate-100">
+                <div className="bg-brand-100 p-2 rounded-lg text-brand-700"><TrendingUp size={20} /></div>
+                <div>
+                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Subastas</p>
+                  <p className="text-lg font-bold text-slate-900">{metrics.count}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 pr-6 border-r border-slate-100">
+                <div className="bg-slate-100 p-2 rounded-lg text-slate-700"><DollarSign size={20} /></div>
+                <div>
+                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Tasación media</p>
+                  <p className="text-lg font-bold text-slate-900">
+                    {metrics.avgAppraisal > 0 ? metrics.avgAppraisal.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-100 p-2 rounded-lg text-amber-700"><DollarSign size={20} /></div>
+                <div>
+                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Deuda media</p>
+                  <p className="text-lg font-bold text-slate-900">
+                    {metrics.avgDebt > 0 ? metrics.avgDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           
-          <div className="prose prose-slate max-w-3xl mx-auto space-y-6">
+          <div className="prose prose-slate prose-lg max-w-3xl mx-auto space-y-8">
             <p>
-              Las subastas inmobiliarias en la provincia de {province} representan una de las oportunidades de inversión más dinámicas y rentables en el mercado actual. Acceder a {propertyType.toLowerCase()} a través de subastas judiciales permite adquirir activos por debajo de su valor de mercado, pero requiere un análisis riguroso para asegurar la rentabilidad.
+              Actualmente en la provincia de {province} monitorizamos <strong>{metrics.count} subastas activas</strong>.
+              Con una tasación media de {metrics.avgAppraisal > 0 ? metrics.avgAppraisal.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'N/D'},
+              este mercado ofrece oportunidades únicas para inversores que buscan {propertyType.toLowerCase()}.
+            </p>
+            <p>
+              Acceder a estos activos a través de subastas judiciales permite adquirir propiedades por debajo de su valor de mercado,
+              pero requiere un análisis riguroso. Antes de pujar, te recomendamos usar nuestra
+              <Link to={ROUTES.CALCULATOR} className="text-brand-600 font-bold hover:underline">calculadora de rentabilidad</Link>
+              para asegurar tu inversión.
             </p>
 
-            <div className="bg-brand-50 p-6 rounded-2xl border border-brand-100 my-8">
-              <h2 className="text-xl font-serif font-bold text-slate-900 mb-4 mt-0">
-                Qué hace interesante este tipo de inmueble para invertir
+            <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm my-10">
+              <h2 className="text-2xl font-serif font-bold text-slate-900 mb-6 mt-0">
+                Por qué invertir en {propertyType.toLowerCase()}
               </h2>
-              <ul className="space-y-2 mb-0">
-                <li>Alta demanda de {propertyType.toLowerCase()} en el mercado actual de {province}.</li>
-                <li>Posibilidad de adquirir activos con un descuento significativo sobre el valor de mercado.</li>
-                <li>Excelente potencial para estrategias de alquiler o reforma y venta (flipping).</li>
+              <ul className="space-y-4 mb-0 list-none pl-0">
+                <li className="flex items-start gap-3">
+                  <span className="text-brand-600 font-bold">01.</span>
+                  <span>Alta demanda de {propertyType.toLowerCase()} en el mercado actual de {province}.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-brand-600 font-bold">02.</span>
+                  <span>Adquisición de activos con un descuento significativo sobre el valor de mercado.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-brand-600 font-bold">03.</span>
+                  <span>Excelente potencial para estrategias de alquiler o reforma y venta (flipping).</span>
+                </li>
               </ul>
             </div>
 
             <p>
-              No se trata simplemente de buscar chollos, sino de gestionar riesgos de forma profesional. Antes de participar, es fundamental realizar una auditoría completa que incluya la revisión detallada de las cargas registrales, la situación posesoria y de ocupación del inmueble, y la determinación precisa de la puja máxima.
+              No se trata simplemente de buscar chollos, sino de gestionar riesgos de forma profesional.
+              Si quieres profundizar en el análisis, puedes consultar nuestras
+              <Link to={ROUTES.ANALYSIS} className="text-brand-600 font-bold hover:underline">guías de análisis técnico</Link>.
+            </p>
+            <p>
+              Antes de participar, es fundamental realizar una auditoría completa que incluya la revisión detallada de las cargas registrales,
+              la situación posesoria y de ocupación del inmueble, y la determinación precisa de la puja máxima.
             </p>
             <p>
               Solo mediante un análisis técnico exhaustivo de estos factores podrás transformar una subasta en una inversión inmobiliaria sólida y segura en {province}.
@@ -257,22 +308,31 @@ const CityPropertyAuctions: React.FC = () => {
           </div>
         )}
 
-        <div className="mt-16 prose prose-slate max-w-3xl mx-auto space-y-6">
-          <h2 className="text-3xl font-serif font-bold text-slate-900 mt-12 mb-6">
-            Qué debes analizar antes de pujar por un {propertyType.toLowerCase()} en subasta en {province}
+        <div className="mt-20 prose prose-slate prose-lg max-w-3xl mx-auto space-y-8">
+          <h2 className="text-3xl font-serif font-bold text-slate-900 mb-6">
+            Análisis previo: Claves antes de pujar
           </h2>
           <p>
-            La clave del éxito en las subastas de {propertyType.toLowerCase()} en {province} radica en la preparación. No te centres únicamente en el precio de salida; analiza la rentabilidad neta tras considerar todos los costes asociados: impuestos, gastos de gestión, posibles reformas y, sobre todo, la resolución de la situación posesoria.
+            La clave del éxito en las subastas de {propertyType.toLowerCase()} en {province} radica en la preparación.
+            No te centres únicamente en el precio de salida.
+          </p>
+          <p>
+            Analiza la rentabilidad neta tras considerar todos los costes asociados: impuestos, gastos de gestión,
+            posibles reformas y, sobre todo, la resolución de la situación posesoria.
           </p>
           <p>
             Una mala estimación de estos factores puede convertir una oportunidad aparentemente atractiva en una inversión deficitaria.
           </p>
-          <div className="mt-8">
+          <div className="mt-10 p-8 bg-slate-900 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <h3 className="text-xl font-bold mb-2">¿Necesitas calcular tu puja máxima?</h3>
+              <p className="text-slate-400 text-sm">Usa nuestra calculadora técnica para evitar errores de valoración.</p>
+            </div>
             <Link 
               to="/calculadora-subastas" 
-              className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all no-underline"
+              className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all no-underline shrink-0"
             >
-              Calcular puja máxima <ChevronRight size={20} />
+              Calcular puja <ChevronRight size={20} />
             </Link>
           </div>
         </div>

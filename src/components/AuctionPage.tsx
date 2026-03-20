@@ -7,6 +7,7 @@ import {
   Clock, Calendar, User, Share2, Printer
 } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
+import { AUCTION_RESULTS } from '../data/auctionResults';
 import { getFilteredAuctions, isAuctionFinished, getAuctionType, getProcedureType } from '../utils/auctionHelpers';
 import { ROUTES } from '../constants/routes';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel, normalizeProvince, formatAddress } from '../utils/auctionNormalizer';
@@ -353,6 +354,33 @@ const AuctionPage: React.FC = () => {
                 </div>
               </div>
             </header>
+
+            {/* Auction Result Banner */}
+            {slug && AUCTION_RESULTS[slug] && (
+              <div className="bg-white border-2 border-slate-900 p-8 rounded-2xl mb-16 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <h3 className="text-2xl font-bold mb-4 flex items-center gap-2 text-slate-900">
+                  <CheckCircle className="text-emerald-600" /> Resultado de la subasta
+                </h3>
+                {AUCTION_RESULTS[slug].auctionResultStatus === 'adjudicated' ? (
+                  <div>
+                    <p className="text-lg text-slate-700 mb-2">
+                      Precio de adjudicación: <span className="font-bold text-slate-900 text-xl">{AUCTION_RESULTS[slug].finalPrice?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                    </p>
+                    <p className="text-md text-slate-600 italic">
+                      {auction.appraisalValue && AUCTION_RESULTS[slug].finalPrice 
+                        ? AUCTION_RESULTS[slug].finalPrice! < auction.appraisalValue * 0.9 
+                          ? "Adjudicada significativamente por debajo del valor de tasación."
+                          : AUCTION_RESULTS[slug].finalPrice! > auction.appraisalValue * 1.1
+                            ? "Adjudicada por encima del valor de tasación."
+                            : "Adjudicada en línea con el valor de tasación."
+                        : "Resultado confirmado."}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-lg font-bold text-slate-900">Subasta sin pujas</p>
+                )}
+              </div>
+            )}
 
             {/* Status-specific Messages */}
             {isUpcoming && (

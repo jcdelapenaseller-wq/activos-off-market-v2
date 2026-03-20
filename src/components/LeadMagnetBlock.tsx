@@ -26,17 +26,20 @@ const LeadMagnetBlock: React.FC = () => {
   };
 
   return (
-    <div className="bg-brand-900 rounded-3xl p-8 md:p-12 text-white my-12 shadow-xl">
+    <div className="bg-white border border-slate-200 rounded-3xl p-8 md:p-12 my-12 shadow-sm">
       {status === 'success' ? (
-        <div className="flex items-center gap-4 text-emerald-300">
-          <CheckCircle size={48} />
-          <p className="text-xl font-bold">Te acabo de enviar el Checklist de subastas BOE. Revisa tu email.</p>
+        <div className="flex flex-col md:flex-row items-center gap-6 text-emerald-700">
+          <CheckCircle size={48} className="flex-shrink-0" />
+          <p className="text-xl font-bold">¡Checklist enviado! Revisa tu bandeja de entrada (y la carpeta de spam).</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div className="grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <h3 className="font-serif text-3xl font-bold mb-4">¿Quieres el Checklist de Subastas BOE?</h3>
-            <p className="text-slate-300 text-lg">Descarga gratis nuestra guía rápida para no perderte ningún paso crítico en tu próxima puja.</p>
+            <h3 className="font-serif text-3xl font-bold text-slate-900 mb-4">Descarga el Checklist de Subastas BOE</h3>
+            <p className="text-slate-600 text-lg mb-6">
+              Evita errores costosos con nuestra guía paso a paso. 
+              <span className="block font-semibold text-slate-900 mt-2">Es gratis, sin compromiso y te ahorrará horas de investigación.</span>
+            </p>
           </div>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="relative">
@@ -47,18 +50,19 @@ const LeadMagnetBlock: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Tu mejor email"
                 required
-                className="w-full bg-white text-slate-900 rounded-xl py-4 pl-12 pr-4 text-lg focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-4 pl-12 pr-4 text-lg focus:ring-2 focus:ring-brand-500 outline-none"
               />
             </div>
             <button
               type="submit"
               disabled={status === 'loading'}
               onClick={() => trackConversion('general', 'lead_magnet', 'premium')}
-              className="w-full bg-brand-500 text-white font-bold py-4 rounded-xl text-lg hover:bg-brand-600 transition-colors disabled:opacity-50"
+              className="w-full bg-brand-600 text-white font-bold py-4 rounded-xl text-lg hover:bg-brand-700 transition-colors disabled:opacity-50 shadow-md"
             >
-              {status === 'loading' ? 'Enviando...' : 'Descargar Checklist'}
+              {status === 'loading' ? 'Enviando...' : 'Obtener checklist gratis'}
             </button>
-            {status === 'error' && <p className="text-red-300 text-sm">Hubo un error, inténtalo de nuevo.</p>}
+            <p className="text-center text-slate-400 text-sm">Sin compromiso. Puedes darte de baja cuando quieras.</p>
+            {status === 'error' && <p className="text-red-500 text-sm text-center">Hubo un error, inténtalo de nuevo.</p>}
           </form>
         </div>
       )}

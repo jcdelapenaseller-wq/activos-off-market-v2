@@ -296,6 +296,9 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
             <p className="text-slate-600 mb-8 leading-relaxed">
               {content.body}
             </p>
+            <p className="text-sm text-slate-500 mb-8">
+              Publicamos oportunidades en tiempo real en nuestro <a href="https://t.me/activosoffmarket" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline font-medium">canal de Telegram</a>.
+            </p>
 
             {/* CTA Calculadora Integrado */}
             <div className="my-10 p-8 bg-slate-900 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-8 not-prose shadow-2xl relative overflow-hidden group">

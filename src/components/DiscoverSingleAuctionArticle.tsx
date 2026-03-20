@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AuctionData } from '../data/auctions';
+import { AUCTION_RESULTS } from '../data/auctionResults';
 import { calculateDiscount, isAuctionFinished } from '../utils/auctionHelpers';
 import { getImageForPropertyType } from '../constants/auctionImages';
 
@@ -42,6 +43,11 @@ const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug }) => {
         <span className={`text-xs font-bold px-3 py-1 rounded-full ${status.label === 'Activa' ? 'bg-emerald-100 text-emerald-800' : status.label === 'En preparación' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-800'}`}>
           {status.label}
         </span>
+        {AUCTION_RESULTS[slug] && (
+          <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-800 text-white">
+            Adjudicada: {AUCTION_RESULTS[slug].finalPrice?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}
+          </span>
+        )}
         <span className="text-xs text-slate-500">Fecha: {formattedDate}</span>
       </div>
       <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">
@@ -67,6 +73,20 @@ const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug }) => {
             La rentabilidad final dependerá de la gestión de cargas registrales y la rapidez en la toma de posesión.
           </p>
         </div>
+        {AUCTION_RESULTS[slug]?.auctionResultStatus === 'adjudicated' && AUCTION_RESULTS[slug].finalPrice && auction.valorTasacion && (
+          <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 mb-4">
+            <h4 className="text-sm font-bold text-emerald-900 mb-1">Resultado de la subasta</h4>
+            <p className="text-sm text-emerald-800">
+              Precio final: <span className="font-bold">{AUCTION_RESULTS[slug].finalPrice?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+            </p>
+            <p className="text-xs text-emerald-700 italic mt-1">
+              Se adjudicó un {Math.abs(((auction.valorTasacion - AUCTION_RESULTS[slug].finalPrice!) / auction.valorTasacion) * 100).toFixed(0)}% {((auction.valorTasacion - AUCTION_RESULTS[slug].finalPrice!) / auction.valorTasacion) * 100 > 0 ? 'por debajo' : 'por encima'} del valor de tasación.
+            </p>
+          </div>
+        )}
+        <p className="text-sm text-slate-500 mb-4">
+          Publicamos oportunidades en tiempo real en nuestro <a href="https://t.me/activosoffmarket" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline font-medium">canal de Telegram</a>.
+        </p>
         <Link to={`/subastas/${auction.province?.toLowerCase()}`} className="text-slate-500 hover:text-brand-600 text-xs font-medium">
           Ver más subastas en {auction.province} →
         </Link>
