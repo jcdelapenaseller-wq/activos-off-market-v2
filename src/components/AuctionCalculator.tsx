@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Calculator, TrendingUp, AlertTriangle, CheckCircle, Info, ArrowRight, BookOpen, Mail, Lock } from 'lucide-react';
+import { Calculator, TrendingUp, AlertTriangle, CheckCircle, Info, ArrowRight, BookOpen, Mail, Lock, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
@@ -120,6 +120,15 @@ const AuctionCalculator: React.FC = () => {
   const [ibi, setIbi] = useState<number>(0);
   const [deudaComunidad, setDeudaComunidad] = useState<number>(0);
   const [isPro, setIsPro] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -183,17 +192,26 @@ const AuctionCalculator: React.FC = () => {
   }, []);
 
   const results = useMemo(() => {
+    const n = (val: number) => isNaN(val) ? 0 : val;
+    const adj = n(adjudicacion);
+    const mkt = n(valorMercado);
+    const ref = n(reforma);
+    const dbt = n(deudas);
+    const oth = n(otrosGastos);
+    const i = n(ibi);
+    const dc = n(deudaComunidad);
+
     const itpRate = ITP_RATES[comunidad] || 0.08;
-    const itp = adjudicacion * itpRate;
-    const registroNotaria = adjudicacion * 0.012;
+    const itp = adj * itpRate;
+    const registroNotaria = adj * 0.012;
     const gestoria = 500;
-    const costeTotalInversion = adjudicacion + itp + registroNotaria + gestoria + reforma + deudas + otrosGastos + ibi + deudaComunidad;
-    const beneficio = valorMercado - costeTotalInversion;
+    const costeTotalInversion = adj + itp + registroNotaria + gestoria + ref + dbt + oth + i + dc;
+    const beneficio = mkt - costeTotalInversion;
     const roi = costeTotalInversion > 0 ? (beneficio / costeTotalInversion) * 100 : 0;
-    const precioMaxPuja = (valorMercado * 0.7) - (itp + registroNotaria + gestoria + reforma + deudas + otrosGastos + ibi + deudaComunidad);
-    const margenSeguridad = valorMercado * 0.3; // Assuming 30% margin
-    const escenarioConservador = beneficio - (reforma * 0.2) - (costeTotalInversion * 0.03); // +20% reforma, +3% costes financieros/tiempo
-    const escenarioOptimista = beneficio + (reforma * 0.1); // Ahorro 10% reforma
+    const precioMaxPuja = (mkt * 0.7) - (itp + registroNotaria + gestoria + ref + dbt + oth + i + dc);
+    const margenSeguridad = mkt * 0.3;
+    const escenarioConservador = beneficio - (ref * 0.2) - (costeTotalInversion * 0.03);
+    const escenarioOptimista = beneficio + (ref * 0.1);
     
     return { itp, registroNotaria, gestoria, costeTotalInversion, beneficio, roi, precioMaxPuja, margenSeguridad, escenarioConservador, escenarioOptimista };
   }, [adjudicacion, valorMercado, reforma, comunidad, deudas, otrosGastos, ibi, deudaComunidad]);
@@ -215,26 +233,54 @@ const AuctionCalculator: React.FC = () => {
 
   const roiStatus = getRoiStatus(results.roi, results.beneficio);
 
-  const chartData = [
-    { 
-      name: 'Coste Total', 
-      Adjudicación: adjudicacion,
-      Impuestos: results.itp + results.registroNotaria + results.gestoria,
-      Reforma: reforma,
-      Deudas: deudas + ibi + deudaComunidad,
-      Otros: otrosGastos,
-      'Valor Mercado': 0
-    },
-    { 
-      name: 'Valor Mercado', 
-      Adjudicación: 0,
-      Impuestos: 0,
-      Reforma: 0,
-      Deudas: 0,
-      Otros: 0,
-      'Valor Mercado': valorMercado
-    },
-  ];
+  const chartData = useMemo(() => {
+    if (isMobile) {
+      return [
+        { 
+          name: 'Coste Total', 
+          Total: results.costeTotalInversion,
+          Adjudicación: 0,
+          Impuestos: 0,
+          Reforma: 0,
+          Deudas: 0,
+          Otros: 0,
+          'Valor Mercado': 0
+        },
+        { 
+          name: 'Valor Mercado', 
+          Total: 0,
+          Adjudicación: 0,
+          Impuestos: 0,
+          Reforma: 0,
+          Deudas: 0,
+          Otros: 0,
+          'Valor Mercado': valorMercado
+        },
+      ];
+    }
+    return [
+      { 
+        name: 'Coste Total', 
+        Total: 0,
+        Adjudicación: adjudicacion,
+        Impuestos: results.itp + results.registroNotaria + results.gestoria,
+        Reforma: reforma,
+        Deudas: deudas + ibi + deudaComunidad,
+        Otros: otrosGastos,
+        'Valor Mercado': 0
+      },
+      { 
+        name: 'Valor Mercado', 
+        Total: 0,
+        Adjudicación: 0,
+        Impuestos: 0,
+        Reforma: 0,
+        Deudas: 0,
+        Otros: 0,
+        'Valor Mercado': valorMercado
+      },
+    ];
+  }, [adjudicacion, valorMercado, reforma, deudas, ibi, deudaComunidad, otrosGastos, results, isMobile]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 pb-12 pt-12">
@@ -256,7 +302,7 @@ const AuctionCalculator: React.FC = () => {
         </div>
       )}
 
-      {hasData && !isDataIncoherent && (
+      {hasData && (
         <div className="mb-12 bg-gradient-to-br from-brand-900 to-slate-900 text-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl overflow-hidden relative border border-brand-800/50">
           <div className="absolute top-0 right-0 w-96 h-96 bg-brand-600 rounded-full -translate-y-1/2 translate-x-1/3 blur-[100px] opacity-30"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-400 rounded-full translate-y-1/2 -translate-x-1/2 blur-[80px] opacity-20"></div>
@@ -284,7 +330,7 @@ const AuctionCalculator: React.FC = () => {
                 <div className="text-6xl md:text-7xl font-bold mb-4 text-white/20 tracking-tighter blur-[8px] select-none">
                   € 145.000
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center">Aquí decides si ganas o pierdes dinero</h3>
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center">Aquí ves si esta subasta tiene margen real</h3>
                 <p className="text-slate-300 text-lg mb-10 text-center">Tu resultado real depende de tu puja. Desbloquea el escenario completo.</p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-stretch">
@@ -298,13 +344,13 @@ const AuctionCalculator: React.FC = () => {
                   >
                     <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">Pase 24h</div>
                     <div className="text-white font-bold text-3xl mb-2">5€</div>
-                    <p className="text-slate-400 text-sm mb-6 flex-grow">Analiza esta subasta con datos reales antes de pujar.</p>
+                    <p className="text-slate-400 text-sm mb-6 flex-grow">Para validar una oportunidad puntual.</p>
                     <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
                   </a>
 
                   {/* Monthly Plan (Highlighted) */}
                   <a 
-                    href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
+                    href="https://buy.stripe.com/00w00l52neOteKh4OsdjO01" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_monthly', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
@@ -315,15 +361,15 @@ const AuctionCalculator: React.FC = () => {
                     </div>
                     <div className="text-brand-100 text-sm font-bold uppercase tracking-wider mb-1">Ilimitado</div>
                     <div className="text-white font-bold text-3xl mb-2">19€<span className="text-lg font-normal text-brand-200">/mes</span></div>
-                    <p className="text-brand-100 text-sm mb-6 flex-grow">Para analizar varias subastas sin límites.</p>
+                    <p className="text-brand-100 text-sm mb-6 flex-grow">Para analizar varias subastas sin límite.</p>
                     <div className="bg-white text-brand-900 text-sm font-bold py-3 px-4 rounded-xl text-center group-hover:bg-brand-50 transition-colors">
-                      Empezar ahora
+                      Ver mi análisis completo
                     </div>
                   </a>
 
                   {/* Lifetime Plan */}
                   <a 
-                    href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
+                    href="https://buy.stripe.com/aFabJ31Qb6hX0Tr94IdjO02" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_lifetime', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
@@ -337,6 +383,16 @@ const AuctionCalculator: React.FC = () => {
                     <p className="text-slate-400 text-sm mb-6 flex-grow">Acceso completo permanente. Sin suscripciones.</p>
                     <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
                   </a>
+                </div>
+                
+                <div className="mt-8 flex flex-col items-center gap-2">
+                  <p className="text-slate-400 text-sm font-medium flex items-center gap-2">
+                    <ShieldCheck size={16} className="text-emerald-500" />
+                    Usado por inversores para evitar pagar de más en subastas
+                  </p>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                    Acceso inmediato tras el pago
+                  </p>
                 </div>
               </div>
             )}
@@ -359,6 +415,16 @@ const AuctionCalculator: React.FC = () => {
               <div className="text-3xl md:text-4xl font-bold mb-1 tracking-tighter drop-shadow-lg flex items-center gap-3">
                 {results.roi.toFixed(1)}<span className="text-xl md:text-2xl opacity-60 font-medium">%</span>
                 <div className={`w-3 h-3 rounded-full ${roiStatus.traffic} shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse`}></div>
+              </div>
+              <div className="mt-4 flex flex-col items-center gap-1">
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+                  Estimación — el resultado real depende de tu puja y estrategia
+                </p>
+                {!isPro && (
+                  <p className="text-[10px] text-brand-400 uppercase tracking-widest font-bold">
+                    Versión PRO muestra el cálculo real con todos los costes
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -446,7 +512,7 @@ const AuctionCalculator: React.FC = () => {
             </div>
 
             {/* Simulador de Puja */}
-            {hasData && !isDataIncoherent && (
+            {hasData && (
               <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
                 <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
                   <TrendingUp className="text-brand-600" size={20} />
@@ -503,13 +569,13 @@ const AuctionCalculator: React.FC = () => {
               <div className="w-6 h-6 bg-white rounded-full opacity-90 shadow-sm"></div>
             </div>
             <div>
-                <h3 className={`text-xl font-bold ${hasData && !isDataIncoherent ? roiStatus.color : 'text-slate-900'}`}>
-                  {hasData && !isDataIncoherent ? roiStatus.label : 'Estado de la inversión'}
+                <h3 className={`text-xl font-bold ${roiStatus.color || 'text-slate-900'}`}>
+                  {roiStatus.label}
                 </h3>
-                <p className={`text-sm mt-1 ${hasData && !isDataIncoherent ? roiStatus.color + ' opacity-80' : 'text-slate-600'}`}>
-                  {hasData && !isDataIncoherent ? roiStatus.alert : 'Basado en el ROI estimado y el margen de seguridad de la operación.'}
+                <p className={`text-sm mt-1 ${roiStatus.color ? roiStatus.color + ' opacity-80' : 'text-slate-600'}`}>
+                  {roiStatus.alert || 'Basado en el ROI estimado y el margen de seguridad de la operación.'}
                 </p>
-                {hasData && !isDataIncoherent && (roiStatus.label === 'Margen bajo' || roiStatus.label === 'Pérdida estimada') && (
+                {hasData && (roiStatus.label === 'Margen bajo' || roiStatus.label === 'Pérdida estimada') && (
                   <Link 
                     to={ROUTES.CONSULTORIA} 
                     onClick={() => trackConversion(comunidad, 'calculator', 'consultoria', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
@@ -526,16 +592,22 @@ const AuctionCalculator: React.FC = () => {
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-80">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <XAxis dataKey="name" />
-                    <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} />
+                    <XAxis dataKey="name" tick={{fontSize: isMobile ? 12 : 14}} />
+                    <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} tick={{fontSize: isMobile ? 10 : 12}} />
                     <Tooltip formatter={(value: any) => typeof value === 'number' ? value.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : value}/>
-                    <Legend />
-                    <Bar dataKey="Adjudicación" stackId="a" fill="#0f172a" />
-                    <Bar dataKey="Impuestos" stackId="a" fill="#334155" />
-                    <Bar dataKey="Reforma" stackId="a" fill="#475569" />
-                    <Bar dataKey="Deudas" stackId="a" fill="#64748b" />
-                    <Bar dataKey="Otros" stackId="a" fill="#94a3b8" />
-                    <Bar dataKey="Valor Mercado" stackId="b" fill="#10b981" />
+                    {!isMobile && <Legend />}
+                    {!isMobile ? (
+                      <>
+                        <Bar dataKey="Adjudicación" stackId="a" fill="#0f172a" />
+                        <Bar dataKey="Impuestos" stackId="a" fill="#334155" />
+                        <Bar dataKey="Reforma" stackId="a" fill="#475569" />
+                        <Bar dataKey="Deudas" stackId="a" fill="#64748b" />
+                        <Bar dataKey="Otros" stackId="a" fill="#94a3b8" />
+                      </>
+                    ) : (
+                      <Bar dataKey="Total" fill="#0f172a" radius={[4, 4, 0, 0]} />
+                    )}
+                    <Bar dataKey="Valor Mercado" stackId={isMobile ? undefined : "b"} fill="#10b981" radius={isMobile ? [4, 4, 0, 0] : undefined} />
                 </BarChart>
             </ResponsiveContainer>
           </div>
@@ -583,8 +655,9 @@ const AuctionCalculator: React.FC = () => {
                   <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Lock className="text-slate-400" size={24} />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Escenarios de riesgo bloqueados</h3>
-                  <p className="text-brand-600 font-bold text-sm bg-brand-50 py-1.5 px-3 rounded-lg inline-block mb-6">Tu resultado puede variar hasta ±40%</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Escenarios de rentabilidad</h3>
+                  <p className="text-brand-600 font-bold text-sm bg-brand-50 py-1.5 px-3 rounded-lg inline-block mb-2">Así varía tu beneficio según tu puja</p>
+                  <p className="text-slate-500 text-xs mb-6 font-medium italic">Aquí es donde se ve el margen real de la operación</p>
                   
                   <a 
                     href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
@@ -593,24 +666,24 @@ const AuctionCalculator: React.FC = () => {
                     onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_24h', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
                     className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full mb-3"
                   >
-                    Descubrir mi puja máxima real
+                    Ver mi análisis completo
                   </a>
-                  <p className="text-xs text-slate-500 font-medium">Acceso 24h desde 5€</p>
+                  <p className="text-xs text-slate-500 font-medium">Acceso inmediato tras el pago</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* EMAIL CAPTURE */}
-          {hasData && !isDataIncoherent && (
+          {hasData && (
             <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-xl mt-8 text-white">
               <div className="flex items-start gap-4 mb-6">
                 <div className="bg-brand-500/20 p-3 rounded-2xl">
                   <Mail className="text-brand-400" size={24} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mb-1">Guarda este análisis</h3>
-                  <p className="text-slate-400 text-sm">Recibe un resumen detallado con los escenarios y el cálculo de rentabilidad en tu email.</p>
+                  <h3 className="text-xl font-bold mb-1">¿No tienes claro si es buena oportunidad?</h3>
+                  <p className="text-slate-400 text-sm">Te explicamos cómo interpretar este resultado antes de pujar</p>
                 </div>
               </div>
               
@@ -620,49 +693,50 @@ const AuctionCalculator: React.FC = () => {
                   <span className="font-medium">¡Análisis enviado correctamente! Revisa tu bandeja de entrada.</span>
                 </div>
               ) : (
-                <form 
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    if (!email) return;
-                    setIsSubmitting(true);
-                    const success = await subscribeToMailerLite({
-                      email,
-                      fields: {
-                        roi_type: roiStatus.label,
-                        source: 'Calculadora Subastas',
-                        roi: results.roi.toFixed(1),
-                        precio: adjudicacion,
-                        tipo_subasta: 'Judicial'
-                      }
-                    });
-                    
-                    trackConversion(comunidad, 'calculator', 'email_submit', { 
-                      roi: results.roi.toFixed(1), 
-                      precio: adjudicacion, 
-                      tipo_subasta: 'Judicial' 
-                    });
-                    
-                    setIsSubmitting(false);
-                    if (success) setIsSubscribed(true);
-                  }}
-                  className="flex flex-col sm:flex-row gap-3"
-                >
-                  <input 
-                    type="email" 
-                    placeholder="Tu mejor email..." 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  />
-                  <button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    className="bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                <div className="space-y-3">
+                  <form 
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (!email) return;
+                      setIsSubmitting(true);
+                      const success = await subscribeToMailerLite({
+                        email,
+                        fields: {
+                          source: 'Calculadora Subastas'
+                        }
+                      });
+                      
+                      trackConversion(comunidad, 'calculator', 'email_submit', { 
+                        roi: results.roi.toFixed(1), 
+                        precio: adjudicacion, 
+                        tipo_subasta: 'Judicial' 
+                      });
+                      
+                      setIsSubmitting(false);
+                      if (success) setIsSubscribed(true);
+                    }}
+                    className="flex flex-col sm:flex-row gap-3"
                   >
-                    {isSubmitting ? 'Enviando...' : 'Enviar análisis'}
-                  </button>
-                </form>
+                    <input 
+                      type="email" 
+                      placeholder="Tu mejor email..." 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    />
+                    <button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className="bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-6 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {isSubmitting ? 'Enviando...' : 'Recibir recomendaciones'}
+                    </button>
+                  </form>
+                  <p className="text-[10px] text-slate-500 text-center sm:text-left px-1">
+                    Sin spam · solo contenido útil para tomar decisiones
+                  </p>
+                </div>
               )}
             </div>
           )}

@@ -353,6 +353,28 @@ const AuctionPage: React.FC = () => {
                   </span>
                 </div>
               </div>
+
+              <div className="mt-6 flex flex-col items-center md:items-start gap-2">
+                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                  <Link 
+                    to={`${ROUTES.CALCULATOR}?mercado=${valorMercado}&deudas=${deudas}&ccaa=${provinceName}&tasacion=${auction.appraisalValue || ''}`}
+                    onClick={() => trackConversion(auction.province || 'unknown', 'ficha', 'calculator_from_card_click', { precio: deudas || 0 })}
+                    className="inline-flex items-center gap-2 text-sm font-bold text-brand-600 hover:text-brand-700 transition-colors group/calc bg-brand-50/50 px-4 py-2 rounded-lg border border-brand-100/50"
+                  >
+                    <Calculator size={16} className="group-hover/calc:scale-110 transition-transform" />
+                    Ver mi puja máxima real
+                  </Link>
+                  
+                  <span className={`text-[11px] font-bold uppercase tracking-wider ${opportunityRatio && opportunityRatio >= 0.2 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    {opportunityRatio && (opportunityRatio >= 0.2 || auction.claimedDebt === 0) 
+                      ? "✨ Esta oportunidad puede ser rentable" 
+                      : "⚠️ Podrías estar pagando de más"}
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 font-medium pl-1">
+                  En menos de 10 segundos
+                </p>
+              </div>
             </header>
 
             {/* Auction Result Banner */}
@@ -471,9 +493,13 @@ const AuctionPage: React.FC = () => {
 
             {/* Secondary CTA */}
             <div className="text-center mb-16">
-              <a href="/calculadora" className="inline-block bg-brand-600 text-white font-bold py-4 px-8 rounded-full hover:bg-brand-700 transition shadow-md">
-                Calcula tu puja o analiza esta subasta en detalle →
-              </a>
+              <Link 
+                to={`${ROUTES.CALCULATOR}?mercado=${valorMercado}&deudas=${deudas}&ccaa=${provinceName}&tasacion=${auction.appraisalValue || ''}`}
+                onClick={() => trackConversion(auction.province || 'unknown', 'ficha', 'calculator')}
+                className="inline-block bg-brand-600 text-white font-bold py-4 px-8 rounded-full hover:bg-brand-700 transition shadow-md"
+              >
+                Analizar esta subasta en detalle
+              </Link>
             </div>
 
             {/* Analysis Block */}

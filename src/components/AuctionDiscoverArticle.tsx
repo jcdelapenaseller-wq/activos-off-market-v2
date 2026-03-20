@@ -3,7 +3,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
 import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { ROUTES } from '../constants/routes';
-import { Calendar, User, MapPin, CircleDollarSign, Landmark, TrendingDown, Clock, MessageSquare, ExternalLink, ShieldCheck, Info, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Calendar, User, MapPin, CircleDollarSign, Landmark, TrendingDown, Clock, MessageSquare, ExternalLink, ShieldCheck, Info, ArrowLeft, ArrowRight, Calculator } from 'lucide-react';
 import { generateDiscoverTitle } from '../utils/discoverTitles';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import { normalizeCity, normalizeProvince } from '../utils/auctionNormalizer';
@@ -221,6 +221,31 @@ const AuctionDiscoverArticle: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* CTA Calculadora Editorial */}
+        <section className="bg-slate-50 border border-slate-100 rounded-3xl p-8 mb-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-600 shrink-0">
+              <Calculator size={24} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-900">¿Cuál sería una puja razonable en esta subasta?</h3>
+              <p className="text-slate-600 text-sm">Calcula tu puja máxima real con los datos de este inmueble</p>
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Link 
+              to={`${ROUTES.CALCULATOR}?tasacion=${auction.appraisalValue || ''}&precio=${auction.claimedDebt || ''}&ccaa=${provinceName}&city=${cityName}`}
+              onClick={() => trackConversion(provinceName, 'discover', 'calculator', { precio: auction.claimedDebt || 0 })}
+              className="bg-brand-600 text-white font-bold py-3.5 px-8 rounded-xl hover:bg-brand-700 transition-all shadow-md hover:shadow-brand-500/20 flex items-center gap-2 whitespace-nowrap"
+            >
+              Calcular mi puja máxima real <ArrowRight size={18} />
+            </Link>
+            <span className="text-[10px] text-slate-500 font-medium">
+              En menos de 10 segundos
+            </span>
+          </div>
+        </section>
 
         <section className="mb-10">
           <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">Qué está pasando con las subastas en {cityName}</h2>

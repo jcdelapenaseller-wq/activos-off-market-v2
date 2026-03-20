@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, DollarSign, ChevronRight, Percent } from 'lucide-react';
+import { MapPin, DollarSign, ChevronRight, Percent, Calculator } from 'lucide-react';
 import { AuctionData } from '../data/auctions';
 import { isAuctionFinished, getComputedStatus, isConflictZone } from '../utils/auctionHelpers';
 import { normalizeLocationLabel, normalizePropertyType, normalizeCity, normalizeProvince } from '../utils/auctionNormalizer';
 import { ROUTES } from '../constants/routes';
+import { trackConversion } from '../utils/tracking';
 
 interface AuctionCardProps {
   slug: string;
@@ -206,6 +207,18 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
                 <span className="font-bold text-slate-700">💸 {pricePerM2.toLocaleString('es-ES')} €/m²</span>
               </div>
             ) : null}
+
+            <Link 
+              to={`${ROUTES.CALCULATOR}?tasacion=${valorReferencia || 0}&precio=${cantidadReclamada || 0}&ccaa=${province}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                trackConversion(province, 'listing', 'calculator_from_card_click', { precio: cantidadReclamada || 0 });
+              }}
+              className="mt-3 pt-3 border-t border-slate-200/60 flex items-center justify-center gap-1.5 text-[11px] font-bold text-brand-600 hover:text-brand-700 transition-colors group/calc"
+            >
+              <Calculator size={14} className="group-hover/calc:scale-110 transition-transform" />
+              Calcular puja máxima
+            </Link>
           </div>
         </div>
 
