@@ -22,14 +22,14 @@ const getStatus = (date?: string) => {
   const d = new Date(date);
   const today = new Date();
   if (isAuctionFinished(date)) return { label: 'Finalizada', sentence: 'Resumen de resultados de la subasta.' };
-  if (d > today) return { label: 'En preparación', sentence: 'Análisis previo a la apertura.' };
+  if (d > today) return { label: 'Próximamente', sentence: 'Análisis previo a la apertura.' };
   return { label: 'Activa', sentence: 'Análisis de la oportunidad actual.' };
 };
 
 const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug, index = 0 }) => {
   const discount = calculateDiscount(auction.valorTasacion, auction.valorSubasta, auction.claimedDebt);
   const titleData = discount ? `${discount}% descuento` : `Valor: ${formatCurrency(auction.valorTasacion || auction.valorSubasta)}`;
-  const imageUrl = getImageForPropertyType(auction.propertyType, slug, index);
+  const imageUrl = getImageForPropertyType(auction.propertyType, slug, index, []);
   const status = getStatus(auction.auctionDate);
   const formattedDate = auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'N/A';
 
@@ -44,7 +44,7 @@ const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug, index = 
             referrerPolicy="no-referrer"
           />
           <div className="absolute top-4 left-4 flex gap-2">
-            <span className={`text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow-lg ${status.label === 'Activa' ? 'bg-emerald-600 text-white' : status.label === 'En preparación' ? 'bg-blue-600 text-white' : 'bg-slate-600 text-white'}`}>
+            <span className={`text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow-lg ${status.label === 'Activa' ? 'bg-emerald-600 text-white' : status.label === 'Próximamente' ? 'bg-blue-600 text-white' : 'bg-slate-600 text-white'}`}>
               {status.label}
             </span>
             {AUCTION_RESULTS[slug] && (

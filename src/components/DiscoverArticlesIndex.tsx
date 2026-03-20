@@ -51,6 +51,7 @@ const DiscoverArticlesIndex: React.FC = () => {
 
     const provinceArticles: any[] = [];
     let dayOffset = 0;
+    const usedImages: string[] = [];
 
     // 2. For each province, generate variants based on volume
     Array.from(provincesMap.entries()).forEach(([province, stats], pIndex) => {
@@ -69,6 +70,10 @@ const DiscoverArticlesIndex: React.FC = () => {
       ];
       const oppTitle = oppTitles[provinceSeed % oppTitles.length].substring(0, 90);
 
+      const oppImg = getImageForPropertyType('default', `${slugBase}-0-${province}`, 0, usedImages);
+      usedImages.push(oppImg);
+      if (usedImages.length > 6) usedImages.shift();
+
       provinceArticles.push({
         id: `${slugBase}-opportunity`,
         url: `/noticias-subastas/provincia/${slugBase}/oportunidades`,
@@ -76,7 +81,7 @@ const DiscoverArticlesIndex: React.FC = () => {
         excerpt: `El mercado de subastas en ${province} acaba de actualizarse. Se han seleccionado ${stats.count} oportunidades activas hoy con grandes descuentos.`,
         date: stats.latestPublished,
         lastChecked: stats.latestChecked,
-        imageUrl: getImageForPropertyType('default', province, pIndex * 3 + 0),
+        imageUrl: oppImg,
         tag: 'Oportunidad',
         tagColor: 'bg-brand-600'
       });
@@ -88,6 +93,11 @@ const DiscoverArticlesIndex: React.FC = () => {
           `Si buscas en ${province}, estas ${stats.count} subastas (-${stats.maxDiscount}%) están a punto de desaparecer`,
           `Última ventana en ${province}: ${stats.count} subastas clave cierran hoy`
         ];
+        
+        const urgImg = getImageForPropertyType('default', `${slugBase}-1-${province}`, 0, usedImages);
+        usedImages.push(urgImg);
+        if (usedImages.length > 6) usedImages.shift();
+
         provinceArticles.push({
           id: `${slugBase}-urgency`,
           url: `/noticias-subastas/provincia/${slugBase}/hoy`,
@@ -95,7 +105,7 @@ const DiscoverArticlesIndex: React.FC = () => {
           excerpt: `El tiempo es clave en las subastas judiciales. Hoy tenemos ${stats.count} expedientes activos en la provincia de ${province}. Revisa estas oportunidades antes de que finalice el plazo.`,
           date: stats.latestPublished,
           lastChecked: stats.latestChecked,
-          imageUrl: getImageForPropertyType('default', province, pIndex * 3 + 1),
+          imageUrl: urgImg,
           tag: 'Última hora',
           tagColor: 'bg-red-600'
         });
@@ -108,6 +118,11 @@ const DiscoverArticlesIndex: React.FC = () => {
           `Se disparan las subastas en ${province}: varias viviendas (-${stats.maxDiscount}%) muy por debajo de mercado`,
           `Análisis de ${stats.count} subastas en ${province}: ¿dónde está el margen real?`
         ];
+        
+        const anaImg = getImageForPropertyType('default', `${slugBase}-2-${province}`, 0, usedImages);
+        usedImages.push(anaImg);
+        if (usedImages.length > 6) usedImages.shift();
+
         provinceArticles.push({
           id: `${slugBase}-analysis`,
           url: `/noticias-subastas/provincia/${slugBase}/donde-invertir`,
@@ -115,7 +130,7 @@ const DiscoverArticlesIndex: React.FC = () => {
           excerpt: `¿Buscando rentabilidad en ${province}? Analizamos el estado actual de las subastas públicas en la región. Con ${stats.count} activos disponibles, el mercado ofrece opciones estratégicas.`,
           date: stats.latestPublished,
           lastChecked: stats.latestChecked,
-          imageUrl: getImageForPropertyType('default', province, pIndex * 3 + 2),
+          imageUrl: anaImg,
           tag: 'Análisis',
           tagColor: 'bg-slate-800'
         });
@@ -126,19 +141,6 @@ const DiscoverArticlesIndex: React.FC = () => {
     // 3. Add individual auction articles (Top 5 by discount)
     const activeAuctionEntries = Object.entries(AUCTIONS).filter(([_, a]) => !isAuctionFinished(a.auctionDate));
     
-    const topIndividualAuctions = activeAuctionEntries
-      .map(([slug, data]) => {
-        const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue;
-        const cantidadReclamada = data.claimedDebt;
-        const discount = (valorReferencia && cantidadReclamada !== undefined && cantidadReclamada !== null && valorReferencia > cantidadReclamada) 
-          ? Math.round(((valorReferencia - cantidadReclamada) / valorReferencia) * 100)
-          : 0;
-        return { slug, data, discount };
-      })
-      .filter(a => a.discount > 30 && a.discount < 85)
-      .sort((a, b) => b.discount - a.discount)
-      .slice(0, 5);
-
     const auctionArticles = activeAuctionEntries
       .map(([slug, data]) => {
         const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue;
@@ -170,6 +172,10 @@ const DiscoverArticlesIndex: React.FC = () => {
           `Lo que oculta la subasta de este ${type} en ${location}: precio vs valor real`
         ];
         const title = titles[item.slug.length % titles.length].substring(0, 90);
+        
+        const aucImg = getImageForPropertyType(item.data.propertyType, item.slug, index, usedImages);
+        usedImages.push(aucImg);
+        if (usedImages.length > 6) usedImages.shift();
 
         return {
           id: `auction-${item.slug}`,
@@ -178,7 +184,7 @@ const DiscoverArticlesIndex: React.FC = () => {
           excerpt: `Analizamos en profundidad la subasta de este ${type} en ${location}. Con un valor de tasación de ${Math.round((item.data.valorTasacion || item.data.appraisalValue || 0) / 1000)}k€, el margen es notable.`,
           date: date,
           lastChecked: lastChecked,
-          imageUrl: getImageForPropertyType(item.data.propertyType, item.slug, index),
+          imageUrl: aucImg,
           tag: 'Análisis Activo',
           tagColor: 'bg-emerald-600'
         };

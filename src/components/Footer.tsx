@@ -77,6 +77,7 @@ const Footer: React.FC = () => {
             <h4 className="text-white font-bold text-lg mb-6 border-b border-slate-900 pb-2 w-fit">Navegación</h4>
             <ul className="space-y-3 text-sm">
               <li><Link to={ROUTES.RECENT_AUCTIONS} className="hover:text-white transition-colors">Subastas Recientes</Link></li>
+              <li><Link to={ROUTES.NOTICIAS_SUBASTAS_INDEX} className="hover:text-white transition-colors">Noticias de subastas</Link></li>
               <li><Link to={ROUTES.HISTORICAL_AUCTIONS} className="hover:text-white transition-colors">Histórico de Subastas</Link></li>
               <li><Link to={ROUTES.ABOUT} className="hover:text-white transition-colors">Sobre mí</Link></li>
               <li><a href="#como-te-ayudo" onClick={(e) => handleNavClick(e, '#como-te-ayudo')} className="hover:text-white transition-colors">Servicios</a></li>

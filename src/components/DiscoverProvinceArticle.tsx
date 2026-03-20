@@ -11,6 +11,7 @@ import { AuctionCard } from './AuctionCard';
 import PremiumValueBlock from './PremiumValueBlock';
 import Header from './Header';
 import Footer from './Footer';
+import TelegramCTA from './TelegramCTA';
 import { getImageForPropertyType } from '../constants/auctionImages';
 
 interface Props {
@@ -79,7 +80,7 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
     const d = new Date(date);
     const today = new Date();
     if (isAuctionFinished(date)) return { label: 'Finalizada', sentence: 'Resumen de resultados de la subasta.' };
-    if (d > today) return { label: 'En preparación', sentence: 'Análisis previo a la apertura.' };
+    if (d > today) return { label: 'Próximamente', sentence: 'Análisis previo a la apertura.' };
     return { label: 'Activa', sentence: 'Análisis de la oportunidad actual.' };
   };
 
@@ -108,6 +109,8 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
           body: `
             <p class="mb-8 leading-8">La parálisis administrativa suele dar paso a cierres masivos de expedientes, y hoy estamos viviendo uno de esos momentos críticos en la provincia. Participar en una subasta que termina hoy requiere rapidez, pero sobre todo precisión técnica.</p>
             
+            <div id="telegram-cta-mid"></div>
+
             <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">📊 El contexto de hoy</h3>
             <p class="mb-8 leading-8">En el mercado de <strong>${provinceName}</strong>, hemos observado una tendencia recurrente: la agrupación de fechas de finalización suele dispersar la atención de los postores habituales.</p>
             <p class="mb-8 leading-8">Esto permite que activos de alta calidad, como el <strong>${bestType}</strong> detectado en <strong>${bestCity}</strong>, puedan quedar con menos competencia de la esperada en los minutos finales.</p>
@@ -333,27 +336,21 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
           <div className="prose prose-lg prose-slate max-w-none">
             <p className="lead text-xl text-slate-700 font-medium mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: content.intro }} />
             
-            {/* CTA Calculadora Integrado */}
-            <div className="my-10 p-8 bg-slate-900 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-8 not-prose shadow-2xl relative overflow-hidden group">
-              <div className="relative z-10 text-center md:text-left">
-                <p className="text-brand-400 font-bold text-xs uppercase tracking-widest mb-2">Herramienta Gratuita</p>
-                <p className="text-xl font-bold mb-1">¿Cuánto deberías pujar?</p>
-                <p className="text-slate-400 text-sm">Calcula tu rentabilidad real y evita errores costosos.</p>
-              </div>
-              <Link 
-                to={ROUTES.CALCULATOR}
-                onClick={() => trackConversion(provinceName, 'discover', 'calculator')}
-                className="relative z-10 bg-white text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-brand-50 transition-all whitespace-nowrap shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Abrir Calculadora
-              </Link>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full -translate-y-16 translate-x-16 blur-3xl group-hover:bg-brand-500/20 transition-colors"></div>
-            </div>
+            <div id="telegram-cta-mid"></div>
 
-            <div 
-              className="text-slate-600 mb-12 leading-9"
-              dangerouslySetInnerHTML={{ __html: content.body }}
-            />
+            {content?.body && (
+              <>
+                <div 
+                  className="text-slate-600 mb-12 leading-9"
+                  dangerouslySetInnerHTML={{ __html: content.body.split('<div id="telegram-cta-mid"></div>')[0] || '' }}
+                />
+                <TelegramCTA />
+                <div 
+                  className="text-slate-600 mb-12 leading-9"
+                  dangerouslySetInnerHTML={{ __html: content.body.split('<div id="telegram-cta-mid"></div>')[1] || '' }}
+                />
+              </>
+            )}
 
             {/* Resumen técnico para E-E-A-T */}
             <div className="bg-slate-50 rounded-2xl p-6 mb-10 border border-slate-200 not-prose grid grid-cols-2 md:grid-cols-4 gap-6">

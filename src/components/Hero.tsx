@@ -36,7 +36,7 @@ const Hero: React.FC = () => {
           </p>
           
           <p className="text-lg md:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
-             Yo te ayudo a <strong>ganar tiempo</strong> y <strong>minimizar riesgos</strong> antes de que pongas un euro sobre la mesa. Filtro y analizo las subastas públicas (BOE, AEAT) para que tú solo decidas.
+             Ahorra tiempo y minimiza riesgos antes de poner un euro sobre la mesa. Filtramos y analizamos las subastas públicas (BOE, AEAT) para que la decisión final sea tuya.
           </p>
 
           {/* Metrics Bar */}
@@ -120,7 +120,7 @@ const Hero: React.FC = () => {
                 </div>
                 <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-blue-700 transition-colors">Oportunidades filtradas</h3>
                 <p className="text-xl text-slate-600 leading-relaxed">
-                    Publico en el canal gratuito nuevas subastas ya seleccionadas. Sin ruido. Solo lo que tiene sentido económico.
+                    Seleccionamos las mejores subastas para el canal gratuito. Sin ruido, solo activos con verdadero sentido económico.
                 </p>
             </div>
 
@@ -133,7 +133,7 @@ const Hero: React.FC = () => {
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-emerald-700 transition-colors">Análisis profundo</h3>
                     <p className="text-xl text-slate-600 leading-relaxed">
-                        Cargas ocultas, situación posesoria (ocupación) y números reales antes de que decidas pujar.
+                        Identificamos cargas ocultas, analizamos la situación posesoria y calculamos números reales antes de cualquier decisión de puja.
                     </p>
                 </div>
             </div>
@@ -145,7 +145,7 @@ const Hero: React.FC = () => {
                 </div>
                 <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-orange-700 transition-colors">Servicio personal</h3>
                 <p className="text-xl text-slate-600 leading-relaxed">
-                   Analizo subastas públicas con datos verificados y criterio jurídico. Sin conflictos de interés.
+                   Análisis de subastas públicas con datos verificados y criterio jurídico independiente. Sin conflictos de interés.
                 </p>
             </div>
         </div>

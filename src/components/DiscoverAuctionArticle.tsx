@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
-import { Calendar, ChevronRight, TrendingUp, MapPin, ArrowRight, Calculator, ShieldCheck, Zap } from 'lucide-react';
+import { Calendar, ChevronRight, TrendingUp, MapPin, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import { normalizePropertyType } from '../utils/auctionNormalizer';
@@ -16,6 +16,7 @@ import { AuctionCard } from './AuctionCard';
 import PremiumValueBlock from './PremiumValueBlock';
 import Header from './Header';
 import Footer from './Footer';
+import TelegramCTA from './TelegramCTA';
 
 const DiscoverAuctionArticle: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -64,15 +65,17 @@ const DiscoverAuctionArticle: React.FC = () => {
     return {
       title,
       meta: `Analizamos la subasta de un ${type} en ${location}. Valor de tasación: ${formatCurrency(stats.valorReferencia)}. Deuda reclamada: ${formatCurrency(stats.cantidadReclamada)}.`,
-      intro: `Este **${type}** en **${location}** acaba de aparecer con un descuento del **${discount}%**... y hay un detalle financiero que cambia todo. No es un caso aislado: la mayoría de los inversores no está viendo este margen de beneficio.`,
+      intro: `Este ${type} en ${location} acaba de aparecer con un descuento del ${discount}%... y hay un detalle financiero que cambia todo. No es un caso aislado: la mayoría de los inversores no está viendo este margen de beneficio.`,
       body: `
         <p class="mb-8 leading-8">Este tipo de activos suelen pasar desapercibidos en el BOE debido a la falta de análisis técnico y la complejidad de los expedientes judiciales.</p>
-        <p class="mb-8 leading-8">Tras revisar minuciosamente la documentación de este <strong>${type}</strong> en <strong>${location}</strong>, observamos que la configuración de cargas lo convierte en una pieza codiciada.</p>
+        <p class="mb-8 leading-8">Tras revisar minuciosamente la documentación de este ${type} en ${location}, observamos que la configuración de cargas lo convierte en una pieza codiciada.</p>
         
         <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">📊 Análisis de rentabilidad</h3>
         <p class="mb-8 leading-8">La clave de esta operación reside en la asimetría entre el valor de mercado real en la zona de ${location} y la carga que origina la subasta.</p>
         <p class="mb-8 leading-8">Con un valor de tasación de ${formatCurrency(stats.valorReferencia)}, el margen de seguridad es lo suficientemente amplio como para absorber todos los costes.</p>
         
+        <div id="telegram-cta-mid"></div>
+
         <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">🔍 Contexto del inversor</h3>
         <p class="mb-8 leading-8">Desde el punto de vista del inversor, la ubicación en ${location} sugiere una demanda estable y una liquidez de salida rápida.</p>
         <p class="mb-8 leading-8">El análisis del entorno confirma que activos similares se están transaccionando a precios que validan la oportunidad técnica detectada.</p>
@@ -208,27 +211,19 @@ const DiscoverAuctionArticle: React.FC = () => {
           <div className="prose prose-lg prose-slate max-w-none">
             <p className="lead text-xl text-slate-700 font-medium mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: content?.intro || '' }} />
             
-            {/* CTA Calculadora Integrado */}
-            <div className="my-10 p-8 bg-slate-900 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-8 not-prose shadow-2xl relative overflow-hidden group">
-              <div className="relative z-10 text-center md:text-left">
-                <p className="text-brand-400 font-bold text-xs uppercase tracking-widest mb-2">Herramienta Gratuita</p>
-                <p className="text-xl font-bold mb-1">¿Es rentable esta puja?</p>
-                <p className="text-slate-400 text-sm">Introduce los datos de esta subasta y obtén tu margen neto.</p>
-              </div>
-              <Link 
-                to={ROUTES.CALCULATOR}
-                onClick={() => trackConversion(stats?.location || '', 'discover-auction', 'calculator')}
-                className="relative z-10 bg-white text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-brand-50 transition-all whitespace-nowrap shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Abrir Calculadora
-              </Link>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full -translate-y-16 translate-x-16 blur-3xl group-hover:bg-brand-500/20 transition-colors"></div>
-            </div>
-
-            <div 
-              className="text-slate-600 mb-12 leading-9"
-              dangerouslySetInnerHTML={{ __html: content?.body || '' }}
-            />
+            {content?.body && (
+              <>
+                <div 
+                  className="text-slate-600 mb-12 leading-9"
+                  dangerouslySetInnerHTML={{ __html: content.body.split('<div id="telegram-cta-mid"></div>')[0] || '' }}
+                />
+                <TelegramCTA />
+                <div 
+                  className="text-slate-600 mb-12 leading-9"
+                  dangerouslySetInnerHTML={{ __html: content.body.split('<div id="telegram-cta-mid"></div>')[1] || '' }}
+                />
+              </>
+            )}
 
             {/* Tabla de datos reales */}
             <div className="bg-slate-50 rounded-2xl p-8 mb-10 border border-slate-200 not-prose">
