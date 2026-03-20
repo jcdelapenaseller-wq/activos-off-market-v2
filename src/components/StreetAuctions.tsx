@@ -81,7 +81,7 @@ const StreetAuctions: React.FC = () => {
         streets.add(a.address);
       }
     });
-    return Array.from(streets).sort().slice(0, 5);
+    return Array.from(streets).sort().slice(0, 7);
   }, [province, zone, street]);
 
   useEffect(() => {

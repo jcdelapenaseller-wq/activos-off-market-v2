@@ -53,12 +53,12 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2026-258001",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258001&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,-50-50",
     publishedAt: "2026-03-03",
-    lastCheckedAt: "2026-03-20T13:49:40.498Z",
+    lastCheckedAt: "2026-03-20T14:37:22.118Z",
     startDate: "2026-03-03",
     auctionDate: "2026-03-23",
     status: "active",
     isActive: true,
-    isNew: true
+    isNew: false
   },
   'subasta-sub-ja-2026-257184': {
     propertyType: "Piso",
@@ -78,12 +78,12 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2026-257184",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-257184&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,-50-50",
     publishedAt: "2026-03-03",
-    lastCheckedAt: "2026-03-20T13:49:40.498Z",
+    lastCheckedAt: "2026-03-20T14:37:22.116Z",
     startDate: "2026-03-03",
     auctionDate: "2026-03-23",
     status: "active",
     isActive: true,
-    isNew: true
+    isNew: false
   },
   'subasta-sub-at-2026-25r4186001875': {
     propertyType: "Nave",
@@ -655,11 +655,12 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2026-257960",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-257960&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-05",
-    lastCheckedAt: "2026-03-20T13:49:40.497Z",
+    lastCheckedAt: "2026-03-20T14:37:22.115Z",
     startDate: "2026-03-05",
     auctionDate: "2026-03-25",
     status: "active",
-    isActive: true
+    isActive: true,
+    isNew: false
   },
   'subasta-sub-at-2026-25r2886001859': {
     propertyType: "Piso",
@@ -679,11 +680,12 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-AT-2026-25R2886001859",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-25R2886001859&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-10",
-    lastCheckedAt: "2026-03-20T13:49:40.494Z",
+    lastCheckedAt: "2026-03-20T14:37:22.112Z",
     startDate: "2026-03-10",
     auctionDate: "2026-03-30",
     status: "active",
-    isActive: true
+    isActive: true,
+    isNew: false
   },
   'subasta-sub-at-2026-25r2886001856': {
     propertyType: "Piso",
@@ -703,11 +705,12 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-AT-2026-25R2886001856",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-25R2886001856&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-10",
-    lastCheckedAt: "2026-03-20T13:49:40.495Z",
+    lastCheckedAt: "2026-03-20T14:37:22.111Z",
     startDate: "2026-03-10",
     auctionDate: "2026-03-30",
     status: "active",
-    isActive: true
+    isActive: true,
+    isNew: false
   },
   'subasta-sub-at-2026-25r2886001854': {
     propertyType: "Piso",
@@ -727,11 +730,12 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-AT-2026-25R2886001854",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-25R2886001854&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-10",
-    lastCheckedAt: "2026-03-20T13:49:40.492Z",
+    lastCheckedAt: "2026-03-20T14:37:22.109Z",
     startDate: "2026-03-10",
     auctionDate: "2026-03-30",
     status: "active",
-    isActive: true
+    isActive: true,
+    isNew: false
   },
   'subasta-sub-ja-2025-256239': {
     propertyType: "Nave",
@@ -751,11 +755,12 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2025-256239",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-256239&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-12",
-    lastCheckedAt: "2026-03-20T13:49:40.491Z",
+    lastCheckedAt: "2026-03-20T14:37:22.108Z",
     startDate: "2026-03-12",
     auctionDate: "2026-04-01",
     status: "active",
-    isActive: true
+    isActive: true,
+    isNew: false
   },
   'subasta-sub-ja-2026-258904': {
     propertyType: "Piso",
@@ -775,11 +780,12 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2026-258904",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258904&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-17",
-    lastCheckedAt: "2026-03-20T13:49:40.488Z",
+    lastCheckedAt: "2026-03-20T14:37:22.105Z",
     startDate: "2026-03-17",
     auctionDate: "2026-04-06",
     status: "active",
-    isActive: true
+    isActive: true,
+    isNew: false
   },
   'subasta-sub-ja-2026-258340': {
     propertyType: "Piso",
