@@ -10,7 +10,7 @@ import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 import { AuctionCard } from './AuctionCard';
 import { AuctionFilters } from './AuctionFilters';
 import { AuctionData } from '../data/auctions';
-import { isAuctionFinished, sortAuctions, isAuctionActive } from '../utils/auctionHelpers';
+import { isAuctionFinished, sortAuctions, isAuctionActive, calculateDiscount } from '../utils/auctionHelpers';
 import { normalizePropertyType as normalizeTypeLabel, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
 
@@ -87,12 +87,15 @@ const CityPropertyAuctions: React.FC = () => {
 
   const metrics = useMemo(() => {
     const count = sortedAuctions.length;
-    if (count === 0) return { count: 0, avgAppraisal: 0, avgDebt: 0 };
+    if (count === 0) return { count: 0, avgAppraisal: 0, avgDebt: 0, avgDiscount: 0, dominantType: 'N/D' };
 
     let totalAppraisal = 0;
     let totalDebt = 0;
     let appraisalCount = 0;
     let debtCount = 0;
+    let totalDiscount = 0;
+    let discountCount = 0;
+    const typeCounts: Record<string, number> = {};
 
     sortedAuctions.forEach(([_, data]: [string, any]) => {
       if (data.appraisalValue) {
@@ -103,12 +106,23 @@ const CityPropertyAuctions: React.FC = () => {
         totalDebt += data.claimedDebt;
         debtCount++;
       }
+      const discount = calculateDiscount(data.valorTasacion, data.valorSubasta, data.claimedDebt);
+      if (discount !== null) {
+        totalDiscount += discount;
+        discountCount++;
+      }
+      const type = data.propertyType || 'Otros';
+      typeCounts[type] = (typeCounts[type] || 0) + 1;
     });
+
+    const dominantType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Vivienda';
 
     return {
       count,
       avgAppraisal: appraisalCount > 0 ? totalAppraisal / appraisalCount : 0,
-      avgDebt: debtCount > 0 ? totalDebt / debtCount : 0
+      avgDebt: debtCount > 0 ? totalDebt / debtCount : 0,
+      avgDiscount: discountCount > 0 ? totalDiscount / discountCount : 0,
+      dominantType
     };
   }, [sortedAuctions]);
 
@@ -186,6 +200,22 @@ const CityPropertyAuctions: React.FC = () => {
             Subastas de {propertyType} en {province}
           </h1>
 
+          {/* Summary Block */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <p className="text-xs text-slate-500 uppercase font-bold">Subastas activas</p>
+              <p className="text-2xl font-bold text-slate-900">{metrics.count}</p>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <p className="text-xs text-slate-500 uppercase font-bold">Descuento medio</p>
+              <p className="text-2xl font-bold text-slate-900">{metrics.avgDiscount.toFixed(0)}%</p>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <p className="text-xs text-slate-500 uppercase font-bold">Activo dominante</p>
+              <p className="text-2xl font-bold text-slate-900 capitalize">{metrics.dominantType}</p>
+            </div>
+          </div>
+
           <AuctionFilters auctions={initialFiltered} onFilteredChange={setUserFiltered} />
 
           {activeCount > 0 && (
@@ -231,6 +261,16 @@ const CityPropertyAuctions: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Double CTA */}
+          <div className="flex flex-wrap gap-4 mb-12">
+            <Link to="/calculadora-subastas" className="bg-brand-600 text-white font-bold py-3 px-6 rounded-full hover:bg-brand-700 transition shadow-md">
+              Analizar una subasta ahora
+            </Link>
+            <a href="https://calendly.com/activosoffmarket" target="_blank" rel="noopener noreferrer" className="bg-white text-slate-900 font-bold py-3 px-6 rounded-full border border-slate-200 hover:bg-slate-50 transition shadow-sm">
+              Hablar con un experto
+            </a>
+          </div>
           
           <div className="prose prose-slate prose-lg max-w-3xl mx-auto space-y-8">
             <p>
@@ -263,6 +303,14 @@ const CityPropertyAuctions: React.FC = () => {
                   <span>Excelente potencial para estrategias de alquiler o reforma y venta (flipping).</span>
                 </li>
               </ul>
+            </div>
+
+            {/* Telegram CTA */}
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 mb-12 text-center">
+              <p className="text-blue-900 font-bold mb-4">Publicamos oportunidades antes de que aparezcan aquí →</p>
+              <a href="https://t.me/activosoffmarket" target="_blank" rel="noopener noreferrer" className="inline-block bg-blue-600 text-white font-bold py-3 px-6 rounded-full hover:bg-blue-700 transition">
+                Unirse al canal de Telegram
+              </a>
             </div>
 
             <p>

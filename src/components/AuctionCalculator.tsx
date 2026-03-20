@@ -237,7 +237,7 @@ const AuctionCalculator: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pb-12">
+    <div className="max-w-7xl mx-auto px-6 pb-12 pt-12">
       <div className="mb-12">
         <h1 className="text-4xl font-serif font-bold text-slate-900 mb-6">
           {hasData ? "Estás analizando esta subasta. Ajusta tu rentabilidad" : "Calculadora de Rentabilidad para Subastas Judiciales"}
@@ -280,31 +280,63 @@ const AuctionCalculator: React.FC = () => {
                 <p className="text-slate-400 text-sm mt-2 max-w-lg mx-auto">Por encima de este precio empiezas a perder dinero.</p>
               </>
             ) : (
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center w-full max-w-4xl mx-auto">
                 <div className="text-6xl md:text-7xl font-bold mb-4 text-white/20 tracking-tighter blur-[8px] select-none">
                   € 145.000
                 </div>
-                <p className="text-slate-300 text-lg font-medium mb-6">Tu puja máxima real está bloqueada.</p>
-                <a 
-                  href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
-                  className="bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-500 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 text-lg w-full sm:w-auto"
-                >
-                  👉 Ver mi límite de puja
-                </a>
-                <p className="text-slate-400 text-sm mt-4 font-medium">Acceso inmediato • 9€ • pago único</p>
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center">Aquí decides si ganas o pierdes dinero</h3>
+                <p className="text-slate-300 text-lg mb-10 text-center">Tu resultado real depende de tu puja. Desbloquea el escenario completo.</p>
                 
-                <div className="mt-6 pt-6 border-t border-white/10 flex flex-col items-center w-full max-w-2xl">
-                  <p className="text-brand-200 text-base font-medium mb-5 text-center">
-                    Calcula en segundos lo que te llevaría horas <br className="hidden sm:block"/>(y evita errores de miles de €)
-                  </p>
-                  <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 text-sm text-slate-300">
-                    <span className="flex items-center justify-center gap-2"><CheckCircle size={16} className="text-emerald-400" /> Evita pagar de más</span>
-                    <span className="flex items-center justify-center gap-2"><CheckCircle size={16} className="text-emerald-400" /> Incluye costes ocultos</span>
-                    <span className="flex items-center justify-center gap-2"><CheckCircle size={16} className="text-emerald-400" /> Simula escenarios reales</span>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-stretch">
+                  {/* 24h Plan */}
+                  <a 
+                    href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_24h', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
+                    className="flex flex-col p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-left group"
+                  >
+                    <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">Pase 24h</div>
+                    <div className="text-white font-bold text-3xl mb-2">5€</div>
+                    <p className="text-slate-400 text-sm mb-6 flex-grow">Analiza esta subasta con datos reales antes de pujar.</p>
+                    <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
+                  </a>
+
+                  {/* Monthly Plan (Highlighted) */}
+                  <a 
+                    href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_monthly', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
+                    className="flex flex-col p-6 rounded-2xl bg-brand-600 border border-brand-500 hover:bg-brand-500 transition-all transform md:-translate-y-2 shadow-xl shadow-brand-500/20 text-left relative group"
+                  >
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-brand-900 text-[10px] font-bold uppercase tracking-widest py-1 px-3 rounded-full shadow-sm whitespace-nowrap">
+                      Más usado
+                    </div>
+                    <div className="text-brand-100 text-sm font-bold uppercase tracking-wider mb-1">Ilimitado</div>
+                    <div className="text-white font-bold text-3xl mb-2">19€<span className="text-lg font-normal text-brand-200">/mes</span></div>
+                    <p className="text-brand-100 text-sm mb-6 flex-grow">Para analizar varias subastas sin límites.</p>
+                    <div className="bg-white text-brand-900 text-sm font-bold py-3 px-4 rounded-xl text-center group-hover:bg-brand-50 transition-colors">
+                      Empezar ahora
+                    </div>
+                  </a>
+
+                  {/* Lifetime Plan */}
+                  <a 
+                    href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_lifetime', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
+                    className="flex flex-col p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-left relative group"
+                  >
+                    <div className="absolute top-5 right-5 bg-slate-800 text-slate-300 text-[10px] font-bold uppercase tracking-widest py-1 px-2 rounded-md">
+                      Pago único
+                    </div>
+                    <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">De por vida</div>
+                    <div className="text-white font-bold text-3xl mb-2">59€</div>
+                    <p className="text-slate-400 text-sm mb-6 flex-grow">Acceso completo permanente. Sin suscripciones.</p>
+                    <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
+                  </a>
                 </div>
               </div>
             )}
@@ -333,19 +365,19 @@ const AuctionCalculator: React.FC = () => {
         </div>
       )}
 
-      {/* Step-by-Step Guide */}
+      {/* Intro Banner */}
       {!hasData && (
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          {[
-            { step: "Paso 1", title: "Introduce los datos de la subasta" },
-            { step: "Paso 2", title: "La calculadora estima rentabilidad y margen de seguridad" },
-            { step: "Paso 3", title: "Introduce tu email para desbloquear el informe completo de inversión" }
-          ].map((item, i) => (
-            <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-              <span className="text-brand-600 font-bold text-sm uppercase tracking-wider">{item.step}</span>
-              <h3 className="text-lg font-bold text-slate-900 mt-1">{item.title}</h3>
-            </div>
-          ))}
+        <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm mb-12 text-center max-w-3xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-3">
+            Analiza esta subasta en segundos
+          </h2>
+          <p className="text-lg text-slate-600 mb-6">
+            Calcula rentabilidad, costes reales y tu puja máxima antes de decidir.
+          </p>
+          <div className="inline-flex items-center gap-2 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full text-sm font-medium text-slate-500">
+            <CheckCircle size={16} className="text-emerald-500" />
+            Sin registro · Resultado inmediato
+          </div>
         </div>
       )}
 
@@ -483,8 +515,7 @@ const AuctionCalculator: React.FC = () => {
                     onClick={() => trackConversion(comunidad, 'calculator', 'consultoria', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
                     className="mt-4 inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 gap-2 w-full sm:w-auto"
                   >
-                    <AlertTriangle size={16} className="text-amber-400" />
-                    Analizar esta subasta conmigo (Evita errores)
+                    Validar esta oportunidad con un experto
                   </Link>
                 )}
             </div>
@@ -547,31 +578,24 @@ const AuctionCalculator: React.FC = () => {
             </div>
 
             {!isPro && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[2px]">
-                <div className="bg-white p-6 rounded-3xl shadow-xl border border-slate-100 text-center max-w-sm mx-auto">
-                  <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Lock className="text-amber-600" size={24} />
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[3px]">
+                <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 text-center max-w-sm mx-auto">
+                  <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Lock className="text-slate-400" size={24} />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">Escenarios Bloqueados</h3>
-                  <p className="text-sm text-slate-600 mb-3">Desbloquea la versión PRO para visualizar tus escenarios de riesgo.</p>
-                  <p className="text-brand-600 font-bold text-sm bg-brand-50 py-1.5 px-3 rounded-lg inline-block mb-4">Tu beneficio puede variar hasta ±40%</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Escenarios de riesgo bloqueados</h3>
+                  <p className="text-brand-600 font-bold text-sm bg-brand-50 py-1.5 px-3 rounded-lg inline-block mb-6">Tu resultado puede variar hasta ±40%</p>
+                  
                   <a 
                     href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
-                    className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full"
+                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_24h', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
+                    className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full mb-3"
                   >
-                    👉 Ver mi límite de puja
+                    Descubrir mi puja máxima real
                   </a>
-                  <p className="text-xs text-slate-500 mt-4 font-medium leading-relaxed">
-                    Calcula en segundos lo que te llevaría horas<br/>(y evita errores de miles de €)
-                  </p>
-                  <div className="mt-4 flex flex-col gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                    <span className="flex items-center justify-center gap-1.5"><CheckCircle size={12} className="text-emerald-500" /> Evita pagar de más</span>
-                    <span className="flex items-center justify-center gap-1.5"><CheckCircle size={12} className="text-emerald-500" /> Incluye costes ocultos</span>
-                    <span className="flex items-center justify-center gap-1.5"><CheckCircle size={12} className="text-emerald-500" /> Simula escenarios reales</span>
-                  </div>
+                  <p className="text-xs text-slate-500 font-medium">Acceso 24h desde 5€</p>
                 </div>
               </div>
             )}
