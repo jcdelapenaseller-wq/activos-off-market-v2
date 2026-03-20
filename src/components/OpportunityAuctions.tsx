@@ -4,7 +4,7 @@ import { AUCTIONS } from '../data/auctions';
 import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { ChevronRight, MapPin, DollarSign, TrendingUp, ArrowLeft, Percent } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
-import { isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
+import { isAuctionActive, isAuctionFinished, sortActiveFirst } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeProvince, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const OpportunityAuctions: React.FC = () => {
@@ -26,6 +26,7 @@ const OpportunityAuctions: React.FC = () => {
 
     const filtered = Object.entries(AUCTIONS)
       .filter(([_, data]) => {
+        if (!isAuctionActive(data)) return false;
         const p = normalizeProvince(data.province || data.city);
         if (normalize(p) !== normalizedProvince && !normalize(p).includes(normalizedProvince) && !normalizedProvince.includes(normalize(p))) return false;
         if (!data.appraisalValue || data.claimedDebt === undefined || data.claimedDebt === null) return false;

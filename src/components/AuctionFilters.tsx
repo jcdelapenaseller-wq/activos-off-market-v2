@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { AuctionData } from '../data/auctions';
-import { getComputedStatus, getAuctionType } from '../utils/auctionHelpers';
+import { getComputedStatus, getAuctionType, isAuctionActive } from '../utils/auctionHelpers';
 
 interface AuctionFiltersProps {
   auctions: Record<string, AuctionData>;
@@ -17,7 +17,12 @@ export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilt
     return Object.entries(auctions).reduce((acc, [slug, data]) => {
       if (city && data.city?.toLowerCase() !== city.toLowerCase()) return acc;
       if (province && data.province?.toLowerCase() !== province.toLowerCase()) return acc;
-      if (status && getComputedStatus(data) !== status) return acc;
+      if (status) {
+        if (getComputedStatus(data) !== status) return acc;
+      } else {
+        // Default: exclude closed
+        if (!isAuctionActive(data)) return acc;
+      }
       if (type && getAuctionType(data.boeId) !== type) return acc;
       acc[slug] = data;
       return acc;

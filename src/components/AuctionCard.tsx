@@ -9,9 +9,10 @@ import { ROUTES } from '../constants/routes';
 interface AuctionCardProps {
   slug: string;
   data: AuctionData;
+  showNewBadge?: boolean;
 }
 
-export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
+export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBadge }) => {
   const id = slug;
   const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue;
   const cantidadReclamada = data.claimedDebt;
@@ -61,16 +62,12 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
 
   // Formateo de Fecha y FOMO
   const auctionDate = data.auctionDate ? new Date(data.auctionDate) : null;
-  const publishedDate = data.publishedAt ? new Date(data.publishedAt) : null;
   const now = new Date();
   
   const diffMs = auctionDate ? auctionDate.getTime() - now.getTime() : null;
   const diffDays = diffMs !== null ? Math.ceil(diffMs / (1000 * 60 * 60 * 24)) : null;
   const diffHours = diffMs !== null ? Math.ceil(diffMs / (1000 * 60 * 60)) : null;
   
-  const publishedDiffMs = publishedDate ? now.getTime() - publishedDate.getTime() : null;
-  const publishedDiffHours = publishedDiffMs !== null ? publishedDiffMs / (1000 * 60 * 60) : null;
-
   let fomoLabel = "";
   let fomoColor = "text-slate-500";
 
@@ -89,12 +86,15 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data }) => {
   } else if (diffDays !== null && diffDays > 0 && diffDays <= 5) {
     fomoLabel = `⏳ Cierra en ${diffDays} días`;
     fomoColor = "text-amber-700 bg-amber-50 border-amber-200";
-  } else if (publishedDiffHours !== null && publishedDiffHours <= 48) {
+  } else if (showNewBadge !== undefined ? showNewBadge : data.isNew) {
     fomoLabel = "✨ Recién publicada";
     fomoColor = "text-brand-700 bg-brand-50 border-brand-200";
-  } else {
+  } else if (opportunityRatio !== null && opportunityRatio >= 35 && isCityCapital) {
     fomoLabel = "🔥 Alta oportunidad";
     fomoColor = "text-emerald-700 bg-emerald-50 border-emerald-200";
+  } else {
+    fomoLabel = "";
+    fomoColor = "";
   }
 
   const locationLabel = normalizeLocationLabel(data);

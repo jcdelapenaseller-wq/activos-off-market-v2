@@ -54,9 +54,14 @@ const HistoricalAuctions: React.FC = () => {
 
         {historicalCount > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {historicalAuctions.map(([slug, data]: [string, any]) => (
-              <AuctionCard key={slug} slug={slug} data={data} />
-            ))}
+            {(() => {
+              let newBadgeCount = 0;
+              return historicalAuctions.map(([slug, data]: [string, any]) => {
+                const showNewBadge = data.isNew && newBadgeCount < 6;
+                if (showNewBadge) newBadgeCount++;
+                return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+              });
+            })()}
           </div>
         ) : (
           <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center">

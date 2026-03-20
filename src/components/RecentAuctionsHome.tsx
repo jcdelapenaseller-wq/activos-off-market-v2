@@ -49,7 +49,7 @@ const RecentAuctionsHome: React.FC = () => {
             }
 
             const isOpportunity = discount !== null && discount > 35;
-            const isNew = index < 3; // Since we slice(0, 3), all of them are new
+            const isNew = data.isNew; // Use the actual isNew property from data
 
             const isFinished = data.status === 'closed' || isAuctionFinished(data.auctionDate);
             const isSuspended = data.status === 'suspended';

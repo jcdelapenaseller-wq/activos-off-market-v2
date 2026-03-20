@@ -5,7 +5,7 @@ import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { AuctionCard } from './AuctionCard';
-import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
+import { isAuctionFinished, sortAuctions, isAuctionActive } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const StreetAuctions: React.FC = () => {
@@ -27,6 +27,7 @@ const StreetAuctions: React.FC = () => {
     const normalizedStreet = normalize(street);
 
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
+      if (!isAuctionActive(data)) return false;
       const p = normalizeProvince(data.province || data.city);
       const provinceMatch = normalize(p) === normalizedProvince || normalize(p).includes(normalizedProvince) || normalizedProvince.includes(normalize(p));
       const dataZoneSlug = normalize(data.zone || '');
@@ -41,7 +42,7 @@ const StreetAuctions: React.FC = () => {
   }, [province, zone, street]);
 
   const activeCount = useMemo(() => {
-    return filteredAuctions.filter((item: [string, any]) => item[1].status !== 'closed' && !isAuctionFinished(item[1].auctionDate)).length;
+    return filteredAuctions.length;
   }, [filteredAuctions]);
 
   const { displayProvince, displayZone, displayStreet } = useMemo(() => {
@@ -131,9 +132,14 @@ const StreetAuctions: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 py-12">
         {filteredAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAuctions.map(([slug, data]: [string, any]) => (
-              <AuctionCard key={slug} slug={slug} data={data} />
-            ))}
+            {(() => {
+              let newBadgeCount = 0;
+              return filteredAuctions.map(([slug, data]: [string, any]) => {
+                const showNewBadge = data.isNew && newBadgeCount < 6;
+                if (showNewBadge) newBadgeCount++;
+                return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+              });
+            })()}
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-2xl mx-auto">

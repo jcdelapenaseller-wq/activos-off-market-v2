@@ -8,7 +8,7 @@ import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 import { AuctionCard } from './AuctionCard';
 import { AuctionFilters } from './AuctionFilters';
 import { AuctionData } from '../data/auctions';
-import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
+import { isAuctionFinished, sortAuctions, isAuctionActive } from '../utils/auctionHelpers';
 import { normalizePropertyType as normalizeTypeLabel, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
 
@@ -30,6 +30,7 @@ const ZonePropertyAuctions: React.FC = () => {
   const initialFiltered = useMemo(() => {
     const normalizedProvince = normalize(province);
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
+      if (!isAuctionActive(data)) return false;
       const p = normalizeProvince(data.province || data.city);
       const provinceMatch = normalize(p) === normalizedProvince || normalize(p).includes(normalizedProvince) || normalizedProvince.includes(normalize(p));
       const typeMatch = data.propertyType?.toLowerCase() === propertyType.toLowerCase();
@@ -88,9 +89,14 @@ const ZonePropertyAuctions: React.FC = () => {
 
         {sortedAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {sortedAuctions.map(([slug, data]: [string, any]) => (
-              <AuctionCard key={slug} slug={slug} data={data} />
-            ))}
+            {(() => {
+              let newBadgeCount = 0;
+              return sortedAuctions.map(([slug, data]: [string, any]) => {
+                const showNewBadge = data.isNew && newBadgeCount < 6;
+                if (showNewBadge) newBadgeCount++;
+                return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+              });
+            })()}
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">

@@ -204,9 +204,14 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
                       Mejores oportunidades hoy
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 not-prose mb-8">
-                      {topExamples.slice(0, 2).map(({ slug, data }) => (
-                        <AuctionCard key={slug} slug={slug} data={data} />
-                      ))}
+                      {(() => {
+                        let newBadgeCount = 0;
+                        return topExamples.slice(0, 2).map(({ slug, data }) => {
+                          const showNewBadge = data.isNew && newBadgeCount < 6;
+                          if (showNewBadge) newBadgeCount++;
+                          return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+                        });
+                      })()}
                     </div>
                     <div className="bg-brand-50 rounded-2xl p-6 border border-brand-100 text-center not-prose">
                       <p className="text-lg font-bold text-brand-900 mb-4">👉 Estas son solo algunas. Hay más activas ahora</p>

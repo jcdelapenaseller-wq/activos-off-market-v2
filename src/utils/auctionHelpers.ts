@@ -116,7 +116,8 @@ export function formatDate(dateString: string): string {
 }
 
 export function isAuctionActive(data: AuctionData): boolean {
-  return ['active', 'upcoming', 'suspended'].includes(data.status || '');
+  const status = getComputedStatus(data);
+  return ['active', 'upcoming', 'suspended'].includes(status);
 }
 
 export function isAuctionClosed(data: AuctionData): boolean {

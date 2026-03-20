@@ -4,7 +4,7 @@ import { ChevronRight, MapPin, TrendingUp, Filter, ShieldCheck, Clock } from 'lu
 import { ROUTES } from '../constants/routes';
 import { AUCTIONS } from '../data/auctions';
 import { getFilteredAuctions } from '../utils/auctionHelpers';
-import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
+import { isAuctionFinished, sortAuctions, isAuctionActive } from '../utils/auctionHelpers';
 import { normalizeProvince, normalizePropertyType, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
 import { AuctionCard } from './AuctionCard';
@@ -33,6 +33,7 @@ const ProvinceHub: React.FC = () => {
   const provinceAuctions = useMemo(() => {
     if (!province) return [];
     const filtered = Object.entries(AUCTIONS).filter(([_, a]) => {
+      if (!isAuctionActive(a)) return false;
       const p = normalizeProvince(a.province || a.city).toLowerCase();
       return p === normalizedProvinceParam || p.includes(normalizedProvinceParam) || normalizedProvinceParam.includes(p);
     });
@@ -40,7 +41,7 @@ const ProvinceHub: React.FC = () => {
   }, [province, normalizedProvinceParam]);
 
   const activeAuctions = useMemo(() => {
-    return provinceAuctions.filter(([_, data]: [string, any]) => data.status !== 'closed' && !isAuctionFinished(data.auctionDate));
+    return provinceAuctions;
   }, [provinceAuctions]);
 
   const zones = useMemo(() => {
@@ -187,9 +188,14 @@ const ProvinceHub: React.FC = () => {
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {topOpportunities.map(({ slug, data }: { slug: string, data: any }) => (
-                <AuctionCard key={slug} slug={slug} data={data} />
-              ))}
+              {(() => {
+                let newBadgeCount = 0;
+                return topOpportunities.map(({ slug, data }: { slug: string, data: any }) => {
+                  const showNewBadge = data.isNew && newBadgeCount < 6;
+                  if (showNewBadge) newBadgeCount++;
+                  return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+                });
+              })()}
             </div>
             <button 
               onClick={() => document.getElementById('all-auctions')?.scrollIntoView({ behavior: 'smooth' })}
@@ -263,9 +269,14 @@ const ProvinceHub: React.FC = () => {
 
         {provinceAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {provinceAuctions.map(([slug, data]: [string, any]) => (
-              <AuctionCard key={slug} slug={slug} data={data} />
-            ))}
+            {(() => {
+              let newBadgeCount = 0;
+              return provinceAuctions.map(([slug, data]: [string, any]) => {
+                const showNewBadge = data.isNew && newBadgeCount < 6;
+                if (showNewBadge) newBadgeCount++;
+                return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+              });
+            })()}
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">

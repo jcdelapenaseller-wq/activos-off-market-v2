@@ -5,7 +5,7 @@ import { AUCTIONS } from '../data/auctions';
 import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { ROUTES } from '../constants/routes';
 import { AuctionCard } from './AuctionCard';
-import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
+import { isAuctionActive, isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 
 const HighDiscountAuctions: React.FC = () => {
@@ -19,6 +19,7 @@ const HighDiscountAuctions: React.FC = () => {
 
   const highDiscountAuctions = useMemo(() => {
     const filtered = Object.entries(AUCTIONS).filter(([_, data]) => {
+      if (!isAuctionActive(data)) return false;
       const appraisalValue = data.appraisalValue || 0;
       if (data.claimedDebt === undefined || data.claimedDebt === null) return false;
       if (data.claimedDebt === 0) return false;
@@ -29,9 +30,7 @@ const HighDiscountAuctions: React.FC = () => {
     return sortAuctions(filtered);
   }, []);
 
-  const activeCount = useMemo(() => {
-    return highDiscountAuctions.filter((item: [string, any]) => item[1].status !== 'closed' && !isAuctionFinished(item[1].auctionDate)).length;
-  }, [highDiscountAuctions]);
+  const activeCount = highDiscountAuctions.length;
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
@@ -69,9 +68,14 @@ const HighDiscountAuctions: React.FC = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {highDiscountAuctions.map(([slug, data]: [string, any]) => (
-            <AuctionCard key={slug} slug={slug} data={data} />
-          ))}
+          {(() => {
+            let newBadgeCount = 0;
+            return highDiscountAuctions.map(([slug, data]: [string, any]) => {
+              const showNewBadge = data.isNew && newBadgeCount < 6;
+              if (showNewBadge) newBadgeCount++;
+              return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+            });
+          })()}
         </div>
 
         <div className="mt-20 bg-brand-900 rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-2xl">

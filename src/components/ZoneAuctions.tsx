@@ -5,7 +5,7 @@ import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { ChevronRight, MapPin, Home, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { AuctionCard } from './AuctionCard';
-import { isAuctionFinished, sortAuctions } from '../utils/auctionHelpers';
+import { isAuctionFinished, sortAuctions, isAuctionActive } from '../utils/auctionHelpers';
 import { MetricHighlight, MetricNeutral, MetricWarning, MetricTag, getDiscountColor } from '../utils/themeClasses';
 import { normalizePropertyType as normalizeTypeLabel, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
@@ -34,6 +34,7 @@ const ZoneAuctions: React.FC = () => {
     const normalizedZone = normalize(zone);
 
     const filtered = Object.entries(AUCTIONS).filter(([slug, data]) => {
+      if (!isAuctionActive(data)) return false;
       const p = normalizeProvince(data.province || data.city);
       const provinceMatch = normalize(p) === normalizedProvince || normalize(p).includes(normalizedProvince) || normalizedProvince.includes(normalize(p));
       const dataZoneSlug = normalize(data.zone || '');
@@ -45,7 +46,7 @@ const ZoneAuctions: React.FC = () => {
   }, [province, zone]);
 
   const activeCount = useMemo(() => {
-    return filteredAuctions.filter((item: [string, any]) => item[1].status !== 'closed' && !isAuctionFinished(item[1].auctionDate)).length;
+    return filteredAuctions.length;
   }, [filteredAuctions]);
 
   // Redirección si no hay subastas activas
@@ -298,9 +299,14 @@ const ZoneAuctions: React.FC = () => {
 
         {filteredAuctions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredAuctions.map(([slug, data]: [string, any]) => (
-              <AuctionCard key={slug} slug={slug} data={data} />
-            ))}
+            {(() => {
+              let newBadgeCount = 0;
+              return filteredAuctions.map(([slug, data]: [string, any]) => {
+                const showNewBadge = data.isNew && newBadgeCount < 6;
+                if (showNewBadge) newBadgeCount++;
+                return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+              });
+            })()}
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">

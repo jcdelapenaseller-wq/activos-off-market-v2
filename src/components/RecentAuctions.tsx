@@ -50,9 +50,14 @@ const RecentAuctions: React.FC = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {sortedAuctions.map(([slug, data]) => (
-            <AuctionCard key={slug} slug={slug} data={data} />
-          ))}
+          {(() => {
+            let newBadgeCount = 0;
+            return sortedAuctions.map(([slug, data]) => {
+              const showNewBadge = data.isNew && newBadgeCount < 6;
+              if (showNewBadge) newBadgeCount++;
+              return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+            });
+          })()}
         </div>
 
         <div className="mt-20 bg-brand-900 rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-2xl">

@@ -225,9 +225,11 @@ const AuctionPage: React.FC = () => {
     return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase, proceduralContext, fomo };
   }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
 
+  const isCityCapital = cityName !== 'España' && cityName.toLowerCase() === provinceName.toLowerCase();
+
   const getOpportunityMessage = (ratio: number | null) => {
     if (ratio === null) return { text: "Análisis requerido", color: "bg-amber-100 text-amber-800 border-amber-200" };
-    if (ratio > 0.4) return { text: "Alta oportunidad", color: "bg-emerald-100 text-emerald-800 border-emerald-200" };
+    if (ratio >= 0.35 && isCityCapital) return { text: "Alta oportunidad", color: "bg-emerald-100 text-emerald-800 border-emerald-200" };
     if (ratio >= 0.2) return { text: "Oportunidad interesante", color: "bg-blue-100 text-blue-800 border-blue-200" };
     return { text: "Margen ajustado", color: "bg-slate-100 text-slate-800 border-slate-200" };
   };

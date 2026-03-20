@@ -506,6 +506,13 @@ async function runCrawler() {
                 updated = updated.replace(/(publishedAt:\s*"[^"]*",?)/, `$1\n    lastCheckedAt: "${now}",`);
               }
 
+              // Asegurar que isNew sea false para subastas existentes
+              if (updated.includes('isNew:')) {
+                updated = updated.replace(/isNew:\s*(true|false)/, `isNew: false`);
+              } else {
+                updated = updated.replace(/isActive:\s*(true|false)/, `isActive: $1,\n    isNew: false`);
+              }
+
               return updated;
             });
             output.subastasActualizadas++;
