@@ -56,7 +56,7 @@ async function runCrawler() {
       // Reset paginación por provincia
       const visitedPages = new Set();
       let currentPage = 1;
-      const maxPagesPerProvince = 2; // Límite controlado: máximo 2 páginas por provincia
+      const maxPagesPerProvince = 1; // Límite controlado: máximo 1 página por provincia
       let hasNextPage = true;
 
       try {
@@ -116,29 +116,21 @@ async function runCrawler() {
             break;
           }
 
-          const nextPageUrl = await page.evaluate(() => {
-            const links = Array.from(document.querySelectorAll('a[href*="accion=Mas"]'));
-            const next = links.find(a => a.textContent?.toLowerCase().includes('siguiente'));
-            return next ? (next as HTMLAnchorElement).href : null;
-          });
-
-          if (nextPageUrl) {
+          const nextPageLink = await page.$('a[href*="accion=Mas"]');
+          if (nextPageLink) {
             const delay = Math.floor(Math.random() * 1000) + 1000; // Delay 1-2s
             await new Promise(resolve => setTimeout(resolve, delay));
 
             try {
-              await page.goto(nextPageUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-              // Esperar a que carguen los resultados o el mensaje de "no hay resultados"
-              await page.waitForFunction(() => 
-                document.querySelector('ul.resultado-busqueda li') || 
-                document.querySelector('.resultado-busqueda li') ||
-                document.body.innerText.includes('No se han encontrado'),
-                { timeout: 15000 }
-              );
+              await Promise.all([
+                nextPageLink.click(),
+                page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
+                page.waitForSelector('ul.resultado-busqueda li', { timeout: 10000 })
+              ]);
               currentPage++;
             } catch (navError) {
               console.warn(` - Error al navegar a la siguiente página en ${province.text}: ${(navError as any).message}`);
-              hasNextPage = false; 
+              hasNextPage = false; // Parar si falla la navegación
             }
           } else {
             hasNextPage = false;

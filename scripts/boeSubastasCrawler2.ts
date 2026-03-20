@@ -56,7 +56,7 @@ async function runCrawler() {
       // Reset paginación por provincia
       const visitedPages = new Set();
       let currentPage = 1;
-      const maxPagesPerProvince = 2; // Límite controlado: máximo 2 páginas por provincia
+      const maxPagesPerProvince = 2; // Límite controlado: máximo 1 página por provincia
       let hasNextPage = true;
 
       try {
@@ -76,7 +76,7 @@ async function runCrawler() {
           visitedPages.add(currentUrl);
 
           const provinceResults = await page.evaluate(() => {
-            const items = Array.from(document.querySelectorAll('ul.resultado-busqueda li, .resultado-busqueda li'));
+            const items = Array.from(document.querySelectorAll('li.resultado-busqueda'));
             return items.map(li => {
               let titulo = '';
               const spans = Array.from(li.querySelectorAll('span'));
@@ -107,7 +107,7 @@ async function runCrawler() {
           for (const res of provinceResults) {
             if (!processedSlugs.has(res.urlDetalle)) {
               processedSlugs.add(res.urlDetalle);
-              allAuctions.push({ ...res, provinceText: province.text });
+              if(currentPage === 2) allAuctions.push({ ...res, provinceText: province.text });
             }
           }
 
@@ -116,29 +116,21 @@ async function runCrawler() {
             break;
           }
 
-          const nextPageUrl = await page.evaluate(() => {
-            const links = Array.from(document.querySelectorAll('a[href*="accion=Mas"]'));
-            const next = links.find(a => a.textContent?.toLowerCase().includes('siguiente'));
-            return next ? (next as HTMLAnchorElement).href : null;
-          });
-
-          if (nextPageUrl) {
+          const nextPageLink = await page.$('a[href*="accion=Mas"]');
+          if (nextPageLink) {
             const delay = Math.floor(Math.random() * 1000) + 1000; // Delay 1-2s
             await new Promise(resolve => setTimeout(resolve, delay));
 
             try {
-              await page.goto(nextPageUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-              // Esperar a que carguen los resultados o el mensaje de "no hay resultados"
-              await page.waitForFunction(() => 
-                document.querySelector('ul.resultado-busqueda li') || 
-                document.querySelector('.resultado-busqueda li') ||
-                document.body.innerText.includes('No se han encontrado'),
-                { timeout: 15000 }
-              );
+              await Promise.all([
+                nextPageLink.click(),
+                page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
+                page.waitForSelector('li.resultado-busqueda', { timeout: 30000 })
+              ]);
               currentPage++;
             } catch (navError) {
               console.warn(` - Error al navegar a la siguiente página en ${province.text}: ${(navError as any).message}`);
-              hasNextPage = false; 
+              hasNextPage = false; // Parar si falla la navegación
             }
           } else {
             hasNextPage = false;
@@ -552,7 +544,7 @@ async function runCrawler() {
           }
         }
         
-        fs.writeFileSync(auctionsFilePath, auctionsContent);
+        // fs.writeFileSync(auctionsFilePath, auctionsContent);
         output.totalNuevas = output.subastasInsertadas;
         output.totalActualizadas = output.subastasActualizadas;
         

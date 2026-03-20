@@ -1,0 +1,855 @@
+Iniciando crawler en: https://subastas.boe.es/index.php?ver=1
+Navegando a la página principal...
+Buscando provincias con subastas activas...
+Provincias encontradas con resultados: 48
+Ejecutando prueba para 1 provincias: Madrid (58)
+Seleccionando provincia: Madrid (58) (valor: 28)
+ - Página 1: Encontradas 50 subastas.
+<!DOCTYPE html><html lang="es"><head>
+    <title>Portal de Subastas Electrónicas</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="Keywords" content="Subastas">
+    <meta name="Description" content="Portal de Subastas de la Agencia Estatal Boletín Oficial del Estado">
+    <!--[if lt IE 10]>
+    <link rel="stylesheet" type="text/css" href="/estilos/subastas_ie9.css" />
+    <![endif]-->
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" type="text/css" href="/estilos/subastas_ie8.css" />
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="stylesheet" href="/estilos/portalSubastas.css" title="comun" type="text/css">
+    <link rel="stylesheet" href="/estilos/buscar.css" title="comun" type="text/css">
+  </head>
+  <body>
+    <!-- Cabecera -->
+    <div id="cabecera">
+      <!-- Accesibilidad -->
+      <ul class="fuera">
+        <li><a accesskey="c" href="#contenido">Ir a contenido</a></li>
+      </ul>
+      <!-- Comienza la franja blanca con logos y enlaces a la derecha -->
+      <div id="logoInicio">
+        <span class="pc tablet" id="logoPresidenciaMovil">
+          <a href="https://www.mpr.gob.es/" title="Ir al Ministerio de la Presidencia">
+            <img src="/imagenes/logoMPRmovil.png" alt="Ministerio de la Presidencia">
+          </a>
+        </span>
+        <span id="logoPresidencia">
+          <a href="https://www.mpr.gob.es/" title="Ir al Ministerio de la Presidencia">
+            <img src="/imagenes/logoMPR.png" srcset="/imagenes/logoMPR.svg" alt="Ministerio de la Presidencia">
+          </a>
+        </span>
+        <span class="movil">
+          <a href="/" title="Ir a la página de inicio">
+            <img alt="Portal de Subastas" src="/imagenes/portal_subastas_270.png" srcset="/imagenes/portal_subastas_270.svg">
+          </a>
+        </span>
+      </div><!-- Fin de logoInicio -->
+      <h1>
+        <a href="/" title="Ir a la página de inicio">
+          Portal de Subastas
+        </a>
+      </h1>
+      <p class="fuera">Portal de Subastas de la Agencia Estatal Boletín Oficial del Estado</p>
+      <span id="logoBOE">
+        <a href="https://www.boe.es" title="Ir a la página de la Agencia Estatal Boletín Oficial del Estado">
+          <img src="/imagenes/logo_boe.png" alt="Agencia Estatal Boletín Oficial del Estado">
+        </a>
+      </span>
+    </div> <!-- #cabecera -->
+    <!-- Cuerpo -->
+    <div id="cuerpo">
+      <div id="top" class="banda-menu">
+        <div id="menu_principal" class="menu-wrapper">
+          <ul>
+            <li class="inicio pc tablet">
+              <a href="https://subastas.boe.es/index.php"><span>Inicio</span></a>
+            </li>
+            <li class="buscar">
+              <a href="https://subastas.boe.es/subastas_ava.php">
+                <span class="pc tablet">Buscar</span>
+                <span class="movil"><img alt="Buscar" src="/imagenes/logoBuscar_blanco.png" srcset="/imagenes/logoBuscar_blanco.svg"></span>
+              </a>
+            </li>
+            <li class="ayuda">
+              <a href="https://subastas.boe.es/ayuda.php">
+                <span class="pc tablet">Ayuda</span>
+                <span class="movil"><img alt="Ayuda" src="/imagenes/ayuda.png" srcset="/imagenes/ayuda.svg"></span>
+              </a>
+            </li>
+            <li class="botonAcceso ico_acceso">
+              <a href="https://subastas.boe.es/acceso.php">
+                <span class="tablet pc">
+                  Iniciar sesión<span class="luz">Pulse para acceder o registrarse como usuario en el Portal de Subastas</span>
+                </span>
+                <span class="movil"><img alt="Iniciar sesión" src="/imagenes/logoAcceso.png" srcset="/imagenes/logoAcceso.svg"></span>
+              </a>
+            </li> 
+          </ul>
+        </div><!-- #menu_principal -->
+      </div><!-- .banda-menu -->
+      <p class="disclaimer">
+        <span id="fechaOficial">Viernes, 20 de Marzo de 2026</span>
+        <span id="horaOficial">14:27:17</span>
+        <span id="usoHorario" title="Hora Central Europea / Central European Time">CET</span>
+      </p>
+      <script>
+         var hoy = new Date(2026,3-1,20,14,26,48); 
+         function reloj(){
+            var hora = hoy.getHours(); 
+            var minutos = hoy.getMinutes(); 
+            var segundos = hoy.getSeconds(); 
+            if (hora<=9) hora = "0" + hora; 
+            if (minutos<=9) minutos = "0" + minutos; 
+            if (segundos<=9) segundos = "0" + segundos; 
+            var horaFinal = hora + ":" + minutos + ":" + segundos; 
+            var dia = new Array('Domingo','Lunes','Martes','Mi&#xe9;rcoles','Jueves','Viernes','S&#xe1;bado'); 
+            var mes = new Array('Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'); 
+            var anio = hoy.getFullYear(); 
+            var fecha = dia[hoy.getDay()] + ', ' + hoy.getDate() + ' de '  + mes[hoy.getMonth()] + ' de ' + anio ; 
+
+            document.getElementById('fechaOficial').innerHTML = fecha;
+            document.getElementById('horaOficial').innerHTML = horaFinal;
+
+            hoy.setSeconds(hoy.getSeconds() +1);
+            setTimeout('reloj()',1000);
+         } 
+         reloj();
+      </script>
+      <div id="contenedor">
+        <div id="contenido">
+          <h2>Subastas. Búsqueda avanzada</h2>
+          <div>
+            <ul class="navlist">
+              <li class="label"><a href="./subastas_ava.php?accion=&amp;id_busqueda=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,-0-50">Búsqueda</a></li>
+              <li class="label"><a href="./subastas_ava.php?accion=Mas&amp;id_busqueda=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,-0-50" class="current">Resultados</a></li>
+              <li class="label"><a href="./subastas_ava.php?accion=Fav&amp;id_busqueda=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,-0-50" class="guardar">Guardar<span class="pc tablet"> búsqueda</span><img src="/imagenes/logoMiBOE_azul.png" srcset="/imagenes/logoMiBOE_azul.svg" alt="Sesión activa"></a></li>
+            </ul>
+          </div>
+          <div class="paginar">
+            <p>Resultados 1 a 50 de 58</p>
+          </div>
+          <div class="paginar2">
+            <ul>
+              <li>
+                <span class="fuera">Está usted en la página de resultados número </span>
+                <span class="current">1</span>
+              </li>
+              <li>
+                <a href="subastas_ava.php?accion=Mas&amp;id_busqueda=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,-50-50">2</a>
+              </li>
+              <li>
+                <a href="subastas_ava.php?accion=Mas&amp;id_busqueda=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,-50-50"><abbr title="Página">Pág.</abbr> siguiente</a>
+              </li>
+            </ul>
+          </div>
+          <div class="listadoResult">
+            <ul>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2024-228471</h3>
+                <h4>JUZGADO 1 INSTANCIA 32 - MADRID </h4>
+                <p>Expediente: 0012/22</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 08/04/2026 a las 18:00:00]</p>
+                <p>CALLE LOS MORALES 10-B, PORTAL 2 SEGUNDA PLANTA. ANEJO INSEPARABLE TRASTERO 46 EN SOTANO 1º. FINCA REGISTRAL67176/67 </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2024-228471&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2024-228471"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2024-228471&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2024-228471">Más... (Referencia SUB-JA-2024-228471)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-234448</h3>
+                <h4>Sección Civil TI Alcobendas. Plz. n 4 - ALCOBENDAS </h4>
+                <p>Expediente: 0961/14</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 08/04/2026 a las 18:00:00]</p>
+                <p>VIVIENDA EN SAN SEBASTIAN DE LOS REYES, PISO NUM. 8. ES EL PISO 1º D, PLANTA PRIMERA DEL EDIFICIO CALLE BILBAO 19, HOY 23 </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-234448&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-234448"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-234448&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-234448">Más... (Referencia SUB-JA-2026-234448)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JV-2026-258600</h3>
+                <h4>Sec. Civil e Inst. TI S.Lorenzo Escorial. Plz.n 1 - SAN LORENZO DE EL ESCORIAL </h4>
+                <p>Expediente: 0025/17</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 08/04/2026 a las 18:00:00]</p>
+                <p> Urbana  nº1  casa  con  patio  en  término  municipal  de  El  Escorial,  en  la calle  Gómez  del  Campo,  número  diez,  que  tiene  una  superficie  total  aproximada  de  ciento doce metros veintinueve decímetros cuadrados, y que linda: por su frente, por donde tiene su entrada,  con  la  calle  Gómez  del  Campo,  en línea  de  ocho  metros  veinte  centímetros;  por  la derecha,  entrando, con la calle Dos de Mayo, en línea de once metros ochenta centímetros; Juzgado de 1ª Instancia e Instrucción nº 01 de San Lorenzo de El Escorial -Ejecución de títulos judiciales 25/2017 2de 6por  la  izquierda,  con  la  misma  calle  Gómez  el  Campo,  en  línea  de  once  metros  setenta  y nueve centímetros; y por el fondo, con la finca de esta misma procedencia, en línea de once metros treinta y cinco decímetros.-Finca registral nº 9880, Inscrita en el Registro de la Propiedad nº 2 de San Lorenzo de El Escorial, al tomo 2900, libro 217, folio 203 </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JV-2026-258600&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JV-2026-258600"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JV-2026-258600&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JV-2026-258600">Más... (Referencia SUB-JV-2026-258600)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2025-253046</h3>
+                <h4>Sección Civil e Instrucción TI Valdemoro. Plz.n 2 - VALDEMORO </h4>
+                <p>Expediente: 0161/23</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 06/04/2026 a las 18:00:00]</p>
+                <p>FINCA REGISTRAL: 12.383. URBANA. FINCA URBANA EN CHINCHON, EN LA RONDA DE LA CONCEPCIÓN NUMERO 18 Y 24. MIDE SU FACHADA A LA RONDA ICINCUENTA Y UN METROS Y EL FONDO SETENTA CENTÍMETROS LA LINEA DE LA DERECHA, Y CIENTO DOCE METROS Y NOVENTA CENTIMETROS LA DEL CAMINO O IZQUIERDA, SIENDO DE NOVENTA Y CUATRO CON CUARENTA LA LONGITUD DE LINEA DE LA ESPALDA. ENTRE EL EXTERIOR DEL MURO QUE LA CIERRA POR EL SUR Y EL OESTE, QUEDA PARA EL DESAGÜE DE LA FINA UNA FRANJA DE TERRENO DE CINCUENTA CENTIMETROS DE ANCHO, COMO PROPIO Y ANEJO A LA REPETIDA FINCA. MIDE UNA SUPERFICIE DE SEIS MIL CIENTO DIEZ METROS CUADRADOS. CONTIENE VARIAS EDIFICACIONES DESTINADAS, DOS A VIVIENDA, CADA UNA CON UNA PUERTA A LA RONDA, UN CUERPO DE DOS PLANTAS A BODEGA, EL PISO BAJO Y EL SALON PARA BAILES EL PRINCIPAL, CONTIGUOS A ESTE CUERPO, UN LAGAR Y LEÑERO, EL RESTO DE CORRALIZAS DESCUBIERTA CON PUERTA GRANDE PARA CARROS A LA DICHA RONDA DE LA CONCEPCION. LINDA: AL NORTE, CON DICHA VÍA PÚBLICA, POR LA DERECHA ENTRANDO U OESTE, CON TIERRA DE DOÑA PAULA DE APARICIO; ESPALDA O SUR, CON IDELFONSO MONTERROSO, IZQUIERDA O ESTE, EL CAMINO VIEJO DE COLMENAR. </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2025-253046&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2025-253046"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2025-253046&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2025-253046">Más... (Referencia SUB-JA-2025-253046)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2025-253449</h3>
+                <h4>JUZGADO 1 INSTANCIA 31 - MADRID </h4>
+                <p>Expediente: 0280/21</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 06/04/2026 a las 18:00:00]</p>
+                <p>AVDA DE DAROCA, 315, 3º CENTRO DERECHA </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2025-253449&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2025-253449"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2025-253449&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2025-253449">Más... (Referencia SUB-JA-2025-253449)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2025-253652 (2 lotes)</h3>
+                <h4>Sección Civil e Instrucción TI Valdemoro. Plz.n 6 - VALDEMORO </h4>
+                <p>Expediente: 0078/18</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 06/04/2026 a las 18:00:00]</p>
+                <p>Subasta con varios lotes. Lote 1: FINCA URBANA 10.090. SOLAR O CORRAL en Ciempozuelos, y su calle de la Virgen, señalado con el número treinta y dos, hoy número 44. Lote 2: FINCA URBANA 9.892. SOLAR O CORRAL en Ciempozuelos y su calle de la Virgen, hoy número 42. </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2025-253652&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2025-253652"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2025-253652&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2025-253652">Más... (Referencia SUB-JA-2025-253652)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2025-256022 (3 lotes)</h3>
+                <h4>JUZGADO 1 INSTANCIA 100 - MADRID </h4>
+                <p>Expediente: 0178/24</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 06/04/2026 a las 18:00:00]</p>
+                <p>Subasta con varios lotes. Lote 1: FINCA REGISTRAL 29.114 PROVENIENTE DE LA FINCA 80.542 Lote 2: FINCA REGISTRAL Nº29.115 PROVENIENTE DE LA FINCA 38.357 Lote 3: FINCA REGISTRAL Nº5722 ANTES LA 80.544 </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2025-256022&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2025-256022"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2025-256022&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2025-256022">Más... (Referencia SUB-JA-2025-256022)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258794 (4 lotes)</h3>
+                <h4>Sec. Civil e Inst. TI Colmenar Viejo. Plz.n 3 - COLMENAR VIEJO </h4>
+                <p>Expediente: 0142/21</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 06/04/2026 a las 18:00:00]</p>
+                <p>Subasta con varios lotes. Lote 1: FINCA 5.138. CALLE PRADO REAL, 11, ESC 2, 3º D EN SOTO DEL REAL Lote 2: FINCA Nº 5150.  CUARTO TRASTERO Nº 12 SITO EN LA PLANTA BAJO CUBIERTA DEL Nº 11 DE LA  CALLE PRADO REAL Lote 3: FINCA 5151 CUARTO TRASTERO NUMERO 13 SITO EN LA PLANTA BAJO CUBIERTA DEL NUMERO 11 DE LA CALLE PRADO REAL EN SOTO DEL REAL Lote 4: FINCA 5152 CUARTO TRASTERO Nº 14 SITO EN LA PLANTA BAJO CUBIERTA DEL Nº 11 DE LA CALLE PRADO REAL EN SOTO DEL REAL </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258794&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258794"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258794&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258794">Más... (Referencia SUB-JA-2026-258794)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258904</h3>
+                <h4>Sección Civil e Instrucción TI Valdemoro. Plz.n 2 - VALDEMORO </h4>
+                <p>Expediente: 0194/17</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 06/04/2026 a las 18:00:00]</p>
+                <p>Descripción general: FINCA Nº 6.585, inscrita en el Registro de la propiedad nº 1 de Pinto, al tomo 1063, libro 154, folio 35.DESCRIPCIÓN:  URBANA  sita  en  la  Calle  Santa  Mónica  nº  43,  planta  primera izquierda  de  San  Martín  de  la  Vega  (Madrid).  Doscientos  cuarenta  y  siete.  Vivienda izquierda  en  planta  primera  integrante  de  la  casa  señalada  con  el  número  treinta  y  uno, perteneciente  al  modelo  tres,  en  el  Polígono  Los  Cerros  Chicos,  de  San  Martín  de  la  Vega. Mide ciento cinco metros cuadrado </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258904&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258904"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258904&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258904">Más... (Referencia SUB-JA-2026-258904)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258921</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 100 - MADRID </h4>
+                <p>Expediente: 1411/12</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 06/04/2026 a las 18:00:00]</p>
+                <p>FINCA Nº 17.223 </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258921&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258921"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258921&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258921">Más... (Referencia SUB-JA-2026-258921)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JV-2026-258768</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 10 - MADRID </h4>
+                <p>Expediente: 0147/21</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 06/04/2026 a las 18:00:00]</p>
+                <p>VIVIENDA + GARAJE </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JV-2026-258768&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JV-2026-258768"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JV-2026-258768&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JV-2026-258768">Más... (Referencia SUB-JV-2026-258768)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2025-255107</h3>
+                <h4>Sección Civil TI Torrejón de Ardoz. Plz. n 3 - TORREJON DE ARDOZ </h4>
+                <p>Expediente: 0258/20</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 02/04/2026 a las 18:00:00]</p>
+                <p>En Torrejón de Ardoz, Local comercial señalado con el número 4, en calle Hilados número 3. </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2025-255107&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2025-255107"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2025-255107&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2025-255107">Más... (Referencia SUB-JA-2025-255107)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-257426</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 31 - MADRID </h4>
+                <p>Expediente: 0091/23</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 02/04/2026 a las 18:00:00]</p>
+                <p>CALLE ANTONIO LOPEZ Nº 52 1º C EXTERIOR C/V CALLE JOSE INCENGA </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257426&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-257426"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257426&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-257426">Más... (Referencia SUB-JA-2026-257426)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258835</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 31 - MADRID </h4>
+                <p>Expediente: 0336/22</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 02/04/2026 a las 18:00:00]</p>
+                <p>FR 74.812 RP 15 DE MADRID </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258835&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258835"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258835&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258835">Más... (Referencia SUB-JA-2026-258835)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2023-210686 (6 lotes)</h3>
+                <h4>Sec. Civil e Inst. TI Arganda del Rey. Plz.n 4 - ARGANDA DEL REY </h4>
+                <p>Expediente: 1044/10</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 01/04/2026 a las 18:00:00]</p>
+                <p>Subasta con varios lotes. Lote 1: VIVIENDA V-1, EN PLANTA BAJA, ESCALERA A, EDIFICIO PLAZA DE SAN FRANCISCO Nº 3 C/VTA A CALLEJON DEL MARQUES EN VILLAREJO DE SALVANÉS Lote 2: VIVIENDA V-4, EN PLANTA PRIMERA, ESCALERA A, EDIFICIO PLAZA DE SAN FRANCISCO Nº 3 C/VTA A CALLEJON DEL MARQUES EN VILLAREJO DE SALVANES Lote 3: VIVIENDA D-1, EN PLANTA PRIMERA Y BAJO CUBIERTA, ESCALERA A, EDIFICIO PLAZA DE SAN FRANCISCO Nº 3 C/VTA A CALLEJON DEL MARQUES EN VILLAREJO DE SALVANES Lote 4: VIVIENDA D-3, EN PLANTAS PRIMERA Y BAJO CUBIERTA, ESCALERA B, EDIFICIO PLAZA DE SAN FRANCISCO Nº 3 C/VTA A CALLEJON DEL MARQUES EN VILLAREJO DE SALVANES Lote 5: VIVIENDA D-4, EN PLANTAS PRIMERA Y BAJO CUBIERTA, ESCALERA B, EDIFICIO PLAZA DE SAN FRANCISCO Nº 3 C/VTA A CALLEJON DEL MARQUES EN VILLAREJO DE SALVANES Lote 6: VIVIENDA V-5, EN PLANTA BAJA CUBIERTA, ESCALERA A, EDIFICIO PLAZA DE SAN FRANCISCO Nº 3 C/VTA A CALLEJON DEL MARQUES EN VILLAREJO DE SALVANES </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2023-210686&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2023-210686"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2023-210686&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2023-210686">Más... (Referencia SUB-JA-2023-210686)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2025-256239</h3>
+                <h4>Sec. Civil e Inst. TI Colmenar Viejo. Plz.n 1 - COLMENAR VIEJO </h4>
+                <p>Expediente: 0081/19</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 01/04/2026 a las 18:00:00]</p>
+                <p>NAVE INDUSTRIAL NUMERO 5 EN LA PARCELA 25 DEL POLIGONO INDUSTRIAL LA MINA DE COLMENAR VIEJO. CONSTA DE DOS PLANTAS </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2025-256239&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2025-256239"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2025-256239&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2025-256239">Más... (Referencia SUB-JA-2025-256239)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001109</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>18 de FINCA Nº 5728. Se concreta en Plaza garaje nº 7. CL PRADERON 2 ES:1. Pl: 00. 28260. GALAPAGAR </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001109&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001109"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001109&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001109">Más... (Referencia SUB-AT-2026-25R2886001109)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001312</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>50% PLENO DOMINIO. GARAJE. Finca 27706. AV EJERCITO 3 Es:1 Pl:0 Pt:35 28500 ARGANDA DEL REY  MADRID </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001312&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001312"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001312&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001312">Más... (Referencia SUB-AT-2026-25R2886001312)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001313</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>50% PLENO DOMINIO. GARAJE. finca 27644. AV EJERCITO 3 Es:1 Pl:0 Pt:2 28500 ARGANDA DEL REY  MADRID </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001313&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001313"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001313&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001313">Más... (Referencia SUB-AT-2026-25R2886001313)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001314</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>50% PLENO DOMINIO. GARAJE. finca 27646. AV EJERCITO 3 Es:1 Pl:0 Pt:3 28500 ARGANDA DEL REY  MADRID . </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001314&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001314"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001314&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001314">Más... (Referencia SUB-AT-2026-25R2886001314)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001795</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>50% Pleno dominio. VIVIENDA. CL/ SAN LORENZO, 16. 28270 - COLMENAREJO (MADRID) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001795&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001795"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001795&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001795">Más... (Referencia SUB-AT-2026-25R2886001795)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001845</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>33%PLENO DOMINIO. VIVIENDA . CL AGUILAR DE CAMPOO 14 PL:06 PT:D. 28039 - MADRID (MADRID) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001845&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001845"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001845&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001845">Más... (Referencia SUB-AT-2026-25R2886001845)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001849</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>100% Pleno dominio. GARAJE. CL/ LAGO BLANCO, 2 -2. 28980 - PARLA (MADRID) Plaza 126 </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001849&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001849"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001849&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001849">Más... (Referencia SUB-AT-2026-25R2886001849)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001853</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>100% PLENO DOMINIO GARAJE (FINCA 25141/11). C/ SAN ROMUALDO 26 PLANTA S, N 29. 28037 MADRID (MADRID) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001853&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001853"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001853&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001853">Más... (Referencia SUB-AT-2026-25R2886001853)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001854</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>100%PLENO DOMINIO.VIVIENDA. CL VALDEMORILLO 7 Pl:02 Pt:A 28945 FUENLABRADA (MADRID) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001854&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001854"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001854&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001854">Más... (Referencia SUB-AT-2026-25R2886001854)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001856</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>100%PLENO DOMINIO.VIVIENDA .CL/ ARIZONICA, 5 Esc:5 Pla:01 Pta:I.28231 ROZAS DE MADRID (LAS) (MADRID) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001856&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001856"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001856&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001856">Más... (Referencia SUB-AT-2026-25R2886001856)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001859</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>50% PLENO DOMINIO DE VIVIENDA SITA EN CL MINERVA 139 - MADRID (MADRID) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001859&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001859"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001859&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001859">Más... (Referencia SUB-AT-2026-25R2886001859)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001871</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>100% PLENO DOMINIO PLAZA DE GARAJE SITA EN ALCORCÓN, MADRID. </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001871&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001871"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001871&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001871">Más... (Referencia SUB-AT-2026-25R2886001871)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R2886001893</h3>
+                <h4>U.R. SUBASTAS MADRID - MADRID (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>100% pleno dominio de 2 locales en CL MOTA DEL CUERVO 10 Pl:00 Pt:16 y Pt: 17 28043 MADRID  MADRID </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001893&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R2886001893"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R2886001893&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R2886001893">Más... (Referencia SUB-AT-2026-25R2886001893)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-257374</h3>
+                <h4>Sec. Civil e Inst. TI Pozuelo de Alarcón. Plz.n 2 - POZUELO ALARCON </h4>
+                <p>Expediente: 0631/15</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>REMISION AL EDICTO </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257374&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-257374"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257374&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-257374">Más... (Referencia SUB-JA-2026-257374)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-257490</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 31 - MADRID </h4>
+                <p>Expediente: 0203/23</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>FR 7915. C/ Encomienda de Palacios 348. bajo Izq.2 Madrid </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257490&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-257490"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257490&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-257490">Más... (Referencia SUB-JA-2026-257490)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258108</h3>
+                <h4>Sección Civil TI Torrejón de Ardoz. Plz. n 4 - TORREJON DE ARDOZ </h4>
+                <p>Expediente: 0144/20</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>En Valdetorres de Jarama, Parcela y vivienda unifamiliar, en Calle Antonio Machado, nº 36 
+           </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258108&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258108"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258108&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258108">Más... (Referencia SUB-JA-2026-258108)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258229</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 32 - MADRID </h4>
+                <p>Expediente: 0013/25</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>DESCRIPCIÓN: CALLE MEJORANA, Nº 35 PL. 1 PTA. A 28053 MADRID. INSCRIPCION: REGISTRO DE LA PROPIEDAD DE MADRID Nº 19, FINCA REGISTRAL Nº 4.927. INSCRIPCIÓN 5ª DE HIPOTECA. </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258229&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258229"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258229&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258229">Más... (Referencia SUB-JA-2026-258229)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258334</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 32 - MADRID </h4>
+                <p>Expediente: 0121/20</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>Descripción: VIVIENDA SITA EN LA CALLE MARIA DE GUZMÁN Nº 45, BAJO INTERIOR DE MADRID 28003
+          Inscrpción: FINCA REGISTRAL Nº 70.834 BIS INSCRITA EN EL REGISTRO DE LA PROPIEDAD Nº 6 INSCRIPCIÓN  5ª
+           </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258334&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258334"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258334&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258334">Más... (Referencia SUB-JA-2026-258334)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258479</h3>
+                <h4>Sección Civil e Instrucción TI Leganés. Plz.n 7 - LEGANES </h4>
+                <p>Expediente: 0097/17</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>Vivienda sita en C/ Zaragoza nº 3, 2º Izda, Leganés, Madrid. </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258479&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258479"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258479&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258479">Más... (Referencia SUB-JA-2026-258479)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258536</h3>
+                <h4>Sección Civil TI Móstoles. Plz.n 2 - MOSTOLES </h4>
+                <p>Expediente: 1472/13</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>VIVIENDA MOSTOLES  </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258536&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258536"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258536&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258536">Más... (Referencia SUB-JA-2026-258536)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-RC-2026-28010001S2516 (2 lotes)</h3>
+                <h4>Subdirección General de Recaudación. Dirección General de Tributos - Madrid (Comunidad Autónoma de Madrid)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 30/03/2026 a las 18:00:00]</p>
+                <p>Subasta con varios lotes. Lote 1: LOCAL COMERCIAL EN COLMENAR VIEJO (MADRID) Lote 2: LOCAL COMERCIAL EN COLMENAR VIEJO (MADRID) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-RC-2026-28010001S2516&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-RC-2026-28010001S2516"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-RC-2026-28010001S2516&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-RC-2026-28010001S2516">Más... (Referencia SUB-RC-2026-28010001S2516)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-257227</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 100 - MADRID </h4>
+                <p>Expediente: 0090/25</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 29/03/2026 a las 16:46:48]</p>
+                <p>FINCA REGISTRAL Nº:42.806
+          REGISTRO DE LA PROPIEDAD Nº 16 DE MADRID. Inscrita al folio 204 del tomo 1718
+          , libro 1.718 . </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257227&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-257227"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257227&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-257227">Más... (Referencia SUB-JA-2026-257227)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2025-252829 (3 lotes)</h3>
+                <h4>Sec. Civil e Inst. TI Majadahonda. Plz.n 7 - MAJADAHONDA </h4>
+                <p>Expediente: 0002/21</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 26/03/2026 a las 18:00:00]</p>
+                <p>Subasta con varios lotes. Lote 1: FINCA Nº 45447 Lote 2: FINCA Nº 45403 Lote 3: FINCA Nº 45404 </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2025-252829&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2025-252829"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2025-252829&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2025-252829">Más... (Referencia SUB-JA-2025-252829)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-257414</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 100 - MADRID </h4>
+                <p>Expediente: 0179/21</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 26/03/2026 a las 18:00:00]</p>
+                <p>FINCA REGISTRAL 7736 </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257414&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-257414"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257414&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-257414">Más... (Referencia SUB-JA-2026-257414)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-257016</h3>
+                <h4>Sección Civil TI Móstoles. Plz.n 3 - MOSTOLES </h4>
+                <p>Expediente: 0237/16</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 25/03/2026 a las 18:00:00]</p>
+                <p>URBANA, Vivienda piso con anejos (vivienda
+          colectiva)
+          Cuota de participación: 2,50%
+          Localización: Calle Hermanos Pinzón n. 6- PLANTA 2º- LETRA A
+          VILLAFONTANA II de Mostoles
+          Superficie Construida: 99,86 m2.
+          Código Postal: 28936.
+          Linderos y Localización de la finca: Referencia Catastral nº:
+          7541002VK2764A005 </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257016&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-257016"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257016&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-257016">Más... (Referencia SUB-JA-2026-257016)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-257215</h3>
+                <h4>Sec. Civil e Inst. TI Colmenar Viejo. Plz.n 2 - COLMENAR VIEJO </h4>
+                <p>Expediente: 0645/16</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 25/03/2026 a las 18:00:00]</p>
+                <p>TERCERA PARTE INDIVISA DE LA FINCA SITA EN CALLE PRADILLO 15, 1B DE MADRID </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257215&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-257215"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257215&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-257215">Más... (Referencia SUB-JA-2026-257215)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-257960</h3>
+                <h4>Sección Civil TI Torrejón de Ardoz. Plz. n 3 - TORREJON DE ARDOZ </h4>
+                <p>Expediente: 0095/21</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 25/03/2026 a las 18:00:00]</p>
+                <p>Piso en C/ Daganzo nº 8 piso 3ºB de Torrejón de Ardoz </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257960&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-257960"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-257960&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-257960">Más... (Referencia SUB-JA-2026-257960)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-258226</h3>
+                <h4>Sección Civil TI Madrid. Plz.n 31 - MADRID </h4>
+                <p>Expediente: 0084/21</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 25/03/2026 a las 18:00:00]</p>
+                <p>FR 139.756 RP 9 DE MADRID </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258226&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-258226"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-258226&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-258226">Más... (Referencia SUB-JA-2026-258226)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R4186001890</h3>
+                <h4>U.R. SUBASTAS ANDALUCIA 41 - SEVILLA (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 23/03/2026 a las 18:00:00]</p>
+                <p>100% PLENO DOMINIO. FINCA REGISTRAL 918. CAMINO (DE LOS) ANDALUCES 4, -1 1- CASARRUBUELOS (MADRID) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R4186001890&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R4186001890"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R4186001890&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R4186001890">Más... (Referencia SUB-AT-2026-25R4186001890)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-AT-2026-25R4686001550</h3>
+                <h4>U.R. SUBASTAS VALENCIA - VALENCIA (AEAT)</h4>
+                <p>Estado: Celebrándose - [Conclusión prevista: 23/03/2026 a las 18:00:00]</p>
+                <p>LOCAL COMERCIAL. CL/ NAVAS DEL REY, 45. 28011 - MADRID (MADRID) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R4686001550&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-AT-2026-25R4686001550"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-AT-2026-25R4686001550&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-AT-2026-25R4686001550">Más... (Referencia SUB-AT-2026-25R4686001550)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2024-240173 (12 lotes)</h3>
+                <h4>JUZGADO 1 INST E INSTRUCC. 5 - NAVALCARNERO </h4>
+                <p>Expediente: 0083/21</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 23/03/2026 a las 18:00:00]</p>
+                <p>Subasta con varios lotes. Lote 1: ATURALEZA: URBANA: Garaje PLAZA DE GARAJE N O 1 en planta semisótano del Conjunto "PRADO DEL ROSAL"  LOCALIZACIÓN: CALLE GORRION NÚMERO 3, Planta: —1. 
+           Lote 2: La finca registral 6565 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1484, LIBRO 144, FOLIO 156 Lote 3: La finca registral 6585 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1484, LIBRO 144, FOLIO 217. Lote 4: La finca registral 6586 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1484, LIBRO 144, FOLIO 220.  Lote 5: La finca registral 6588 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1485, LIBRO 145, FOLIO 2. Lote 6: La finca registral 6589 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1485, LIBRO 145, FOLIO 5.  Lote 7: La finca registral 6590 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1485, LIBRO 145, FOLIO 8. Lote 8: La finca registral 6592 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1485, LIBRO 145, FOLIO 14. Lote 9: La finca registral 6594 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1485, LIBRO 145, FOLIO 20. Lote 10: La finca registral 6595 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1485, LIBRO 145, FOLIO 24.  Lote 11: La finca registral 6596 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1485, LIBRO 145, FOLIO 27 Lote 12: La finca registral 6597 del Registro de la Propiedad nº 2 de Navalcarnero, con TOMO 1485, LIBRO 145, FOLIO 29. </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2024-240173&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2024-240173"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2024-240173&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2024-240173">Más... (Referencia SUB-JA-2024-240173)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2025-254704</h3>
+                <h4>Sección Civil TI Fuenlabrada. Plz. n 3 - FUENLABRADA </h4>
+                <p>Expediente: 0496/15</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 23/03/2026 a las 18:00:00]</p>
+                <p>Urbana. Piso séptimo número 4, en planta séptima del portal número 15 de la Urb. Humanes II, hoy C/ Vicente Aleixandre nº 7 de Humanes de Madrid (Madrid) </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2025-254704&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2025-254704"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2025-254704&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2025-254704">Más... (Referencia SUB-JA-2025-254704)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2025-255111</h3>
+                <h4>JUZGADO 1 INSTANCIA 100 - MADRID </h4>
+                <p>Expediente: 0297/24</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 23/03/2026 a las 18:00:00]</p>
+                <p>Finca 39.560 del Registro de la Propiedad nº 15 de Madrid </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2025-255111&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2025-255111"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2025-255111&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2025-255111">Más... (Referencia SUB-JA-2025-255111)</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="resultado-busqueda">
+                <h3>SUBASTA SUB-JA-2026-256985</h3>
+                <h4>Sec. Civil e Inst. TI Majadahonda. Plz.n 5 - MAJADAHONDA </h4>
+                <p>Expediente: 0020/20</p>
+                <p>Estado: Celebrándose - [Conclusión prevista: 23/03/2026 a las 18:00:00]</p>
+                <p>FINCA REGISTRAL NUMERO 12.303 INSCRITA EN EL REGISTRO DE LA PROPIEDAD NUMERO 1 DE LAS ROZAS  </p>
+                <a href="./detalleSubasta.php?idSub=SUB-JA-2026-256985&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-defecto" title="Subasta SUB-JA-2026-256985"> </a>
+                <ul>
+                  <li class="puntoHTML">
+                    <a href="./detalleSubasta.php?idSub=SUB-JA-2026-256985&amp;idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50" class="resultado-busqueda-link-otro" title="Subasta SUB-JA-2026-256985">Más... (Referencia SUB-JA-2026-256985)</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="paginar">
+            <p class="linkSubir">
+              <a href="#top">subir</a>
+            </p>
+          </div>
+          <div class="paginar2">
+            <ul>
+              <li>
+                <span class="fuera">Está usted en la página de resultados número </span>
+                <span class="current">1</span>
+              </li>
+              <li>
+                <a href="subastas_ava.php?accion=Mas&amp;id_busqueda=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,-50-50">2</a>
+              </li>
+              <li>
+                <a href="subastas_ava.php?accion=Mas&amp;id_busqueda=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,-50-50"><abbr title="Página">Pág.</abbr> siguiente</a>
+              </li>
+            </ul>
+          </div>
+        </div> <!-- /contenido -->
+      </div> <!-- /contenedor -->
+    </div> <!-- #cuerpo -->
+    <div id="pie">
+      <div id="menuPie">
+        <div class="franjaMenu">
+          <ul>
+            <li><a href="https://subastas.boe.es/textoPolitica.php" target="_blank" title="Abre nueva ventana">Acerca del Portal</a></li>
+          </ul>
+        </div> <!-- .franjaMenu -->
+      </div> <!-- #menuPie -->
+      <div class="franja-pie">
+        <p>Agencia Estatal Boletín Oficial del Estado</p>
+        <p><abbr title="Avenida">Avda.</abbr> de Manoteras, 54 - 28050 Madrid</p>
+      </div>
+    </div> <!-- #pie -->
+    <script src="/lib/js/desplegable.js"></script>
+  
+
+</body></html>
+Se han recopilado 0 subastas para procesar.
+Cargadas 122 subastas existentes desde auctions.ts
+
+--- RESULTADOS DEL CRAWLER ---
+{
+  "totalEncontradas": 0,
+  "totalValidas": 0,
+  "totalNuevas": 0,
+  "totalActualizadas": 0,
+  "subastasInsertadas": 0,
+  "subastasActualizadas": 0
+}
+Crawler finalizado.
