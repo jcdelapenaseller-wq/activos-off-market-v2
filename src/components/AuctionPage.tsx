@@ -437,7 +437,7 @@ const AuctionPage: React.FC = () => {
             )}
 
             {/* Quick Summary Block */}
-            <div className="bg-brand-900 text-white rounded-3xl p-6 mb-16 shadow-lg">
+            <div className="bg-brand-900 text-white rounded-3xl p-6 mb-8 shadow-lg">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/10 p-2 rounded-lg">
@@ -469,6 +469,13 @@ const AuctionPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Secondary CTA */}
+            <div className="text-center mb-16">
+              <a href="/calculadora" className="inline-block bg-brand-600 text-white font-bold py-4 px-8 rounded-full hover:bg-brand-700 transition shadow-md">
+                Calcula tu puja o analiza esta subasta en detalle →
+              </a>
+            </div>
+
             {/* Analysis Block */}
             <section className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm mb-16">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
@@ -495,6 +502,20 @@ const AuctionPage: React.FC = () => {
                     </a>
                   )}
                 </div>
+              </div>
+              <div className="prose prose-slate prose-lg max-w-none mb-12 text-slate-700">
+                <p className="mb-6">
+                  Esta subasta presenta características técnicas que requieren un análisis pormenorizado antes de proceder con cualquier puja. 
+                  La valoración inicial y el estado de las cargas son factores determinantes para el éxito de la operación.
+                </p>
+                <p className="mb-6">
+                  El activo se encuentra en {auction.city}, una zona con {auction.propertyType === 'Vivienda' ? 'demanda residencial activa' : 'potencial de desarrollo'}. 
+                  Es fundamental revisar el estado de ocupación para evitar retrasos en la toma de posesión.
+                </p>
+                <p className="mb-6">
+                  Recomendamos encarecidamente realizar un estudio de cargas registrales actualizado, 
+                  ya que las deudas preferentes pueden alterar significativamente la rentabilidad final del activo.
+                </p>
               </div>
               
               <div className="prose prose-slate max-w-none mb-12">
