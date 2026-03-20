@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ShieldCheck, ChevronRight } from 'lucide-react';
 import { AuctionData } from '../data/auctions';
 import { AUCTION_RESULTS } from '../data/auctionResults';
 import { calculateDiscount, isAuctionFinished } from '../utils/auctionHelpers';
@@ -8,6 +9,7 @@ import { getImageForPropertyType } from '../constants/auctionImages';
 interface Props {
   auction: AuctionData;
   slug: string;
+  index?: number;
 }
 
 const formatCurrency = (value: number | undefined | null) => {
@@ -24,77 +26,65 @@ const getStatus = (date?: string) => {
   return { label: 'Activa', sentence: 'Análisis de la oportunidad actual.' };
 };
 
-const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug }) => {
+const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug, index = 0 }) => {
   const discount = calculateDiscount(auction.valorTasacion, auction.valorSubasta, auction.claimedDebt);
   const titleData = discount ? `${discount}% descuento` : `Valor: ${formatCurrency(auction.valorTasacion || auction.valorSubasta)}`;
-  const imageUrl = getImageForPropertyType(auction.propertyType, slug);
+  const imageUrl = getImageForPropertyType(auction.propertyType, slug, index);
   const status = getStatus(auction.auctionDate);
   const formattedDate = auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'N/A';
 
   return (
-    <article className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
-      <img 
-        src={imageUrl} 
-        alt={`${auction.propertyType} en ${auction.city}`} 
-        className="w-full h-48 object-cover rounded-2xl mb-6"
-        referrerPolicy="no-referrer"
-      />
-      <div className="flex items-center justify-between mb-4">
-        <span className={`text-xs font-bold px-3 py-1 rounded-full ${status.label === 'Activa' ? 'bg-emerald-100 text-emerald-800' : status.label === 'En preparación' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-800'}`}>
-          {status.label}
-        </span>
-        {AUCTION_RESULTS[slug] && (
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-800 text-white">
-            Adjudicada: {AUCTION_RESULTS[slug].finalPrice?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}
-          </span>
-        )}
-        <span className="text-xs text-slate-500">Fecha: {formattedDate}</span>
-      </div>
-      <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4">
-        {auction.propertyType} en {auction.city} - {titleData}
-      </h2>
-      <div className="prose prose-slate max-w-none mb-4 text-sm">
-        <p className="mb-2 font-medium text-slate-800">{status.sentence}</p>
-        <p className="mb-2">
-          Esta <Link to={`/subasta/${slug}`} className="text-brand-600 hover:underline">subasta en {auction.city}</Link> se encuentra {status.label.toLowerCase()} en {auction.address || auction.city}. 
-          {discount ? ` Oportunidad con un descuento estimado del ${discount}%.` : ' Analiza las cargas antes de pujar.'}
-        </p>
-        <p className="text-slate-600 mb-2">
-          Este activo presenta un margen técnico relevante entre su valor de tasación y la deuda reclamada, lo que permite una entrada en mercado con un descuento competitivo. 
-          Su ubicación en {auction.city} sugiere una demanda estable para estrategias de arrendamiento o posterior venta.
-        </p>
-        <p className="text-amber-800 bg-amber-50 p-3 rounded-lg border border-amber-100 mb-4">
-          <strong>Advertencia:</strong> Se recomienda verificar el estado de ocupación y las cargas registrales previas a la puja, ya que estos factores pueden influir en los plazos de posesión.
-        </p>
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4">
-          <h4 className="text-sm font-bold text-slate-900 mb-1">Análisis Técnico</h4>
-          <p className="text-xs text-slate-600">
-            El margen entre el valor de tasación y la deuda reclamada ({formatCurrency(auction.claimedDebt)}) sugiere una oportunidad de entrada competitiva. 
-            La rentabilidad final dependerá de la gestión de cargas registrales y la rapidez en la toma de posesión.
+    <Link to={`/noticias-subastas/analisis/${slug}`} className="block group h-full">
+      <article className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 h-full flex flex-col group-hover:shadow-md transition-all">
+        <div className="relative overflow-hidden rounded-2xl mb-6 shrink-0">
+          <img 
+            src={imageUrl} 
+            alt={`${auction.propertyType} en ${auction.city}`} 
+            className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute top-4 left-4 flex gap-2">
+            <span className={`text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow-lg ${status.label === 'Activa' ? 'bg-emerald-600 text-white' : status.label === 'En preparación' ? 'bg-blue-600 text-white' : 'bg-slate-600 text-white'}`}>
+              {status.label}
+            </span>
+            {AUCTION_RESULTS[slug] && (
+              <span className="text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full bg-slate-900 text-white shadow-lg">
+                Adjudicada
+              </span>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2 text-slate-500 text-xs mb-3">
+          <span className="font-bold text-brand-600 uppercase tracking-widest">Análisis de Activo</span>
+          <span>•</span>
+          <span>{formattedDate}</span>
+        </div>
+
+        <h2 className="text-2xl font-serif font-bold text-slate-900 mb-4 group-hover:text-brand-600 transition-colors line-clamp-2">
+          {auction.propertyType} en {auction.city} - {titleData}
+        </h2>
+
+        <div className="prose prose-slate max-w-none mb-6 text-sm line-clamp-3 text-slate-600">
+          <p>
+            {status.sentence} Esta oportunidad en {auction.city} presenta un margen técnico relevante entre su valor de tasación y la deuda reclamada. 
+            Analizamos los riesgos y beneficios de este activo en {auction.province}.
           </p>
         </div>
-        {AUCTION_RESULTS[slug]?.auctionResultStatus === 'adjudicated' && AUCTION_RESULTS[slug].finalPrice && auction.valorTasacion && (
-          <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 mb-4">
-            <h4 className="text-sm font-bold text-emerald-900 mb-1">Resultado de la subasta</h4>
-            <p className="text-sm text-emerald-800">
-              Precio final: <span className="font-bold">{AUCTION_RESULTS[slug].finalPrice?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-            </p>
-            <p className="text-xs text-emerald-700 italic mt-1">
-              Se adjudicó un {Math.abs(((auction.valorTasacion - AUCTION_RESULTS[slug].finalPrice!) / auction.valorTasacion) * 100).toFixed(0)}% {((auction.valorTasacion - AUCTION_RESULTS[slug].finalPrice!) / auction.valorTasacion) * 100 > 0 ? 'por debajo' : 'por encima'} del valor de tasación.
-            </p>
+
+        <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+              <ShieldCheck size={16} />
+            </div>
+            <span className="text-xs font-bold text-slate-700">Auditado por expertos</span>
           </div>
-        )}
-        <p className="text-sm text-slate-500 mb-4">
-          Publicamos oportunidades en tiempo real en nuestro <a href="https://t.me/activosoffmarket" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline font-medium">canal de Telegram</a>.
-        </p>
-        <Link to={`/subastas/${auction.province?.toLowerCase()}`} className="text-slate-500 hover:text-brand-600 text-xs font-medium">
-          Ver más subastas en {auction.province} →
-        </Link>
-      </div>
-      <Link to={`/subasta/${slug}`} className="block text-brand-600 font-bold hover:underline mt-2">
-        Ver detalles técnicos de la subasta →
-      </Link>
-    </article>
+          <div className="text-brand-600 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+            Leer análisis <ChevronRight size={16} />
+          </div>
+        </div>
+      </article>
+    </Link>
   );
 };
 

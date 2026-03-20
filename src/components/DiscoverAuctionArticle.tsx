@@ -11,6 +11,7 @@ const formatCurrency = (value: number | undefined | null) => {
   if (value === undefined || value === null) return 'N/A';
   return value.toLocaleString('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 };
+import { getImageForPropertyType } from '../constants/auctionImages';
 import { AuctionCard } from './AuctionCard';
 import PremiumValueBlock from './PremiumValueBlock';
 import Header from './Header';
@@ -51,10 +52,10 @@ const DiscoverAuctionArticle: React.FC = () => {
     const discount = stats.discount;
     
     const titles = [
-      `Este ${type} en ${location} podría venderse por un ${discount}% menos de su valor`,
-      `Oportunidad detectada: ${stats.propertyType} en ${location} con deuda reducida`,
-      `Análisis técnico: ¿Merece la pena pujar por este ${type} en ${location}?`,
-      `Lo que oculta la subasta de este ${type} en ${location}: precio vs valor real`
+      `Un ${stats.propertyType} en ${stats.location} sale a subasta con un -${discount}%... y hay un detalle clave`,
+      `${stats.propertyType} en ${stats.location} por ${formatCurrency(stats.valorReferencia)}: el margen no es lo que parece`,
+      `Subasta de ${stats.propertyType} en ${stats.location} (-${discount}%): ¿es una trampa o una oportunidad?`,
+      `Este ${type} en ${location} se subasta por ${formatCurrency(stats.valorReferencia)}: cuidado con este detalle`
     ];
     
     // Use slug length to pick a title for consistency
@@ -63,9 +64,24 @@ const DiscoverAuctionArticle: React.FC = () => {
     return {
       title,
       meta: `Analizamos la subasta de un ${type} en ${location}. Valor de tasación: ${formatCurrency(stats.valorReferencia)}. Deuda reclamada: ${formatCurrency(stats.cantidadReclamada)}.`,
-      intro: `Hemos localizado un **${type}** en **${location}** que presenta una configuración financiera extremadamente interesante para un inversor. Con un valor de tasación de **${formatCurrency(stats.valorReferencia)}** y una deuda reclamada de solo **${formatCurrency(stats.cantidadReclamada)}**, el margen teórico de beneficio es del **${discount}%**.`,
-      body: `Este tipo de activos suelen pasar desapercibidos en el BOE debido a la falta de análisis técnico. Sin embargo, tras revisar el expediente, observamos que la ubicación en **${location}** y el tipo de activo lo convierten en una pieza codiciada para estrategias de flipping o alquiler patrimonial. La clave aquí es la diferencia entre el valor de mercado y la carga que origina la subasta.`,
-      image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80'
+      intro: `Este **${type}** en **${location}** acaba de aparecer con un descuento del **${discount}%**... y hay un detalle financiero que cambia todo. No es un caso aislado: la mayoría de los inversores no está viendo este margen de beneficio.`,
+      body: `
+        <p class="mb-8 leading-8">Este tipo de activos suelen pasar desapercibidos en el BOE debido a la falta de análisis técnico y la complejidad de los expedientes judiciales.</p>
+        <p class="mb-8 leading-8">Tras revisar minuciosamente la documentación de este <strong>${type}</strong> en <strong>${location}</strong>, observamos que la configuración de cargas lo convierte en una pieza codiciada.</p>
+        
+        <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">📊 Análisis de rentabilidad</h3>
+        <p class="mb-8 leading-8">La clave de esta operación reside en la asimetría entre el valor de mercado real en la zona de ${location} y la carga que origina la subasta.</p>
+        <p class="mb-8 leading-8">Con un valor de tasación de ${formatCurrency(stats.valorReferencia)}, el margen de seguridad es lo suficientemente amplio como para absorber todos los costes.</p>
+        
+        <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">🔍 Contexto del inversor</h3>
+        <p class="mb-8 leading-8">Desde el punto de vista del inversor, la ubicación en ${location} sugiere una demanda estable y una liquidez de salida rápida.</p>
+        <p class="mb-8 leading-8">El análisis del entorno confirma que activos similares se están transaccionando a precios que validan la oportunidad técnica detectada.</p>
+        
+        <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">⚠️ Riesgos y garantías</h3>
+        <p class="mb-8 leading-8">Es fundamental recordar que el éxito en estas operaciones depende de la validación de las cargas registrales previas.</p>
+        <p class="mb-8 leading-8">En este caso concreto, la relación entre la deuda y el valor del activo permite una estrategia de puja agresiva pero segura.</p>
+      `,
+      image: getImageForPropertyType(auction.propertyType, slug!, 0)
     };
   }, [auction, stats, slug]);
 
@@ -78,8 +94,8 @@ const DiscoverAuctionArticle: React.FC = () => {
       "headline": content.title,
       "description": content.meta,
       "image": [content.image],
-      "datePublished": new Date().toISOString().split('T')[0],
-      "dateModified": new Date().toISOString().split('T')[0],
+      "datePublished": auction.publishedAt || new Date().toISOString().split('T')[0],
+      "dateModified": auction.lastCheckedAt || auction.publishedAt || new Date().toISOString().split('T')[0],
       "author": [{
         "@type": "Organization",
         "name": "Activos Off-Market",
@@ -113,8 +129,13 @@ const DiscoverAuctionArticle: React.FC = () => {
 
   if (!slug || !auction) return <Navigate to={ROUTES.NOTICIAS_SUBASTAS_INDEX} replace />;
 
-  const today = new Date();
-  const formattedDate = today.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  const date = auction?.lastCheckedAt ? new Date(auction.lastCheckedAt) : new Date();
+  const formattedDate = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  const diffMs = new Date().getTime() - date.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const updateText = diffHours < 24
+    ? `Actualizado hace ${diffHours} horas`
+    : `Última actualización: ${formattedDate}`;
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 flex flex-col">
@@ -140,8 +161,8 @@ const DiscoverAuctionArticle: React.FC = () => {
             <div className="flex flex-wrap items-center gap-4 text-sm mb-6">
               <div className="flex items-center gap-1.5 text-brand-700 bg-brand-50 px-3 py-1 rounded-full font-bold">
                 <Zap size={14} className="text-brand-500" />
-                <time dateTime={today.toISOString()}>
-                  Análisis Exclusivo · {formattedDate}
+                <time dateTime={date.toISOString()}>
+                  {updateText}
                 </time>
               </div>
               <div className="flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full font-bold border border-emerald-100">
@@ -161,7 +182,7 @@ const DiscoverAuctionArticle: React.FC = () => {
                 className="w-full h-[300px] md:h-[450px] object-cover md:rounded-none"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-40"></div>
               <figcaption className="absolute bottom-6 left-6 md:left-10 text-white">
                 <p className="text-[10px] uppercase tracking-[0.2em] font-bold mb-1 opacity-80">Ficha Técnica de Inversión</p>
                 <p className="text-lg md:text-xl font-serif italic">{stats?.propertyType} en {stats?.location}</p>
@@ -185,6 +206,30 @@ const DiscoverAuctionArticle: React.FC = () => {
           </header>
 
           <div className="prose prose-lg prose-slate max-w-none">
+            <p className="lead text-xl text-slate-700 font-medium mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: content?.intro || '' }} />
+            
+            {/* CTA Calculadora Integrado */}
+            <div className="my-10 p-8 bg-slate-900 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-8 not-prose shadow-2xl relative overflow-hidden group">
+              <div className="relative z-10 text-center md:text-left">
+                <p className="text-brand-400 font-bold text-xs uppercase tracking-widest mb-2">Herramienta Gratuita</p>
+                <p className="text-xl font-bold mb-1">¿Es rentable esta puja?</p>
+                <p className="text-slate-400 text-sm">Introduce los datos de esta subasta y obtén tu margen neto.</p>
+              </div>
+              <Link 
+                to={ROUTES.CALCULATOR}
+                onClick={() => trackConversion(stats?.location || '', 'discover-auction', 'calculator')}
+                className="relative z-10 bg-white text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-brand-50 transition-all whitespace-nowrap shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Abrir Calculadora
+              </Link>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full -translate-y-16 translate-x-16 blur-3xl group-hover:bg-brand-500/20 transition-colors"></div>
+            </div>
+
+            <div 
+              className="text-slate-600 mb-12 leading-9"
+              dangerouslySetInnerHTML={{ __html: content?.body || '' }}
+            />
+
             {/* Tabla de datos reales */}
             <div className="bg-slate-50 rounded-2xl p-8 mb-10 border border-slate-200 not-prose">
               <h3 className="text-slate-900 font-bold mb-6 flex items-center gap-2">
@@ -211,29 +256,6 @@ const DiscoverAuctionArticle: React.FC = () => {
               </div>
             </div>
 
-            <p className="lead text-xl text-slate-700 font-medium mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: content?.intro || '' }} />
-            
-            <p className="text-slate-600 mb-8 leading-relaxed">
-              {content?.body}
-            </p>
-
-            {/* CTA Calculadora Integrado */}
-            <div className="my-10 p-8 bg-slate-900 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-8 not-prose shadow-2xl relative overflow-hidden group">
-              <div className="relative z-10 text-center md:text-left">
-                <p className="text-brand-400 font-bold text-xs uppercase tracking-widest mb-2">Herramienta Gratuita</p>
-                <p className="text-xl font-bold mb-1">¿Es rentable esta puja?</p>
-                <p className="text-slate-400 text-sm">Introduce los datos de esta subasta y obtén tu margen neto.</p>
-              </div>
-              <Link 
-                to={ROUTES.CALCULATOR}
-                onClick={() => trackConversion(stats?.location || '', 'discover-auction', 'calculator')}
-                className="relative z-10 bg-white text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-brand-50 transition-all whitespace-nowrap shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Abrir Calculadora
-              </Link>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full -translate-y-16 translate-x-16 blur-3xl group-hover:bg-brand-500/20 transition-colors"></div>
-            </div>
-
             <div className="my-12 flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
                 to={`/subasta/${slug}`}
@@ -247,10 +269,6 @@ const DiscoverAuctionArticle: React.FC = () => {
               >
                 Más subastas en {stats?.province}
               </Link>
-            </div>
-
-            <div className="mt-16 pt-10 border-t border-slate-100">
-              <PremiumValueBlock />
             </div>
           </div>
         </article>
