@@ -14,17 +14,12 @@ import Footer from './Footer';
 import TelegramCTA from './TelegramCTA';
 import { getImageForPropertyType } from '../constants/auctionImages';
 
-interface Props {
-  variant?: 'urgency' | 'opportunity' | 'analysis';
-}
-
-const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) => {
+const DiscoverProvinceArticle: React.FC = () => {
   const { province } = useParams<{ province: string }>();
   
-  const normalizedProvinceParam = province?.toLowerCase() || '';
-  const provinceName = useMemo(() => {
+  const normalizedProvinceParam = useMemo(() => {
     if (!province) return '';
-    return province.charAt(0).toUpperCase() + province.slice(1).toLowerCase();
+    return normalizeProvince(province.replace(/-/g, ' ')).toLowerCase();
   }, [province]);
 
   const provinceAuctions = useMemo(() => {
@@ -35,6 +30,14 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
     });
     return sortActiveFirst(filtered, (item) => item[1].auctionDate);
   }, [province, normalizedProvinceParam]);
+
+  const provinceName = useMemo(() => {
+    if (provinceAuctions.length > 0) {
+      return normalizeProvince(provinceAuctions[0][1].province || provinceAuctions[0][1].city);
+    }
+    if (!province) return '';
+    return province.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  }, [provinceAuctions, province]);
 
   const activeAuctions = useMemo(() => {
     return provinceAuctions.filter(([_, data]) => !isAuctionFinished(data.auctionDate));
@@ -91,112 +94,43 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
     const bestSlug = topExamples[0]?.slug || 'default';
     const bestType = bestDeal ? normalizePropertyType(bestDeal.propertyType).toLowerCase() : 'inmueble';
     const bestCity = bestDeal ? (bestDeal.city || provinceName) : provinceName;
-    const dynamicImage = getImageForPropertyType(bestDeal?.propertyType, bestSlug, 0);
+    const slugBase = provinceName.toLowerCase().replace(/\s+/g, '-');
+    const dynamicImage = getImageForPropertyType('default', `${slugBase}-0-${provinceName}`, 0);
 
-    const generateEditorial = (v: string) => {
-      if (v === 'urgency') {
-        const urgTitles = [
-          `Cierre inminente en ${provinceName}: ${total} subastas clave (-${maxDesc}% de ahorro)`,
-          `Si buscas en ${provinceName}, estas ${total} subastas (-${maxDesc}%) están a punto de desaparecer`,
-          `Última ventana en ${provinceName}: ${total} subastas clave cierran hoy`
-        ];
-        const title = urgTitles[provinceName.length % urgTitles.length].substring(0, 90);
+    const oppTitles = [
+      `Ojo a estas subastas en ${provinceName}: hay descuentos poco habituales`,
+      `Este inmueble en ${provinceName} podría venderse muy por debajo de su valor`,
+      `Lo que está pasando con estas subastas en ${provinceName} no es normal`,
+      `Detectada oportunidad en ${provinceName} con un ${maxDesc}% de descuento`
+    ];
+    const title = oppTitles[provinceName.length % oppTitles.length].substring(0, 90);
 
-        return {
-          title,
-          meta: `No dejes pasar la oportunidad. Hoy cierran ${total} subastas en ${provinceName}. Analizamos los activos más rentables antes del fin del plazo.`,
-          intro: `Hay **${total} subastas** en **${provinceName}** que cierran hoy... y la mayoría de los inversores no se han dado cuenta. No es un caso aislado: esto está pasando ahora mismo y es tu última oportunidad para pujar antes de que desaparezcan.`,
-          body: `
-            <p class="mb-8 leading-8">La parálisis administrativa suele dar paso a cierres masivos de expedientes, y hoy estamos viviendo uno de esos momentos críticos en la provincia. Participar en una subasta que termina hoy requiere rapidez, pero sobre todo precisión técnica.</p>
-            
-            <div id="telegram-cta-mid"></div>
+    return {
+      title,
+      meta: `Acabamos de detectar nuevas oportunidades en ${provinceName}. ${total} activos disponibles con descuentos de hasta el ${maxDesc}%.`,
+      intro: `Un **${bestType}** en **${bestCity}** acaba de aparecer con un descuento del **${maxDesc}%**... y hay un detalle técnico que cambia todo. No es un caso aislado: esto está pasando ahora mismo en **${provinceName}**.`,
+      body: `
+        <p class="mb-8 leading-8">El mercado de subastas en <strong>${provinceName}</strong> se ha actualizado con <strong>${total} nuevas oportunidades</strong> que están pasando desapercibidas para el gran público.</p>
+        <p class="mb-8 leading-8">Mientras los precios en portales convencionales se mantienen rígidos, el sistema judicial está liberando activos a valoraciones de hace una década.</p>
+        
+        <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">💎 Oportunidades ocultas</h3>
+        <p class="mb-8 leading-8">Esta asimetría de información es la base de las grandes fortunas inmobiliarias y hoy está al alcance del inversor particular formado en ${provinceName}.</p>
+        <p class="mb-8 leading-8">Estamos viendo una entrada constante de activos en <strong>${bestCity}</strong> que salen a subasta por deudas que representan una fracción de su valor real.</p>
+        
+        <div id="telegram-cta-mid"></div>
 
-            <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">📊 El contexto de hoy</h3>
-            <p class="mb-8 leading-8">En el mercado de <strong>${provinceName}</strong>, hemos observado una tendencia recurrente: la agrupación de fechas de finalización suele dispersar la atención de los postores habituales.</p>
-            <p class="mb-8 leading-8">Esto permite que activos de alta calidad, como el <strong>${bestType}</strong> detectado en <strong>${bestCity}</strong>, puedan quedar con menos competencia de la esperada en los minutos finales.</p>
-            
-            <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">⚠️ Riesgos y margen</h3>
-            <p class="mb-8 leading-8">La demanda de activos adjudicados en ${provinceName} sigue al alza, pero la barrera de entrada técnica (revisión de cargas y depósitos) mantiene los precios en niveles muy atractivos.</p>
-            <p class="mb-8 leading-8">Entre los ${total} activos que cierran hoy, algunos mantienen deudas significativamente bajas frente a su valor de tasación, lo que genera un margen de seguridad inusual.</p>
-            
-            <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">💡 Estrategia recomendada</h3>
-            <p class="mb-8 leading-8">Muchos inversores cometen el error de pujar demasiado pronto, revelando sus cartas; la estrategia ganadora hoy es la vigilancia hasta el último segundo.</p>
-            <p class="mb-8 leading-8">Este cierre inminente representa el escenario ideal para ejecutar una compra con descuento máximo en una provincia con la dinámica de ${provinceName}.</p>
-          `,
-          cta: `Ver cierres de hoy en ${provinceName}`,
-          image: dynamicImage
-        };
-      }
-      
-      if (v === 'analysis') {
-        const anaTitles = [
-          `Algo está pasando en las subastas de ${provinceName} (${total} oportunidades detectadas)`,
-          `Se disparan las subastas en ${provinceName}: varias viviendas (-${maxDesc}%) muy por debajo de mercado`,
-          `Análisis de ${total} subastas en ${provinceName}: ¿dónde está el margen real?`
-        ];
-        const title = anaTitles[provinceName.length % anaTitles.length].substring(0, 90);
-
-        return {
-          title,
-          meta: `Analizamos la rentabilidad en ${provinceName}. Con ${total} activos disponibles y descuentos del ${maxDesc}%, el mercado ofrece opciones estratégicas.`,
-          intro: `El mercado de **${provinceName}** acaba de revelar una oportunidad que la mayoría no está viendo. Con **${total} activos disponibles** y descuentos de hasta el **${maxDesc}%**, estamos ante un escenario que podría cambiar tu estrategia de inversión hoy mismo.`,
-          body: `
-            <p class="mb-8 leading-8">Invertir en <strong>${provinceName}</strong> requiere hoy una visión periférica y un análisis de datos riguroso que escape a los circuitos comerciales tradicionales.</p>
-            <p class="mb-8 leading-8">Ya no basta con buscar en las zonas más evidentes; el flujo de subastas judiciales se está desplazando hacia municipios de segunda corona y zonas en expansión.</p>
-            
-            <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">📈 Dónde está el valor</h3>
-            <p class="mb-8 leading-8">Nuestro análisis técnico de los ${total} activos disponibles muestra una concentración interesante de <strong>${bestType}s</strong> en ubicaciones estratégicas.</p>
-            <p class="mb-8 leading-8">En particular, en <strong>${bestCity}</strong>, detectamos una brecha de valor entre la tasación oficial y el precio de mercado que supera con creces el ${maxDesc}%.</p>
-            
-            <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">🔍 Interpretación inversora</h3>
-            <p class="mb-8 leading-8">Muchas valoraciones judiciales no han capturado la revalorización reciente de la zona, dejando un margen de beneficio latente para el adjudicatario.</p>
-            <p class="mb-8 leading-8">La clave no es la subasta en sí, sino la gestión posterior y el conocimiento de los tiempos judiciales locales en ${provinceName}.</p>
-            
-            <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">🛡️ Margen de seguridad</h3>
-            <p class="mb-8 leading-8">Adquirir un activo con un descuento técnico importante permite absorber cualquier imprevisto y asegurar una rentabilidad de doble dígito.</p>
-            <p class="mb-8 leading-8">Comprar con un margen del ${maxDesc}% en una provincia con la tracción de ${provinceName} es la mejor defensa contra la incertidumbre actual.</p>
-          `,
-          cta: `Analizar mercado de ${provinceName}`,
-          image: dynamicImage
-        };
-      }
-
-      // default: opportunity
-      const oppTitles = [
-        `Oportunidad en ${provinceName}: ${total} activos detectados con hasta un ${maxDesc}% de descuento`,
-        `Este ${bestType} en ${bestCity} podría venderse muy por debajo de su valor (-${maxDesc}%)`,
-        `Lo que está pasando con estas ${total} subastas en ${provinceName} no es normal`,
-        `Detectada oportunidad en ${provinceName} (${total} activos): descuentos de hasta ${maxDesc}%`
-      ];
-      const title = oppTitles[provinceName.length % oppTitles.length].substring(0, 90);
-
-      return {
-        title,
-        meta: `Acabamos de detectar nuevas oportunidades en ${provinceName}. ${total} activos disponibles con descuentos de hasta el ${maxDesc}%.`,
-        intro: `Un **${bestType}** en **${bestCity}** acaba de aparecer con un descuento del **${maxDesc}%**... y hay un detalle técnico que cambia todo. No es un caso aislado: esto está pasando ahora mismo en **${provinceName}**.`,
-        body: `
-          <p class="mb-8 leading-8">El mercado de subastas en <strong>${provinceName}</strong> se ha actualizado con <strong>${total} nuevas oportunidades</strong> que están pasando desapercibidas para el gran público.</p>
-          <p class="mb-8 leading-8">Mientras los precios en portales convencionales se mantienen rígidos, el sistema judicial está liberando activos a valoraciones de hace una década.</p>
-          
-          <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">💎 Oportunidades ocultas</h3>
-          <p class="mb-8 leading-8">Esta asimetría de información es la base de las grandes fortunas inmobiliarias y hoy está al alcance del inversor particular formado en ${provinceName}.</p>
-          <p class="mb-8 leading-8">Estamos viendo una entrada constante de activos en <strong>${bestCity}</strong> que salen a subasta por deudas que representan una fracción de su valor real.</p>
-          
-          <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">📊 Análisis de rentabilidad</h3>
-          <p class="mb-8 leading-8">Incluso tras considerar el pago de ITP y gastos de registro, la entrada en estos activos se realiza con un "colchón" de rentabilidad inmenso.</p>
-          <p class="mb-8 leading-8">Es el momento de dejar de competir con cientos de compradores y empezar a analizar lo que el BOE esconde en ${provinceName}.</p>
-          
-          <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">🚀 Conclusión técnica</h3>
-          <p class="mb-8 leading-8">Con descuentos que alcanzan el ${maxDesc}%, el potencial de revalorización inmediata tras la adjudicación definitiva es real y tangible.</p>
-          <p class="mb-8 leading-8">No estamos ante una inversión pasiva, sino ante una gestión activa que premia a quien tiene la información correcta en el momento preciso.</p>
-        `,
-        cta: `Ver oportunidades en ${provinceName}`,
-        image: dynamicImage
-      };
+        <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">📊 Análisis de rentabilidad</h3>
+        <p class="mb-8 leading-8">Incluso tras considerar el pago de ITP y gastos de registro, la entrada en estos activos se realiza con un "colchón" de rentabilidad inmenso.</p>
+        <p class="mb-8 leading-8">Es el momento de dejar de competir con cientos de compradores y empezar a analizar lo que el BOE esconde en ${provinceName}.</p>
+        
+        <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">🚀 Conclusión técnica</h3>
+        <p class="mb-8 leading-8">Con descuentos que alcanzan el ${maxDesc}%, el potencial de revalorización inmediata tras la adjudicación definitiva es real y tangible.</p>
+        <p class="mb-8 leading-8">No estamos ante una inversión pasiva, sino ante una gestión activa que premia a quien tiene la información correcta en el momento preciso.</p>
+      `,
+      cta: `Ver oportunidades en ${provinceName}`,
+      image: dynamicImage
     };
-
-    return generateEditorial(variant);
-  }, [variant, provinceName, stats, topExamples]);
+  }, [provinceName, stats, topExamples]);
 
   const jsonLd = useMemo(() => {
     if (!provinceName || !content) return null;
@@ -214,7 +148,7 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
       "dateModified": latestDate.split('T')[0],
       "author": [{
         "@type": "Organization",
-        "name": "Activos Off-Market",
+        "name": "Equipo Activos Off-Market",
         "url": "https://activosoffmarket.es"
       }],
       "publisher": {
@@ -241,9 +175,11 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
     const date = topExamples[0]?.data.lastCheckedAt ? new Date(topExamples[0].data.lastCheckedAt) : new Date();
     const diffMs = new Date().getTime() - date.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    return diffHours < 24
-      ? `Actualizado hace ${diffHours} horas`
-      : `Última actualización: ${formattedDate}`;
+    return diffHours === 0 
+      ? 'Publicado hoy'
+      : diffHours < 24 && diffHours > 0
+        ? `Actualizado hace ${diffHours} horas`
+        : `Última actualización: ${formattedDate}`;
   }, [topExamples, formattedDate]);
 
   useEffect(() => {
@@ -327,8 +263,8 @@ const DiscoverProvinceArticle: React.FC<Props> = ({ variant = 'opportunity' }) =
                 }}
               />
               <div>
-                <p className="font-bold text-slate-900">Equipo de Análisis Técnico</p>
-                <p className="text-xs text-slate-500 uppercase tracking-widest font-semibold">Activos Off-Market · Especialistas YMYL</p>
+                <p className="font-bold text-slate-900">Equipo Activos Off-Market</p>
+                <p className="text-xs text-slate-500 uppercase tracking-widest font-semibold">Especialistas en subastas judiciales</p>
               </div>
             </div>
           </header>

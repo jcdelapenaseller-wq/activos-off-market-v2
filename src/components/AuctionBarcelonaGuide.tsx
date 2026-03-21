@@ -396,7 +396,7 @@ const AuctionBarcelonaGuide: React.FC = () => {
                             )}
                           </div>
                           <Link 
-                            to={`/ejemplo-subasta/${slug}`}
+                            to={`/subasta/${slug}`}
                             className={`inline-flex items-center justify-center gap-2 w-full font-bold py-2 px-4 rounded-lg text-sm transition-all ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                           >
                             Ver análisis <ChevronRight size={16} />

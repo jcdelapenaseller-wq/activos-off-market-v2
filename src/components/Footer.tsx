@@ -56,6 +56,7 @@ const Footer: React.FC = () => {
                 <BookOpen size={18} className="text-brand-500"/> Guía Subastas
             </h4>
             <ul className="space-y-3 text-sm">
+              <li><Link to={ROUTES.NOTICIAS_SUBASTAS_INDEX} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200 font-bold text-brand-400">Noticias de subastas</Link></li>
               <li><Link to={ROUTES.GLOSSARY} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200 font-bold text-brand-400">Glosario de términos</Link></li>
               <li><Link to={ROUTES.GUIDE_PILLAR} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Subastas judiciales en España</Link></li>
               <li><Link to={ROUTES.RULE_70} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">Regla del 70%</Link></li>

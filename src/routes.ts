@@ -16,6 +16,12 @@ const RedirectSlug = ({ to }: { to: string }) => {
   return createElement(Navigate, { to: to.replace(':slug', slug || '') + location.search + location.hash, replace: true });
 };
 
+const RedirectProvince = ({ to }: { to: string }) => {
+  const { province } = useParams();
+  const location = useLocation();
+  return createElement(Navigate, { to: to.replace(':province', province || '') + location.search + location.hash, replace: true });
+};
+
 const RedirectCityZone = ({ to }: { to: string }) => {
   const { city, zone } = useParams();
   const location = useLocation();
@@ -252,19 +258,19 @@ export const routes: RouteObject[] = [
   },
   {
     path: '/noticias-subastas/provincia/:province/hoy',
-    element: createElement(DiscoverProvinceArticle, { variant: 'urgency' }),
+    element: createElement(RedirectProvince, { to: '/noticias-subastas/provincia/:province' }),
   },
   {
     path: '/noticias-subastas/provincia/:province/oportunidades',
-    element: createElement(DiscoverProvinceArticle, { variant: 'opportunity' }),
+    element: createElement(RedirectProvince, { to: '/noticias-subastas/provincia/:province' }),
   },
   {
     path: '/noticias-subastas/provincia/:province/donde-invertir',
-    element: createElement(DiscoverProvinceArticle, { variant: 'analysis' }),
+    element: createElement(RedirectProvince, { to: '/noticias-subastas/provincia/:province' }),
   },
   {
     path: '/noticias-subastas/provincia/:province',
-    element: createElement(DiscoverProvinceArticle, { variant: 'opportunity' }),
+    element: createElement(DiscoverProvinceArticle),
   },
   {
     path: '/noticias-subastas/madrid',

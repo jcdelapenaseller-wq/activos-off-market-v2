@@ -5,6 +5,7 @@ import { AUCTIONS } from '../data/auctions';
 import { getFilteredAuctions } from '../utils/auctionHelpers';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
 import { sortAuctions, isAuctionFinished } from '../utils/auctionHelpers';
+import { ROUTES } from '../constants/routes';
 
 const RecentAuctionsHome: React.FC = () => {
   // Get the 3 most relevant recent auctions (prioritizing active)
@@ -146,6 +147,15 @@ const RecentAuctionsHome: React.FC = () => {
               </div>
             );
           })}
+        </div>
+        
+        <div className="mt-12 text-center">
+          <Link 
+            to={ROUTES.NOTICIAS_SUBASTAS_INDEX}
+            className="inline-flex items-center justify-center gap-2 bg-white border-2 border-brand-600 text-brand-700 font-bold py-4 px-8 rounded-full hover:bg-brand-50 transition-all shadow-sm hover:shadow-md"
+          >
+            Ver Noticias de Subastas <ArrowRight size={20} />
+          </Link>
         </div>
       </div>
     </section>

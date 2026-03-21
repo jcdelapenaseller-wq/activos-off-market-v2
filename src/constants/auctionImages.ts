@@ -75,21 +75,32 @@ export const getImageForPropertyType = (type: string | undefined, seed: string, 
   
   // Create a hash from the seed string to ensure it's deterministic
   let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+  const fullSeed = `${seed}-${normalizedType}`;
+  for (let i = 0; i < fullSeed.length; i++) {
+    hash = ((hash << 5) - hash) + fullSeed.charCodeAt(i);
     hash |= 0; // Convert to 32bit integer
   }
   
+  let selectedImage = '';
   // Try to find an image that hasn't been used
   for (let i = 0; i < images.length; i++) {
     const finalIndex = Math.abs(hash + index + i) % images.length;
     const image = images[finalIndex];
     if (!usedImages.includes(image)) {
-      return image;
+      selectedImage = image;
+      break;
     }
   }
   
   // If all images are used, fallback to the first one
-  const finalIndex = Math.abs(hash + index) % images.length;
-  return images[finalIndex];
+  if (!selectedImage) {
+    const finalIndex = Math.abs(hash + index) % images.length;
+    selectedImage = images[finalIndex];
+  }
+
+  // Ensure 16:9 ratio for Discover
+  if (selectedImage.includes('w=1200') && !selectedImage.includes('h=675')) {
+    return selectedImage.replace('w=1200', 'w=1200&h=675');
+  }
+  return selectedImage;
 };

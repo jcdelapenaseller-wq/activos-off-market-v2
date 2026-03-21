@@ -51,6 +51,12 @@ const Header: React.FC = () => {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-10">
           <Link 
+            to={ROUTES.NOTICIAS_SUBASTAS_INDEX} 
+            className={`text-base font-medium transition-colors ${location.pathname.startsWith(ROUTES.NOTICIAS_SUBASTAS_INDEX) ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
+          >
+            Noticias
+          </Link>
+          <Link 
             to={ROUTES.GUIDE_PILLAR} 
             className={`text-base font-medium transition-colors ${location.pathname === ROUTES.GUIDE_PILLAR ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
           >
@@ -94,6 +100,16 @@ const Header: React.FC = () => {
       {/* Mobile Nav */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-xl p-4 flex flex-col gap-4 animate-in slide-in-from-top-5 h-screen overflow-y-auto pb-20">
+           <Link 
+            to={ROUTES.NOTICIAS_SUBASTAS_INDEX} 
+            className="text-lg font-bold text-brand-700 py-3 border-b border-slate-100 bg-brand-50/50 px-2 rounded"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              window.scrollTo(0, 0);
+            }}
+          >
+            Noticias
+          </Link>
            <Link 
             to={ROUTES.GUIDE_PILLAR} 
             className="text-lg font-bold text-brand-700 py-3 border-b border-slate-100 bg-brand-50/50 px-2 rounded"

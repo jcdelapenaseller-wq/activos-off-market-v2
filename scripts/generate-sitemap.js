@@ -10,20 +10,51 @@ const staticPages = [
   '/indice-guia-subastas',
   '/subastas-judiciales-espana',
   '/calculadora-subastas',
-  '/subastas-madrid',
-  '/subastas-barcelona',
-  '/subastas-valencia',
-  '/subastas-sevilla',
   '/ejemplos-subastas',
   '/noticias-subastas',
   '/subastas-recientes',
-  '/subastas-descuento-50',
-  '/noticias-subastas/madrid',
-  '/noticias-subastas/barcelona',
-  '/noticias-subastas/valencia',
-  '/noticias-subastas/sevilla'
+  '/subastas-descuento-50'
 ];
 
+
+function removeAccents(str) {
+  return str
+    .replace(/[áàäâ]/g, 'a')
+    .replace(/[éèëê]/g, 'e')
+    .replace(/[íìïî]/g, 'i')
+    .replace(/[óòöô]/g, 'o')
+    .replace(/[úùüû]/g, 'u')
+    .replace(/[ÁÀÄÂ]/g, 'A')
+    .replace(/[ÉÈËÊ]/g, 'E')
+    .replace(/[ÍÌÏÎ]/g, 'I')
+    .replace(/[ÓÒÖÔ]/g, 'O')
+    .replace(/[ÚÙÜÛ]/g, 'U');
+}
+
+function normalizeProvince(name) {
+  if (!name) return '';
+  let clean = name.toLowerCase().trim();
+  if (clean.includes('/')) clean = clean.split('/')[0].trim();
+  clean = clean.replace(/\([^)]*\)/g, '').trim();
+  clean = clean.replace(/,?\s*\d{5}\b/g, '').trim();
+  clean = removeAccents(clean);
+  clean = clean.split(/[\s-]+/).map(word => {
+    if (['de', 'del', 'la', 'las', 'el', 'los', 'y', 'en', 'l'].includes(word)) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+  const corrections = {
+    'Alacant': 'Alicante',
+    'Castello': 'Castellon',
+    'Girona': 'Gerona',
+    'Lleida': 'Lerida',
+    'Ourense': 'Orense',
+    'A Coruna': 'A Coruña',
+    'Donostia': 'San Sebastian',
+    'Gasteiz': 'Vitoria',
+    'Bilbo': 'Bilbao'
+  };
+  return corrections[clean] || clean;
+}
 
 function generateSitemap() {
   const auctionsFilePath = path.join(process.cwd(), 'src/data/auctions.ts');
@@ -43,31 +74,31 @@ function generateSitemap() {
   // Find unique city + propertyType combinations that actually exist in the data
   const cityPropertyPages = new Set();
   const zonePages = new Set();
-  const cityBidPages = new Set();
-  const cityRentabilityPages = new Set();
-  const cityPujarPages = new Set();
-  const cityAnalizarPages = new Set();
-  const cityAuctionsPages = new Set();
   const cityOpportunitiesPages = new Set();
   const cityBestAuctionsPages = new Set();
   const streetPages = new Set();
   const zonePropertyCityPages = new Set();
+  const provincePages = new Set();
   
   // Split content by auction entries to process them individually
   const entries = auctionsContent.split(/['"]\s*:\s*\{/);
   entries.forEach(entry => {
     const cityMatch = entry.match(/city\s*:\s*['"]([^'"]+)['"]/);
+    const provinceMatch = entry.match(/province\s*:\s*['"]([^'"]+)['"]/);
     const typeMatch = entry.match(/propertyType\s*:\s*['"]([^'"]+)['"]/);
     const zoneMatch = entry.match(/zone\s*:\s*['"]([^'"]+)['"]/);
     const addressMatch = entry.match(/address\s*:\s*['"]([^'"]+)['"]/);
     
+    if (provinceMatch) {
+      const province = normalizeProvince(provinceMatch[1]).toLowerCase().replace(/\s+/g, '-');
+      provincePages.add(`/noticias-subastas/provincia/${province}`);
+    } else if (cityMatch) {
+      const city = normalizeProvince(cityMatch[1]).toLowerCase().replace(/\s+/g, '-');
+      provincePages.add(`/noticias-subastas/provincia/${city}`);
+    }
+    
     if (cityMatch) {
       const city = cityMatch[1].toLowerCase();
-      cityBidPages.add(`/calcular-puja-subasta-${city}`);
-      cityRentabilityPages.add(`/rentabilidad-subasta-${city}`);
-      cityPujarPages.add(`/cuanto-pujar-subasta-${city}`);
-      cityAnalizarPages.add(`/analizar-subasta-${city}`);
-      cityAuctionsPages.add(`/subastas-en-${city}`);
       cityOpportunitiesPages.add(`/subastas/${city}/oportunidades`);
       cityBestAuctionsPages.add(`/mejores-subastas/${city}`);
     }
@@ -137,31 +168,6 @@ ${Array.from(zonePages).map(page => `  <url>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`).join('\n')}
-${Array.from(cityBidPages).map(page => `  <url>
-    <loc>${BASE_URL}${page}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>`).join('\n')}
-${Array.from(cityRentabilityPages).map(page => `  <url>
-    <loc>${BASE_URL}${page}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>`).join('\n')}
-${Array.from(cityPujarPages).map(page => `  <url>
-    <loc>${BASE_URL}${page}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>`).join('\n')}
-${Array.from(cityAnalizarPages).map(page => `  <url>
-    <loc>${BASE_URL}${page}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>`).join('\n')}
-${Array.from(cityAuctionsPages).map(page => `  <url>
-    <loc>${BASE_URL}${page}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>`).join('\n')}
 ${Array.from(cityOpportunitiesPages).map(page => `  <url>
     <loc>${BASE_URL}${page}</loc>
     <changefreq>monthly</changefreq>
@@ -182,30 +188,20 @@ ${Array.from(zonePropertyCityPages).map(page => `  <url>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`).join('\n')}
+${Array.from(provincePages).map(page => `  <url>
+    <loc>${BASE_URL}${page}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>`).join('\n')}
 ${slugs.map(slug => `  <url>
-    <loc>${BASE_URL}/ejemplo-subasta/${slug}</loc>
+    <loc>${BASE_URL}/subasta/${slug}</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>${BASE_URL}/rentabilidad-subasta/${slug}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${BASE_URL}/calcular-puja-subasta/${slug}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${BASE_URL}/noticias-subastas/${slug}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${BASE_URL}/analizar-subasta/${slug}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <loc>${BASE_URL}/noticias-subastas/analisis/${slug}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>`).join('\n')}
 </urlset>`;
 

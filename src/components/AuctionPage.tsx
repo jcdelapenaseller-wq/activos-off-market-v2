@@ -742,7 +742,17 @@ const AuctionPage: React.FC = () => {
               </div>
             </section>
 
-            {slug && <div className="mt-32"><RelatedAuctions currentAuctionSlug={slug} currentAuctionData={auction} /></div>}
+            {/* Noticias Link */}
+            <div className="text-center mb-16">
+              <Link 
+                to={ROUTES.NOTICIAS_SUBASTAS_INDEX}
+                className="inline-flex items-center justify-center gap-2 bg-slate-50 border-2 border-slate-200 text-slate-700 font-bold py-4 px-8 rounded-full hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm"
+              >
+                Ver más noticias y análisis de subastas <ArrowRight size={20} />
+              </Link>
+            </div>
+
+            {slug && <div className="mt-16"><RelatedAuctions currentAuctionSlug={slug} currentAuctionData={auction} /></div>}
           </div>
         </div>
       </div>
