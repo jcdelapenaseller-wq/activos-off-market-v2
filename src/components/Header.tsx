@@ -49,42 +49,48 @@ const Header: React.FC = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-10">
-          <Link 
-            to={ROUTES.NOTICIAS_SUBASTAS_INDEX} 
-            className={`text-base font-medium transition-colors ${location.pathname.startsWith(ROUTES.NOTICIAS_SUBASTAS_INDEX) ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
-          >
-            Noticias
-          </Link>
+        <nav className="hidden md:flex items-center gap-5 lg:gap-8">
           <Link 
             to={ROUTES.GUIDE_PILLAR} 
-            className={`text-base font-medium transition-colors ${location.pathname === ROUTES.GUIDE_PILLAR ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
+            className={`text-sm lg:text-base font-medium transition-colors ${location.pathname === ROUTES.GUIDE_PILLAR ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
           >
-            Guía Subastas
+            Guía
           </Link>
           <Link 
+            to={ROUTES.RECENT_AUCTIONS} 
+            className={`text-sm lg:text-base font-medium transition-colors ${location.pathname === ROUTES.RECENT_AUCTIONS ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
+          >
+            Subastas Recientes
+          </Link>
+          <a href="#precios" onClick={(e) => handleNavClick(e, '#precios')} className="text-sm lg:text-base font-medium text-slate-600 hover:text-brand-700 transition-colors">Precios</a>
+          <Link 
             to={ROUTES.ABOUT} 
-            className="text-base font-medium text-slate-600 hover:text-brand-700 transition-colors"
+            className={`text-sm lg:text-base font-medium transition-colors ${location.pathname === ROUTES.ABOUT ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
             onClick={() => window.scrollTo(0, 0)}
           >
             Sobre mí
           </Link>
-          <a href="#como-te-ayudo" onClick={(e) => handleNavClick(e, '#como-te-ayudo')} className="text-base font-medium text-slate-600 hover:text-brand-700 transition-colors">Servicios</a>
-          <a href="#precios" onClick={(e) => handleNavClick(e, '#precios')} className="text-base font-medium text-slate-600 hover:text-brand-700 transition-colors">Precios</a>
-          <a href="#metodo" onClick={(e) => handleNavClick(e, '#metodo')} className="text-base font-medium text-slate-600 hover:text-brand-700 transition-colors">Método</a>
+          <Link 
+            to={ROUTES.CALCULATOR} 
+            className={`text-sm lg:text-base font-medium transition-colors ${location.pathname === ROUTES.CALCULATOR ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
+          >
+            Calculadora
+          </Link>
           
-          <div className="relative group ml-2">
-            <div className="absolute -top-3 -right-2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm z-10 uppercase tracking-wide flex items-center gap-1 animate-pulse">
-                <Sparkles size={8} /> Oferta
+          <div className="flex items-center gap-3 ml-2 lg:ml-4">
+            <div className="relative group">
+              <div className="absolute -top-3 -right-2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm z-10 uppercase tracking-wide flex items-center gap-1 animate-pulse">
+                  <Sparkles size={8} /> Oferta
+              </div>
+              <a 
+                  href="https://sublaunch.com/activosoffmarket" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-brand-700 hover:bg-brand-800 text-white text-sm lg:text-base font-bold px-5 lg:px-6 py-2.5 rounded-full transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 block"
+              >
+                  Canal Premium
+              </a>
             </div>
-            <a 
-                href="https://sublaunch.com/activosoffmarket" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-brand-700 hover:bg-brand-800 text-white text-base font-bold px-6 py-3 rounded-full transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 block"
-            >
-                Canal Premium
-            </a>
           </div>
         </nav>
 
@@ -101,16 +107,6 @@ const Header: React.FC = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-xl p-4 flex flex-col gap-4 animate-in slide-in-from-top-5 h-screen overflow-y-auto pb-20">
            <Link 
-            to={ROUTES.NOTICIAS_SUBASTAS_INDEX} 
-            className="text-lg font-bold text-brand-700 py-3 border-b border-slate-100 bg-brand-50/50 px-2 rounded"
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              window.scrollTo(0, 0);
-            }}
-          >
-            Noticias
-          </Link>
-           <Link 
             to={ROUTES.GUIDE_PILLAR} 
             className="text-lg font-bold text-brand-700 py-3 border-b border-slate-100 bg-brand-50/50 px-2 rounded"
             onClick={() => {
@@ -118,8 +114,25 @@ const Header: React.FC = () => {
               window.scrollTo(0, 0);
             }}
           >
-            📚 Guía Subastas
+            📚 Guía
           </Link>
+          <Link 
+            to={ROUTES.RECENT_AUCTIONS} 
+            className="text-lg font-bold text-brand-700 py-3 border-b border-slate-100 bg-brand-50/50 px-2 rounded"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              window.scrollTo(0, 0);
+            }}
+          >
+            🔍 Subastas Recientes
+          </Link>
+          <a 
+            href="#precios" 
+            className="text-lg font-medium text-slate-800 py-3 border-b border-slate-100 px-2"
+            onClick={(e) => handleNavClick(e, '#precios')}
+          >
+            Precios
+          </a>
            <Link 
             to={ROUTES.ABOUT} 
             className="text-lg font-medium text-slate-800 py-3 border-b border-slate-100 px-2"
@@ -130,44 +143,29 @@ const Header: React.FC = () => {
           >
             Sobre mí
           </Link>
-          <a 
-            href="#como-te-ayudo" 
-            className="text-lg font-medium text-slate-800 py-3 border-b border-slate-100 px-2"
-            onClick={(e) => handleNavClick(e, '#como-te-ayudo')}
+          <Link 
+            to={ROUTES.CALCULATOR} 
+            className="text-lg font-bold text-brand-700 py-3 border-b border-slate-100 bg-brand-50/50 px-2 rounded"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              window.scrollTo(0, 0);
+            }}
           >
-            Servicios
-          </a>
-          <a 
-            href="#precios" 
-            className="text-lg font-medium text-slate-800 py-3 border-b border-slate-100 px-2"
-            onClick={(e) => handleNavClick(e, '#precios')}
-          >
-            Precios
-          </a>
-          <a 
-            href="#metodo" 
-            className="text-lg font-medium text-slate-800 py-3 border-b border-slate-100 px-2"
-            onClick={(e) => handleNavClick(e, '#metodo')}
-          >
-            Método
-          </a>
-          <a 
-            href="#faq" 
-            className="text-lg font-medium text-slate-800 py-3 border-b border-slate-100 px-2"
-            onClick={(e) => handleNavClick(e, '#faq')}
-          >
-            Dudas
-          </a>
-          <a 
-            href="https://sublaunch.com/activosoffmarket"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="bg-brand-700 text-white text-center font-bold text-lg px-4 py-4 rounded-xl shadow-md mt-4 relative"
-          >
-             Canal Premium
-             <span className="absolute top-2 right-4 w-2 h-2 bg-yellow-400 rounded-full"></span>
-          </a>
+            🧮 Calculadora
+          </Link>
+          
+          <div className="flex flex-col gap-3 mt-4">
+            <a 
+              href="https://sublaunch.com/activosoffmarket"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="bg-brand-700 text-white text-center font-bold text-lg px-4 py-4 rounded-xl shadow-md relative"
+            >
+               Canal Premium
+               <span className="absolute top-2 right-4 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+            </a>
+          </div>
         </div>
       )}
     </header>
