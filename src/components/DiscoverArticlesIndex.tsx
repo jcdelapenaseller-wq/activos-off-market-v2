@@ -28,8 +28,12 @@ const DiscoverArticlesIndex: React.FC = () => {
       const p = normalizeProvince(a.province || a.city);
       if (!p) return;
       
-      const publishedAt = a.publishedAt ? new Date(a.publishedAt) : new Date();
-      const lastCheckedAt = a.lastCheckedAt ? new Date(a.lastCheckedAt) : new Date();
+      const now = new Date();
+      let publishedAt = a.publishedAt ? new Date(a.publishedAt) : now;
+      if (publishedAt > now) publishedAt = now;
+      
+      let lastCheckedAt = a.lastCheckedAt ? new Date(a.lastCheckedAt) : now;
+      if (lastCheckedAt > now) lastCheckedAt = now;
 
       let discount = a.appraisalValue && a.claimedDebt !== undefined && a.claimedDebt !== null && a.appraisalValue > a.claimedDebt
         ? Math.round((1 - a.claimedDebt / a.appraisalValue) * 100)

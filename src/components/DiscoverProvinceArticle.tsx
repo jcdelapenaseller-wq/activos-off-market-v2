@@ -135,8 +135,12 @@ const DiscoverProvinceArticle: React.FC = () => {
   const jsonLd = useMemo(() => {
     if (!provinceName || !content) return null;
     
-    const latestDate = topExamples[0]?.data.lastCheckedAt || new Date().toISOString();
-    const publishedDate = topExamples[0]?.data.publishedAt || new Date().toISOString();
+    const now = new Date();
+    let latestDate = topExamples[0]?.data.lastCheckedAt ? new Date(topExamples[0].data.lastCheckedAt) : now;
+    if (latestDate > now) latestDate = now;
+    
+    let publishedDate = topExamples[0]?.data.publishedAt ? new Date(topExamples[0].data.publishedAt) : now;
+    if (publishedDate > now) publishedDate = now;
     
     return {
       "@context": "https://schema.org",
@@ -144,8 +148,8 @@ const DiscoverProvinceArticle: React.FC = () => {
       "headline": content.title,
       "description": content.meta,
       "image": [content.image],
-      "datePublished": publishedDate.split('T')[0],
-      "dateModified": latestDate.split('T')[0],
+      "datePublished": publishedDate.toISOString().split('T')[0],
+      "dateModified": latestDate.toISOString().split('T')[0],
       "author": [{
         "@type": "Organization",
         "name": "Equipo Activos Off-Market",
@@ -167,13 +171,17 @@ const DiscoverProvinceArticle: React.FC = () => {
   }, [provinceName, content, topExamples]);
 
   const formattedDate = useMemo(() => {
-    const date = topExamples[0]?.data.lastCheckedAt ? new Date(topExamples[0].data.lastCheckedAt) : new Date();
+    const now = new Date();
+    let date = topExamples[0]?.data.lastCheckedAt ? new Date(topExamples[0].data.lastCheckedAt) : now;
+    if (date > now) date = now;
     return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
   }, [topExamples]);
   
   const updateText = useMemo(() => {
-    const date = topExamples[0]?.data.lastCheckedAt ? new Date(topExamples[0].data.lastCheckedAt) : new Date();
-    const diffMs = new Date().getTime() - date.getTime();
+    const now = new Date();
+    let date = topExamples[0]?.data.lastCheckedAt ? new Date(topExamples[0].data.lastCheckedAt) : now;
+    if (date > now) date = now;
+    const diffMs = now.getTime() - date.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     return diffHours === 0 
       ? 'Publicado hoy'

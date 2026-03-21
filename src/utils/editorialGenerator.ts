@@ -68,18 +68,37 @@ export function detectPhase(auction: AuctionData): EditorialPhase {
 }
 
 export function getEditorialDate(auction: AuctionData, phase: EditorialPhase): Date {
-  const published = auction.publishedAt ? new Date(auction.publishedAt) : new Date();
-  const end = auction.auctionDate ? new Date(auction.auctionDate.includes('T') ? auction.auctionDate : `${auction.auctionDate}T00:00:00Z`) : new Date();
-  const checked = auction.lastCheckedAt ? new Date(auction.lastCheckedAt) : new Date();
+  const now = new Date();
   
+  const published = auction.publishedAt ? new Date(auction.publishedAt) : now;
+  const checked = auction.lastCheckedAt ? new Date(auction.lastCheckedAt) : now;
+  const end = auction.auctionDate ? new Date(auction.auctionDate.includes('T') ? auction.auctionDate : `${auction.auctionDate}T00:00:00Z`) : now;
+  
+  let dateModified: Date;
+
   switch (phase) {
-    case 'NEW': return published;
+    case 'NEW': 
+      dateModified = published;
+      break;
     case 'ENDING_SOON': 
-      const soon = new Date(end.getTime() - 48 * 60 * 60 * 1000);
-      return soon > published ? soon : published;
-    case 'SUSPENDED': return checked;
-    case 'CLOSED': return end;
+      dateModified = checked;
+      break;
+    case 'SUSPENDED': 
+      dateModified = checked;
+      break;
+    case 'CLOSED': 
+      dateModified = end < now ? end : checked;
+      break;
+    default:
+      dateModified = now;
   }
+
+  // Final safety check: never return a future date
+  if (dateModified > now) {
+    return now;
+  }
+
+  return dateModified;
 }
 
 const formatCurrency = (num: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(num);

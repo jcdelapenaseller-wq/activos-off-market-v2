@@ -25,13 +25,17 @@ const DiscoverAuctionArticle: React.FC = () => {
   const jsonLd = useMemo(() => {
     if (!auction || !article) return null;
     
+    const now = new Date();
+    let publishedDate = auction.publishedAt ? new Date(auction.publishedAt) : now;
+    if (publishedDate > now) publishedDate = now;
+
     return {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
       "headline": article.title,
       "description": article.excerpt,
       "image": [getImageForPropertyType(auction.propertyType, slug!, 0)],
-      "datePublished": auction.publishedAt || new Date().toISOString().split('T')[0],
+      "datePublished": publishedDate.toISOString().split('T')[0],
       "dateModified": article.dateModified.toISOString(),
       "author": [{
         "@type": "Organization",
