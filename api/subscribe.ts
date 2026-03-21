@@ -5,7 +5,7 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, source } = req.body;
+  const { email, source, fields } = req.body;
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'Invalid email address' });
@@ -29,6 +29,7 @@ export default async function handler(req: any, res: any) {
       },
       body: JSON.stringify({
         email: email,
+        fields: fields || {},
         groups: groupId ? [groupId] : []
       }),
     });

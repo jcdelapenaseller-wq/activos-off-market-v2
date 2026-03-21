@@ -120,6 +120,7 @@ const AuctionCalculator: React.FC = () => {
   const [ibi, setIbi] = useState<number>(0);
   const [deudaComunidad, setDeudaComunidad] = useState<number>(0);
   const [isPro, setIsPro] = useState(false);
+  const [proType, setProType] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -132,6 +133,8 @@ const AuctionCalculator: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [showProCheckout, setShowProCheckout] = useState(false);
+  const [proEmail, setProEmail] = useState('');
 
   // Load from URL
   useEffect(() => {
@@ -153,14 +156,22 @@ const AuctionCalculator: React.FC = () => {
 
     // PRO Protection Logic
     const PRO_STORAGE_KEY = 'aom_pro_access';
-    const PRO_EXPIRATION_MS = 48 * 60 * 60 * 1000; // 48 hours
+    const EXPIRATION_MAP: Record<string, number | null> = {
+      '24h': 24 * 60 * 60 * 1000,
+      'monthly': 30 * 24 * 60 * 60 * 1000,
+      'lifetime': null,
+      'true': 48 * 60 * 60 * 1000 // legacy fallback
+    };
 
     try {
       const storedPro = localStorage.getItem(PRO_STORAGE_KEY);
       if (storedPro) {
-        const { timestamp } = JSON.parse(storedPro);
-        if (Date.now() - timestamp < PRO_EXPIRATION_MS) {
+        const { timestamp, type } = JSON.parse(storedPro);
+        const expiration = EXPIRATION_MAP[type] !== undefined ? EXPIRATION_MAP[type] : EXPIRATION_MAP['true'];
+        
+        if (expiration === null || Date.now() - timestamp < expiration) {
           setIsPro(true);
+          setProType(type || 'true');
         } else {
           localStorage.removeItem(PRO_STORAGE_KEY);
         }
@@ -169,13 +180,31 @@ const AuctionCalculator: React.FC = () => {
       console.error('Error reading pro status', e);
     }
 
-    if (params.get('pro') === 'true') {
+    const proParam = params.get('pro');
+    if (proParam && EXPIRATION_MAP[proParam] !== undefined) {
       setIsPro(true);
+      setProType(proParam);
       try {
-        localStorage.setItem(PRO_STORAGE_KEY, JSON.stringify({ timestamp: Date.now() }));
+        localStorage.setItem(PRO_STORAGE_KEY, JSON.stringify({ timestamp: Date.now(), type: proParam }));
+        
+        // Subscribe to MailerLite if email is saved
+        const savedEmail = localStorage.getItem('aom_user_email');
+        if (savedEmail) {
+          subscribeToMailerLite({
+            email: savedEmail,
+            source: 'calculadora',
+            fields: {
+              source: 'calculadora_pro',
+              plan: proParam,
+              timestamp: Date.now()
+            }
+          });
+        }
+
         // Clean URL to prevent sharing the unlock link
-        const newUrl = window.location.pathname + window.location.search.replace(/([&?])pro=true&?/, '$1').replace(/&$/, '').replace(/\?$/, '');
-        window.history.replaceState({}, '', newUrl);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('pro');
+        window.history.replaceState({}, '', url.pathname + url.search);
       } catch (e) {
         console.error('Error saving pro status', e);
       }
@@ -185,7 +214,8 @@ const AuctionCalculator: React.FC = () => {
         'pro_unlock',
         {
           precio: Number(params.get('precio')) || 0,
-          tipo_subasta: 'Judicial'
+          tipo_subasta: 'Judicial',
+          plan: proParam
         }
       );
     }
@@ -231,6 +261,15 @@ const AuctionCalculator: React.FC = () => {
     return { color: 'text-red-600', label: 'Margen bajo', bg: 'bg-red-100', traffic: 'bg-red-500', alert: 'Riesgo alto. El beneficio no justifica la inmovilización del capital.' };
   };
 
+  const getProBadgeText = () => {
+    switch (proType) {
+      case '24h': return 'Acceso PRO (24h)';
+      case 'monthly': return 'Acceso PRO (Mensual)';
+      case 'lifetime': return 'Acceso PRO (De por vida)';
+      default: return 'Acceso PRO activo (48h)';
+    }
+  };
+
   const roiStatus = getRoiStatus(results.roi, results.beneficio);
 
   const chartData = useMemo(() => {
@@ -260,13 +299,15 @@ const AuctionCalculator: React.FC = () => {
     }
     return [
       { 
-        name: 'Coste Total', 
+        name: 'Tu Inversión', 
         Total: 0,
         Adjudicación: adjudicacion,
         Impuestos: results.itp + results.registroNotaria + results.gestoria,
         Reforma: reforma,
         Deudas: deudas + ibi + deudaComunidad,
         Otros: otrosGastos,
+        Beneficio: results.beneficio > 0 ? results.beneficio : 0,
+        Pérdida: 0,
         'Valor Mercado': 0
       },
       { 
@@ -277,7 +318,9 @@ const AuctionCalculator: React.FC = () => {
         Reforma: 0,
         Deudas: 0,
         Otros: 0,
-        'Valor Mercado': valorMercado
+        Beneficio: 0,
+        'Valor Mercado': valorMercado,
+        Pérdida: results.beneficio < 0 ? Math.abs(results.beneficio) : 0,
       },
     ];
   }, [adjudicacion, valorMercado, reforma, deudas, ibi, deudaComunidad, otrosGastos, results, isMobile]);
@@ -309,7 +352,7 @@ const AuctionCalculator: React.FC = () => {
           
           {isPro && (
             <div className="absolute top-6 right-6 md:top-8 md:right-8 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs px-3 py-1.5 rounded-full font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-sm">
-              <CheckCircle size={14} /> Acceso PRO activo (48h)
+              <CheckCircle size={14} /> {getProBadgeText()}
             </div>
           )}
 
@@ -592,22 +635,41 @@ const AuctionCalculator: React.FC = () => {
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-80">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="colorBeneficio" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.9}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.4}/>
+                      </linearGradient>
+                      <linearGradient id="colorMercado" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.9}/>
+                        <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0.4}/>
+                      </linearGradient>
+                      <linearGradient id="colorPerdida" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9}/>
+                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0.4}/>
+                      </linearGradient>
+                    </defs>
                     <XAxis dataKey="name" tick={{fontSize: isMobile ? 12 : 14}} />
                     <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} tick={{fontSize: isMobile ? 10 : 12}} />
                     <Tooltip formatter={(value: any) => typeof value === 'number' ? value.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : value}/>
                     {!isMobile && <Legend />}
                     {!isMobile ? (
                       <>
-                        <Bar dataKey="Adjudicación" stackId="a" fill="#0f172a" />
-                        <Bar dataKey="Impuestos" stackId="a" fill="#334155" />
-                        <Bar dataKey="Reforma" stackId="a" fill="#475569" />
-                        <Bar dataKey="Deudas" stackId="a" fill="#64748b" />
-                        <Bar dataKey="Otros" stackId="a" fill="#94a3b8" />
+                        <Bar dataKey="Adjudicación" stackId="a" fill="#0f172a" animationDuration={1000} />
+                        <Bar dataKey="Impuestos" stackId="a" fill="#334155" animationDuration={1000} />
+                        <Bar dataKey="Reforma" stackId="a" fill="#475569" animationDuration={1000} />
+                        <Bar dataKey="Deudas" stackId="a" fill="#64748b" animationDuration={1000} />
+                        <Bar dataKey="Otros" stackId="a" fill="#94a3b8" animationDuration={1000} />
+                        <Bar dataKey="Beneficio" stackId="a" fill="url(#colorBeneficio)" animationDuration={1000} radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Valor Mercado" stackId="b" fill="url(#colorMercado)" animationDuration={1000} radius={results.beneficio < 0 ? [0, 0, 0, 0] : [4, 4, 0, 0]} />
+                        <Bar dataKey="Pérdida" stackId="b" fill="url(#colorPerdida)" animationDuration={1000} radius={[4, 4, 0, 0]} />
                       </>
                     ) : (
-                      <Bar dataKey="Total" fill="#0f172a" radius={[4, 4, 0, 0]} />
+                      <>
+                        <Bar dataKey="Total" fill="#0f172a" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Valor Mercado" fill="#10b981" radius={[4, 4, 0, 0]} animationDuration={1000} />
+                      </>
                     )}
-                    <Bar dataKey="Valor Mercado" stackId={isMobile ? undefined : "b"} fill="#10b981" radius={isMobile ? [4, 4, 0, 0] : undefined} />
                 </BarChart>
             </ResponsiveContainer>
           </div>
@@ -621,7 +683,7 @@ const AuctionCalculator: React.FC = () => {
                   {!isPro ? (
                     <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded-md uppercase font-bold tracking-wider">PRO</span>
                   ) : (
-                    <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded-md uppercase font-bold tracking-wider">Acceso PRO activo (48h)</span>
+                    <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded-md uppercase font-bold tracking-wider">{getProBadgeText()}</span>
                   )}
                 </h2>
                 <p className="text-slate-600 text-sm mt-1">Proyección de riesgo según tiempo de posesión y desvíos de reforma.</p>
@@ -659,16 +721,53 @@ const AuctionCalculator: React.FC = () => {
                   <p className="text-brand-600 font-bold text-sm bg-brand-50 py-1.5 px-3 rounded-lg inline-block mb-2">Así varía tu beneficio según tu puja</p>
                   <p className="text-slate-500 text-xs mb-6 font-medium italic">Aquí es donde se ve el margen real de la operación</p>
                   
-                  <a 
-                    href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_24h', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
-                    className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full mb-3"
-                  >
-                    Ver mi análisis completo
-                  </a>
-                  <p className="text-xs text-slate-500 font-medium">Acceso inmediato tras el pago</p>
+                  {!showProCheckout ? (
+                    <>
+                      <button 
+                        onClick={() => {
+                          setProEmail(email || localStorage.getItem('aom_user_email') || '');
+                          setShowProCheckout(true);
+                        }}
+                        className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full mb-3"
+                      >
+                        Ver mi análisis completo
+                      </button>
+                      <p className="text-xs text-slate-500 font-medium">Acceso inmediato tras el pago</p>
+                    </>
+                  ) : (
+                    <form 
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!proEmail) return;
+                        localStorage.setItem('aom_user_email', proEmail);
+                        if (!email) setEmail(proEmail);
+                        trackConversion(comunidad, 'calculator', 'pro_checkout_24h', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' });
+                        window.open('https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00', '_blank');
+                      }}
+                      className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left"
+                    >
+                      <p className="text-sm text-slate-700 font-medium mb-1 text-center">
+                        Introduce tu email para activar tu acceso PRO y guardar tus cálculos.
+                      </p>
+                      <input 
+                        type="email" 
+                        required
+                        placeholder="Tu mejor email..."
+                        value={proEmail}
+                        onChange={(e) => setProEmail(e.target.value)}
+                        className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full"
+                      />
+                      <button 
+                        type="submit"
+                        className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full"
+                      >
+                        Continuar al pago
+                      </button>
+                      <p className="text-[10px] text-slate-500 font-medium text-center">
+                        Solo para activar tu acceso. Sin spam.
+                      </p>
+                    </form>
+                  )}
                 </div>
               </div>
             )}
@@ -699,10 +798,16 @@ const AuctionCalculator: React.FC = () => {
                       e.preventDefault();
                       if (!email) return;
                       setIsSubmitting(true);
+                      
+                      // Save email to localStorage for PRO unlock later
+                      localStorage.setItem('aom_user_email', email);
+                      
                       const success = await subscribeToMailerLite({
                         email,
+                        source: 'calculadora',
                         fields: {
-                          source: 'Calculadora Subastas'
+                          source: 'calculadora_pro',
+                          timestamp: Date.now()
                         }
                       });
                       
