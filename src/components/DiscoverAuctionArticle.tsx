@@ -5,6 +5,7 @@ import { ChevronRight, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { getImageForPropertyType } from '../constants/auctionImages';
 import { generateEditorialArticle } from '../utils/editorialGenerator';
+import { normalizeProvince } from '../utils/auctionNormalizer';
 import Header from './Header';
 import Footer from './Footer';
 import TelegramCTA from './TelegramCTA';
@@ -176,25 +177,23 @@ const DiscoverAuctionArticle: React.FC = () => {
               ))}
             </div>
 
-            <div className="my-12 flex flex-col sm:flex-row gap-4 justify-center bg-slate-50 p-8 rounded-2xl border border-slate-200">
-              <div className="text-center sm:text-left sm:flex-grow">
-                <h3 className="text-lg font-bold text-slate-900 mb-2 mt-0">¿Te interesa este activo?</h3>
-                <p className="text-sm text-slate-600 mb-0">Accede a la ficha técnica completa con cargas, situación posesoria y valoración real.</p>
-              </div>
-              <div className="flex items-center justify-center shrink-0">
-                <Link 
-                  to={`/subasta/${slug}`}
-                  className="inline-flex items-center justify-center gap-2 bg-brand-600 text-white font-bold px-8 py-4 rounded-xl hover:bg-brand-700 transition-colors shadow-lg w-full sm:w-auto"
-                >
-                  Ver análisis técnico <ArrowRight size={18} />
-                </Link>
-              </div>
+            <div className="my-12 flex flex-col sm:flex-row gap-4 w-full border-t border-slate-200 pt-10">
+              <Link 
+                to={`/subasta/${slug}`}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-600 text-white font-bold px-8 py-4 rounded-xl hover:bg-brand-700 transition-colors shadow-sm text-center"
+              >
+                Ver análisis técnico <ArrowRight size={18} />
+              </Link>
+              <Link 
+                to={`/subastas/${normalizeProvince(auction.province || auction.city).toLowerCase().replace(/\s+/g, '-')}`}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-100 text-slate-700 font-bold px-8 py-4 rounded-xl hover:bg-slate-200 transition-colors text-center"
+              >
+                Más subastas en {normalizeProvince(auction.province || auction.city)}
+              </Link>
             </div>
           </div>
         </article>
       </main>
-
-      <Footer />
     </div>
   );
 };

@@ -105,11 +105,16 @@ const DiscoverProvinceArticle: React.FC = () => {
     ];
     const title = oppTitles[provinceName.length % oppTitles.length].substring(0, 90);
 
-    return {
-      title,
-      meta: `Acabamos de detectar nuevas oportunidades en ${provinceName}. ${total} activos disponibles con descuentos de hasta el ${maxDesc}%.`,
-      intro: `Un **${bestType}** en **${bestCity}** acaba de aparecer con un descuento del **${maxDesc}%**... y hay un detalle técnico que cambia todo. No es un caso aislado: esto está pasando ahora mismo en **${provinceName}**.`,
-      body: `
+    const intro = maxDesc > 0 
+      ? `Un ${bestType} en ${bestCity} acaba de aparecer con un descuento del ${maxDesc}%... y hay un detalle técnico que cambia todo. No es un caso aislado: esto está pasando ahora mismo en ${provinceName}.`
+      : `Se han detectado nuevas subastas relevantes de tipo ${bestType} en ${bestCity}... y hay detalles técnicos que cambian todo. No es un caso aislado: esto está pasando ahora mismo en ${provinceName}.`;
+
+    const meta = maxDesc > 0
+      ? `Acabamos de detectar nuevas oportunidades en ${provinceName}. ${total} activos disponibles con descuentos de hasta el ${maxDesc}%.`
+      : `Acabamos de detectar nuevas oportunidades en ${provinceName}. ${total} activos disponibles actualmente.`;
+
+    const body = maxDesc > 0
+      ? `
         <p class="mb-8 leading-8">El mercado de subastas en <strong>${provinceName}</strong> se ha actualizado con <strong>${total} nuevas oportunidades</strong> que están pasando desapercibidas para el gran público.</p>
         <p class="mb-8 leading-8">Mientras los precios en portales convencionales se mantienen rígidos, el sistema judicial está liberando activos a valoraciones de hace una década.</p>
         
@@ -126,7 +131,31 @@ const DiscoverProvinceArticle: React.FC = () => {
         <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">🚀 Conclusión técnica</h3>
         <p class="mb-8 leading-8">Con descuentos que alcanzan el ${maxDesc}%, el potencial de revalorización inmediata tras la adjudicación definitiva es real y tangible.</p>
         <p class="mb-8 leading-8">No estamos ante una inversión pasiva, sino ante una gestión activa que premia a quien tiene la información correcta en el momento preciso.</p>
-      `,
+      `
+      : `
+        <p class="mb-8 leading-8">El mercado de subastas en <strong>${provinceName}</strong> se ha actualizado con <strong>${total} nuevas oportunidades</strong> que están pasando desapercibidas para el gran público.</p>
+        <p class="mb-8 leading-8">Mientras los precios en portales convencionales se mantienen rígidos, el sistema judicial está liberando activos a valoraciones de hace una década.</p>
+        
+        <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">💎 Oportunidades ocultas</h3>
+        <p class="mb-8 leading-8">Esta asimetría de información es la base de las grandes fortunas inmobiliarias y hoy está al alcance del inversor particular formado en ${provinceName}.</p>
+        <p class="mb-8 leading-8">Estamos viendo una entrada constante de activos en <strong>${bestCity}</strong> que salen a subasta con características muy interesantes para inversores.</p>
+        
+        <div id="telegram-cta-mid"></div>
+
+        <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">📊 Análisis de rentabilidad</h3>
+        <p class="mb-8 leading-8">Incluso tras considerar el pago de ITP y gastos de registro, la entrada en estos activos puede realizarse con un margen de rentabilidad atractivo.</p>
+        <p class="mb-8 leading-8">Es el momento de dejar de competir con cientos de compradores y empezar a analizar lo que el BOE esconde en ${provinceName}.</p>
+        
+        <h3 class="text-lg font-bold text-slate-900 mb-6 mt-10 flex items-center gap-2">🚀 Conclusión técnica</h3>
+        <p class="mb-8 leading-8">Con estas nuevas entradas, el potencial de inversión tras la adjudicación definitiva es real y tangible.</p>
+        <p class="mb-8 leading-8">No estamos ante una inversión pasiva, sino ante una gestión activa que premia a quien tiene la información correcta en el momento preciso.</p>
+      `;
+
+    return {
+      title,
+      meta,
+      intro,
+      body,
       cta: `Ver oportunidades en ${provinceName}`,
       image: dynamicImage
     };
@@ -319,11 +348,24 @@ const DiscoverProvinceArticle: React.FC = () => {
                 </p>
               </div>
             </div>
+
+            <div className="my-12 flex flex-col sm:flex-row gap-4 w-full border-t border-slate-200 pt-10">
+              <Link 
+                to={topExamples[0] ? `/subasta/${topExamples[0].slug}` : `/subastas/${provinceName.toLowerCase().replace(/\s+/g, '-')}`}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-600 text-white font-bold px-8 py-4 rounded-xl hover:bg-brand-700 transition-colors shadow-sm text-center"
+              >
+                Ver análisis técnico <ArrowRight size={18} />
+              </Link>
+              <Link 
+                to={`/subastas/${provinceName.toLowerCase().replace(/\s+/g, '-')}`}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-100 text-slate-700 font-bold px-8 py-4 rounded-xl hover:bg-slate-200 transition-colors text-center"
+              >
+                Más subastas en {provinceName}
+              </Link>
+            </div>
           </div>
         </article>
       </main>
-
-      <Footer />
     </div>
   );
 };
