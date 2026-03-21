@@ -5,7 +5,7 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, source, fields } = req.body;
+  const { email, source, fields, groups } = req.body;
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'Invalid email address' });
@@ -19,6 +19,9 @@ export default async function handler(req: any, res: any) {
     groupId = process.env.MAILERLITE_GROUP_CALCULADORA || groupId;
   }
 
+  // Use provided groups from frontend, or fallback to mapped groupId
+  const finalGroups = groups && groups.length > 0 ? groups : (groupId ? [groupId] : []);
+
   try {
     const response = await fetch('https://connect.mailerlite.com/api/subscribers', {
       method: 'POST',
@@ -30,7 +33,7 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify({
         email: email,
         fields: fields || {},
-        groups: groupId ? [groupId] : []
+        groups: finalGroups
       }),
     });
 

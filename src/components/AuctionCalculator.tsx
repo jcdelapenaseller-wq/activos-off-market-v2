@@ -160,7 +160,7 @@ const AuctionCalculator: React.FC = () => {
       '24h': 24 * 60 * 60 * 1000,
       'monthly': 30 * 24 * 60 * 60 * 1000,
       'lifetime': null,
-      'true': 48 * 60 * 60 * 1000 // legacy fallback
+      'true': 24 * 60 * 60 * 1000 // legacy fallback
     };
 
     try {
@@ -266,7 +266,7 @@ const AuctionCalculator: React.FC = () => {
       case '24h': return 'Acceso PRO (24h)';
       case 'monthly': return 'Acceso PRO (Mensual)';
       case 'lifetime': return 'Acceso PRO (De por vida)';
-      default: return 'Acceso PRO activo (48h)';
+      default: return 'Acceso PRO activo (24h)';
     }
   };
 
@@ -804,9 +804,10 @@ const AuctionCalculator: React.FC = () => {
                       
                       const success = await subscribeToMailerLite({
                         email,
-                        source: 'calculadora',
+                        source: 'calculadora_free',
+                        groups: ['182569815674717523'],
                         fields: {
-                          source: 'calculadora_pro',
+                          source: 'calculadora_free',
                           timestamp: Date.now()
                         }
                       });
