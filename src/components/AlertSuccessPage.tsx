@@ -60,7 +60,7 @@ const AlertSuccessPage: React.FC = () => {
                     Recibe nuevas subastas sin tener que <span className="text-brand-500">revisar el BOE</span>
                   </h2>
                   <p className="text-slate-300 text-xl leading-relaxed">
-                    Cada día revisamos las nuevas publicaciones y te avisamos cuando aparece algo que encaja con tu búsqueda. Ahorras tiempo y no se te escapan oportunidades.
+                    Evita revisar decenas de anuncios del BOE cada día. Recibe solo los que encajan con tu búsqueda directamente en tu bandeja de entrada.
                   </p>
                 </div>
                 <div className="flex-shrink-0">
@@ -113,25 +113,36 @@ const AlertSuccessPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <a 
-                  href={STRIPE_PAYMENT_LINK}
-                  className="w-full sm:w-auto px-10 py-5 bg-brand-600 text-white font-bold rounded-2xl text-xl hover:bg-brand-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-brand-600/20 group"
-                >
-                  Activar Radar Premium gratis <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
-                </a>
+              <div className="flex flex-col items-center md:items-start gap-6">
+                <div className="w-full sm:w-auto text-center md:text-left">
+                  <a 
+                    href={STRIPE_PAYMENT_LINK}
+                    className="w-full sm:w-auto px-10 py-5 bg-brand-600 text-white font-bold rounded-2xl text-xl hover:bg-brand-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-brand-600/20 group"
+                  >
+                    Probar 7 días gratis <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
+                  </a>
+                  <p className="mt-3 text-slate-400 text-sm font-medium">
+                    Sin compromiso. Cancela en un clic.
+                  </p>
+                </div>
+                
                 <Link 
                   to={ROUTES.HOME}
-                  className="text-slate-400 hover:text-white font-medium transition-colors"
+                  className="text-slate-500 hover:text-white font-medium transition-colors"
                 >
                   Prefiero hacerlo más tarde
                 </Link>
               </div>
               
               {/* BLOQUE CIERRE */}
-              <p className="mt-12 text-slate-500 text-sm text-center md:text-left border-t border-slate-800 pt-8">
-                Este servicio está pensado para quienes quieren enterarse antes sin tener que revisar el BOE todos los días.
-              </p>
+              <div className="mt-12 border-t border-slate-800 pt-8">
+                <p className="text-slate-400 text-sm mb-2 font-medium">
+                  Revisamos nuevas subastas cada día y te avisamos cuando aparece algo relevante.
+                </p>
+                <p className="text-slate-500 text-xs">
+                  Este servicio está pensado para quienes quieren enterarse antes sin tener que revisar el BOE todos los días.
+                </p>
+              </div>
             </div>
           </div>
 
