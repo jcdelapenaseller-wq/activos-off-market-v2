@@ -62,7 +62,7 @@ export function getComputedStatus(data: { status?: string; auctionDate?: string 
   return 'active';
 }
 
-export function sortAuctions(items: [string, AuctionData][]): [string, AuctionData][] {
+export function sortAuctions(items: [string, AuctionData][], sortBy: string = 'discount'): [string, AuctionData][] {
   return [...items].sort((a, b) => {
     const aData = a[1];
     const bData = b[1];
@@ -81,6 +81,24 @@ export function sortAuctions(items: [string, AuctionData][]): [string, AuctionDa
     
     if (aActive && !bActive) return -1;
     if (!aActive && bActive) return 1;
+
+    if (sortBy === 'recent') {
+      const aDate = new Date(aData.publishedAt || aData.startDate || 0).getTime();
+      const bDate = new Date(bData.publishedAt || bData.startDate || 0).getTime();
+      return bDate - aDate;
+    } else if (sortBy === 'oldest') {
+      const aDate = new Date(aData.publishedAt || aData.startDate || 0).getTime();
+      const bDate = new Date(bData.publishedAt || bData.startDate || 0).getTime();
+      return aDate - bDate;
+    } else if (sortBy === 'value_high') {
+      const aVal = aData.valorSubasta || 0;
+      const bVal = bData.valorSubasta || 0;
+      return bVal - aVal;
+    } else if (sortBy === 'value_low') {
+      const aVal = aData.valorSubasta || 0;
+      const bVal = bData.valorSubasta || 0;
+      return aVal - bVal;
+    }
 
     const aDiscount = calculateDiscount(aData.valorTasacion, aData.valorSubasta, aData.claimedDebt) || 0;
     const bDiscount = calculateDiscount(bData.valorTasacion, bData.valorSubasta, bData.claimedDebt) || 0;

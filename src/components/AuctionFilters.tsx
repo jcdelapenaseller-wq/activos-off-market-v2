@@ -5,13 +5,24 @@ import { getComputedStatus, getAuctionType, isAuctionActive } from '../utils/auc
 interface AuctionFiltersProps {
   auctions: Record<string, AuctionData>;
   onFilteredChange: (filtered: Record<string, AuctionData>) => void;
+  onSortChange?: (sort: string) => void;
 }
 
-export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilteredChange }) => {
+export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilteredChange, onSortChange }) => {
   const [city, setCity] = useState('');
   const [province, setProvince] = useState('');
   const [status, setStatus] = useState<string>('');
   const [type, setType] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('recent');
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 80);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const filteredAuctions = useMemo(() => {
     return Object.entries(auctions).reduce((acc, [slug, data]) => {
@@ -33,33 +44,84 @@ export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilt
     onFilteredChange(filteredAuctions);
   }, [filteredAuctions, onFilteredChange]);
 
+  useEffect(() => {
+    if (onSortChange) {
+      onSortChange(sortBy);
+    }
+  }, [sortBy, onSortChange]);
+
+  const clearFilters = () => {
+    setCity('');
+    setProvince('');
+    setStatus('');
+    setType('');
+    setSortBy('recent');
+  };
+
+  const hasActiveFilters = city || province || status || type || sortBy !== 'recent';
+
   const cities = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => a.city).filter(Boolean))), [auctions]);
   const provinces = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => a.province).filter(Boolean))), [auctions]);
-  const statuses = ['active', 'upcoming', 'suspended', 'closed'];
   const types = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => getAuctionType(a.boeId)).filter(Boolean))), [auctions]);
 
+  const selectBaseClass = "border border-slate-200 bg-white focus:ring-2 focus:ring-brand-500 outline-none transition-all w-full";
+  const selectSizeClass = isScrolled ? "p-1.5 text-xs rounded-lg" : "p-2.5 text-sm rounded-xl";
+
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <select value={city} onChange={e => setCity(e.target.value)} className="p-2 border rounded-lg">
-          <option value="">Ciudad</option>
-          {cities.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <select value={province} onChange={e => setProvince(e.target.value)} className="p-2 border rounded-lg">
-          <option value="">Provincia</option>
-          {provinces.map(p => <option key={p} value={p}>{p}</option>)}
-        </select>
-        <select value={status} onChange={e => setStatus(e.target.value)} className="p-2 border rounded-lg">
-          <option value="">Estado</option>
-          <option value="active">En curso</option>
-          <option value="upcoming">Próxima apertura</option>
-          <option value="suspended">Pausada</option>
-          <option value="closed">Finalizada</option>
-        </select>
-        <select value={type} onChange={e => setType(e.target.value)} className="p-2 border rounded-lg">
-          <option value="">Tipo de subasta</option>
-          {types.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
+    <div className={`sticky top-0 md:top-2 z-40 transition-all duration-300 mb-8 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-md md:rounded-2xl border-b md:border border-slate-200/50 p-2.5 md:p-3 -mx-6 px-6 md:mx-0 md:px-3' : 'bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm'}`}>
+      <div className={`grid gap-2 md:gap-3 ${onSortChange ? 'grid-cols-2 md:grid-cols-6' : 'grid-cols-2 md:grid-cols-4'}`}>
+        <div className="col-span-1">
+          <select value={city} onChange={e => setCity(e.target.value)} className={`${selectBaseClass} ${selectSizeClass}`}>
+            <option value="">Ciudad</option>
+            {cities.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        
+        <div className="col-span-1">
+          <select value={status} onChange={e => setStatus(e.target.value)} className={`${selectBaseClass} ${selectSizeClass}`}>
+            <option value="">Estado</option>
+            <option value="active">En curso</option>
+            <option value="upcoming">Próxima apertura</option>
+            <option value="suspended">Pausada</option>
+            <option value="closed">Finalizada</option>
+          </select>
+        </div>
+
+        <div className="hidden md:block col-span-1">
+          <select value={province} onChange={e => setProvince(e.target.value)} className={`${selectBaseClass} ${selectSizeClass}`}>
+            <option value="">Provincia</option>
+            {provinces.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+        
+        <div className="hidden md:block col-span-1">
+          <select value={type} onChange={e => setType(e.target.value)} className={`${selectBaseClass} ${selectSizeClass}`}>
+            <option value="">Tipo de subasta</option>
+            {types.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+
+        {onSortChange && (
+          <div className="col-span-2 md:col-span-1">
+            <select value={sortBy} onChange={e => setSortBy(e.target.value)} className={`${selectBaseClass} ${selectSizeClass} bg-slate-50 font-medium`}>
+              <option value="recent">Más recientes</option>
+              <option value="oldest">Más antiguas</option>
+              <option value="value_high">Mayor valor</option>
+              <option value="value_low">Menor valor</option>
+            </select>
+          </div>
+        )}
+
+        {hasActiveFilters && (
+          <div className="col-span-2 md:col-span-1 flex items-center justify-center md:justify-start">
+            <button 
+              onClick={clearFilters}
+              className={`text-slate-500 hover:text-slate-800 transition-colors underline decoration-slate-300 hover:decoration-slate-500 underline-offset-2 ${isScrolled ? 'text-xs py-1' : 'text-sm py-2'}`}
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -70,8 +70,6 @@ const DiscoverArticlesIndex: React.FC = () => {
       ];
       const oppTitle = oppTitles[provinceSeed % oppTitles.length].substring(0, 90);
 
-      const oppImg = getImageForPropertyType('default', `${slugBase}-0-${province}`, 0);
-
       provinceArticles.push({
         id: `${slugBase}-province`,
         url: `/noticias-subastas/provincia/${slugBase}`,
@@ -79,9 +77,10 @@ const DiscoverArticlesIndex: React.FC = () => {
         excerpt: `El mercado de subastas en ${province} acaba de actualizarse. Se han seleccionado ${stats.count} oportunidades activas hoy con grandes descuentos.`,
         date: stats.latestChecked,
         lastChecked: stats.latestChecked,
-        imageUrl: oppImg,
         tag: 'Mercado Local',
-        tagColor: 'bg-brand-600'
+        tagColor: 'bg-brand-600',
+        propertyType: 'default',
+        slug: `${slugBase}-0-${province}`
       });
     });
     provinceArticles.sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -103,8 +102,6 @@ const DiscoverArticlesIndex: React.FC = () => {
       .sort((a, b) => b.editorialData.dateModified.getTime() - a.editorialData.dateModified.getTime())
       .slice(0, 10)
       .map((item, index) => {
-        const aucImg = getImageForPropertyType(item.data.propertyType, item.slug, 0);
-
         return {
           id: `auction-${item.slug}`,
           url: `/noticias-subastas/analisis/${item.slug}`,
@@ -112,15 +109,23 @@ const DiscoverArticlesIndex: React.FC = () => {
           excerpt: item.editorialData.excerpt,
           date: item.editorialData.dateModified,
           lastChecked: item.data.lastCheckedAt ? new Date(item.data.lastCheckedAt) : new Date(),
-          imageUrl: aucImg,
           tag: item.editorialData.tag,
           tagColor: item.editorialData.tagColor,
-          editorialData: item.editorialData
+          editorialData: item.editorialData,
+          propertyType: item.data.propertyType,
+          slug: item.slug
         };
       });
 
     // Combine and sort all articles by date
-    const allArticles = [...auctionArticles, ...provinceArticles].sort((a, b) => b.date.getTime() - a.date.getTime());
+    const combinedArticles = [...auctionArticles, ...provinceArticles].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+    let previousImage: string | undefined = undefined;
+    const allArticles = combinedArticles.map(article => {
+      const img = getImageForPropertyType(article.propertyType, article.slug, previousImage);
+      previousImage = img;
+      return { ...article, imageUrl: img };
+    });
 
     return { allArticles };
   }, []);

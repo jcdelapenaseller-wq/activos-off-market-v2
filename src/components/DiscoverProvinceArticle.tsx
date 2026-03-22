@@ -95,7 +95,7 @@ const DiscoverProvinceArticle: React.FC = () => {
     const bestType = bestDeal ? normalizePropertyType(bestDeal.propertyType).toLowerCase() : 'inmueble';
     const bestCity = bestDeal ? (bestDeal.city || provinceName) : provinceName;
     const slugBase = provinceName.toLowerCase().replace(/\s+/g, '-');
-    const dynamicImage = getImageForPropertyType('default', `${slugBase}-0-${provinceName}`, 0);
+    const dynamicImage = getImageForPropertyType('default', `${slugBase}-0-${provinceName}`);
 
     const oppTitles = [
       `Ojo a estas subastas en ${provinceName}: hay descuentos poco habituales`,

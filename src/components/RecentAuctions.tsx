@@ -1,17 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight, Percent } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../constants/routes';
-import { getFilteredAuctions, isAuctionFinished, sortAuctions, formatDate } from '../utils/auctionHelpers';
+import { getFilteredAuctions, isAuctionFinished, sortAuctions, formatDate, isAuctionActive } from '../utils/auctionHelpers';
 import { AuctionCard } from './AuctionCard';
 import { AuctionFilters } from './AuctionFilters';
 import { AuctionData } from '../data/auctions';
 
 const RecentAuctions: React.FC = () => {
   const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(() => getFilteredAuctions(AUCTIONS));
-  const sortedAuctions = sortAuctions(Object.entries(filteredAuctions));
+  const [sortBy, setSortBy] = useState<string>('recent');
+  
+  const sortedAuctions = sortAuctions(Object.entries(filteredAuctions), sortBy);
+  
+  // Calculate total active auctions (without filters)
+  const totalActiveAuctions = useMemo(() => {
+    return Object.values(AUCTIONS).filter(a => isAuctionActive(a)).length;
+  }, []);
+  
   const activeCount = Object.keys(filteredAuctions).length;
+  const hasFilters = activeCount !== totalActiveAuctions;
+
+  const getSortLabel = (sort: string) => {
+    switch (sort) {
+      case 'oldest': return 'Más antiguas';
+      case 'value_high': return 'Mayor valor';
+      case 'value_low': return 'Menor valor';
+      default: return '';
+    }
+  };
+
+  const sortLabel = getSortLabel(sortBy);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -38,16 +58,24 @@ const RecentAuctions: React.FC = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-16">
-        <AuctionFilters auctions={AUCTIONS} onFilteredChange={setFilteredAuctions} />
+        <AuctionFilters auctions={AUCTIONS} onFilteredChange={setFilteredAuctions} onSortChange={setSortBy} />
         
-        <div className="mb-8">
-          <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm w-fit">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
             </span>
-            {activeCount} subastas activas ahora mismo
+            {hasFilters 
+              ? `Mostrando ${activeCount} de ${totalActiveAuctions} subastas` 
+              : `${totalActiveAuctions} subastas activas ahora`}
           </div>
+
+          {sortLabel && (
+            <div className="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-200 text-slate-600 text-sm px-3 py-1.5 rounded-md w-fit">
+              <span className="font-medium">Orden:</span> {sortLabel}
+            </div>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {(() => {

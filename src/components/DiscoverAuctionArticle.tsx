@@ -35,7 +35,7 @@ const DiscoverAuctionArticle: React.FC = () => {
       "@type": "NewsArticle",
       "headline": article.title,
       "description": article.excerpt,
-      "image": [getImageForPropertyType(auction.propertyType, slug!, 0)],
+      "image": [getImageForPropertyType(auction.propertyType, slug!)],
       "datePublished": publishedDate.toISOString().split('T')[0],
       "dateModified": article.dateModified.toISOString(),
       "author": [{
@@ -80,7 +80,7 @@ const DiscoverAuctionArticle: React.FC = () => {
       ? `Actualizado hace ${diffHours} horas`
       : `Última actualización: ${formattedDate}`;
 
-  const imageUrl = getImageForPropertyType(auction.propertyType, slug, 0);
+  const imageUrl = getImageForPropertyType(auction.propertyType, slug);
 
   // Split content into two halves to insert CTA in the middle
   const midPoint = Math.ceil(article.content.length / 2);
