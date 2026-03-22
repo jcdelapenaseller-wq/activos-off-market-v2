@@ -22,7 +22,7 @@ export interface MailerLiteSubscriber {
  * Prepara la estructura para la integración con la API de MailerLite.
  * Llama al endpoint del backend para no exponer la API key de MailerLite en el frontend.
  */
-export const subscribeToMailerLite = async (subscriber: MailerLiteSubscriber): Promise<boolean> => {
+export const subscribeToMailerLite = async (subscriber: MailerLiteSubscriber): Promise<{ success: boolean; error?: string }> => {
   console.log('📧 [MAILERLITE API] Suscribiendo usuario:', subscriber);
   
   try {
@@ -34,11 +34,28 @@ export const subscribeToMailerLite = async (subscriber: MailerLiteSubscriber): P
       body: JSON.stringify(subscriber),
     });
     
-    if (!response.ok) throw new Error('Error en la suscripción');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('❌ [MAILERLITE API ERROR] Status:', response.status, 'Data:', errorData);
+      
+      // Extraer mensaje de error detallado de MailerLite si existe
+      let errorMessage = errorData.error || 'Error en la suscripción';
+      if (errorData.details?.message) {
+        errorMessage = `${errorMessage}: ${errorData.details.message}`;
+      } else if (errorData.details?.errors) {
+        // Manejar errores de validación de MailerLite
+        const validationErrors = Object.entries(errorData.details.errors)
+          .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(', ') : val}`)
+          .join('; ');
+        errorMessage = `${errorMessage} (${validationErrors})`;
+      }
+
+      return { success: false, error: errorMessage };
+    }
     
-    return true;
+    return { success: true };
   } catch (error) {
     console.error('❌ [MAILERLITE API ERROR]', error);
-    return false;
+    return { success: false, error: error instanceof Error ? error.message : 'Error de red' };
   }
 };

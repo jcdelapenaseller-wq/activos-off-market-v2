@@ -833,7 +833,7 @@ const AuctionCalculator: React.FC = () => {
                       // Save email to localStorage for PRO unlock later
                       localStorage.setItem('aom_user_email', email);
                       
-                      const success = await subscribeToMailerLite({
+                      const result = await subscribeToMailerLite({
                         email,
                         source: 'calculadora_free',
                         groups: ['182569815674717523'],
@@ -849,7 +849,11 @@ const AuctionCalculator: React.FC = () => {
                       });
                       
                       setIsSubmitting(false);
-                      if (success) setIsSubscribed(true);
+                      if (result.success) {
+                        setIsSubscribed(true);
+                      } else {
+                        alert(result.error || 'Hubo un error al enviar el análisis.');
+                      }
                     }}
                     className="flex flex-col sm:flex-row gap-3"
                   >

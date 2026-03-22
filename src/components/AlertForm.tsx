@@ -14,7 +14,7 @@ const PROVINCIAS = [
 ].sort();
 
 const TIPOS = [
-  "Todos", "Piso", "Casa", "Local", "Nave", "Suelo", "Garaje", "Trastero", "Otros"
+  "Todos", "Vivienda", "Local", "Garaje", "Nave", "Suelo"
 ];
 
 const AlertForm: React.FC = () => {
@@ -24,32 +24,34 @@ const AlertForm: React.FC = () => {
   const [municipality, setMunicipality] = useState('');
   const [propertyType, setPropertyType] = useState('Todos');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !province) return;
 
     setStatus('loading');
+    setErrorMessage(null);
     
-    const success = await subscribeToMailerLite({
+    const result = await subscribeToMailerLite({
       email,
       source: 'alertas',
       fields: {
         alerta_provincia: province,
         alerta_municipio: municipality,
         alerta_tipo: propertyType,
-        plan_status: 'free',
-        timestamp: Date.now()
+        plan_status: 'free'
       }
     });
 
-    if (success) {
+    if (result.success) {
       trackConversion(province.toLowerCase(), 'alert_creation', 'listado');
       setStatus('success');
       // Redirigir a la página de éxito con el email como parámetro para pre-rellenar Stripe
       navigate(`${ROUTES.ALERTA_CONFIRMADA}?email=${encodeURIComponent(email)}`);
     } else {
       setStatus('error');
+      setErrorMessage(result.error || 'Hubo un error al crear la alerta.');
     }
   };
 
@@ -145,7 +147,11 @@ const AlertForm: React.FC = () => {
         </div>
 
         {status === 'error' && (
-          <p className="text-red-500 text-sm text-center font-medium">Hubo un error al crear la alerta. Por favor, inténtalo de nuevo.</p>
+          <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+            <p className="text-red-600 text-sm text-center font-medium">
+              {errorMessage}
+            </p>
+          </div>
         )}
       </form>
     </div>
