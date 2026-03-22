@@ -47,7 +47,7 @@ export default async function handler(req: any, res: any) {
     payload.groups = validGroups;
   }
 
-  console.log('📦 [MAILERLITE PAYLOAD]', JSON.stringify(payload, null, 2));
+  console.log("MAILERLITE PAYLOAD:", JSON.stringify(payload, null, 2));
 
   try {
     const response = await fetch('https://connect.mailerlite.com/api/subscribers', {
@@ -60,22 +60,15 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify(payload),
     });
 
-    console.log('📡 [MAILERLITE RESPONSE]', {
-      status: response.status,
-      statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries())
-    });
+    const responseText = await response.text().catch(() => 'Could not read response body');
+    console.log("MAILERLITE RESPONSE:", response.status, responseText);
 
     if (!response.ok) {
-      const errorText = await response.text().catch(() => 'Could not read response body');
-      console.log('MailerLite status:', response.status);
-      console.log('MailerLite body:', errorText);
-
       let errorData = {};
       try {
-        errorData = JSON.parse(errorText);
+        errorData = JSON.parse(responseText);
       } catch (e) {
-        errorData = { rawBody: errorText };
+        errorData = { rawBody: responseText };
       }
 
       console.error('❌ [MAILERLITE API ERROR] MailerLite responded with:', response.status, errorData);
