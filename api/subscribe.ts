@@ -11,41 +11,18 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'Invalid email address' });
   }
 
-  // Map source to group ID from environment variables
-  let groupId = process.env.MAILERLITE_GROUP_DEFAULT;
-  if (source === 'checklist') {
-    groupId = process.env.MAILERLITE_GROUP_CHECKLIST || groupId;
-  } else if (source === 'calculadora') {
-    groupId = process.env.MAILERLITE_GROUP_CALCULADORA || groupId;
-  } else if (source === 'calculadora_free') {
-    groupId = '182569815674717523';
-  }
-
-  console.log('⚙️ [MAILERLITE CONFIG]', {
-    source,
-    env_default: process.env.MAILERLITE_GROUP_DEFAULT ? 'SET' : 'MISSING',
-    mapped_groupId: groupId
-  });
-
-  // Use provided groups from frontend, or fallback to mapped groupId
-  const finalGroups = Array.isArray(groups) && groups.length > 0 ? groups : (groupId ? [groupId] : []);
-
   if (!process.env.MAILERLITE_API_KEY) {
     console.error('❌ [MAILERLITE API ERROR] MAILERLITE_API_KEY is not set');
     return res.status(500).json({ error: 'MailerLite API key is missing' });
   }
 
   // Construct the payload strictly as requested by MailerLite
-  const payload: any = {
+  // Minimal payload to avoid 422 errors
+  const payload = {
     email: email,
+    status: "active",
     fields: fields || {}
   };
-
-  // Only add groups if they exist, are not empty and don't look like placeholders
-  const validGroups = finalGroups.filter(g => g && g !== 'TODO' && g !== 'undefined' && g.length > 5);
-  if (validGroups.length > 0) {
-    payload.groups = validGroups;
-  }
 
   console.log("MAILERLITE PAYLOAD:", JSON.stringify(payload, null, 2));
 
