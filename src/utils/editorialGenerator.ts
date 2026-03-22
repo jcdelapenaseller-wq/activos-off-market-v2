@@ -93,12 +93,23 @@ export function getEditorialDate(auction: AuctionData, phase: EditorialPhase): D
       dateModified = now;
   }
 
-  // Final safety check: never return a future date
   if (dateModified > now) {
     return now;
   }
 
   return dateModified;
+}
+
+export function shouldGenerateDiscoverArticle(auction: AuctionData): boolean {
+  const city = normalizeCity(auction)?.toLowerCase() || '';
+  const province = auction.province?.toLowerCase() || '';
+  const isCapital = city === province && city !== '';
+  const appraisal = auction.appraisalValue || auction.valorTasacion || auction.valorSubasta || 0;
+  const isHighValue = appraisal > 220000;
+  const isNew = detectPhase(auction) === 'NEW';
+  const isDeserted = auction.auctionResultStatus === 'deserted';
+  
+  return isCapital || isHighValue || isNew || isDeserted;
 }
 
 const formatCurrency = (num: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(num);
@@ -109,71 +120,157 @@ export function generateEditorialArticle(slug: string, auction: AuctionData): Ed
   const random = getSeededRandom(`${slug}-${phase}`);
 
   const city = normalizeCity(auction) || 'España';
+  const province = auction.province || city;
   const type = normalizePropertyType(auction.propertyType).toLowerCase();
-  const appraisal = auction.valorTasacion || auction.valorSubasta || 0;
-  const debt = auction.claimedDebt;
-  const discount = calculateDiscount(appraisal, auction.valorSubasta, debt) || 0;
+  const appraisalValue = auction.appraisalValue || auction.valorTasacion || auction.valorSubasta || 0;
+  const appraisal = formatCurrency(appraisalValue);
+  const debtValue = auction.claimedDebt;
+  const debt = debtValue !== undefined ? formatCurrency(debtValue) : 'desconocida';
+  const discountValue = calculateDiscount(appraisalValue, auction.valorSubasta, debtValue) || 0;
+  const discount = `${discountValue}%`;
+  const procedureType = auction.procedureType || 'Ejecución';
+  const occupancy = auction.occupancy || 'No consta';
 
   const vars = {
     city,
+    province,
     type,
-    appraisal: formatCurrency(appraisal),
-    debt: debt !== undefined ? formatCurrency(debt) : 'desconocida',
-    discount: `${discount}%`
+    appraisal,
+    debt,
+    discount,
+    procedureType,
+    occupancy
   };
 
   const replaceVars = (str: string) => {
     return str.replace(/{(\w+)}/g, (_, k) => (vars as any)[k] || '');
   };
 
-  // Templates
-  const templates = {
+  const introTemplates = [
+    `## El contexto inmobiliario en {city}
+El mercado de inversión en **{province}** continúa mostrando un dinamismo particular, especialmente en el segmento de las subastas públicas.
+En el caso concreto de **{city}**, la demanda de **{type}s** mantiene una tendencia al alza.
+Esto obliga a los inversores a buscar vías alternativas de adquisición para asegurar márgenes de rentabilidad viables.
+La adjudicación directa a través del Boletín Oficial del Estado (BOE) se ha consolidado como una de las herramientas más eficaces.
+Permite esquivar la inflación de precios del mercado tradicional y acceder a activos *off-market*.
+Es en este escenario donde la reciente publicación de este expediente cobra especial relevancia para los analistas locales.`,
+
+    `## Oportunidades de inversión en {city}
+La provincia de **{province}** sigue atrayendo capital especializado.
+Dentro de este mapa, **{city}** destaca como uno de los focos de atención para la adquisición de activos singulares.
+Actualmente, el acceso a **{type}s** con descuentos reales sobre el valor de mercado es complejo a través de los canales convencionales.
+Por ello, la vía ejecutiva y los procedimientos de apremio representan una bolsa de oportunidades ocultas.
+La aparición de este nuevo activo altera el mapa de inversión local.
+Ofrece una ventana de entrada con condiciones financieras que merecen un escrutinio detallado.`,
+
+    `## Análisis del mercado en {city}
+Operar en el sector inmobiliario de **{city}** exige hoy en día una estrategia basada en la anticipación.
+El acceso a fuentes de activos *off-market* es fundamental para superar la media del mercado.
+Dentro de **{province}**, la tipología de **{type}** presenta una liquidez muy interesante si se adquiere en el precio correcto.
+Las subastas judiciales y administrativas proporcionan exactamente ese mecanismo de ajuste de precios.
+Permiten a los postores profesionales adquirir inmuebles por debajo de su valor de reposición.
+Este expediente recién abierto es un claro ejemplo de cómo el mercado de deuda genera oportunidades tangibles.`
+  ];
+
+  const analysisTemplates = [
+    `### 📈 Por qué destaca esta subasta
+Entrando en los datos duros del expediente, nos encontramos ante un **{type}** que sale a subasta con un valor de tasación oficial fijado en **{appraisal}**.
+Este dato es el ancla financiera sobre la que pivota toda la operación.
+Frente a esta valoración, la cantidad reclamada que origina el procedimiento asciende a **{debt}**.
+Esta asimetría entre el valor del activo y el pasivo exigido genera un descuento teórico inicial del **{discount}**.
+CARD_OPPORTUNITY: Para un inversor patrimonial, este diferencial del {discount} representa el margen bruto de seguridad antes de descontar impuestos, costes de saneamiento jurídico y adecuación física del inmueble.`,
+
+    `### 📈 Desglose financiero del expediente
+La viabilidad de esta operación se sustenta en la relación entre el valor del activo y la carga que lo lleva a subasta.
+El juzgado ha establecido el valor de subasta de este **{type}** en **{appraisal}**.
+Paralelamente, la deuda que motiva la ejecución se sitúa en **{debt}**.
+Matemáticamente, esto nos sitúa ante un escenario con un **{discount}** de descuento aparente.
+CARD_OPPORTUNITY: El análisis experto exige no quedarse en la superficie: este margen del {discount} es el punto de partida para calcular la puja máxima admisible, garantizando que la rentabilidad neta final supere los umbrales mínimos exigidos.`,
+
+    `### 📈 Evaluación del margen de descuento
+Desde una perspectiva estrictamente financiera, el atractivo de este **{type}** reside en su estructura de costes.
+Con una tasación certificada de **{appraisal}** y una reclamación principal de **{debt}**, el expediente dibuja un descuento del **{discount}** sobre el papel.
+Este gap financiero es el terreno de juego del adjudicatario.
+CARD_OPPORTUNITY: La clave del éxito radicará en afinar la postura para no erosionar este margen del {discount}, teniendo en cuenta que el precio de adjudicación final deberá absorber el ITP correspondiente en {province} y los gastos derivados de la toma de posesión.`
+  ];
+
+  const riskTemplates = [
+    `### ⚠️ Riesgos principales
+Toda inversión en subastas conlleva un riesgo inherente al tipo de procedimiento.
+Al tratarse de un expediente clasificado como '**{procedureType}**', es imperativo realizar un barrido registral exhaustivo.
+El adjudicatario recibirá el inmueble libre de las cargas posteriores a la anotación de embargo que se ejecuta.
+Sin embargo, deberá subrogarse y asumir cualquier carga anterior si existiera.
+Además, el estado posesorio actual se define como '**{occupancy}**'.
+CARD_RISK: Esta variable es crítica: si el inmueble no está libre de ocupantes, el inversor deberá contemplar los plazos y costes de un procedimiento de lanzamiento o desahucio, lo cual impacta directamente en la TIR del proyecto.`,
+
+    `### ⚠️ Due Diligence y situación posesoria
+El marco jurídico de esta subasta, definida como '**{procedureType}**', dicta las reglas de juego para la adjudicación.
+El riesgo principal en este tipo de ejecuciones radica en las deudas ocultas no reflejadas en el edicto.
+Recibos pendientes del IBI o deudas con la comunidad de propietarios recaerán sobre el nuevo titular.
+Por otro lado, la situación posesoria ('**{occupancy}**') determina la liquidez inmediata del activo.
+CARD_RISK: Un estado posesorio complejo puede retrasar la monetización de la inversión entre 6 y 12 meses. Es un factor de iliquidez que debe ser penalizado severamente en el modelo de valoración a la hora de calcular la puja máxima.`,
+
+    `### ⚠️ Alertas legales y cargas registrales
+La naturaleza de este procedimiento ('**{procedureType}**') exige una *Due Diligence* rigurosa antes de inmovilizar el depósito.
+El riesgo de quiebra en la rentabilidad suele esconderse en la certificación de dominio y cargas.
+Es vital comprobar la inexistencia de hipotecas previas o embargos preferentes.
+Simultáneamente, el dato de ocupación ('**{occupancy}**') actúa como un termómetro del riesgo operativo.
+CARD_RISK: La gestión de la posesión es a menudo el mayor desafío post-adjudicación. Ignorar este factor o subestimar los tiempos judiciales para obtener la posesión efectiva es el error más común entre los postores no profesionales.`
+  ];
+
+  const investmentTemplates = [
+    `### 🎯 Perfil inversor
+Para un perfil de inversor *Value* o *Flipping*, este **{type}** en **{city}** presenta un lienzo interesante.
+Si la adquisición se logra consolidar manteniendo un descuento cercano al **{discount}**, el activo ofrece dos vías de monetización claras.
+La primera es la reforma y venta rápida (Fix & Flip), aprovechando el margen de compra para absorber los costes de obra y comercialización.
+La segunda es la aportación al mercado de alquiler.
+CARD_PROFILE: El bajo coste de adquisición dispararía la rentabilidad bruta por dividendo muy por encima de la media de {province}. La elección dependerá del coste de capital del inversor y su horizonte temporal.`,
+
+    `### 📊 Escenario posible
+Modelizando la operación, la adquisición de este **{type}** tiene sentido estratégico si se logra proteger el margen inicial.
+Asumiendo una compra exitosa basada en la deuda de **{debt}**, el inversor se posiciona con una ventaja competitiva insalvable para el comprador minorista tradicional.
+El escenario óptimo pasa por una adjudicación rápida y una toma de posesión pacífica.
+A partir de ahí, la inyección de capex para actualizar el inmueble permitiría reposicionarlo en el cuartil superior de precios de **{city}**.
+CARD_PROFILE: Este movimiento estratégico tiene el potencial de maximizar el retorno sobre el capital invertido (ROIC) en un plazo estimado de 8 a 14 meses, dependiendo de la agilidad del juzgado.`,
+
+    `### 🎯 Perfil inversor
+Este expediente no es apto para capital conservador sin experiencia jurídica.
+El perfil ideal para atacar este **{type}** es un inversor patrimonialista o un *family office*.
+Se requiere capacidad para gestionar la incertidumbre temporal y resolver la situación posesoria ('**{occupancy}**').
+La recompensa por asumir esta complejidad es el acceso a un activo con un descuento del **{discount}** sobre su valor de tasación de **{appraisal}**.
+CARD_PROFILE: En el actual ciclo inmobiliario de {province}, donde la compresión de *yields* es evidente, este tipo de operaciones estructuradas son la única vía para alcanzar rentabilidades de doble dígito.`
+  ];
+
+  const conclusionTemplates = [
+    `### 🚀 Conclusión
+En definitiva, la subasta de este **{type}** en **{city}** es una oportunidad tangible que requiere profesionalidad.
+El descuento teórico es el cebo, pero la rentabilidad real solo se materializará si se ejecuta una investigación registral impecable.
+Es fundamental calcular la puja con frialdad matemática y no dejarse llevar por el calor de la subasta.`,
+
+    `### 🚀 Veredicto final
+Como conclusión, estamos ante un expediente con un potencial de revalorización evidente.
+Sin embargo, el éxito de la inversión en este **{type}** dependerá exclusivamente de la capacidad del postor para despejar las incógnitas jurídicas.
+Será vital no sobrepasar el límite de puja preestablecido en el modelo financiero.`,
+
+    `### 🚀 Resumen operativo
+En resumen, este **{type}** representa una de las opciones más destacadas actualmente en **{city}**.
+La clave para el inversor será aislar el ruido y centrarse en la certificación de cargas.
+Utilizar el margen del **{discount}** como escudo protector contra los imprevistos del procedimiento será la mejor garantía de éxito.`
+  ];
+
+  const phaseTemplates = {
     NEW: {
       tag: 'Nueva Oportunidad',
       tagColor: 'bg-emerald-600',
       titles: [
         "Sale a subasta un {type} en {city} que está llamando la atención del mercado",
         "Oportunidad detectada: {type} en {city} con un escenario financiero inusual",
-        "El BOE publica la subasta de este {type} en {city}: analizamos los números",
-        "¿Merece la pena este {type} en {city}? Primer vistazo a la nueva subasta",
-        "Alerta de subasta: {type} en {city} con potencial de inversión",
-        "Nuevo expediente en {city}: un {type} entra en fase de ejecución judicial"
+        "El BOE publica la subasta de este {type} en {city}: analizamos los números"
       ],
       excerpts: [
         "El mercado inmobiliario de {city} suma un nuevo activo procedente de ejecución. Analizamos si los números reales justifican una puja.",
         "Acaba de abrirse el plazo para este inmueble en {city}. Revisamos la tasación y la deuda reclamada para encontrar el margen real.",
-        "Una nueva oportunidad aparece en el radar de {city}. Desgranamos los detalles técnicos de este {type} recién publicado.",
-        "Primer análisis de este {type} en {city}. Descubre si el descuento teórico se traduce en una rentabilidad real para el inversor.",
-        "El BOE acaba de liberar la información sobre este {type} en {city}. Te contamos lo que no se ve a simple vista en el edicto."
-      ],
-      paragraphs: [
-        [
-          "El panorama de las subastas públicas en {city} acaba de actualizarse con la entrada de un nuevo activo que está generando movimiento entre los inversores especializados. Se trata de un {type} que ha llegado a fase de ejecución y cuyo expediente ya es público.",
-          "La aparición de este tipo de inmuebles en {city} siempre requiere un análisis pausado. No todas las subastas son rentables, y el primer paso es entender de dónde viene la ejecución y qué características tiene el activo sobre el papel.",
-          "Un nuevo {type} ha sido publicado en el portal de subastas del BOE, sumándose a la oferta de {city}. Este tipo de activos suele atraer tanto a inversores locales como a fondos especializados.",
-          "El mercado de {city} recibe hoy una nueva oportunidad de inversión. Este {type} acaba de iniciar su periodo de subasta, abriendo una ventana de tiempo limitada para su análisis.",
-          "La ejecución judicial de este {type} en {city} ya es una realidad. Con el expediente abierto, los postores comienzan a evaluar si las condiciones justifican inmovilizar el capital."
-        ],
-        [
-          debt !== undefined 
-            ? `Los números oficiales muestran un valor de tasación fijado en ${vars.appraisal}, mientras que la cantidad reclamada que origina la ejecución asciende a ${vars.debt}. Esto nos deja un descuento teórico del ${vars.discount}, un margen que a priori resulta atractivo pero que debe ser contrastado.`
-            : `El valor de tasación oficial se ha fijado en ${vars.appraisal}. Sin embargo, en este expediente la cantidad reclamada no es pública o requiere una revisión manual del edicto, un factor de riesgo que todo inversor debe despejar antes de avanzar.`,
-          "Es fundamental recordar que la tasación judicial no siempre refleja el valor de mercado actual. A menudo, estas valoraciones tienen años de antigüedad o se hicieron bajo premisas que hoy han cambiado.",
-          debt !== undefined 
-            ? `Partimos de una base clara: tasación de ${vars.appraisal} frente a una deuda de ${vars.debt}. Ese ${vars.discount} de diferencia es el colchón de seguridad inicial, pero la rentabilidad final dependerá de las cargas ocultas.`
-            : `Con una tasación de ${vars.appraisal} sobre la mesa, la gran incógnita sigue siendo la deuda reclamada. Entrar a ciegas en este aspecto reduce drásticamente las probabilidades de éxito.`,
-          "El análisis financiero preliminar debe tomar estos valores con cautela. La tasación es solo un punto de partida legal, no una garantía de precio de reventa en el mercado libre.",
-          debt !== undefined
-            ? `El expediente revela una deuda de ${vars.debt} para un activo valorado en ${vars.appraisal}. Este escenario de ${vars.discount} de descuento aparente es exactamente lo que buscan los analistas de subastas.`
-            : `Aunque conocemos la tasación de ${vars.appraisal}, la opacidad sobre la deuda reclamada obliga a realizar una investigación registral exhaustiva antes de plantear cualquier puja.`
-        ],
-        [
-          "Más allá del precio, el verdadero riesgo de adquirir un {type} por esta vía reside en los 'detalles invisibles'. La situación posesoria (si está ocupado, alquilado o vacío) y las posibles cargas registrales anteriores son los elementos que pueden arruinar la rentabilidad de la operación.",
-          "Por ello, antes de inmovilizar el depósito del 5% requerido para participar, es imperativo realizar un estudio completo de la certificación de cargas y contactar con la comunidad de propietarios si procede.",
-          "El éxito en esta operación no dependerá de quién puje más alto, sino de quién haya investigado mejor. Conocer el estado de ocupación y las deudas con la comunidad o el IBI es innegociable.",
-          "Recomendamos encarecidamente solicitar una nota simple actualizada. Las cargas anteriores al embargo que origina esta subasta deberán ser asumidas por el adjudicatario, alterando por completo los números.",
-          "Como siempre en este sector, la prudencia es la mejor aliada. Visitar el exterior del inmueble, hablar con los vecinos y revisar minuciosamente el edicto son pasos obligatorios antes de transferir el depósito."
-        ]
+        "Una nueva oportunidad aparece en el radar de {city}. Desgranamos los detalles técnicos de este {type} recién publicado."
       ]
     },
     ENDING_SOON: {
@@ -182,46 +279,12 @@ export function generateEditorialArticle(slug: string, auction: AuctionData): Ed
       titles: [
         "Últimas horas para pujar por el {type} de {city}: ¿hay margen real?",
         "Cierre inminente: la subasta del {type} en {city} entra en su recta final",
-        "Cuenta atrás en {city}: el {type} con {discount} de descuento teórico a punto de adjudicarse",
-        "Alerta de cierre: finaliza el plazo para este {type} en {city}",
-        "Decisión final: ¿pujar o dejar pasar este {type} en {city}?",
-        "Recta final para la subasta de {city}: el {type} busca adjudicatario"
+        "Cuenta atrás en {city}: el {type} con {discount} de descuento teórico a punto de adjudicarse"
       ],
       excerpts: [
         "El plazo de la subasta para este {type} en {city} está a punto de concluir. Repasamos los números clave antes del cierre.",
         "Entramos en las últimas 48 horas de puja para este inmueble en {city}. ¿Es realmente una oportunidad o esconde riesgos?",
-        "La ventana de oportunidad para este {type} en {city} se cierra pronto. Análisis de última hora sobre su viabilidad.",
-        "Queda muy poco tiempo para que el BOE cierre la recepción de posturas. Revisamos si los números de este {type} cuadran.",
-        "Momento crítico para los inversores interesados en este {type} de {city}. Repasamos la estrategia a seguir en las últimas horas."
-      ],
-      paragraphs: [
-        [
-          "El reloj corre para una de las subastas más seguidas en {city}. El plazo para presentar posturas por este {type} está a punto de expirar, entrando en la fase crítica donde los inversores profesionales suelen mostrar sus cartas.",
-          "Durante los últimos días de una subasta es cuando se define realmente el precio de mercado del activo. Las pujas tempranas rara vez reflejan el valor final de adjudicación.",
-          "La tensión aumenta en el portal del BOE a medida que se acerca el cierre de este expediente en {city}. Es ahora cuando los verdaderos interesados en este {type} comienzan a posicionarse.",
-          "A pocas horas del cierre, el escenario para este {type} en {city} se vuelve decisivo. Los inversores que han hecho los deberes están listos para ejecutar su estrategia.",
-          "El periodo de investigación ha terminado. Con el cierre inminente de esta subasta en {city}, solo queda decidir si el retorno esperado justifica el riesgo asumido."
-        ],
-        [
-          debt !== undefined 
-            ? `Recordemos los datos base: el activo parte con una tasación de ${vars.appraisal} y una deuda reclamada de ${vars.debt}. El descuento del ${vars.discount} ha sido el principal atractivo para los postores que han seguido el expediente.`
-            : `El activo, tasado en ${vars.appraisal}, se enfrenta a sus últimas horas sin que la cantidad reclamada sea un dato trivial. Los postores han tenido que hacer sus propios cálculos de riesgo.`,
-          "A estas alturas, quien decida entrar debe tener sus números completamente cerrados, incluyendo la provisión para el ITP, gastos de adjudicación y posibles derramas.",
-          debt !== undefined 
-            ? `Con una deuda de ${vars.debt} frente a una tasación de ${vars.appraisal}, el margen del ${vars.discount} es el límite superior teórico. La puja ganadora determinará el beneficio real.`
-            : `La falta de información sobre la deuda reclamada, frente a una tasación de ${vars.appraisal}, ha obligado a los interesados a ser extremadamente conservadores en sus cálculos.`,
-          "El cálculo de rentabilidad ya no admite estimaciones. Los costes de saneamiento, impuestos y adecuación del inmueble deben estar cuantificados al milímetro.",
-          debt !== undefined
-            ? `El atractivo descuento del ${vars.discount} (basado en la deuda de ${vars.debt} y tasación de ${vars.appraisal}) es el motivo por el que esta subasta ha captado tanta atención en sus últimas horas.`
-            : `Sin el dato de la deuda reclamada, la tasación de ${vars.appraisal} es la única brújula oficial. Los inversores más experimentados ya habrán estimado el pasivo real del inmueble.`
-        ],
-        [
-          "Entrar en el último minuto requiere tener la certeza absoluta sobre la situación posesoria y las cargas. Un error de cálculo ahora, con el depósito ya retenido, puede resultar muy costoso.",
-          "La estrategia en estas últimas horas suele ser de observación, esperando a los últimos minutos para lanzar la puja máxima calculada, siempre respetando el límite de rentabilidad predefinido.",
-          "Es vital no dejarse llevar por la 'fiebre de la subasta'. Si las pujas superan el límite máximo que te habías marcado en tu Excel, la mejor decisión es retirarse.",
-          "Los postores profesionales saben que el verdadero beneficio se hace en la compra. Mantener la disciplina financiera en estos momentos finales es lo que separa el éxito del fracaso.",
-          "Recuerda que si el portal del BOE recibe una puja en los últimos minutos, el plazo se ampliará automáticamente. Mantén la calma y cíñete a tu plan de inversión."
-        ]
+        "La ventana de oportunidad para este {type} en {city} se cierra pronto. Análisis de última hora sobre su viabilidad."
       ]
     },
     SUSPENDED: {
@@ -230,40 +293,12 @@ export function generateEditorialArticle(slug: string, auction: AuctionData): Ed
       titles: [
         "Giro inesperado: paralizada la subasta del {type} en {city}",
         "El juzgado suspende la ejecución del {type} en {city}",
-        "Subasta cancelada en {city}: qué ha pasado con este {type}",
-        "Freno a la subasta: el {type} de {city} queda en el aire",
-        "Por qué se ha suspendido la subasta de este {type} en {city}",
-        "Actualización: el BOE retira temporalmente el {type} en {city}"
+        "Subasta cancelada en {city}: qué ha pasado con este {type}"
       ],
       excerpts: [
         "La subasta de este {type} en {city} ha sido suspendida oficialmente. Analizamos las causas más comunes de esta paralización.",
         "Freno judicial a la subasta del inmueble en {city}. El expediente queda en pausa hasta nuevo aviso.",
-        "Cambio de estado: el {type} de {city} ya no admite pujas por suspensión del procedimiento.",
-        "El juzgado ha dictado la suspensión de esta ejecución en {city}. Explicamos qué implica esto para los postores.",
-        "Una suspensión de última hora paraliza la venta de este {type} en {city}. Conoce los motivos detrás de esta decisión."
-      ],
-      paragraphs: [
-        [
-          "Cambio de guion en el procedimiento de ejecución en {city}. La autoridad competente ha decretado la suspensión oficial de la subasta de este {type}, paralizando temporalmente cualquier posibilidad de adjudicación.",
-          "Las suspensiones son un escenario habitual en el mundo de las subastas públicas y forman parte del riesgo temporal que asumen los inversores que inmovilizan capital en los depósitos.",
-          "El portal del BOE ha actualizado el estado de este {type} en {city} a 'Suspendida'. Esta notificación interrumpe el reloj de la subasta y deja el activo en un limbo legal temporal.",
-          "Quienes seguían de cerca este {type} en {city} se han encontrado con una suspensión judicial. Este tipo de giros procesales requieren paciencia por parte del inversor.",
-          "La ejecución de este inmueble en {city} ha sufrido un revés. El juzgado ha ordenado la paralización del proceso, impidiendo que se registren nuevas posturas."
-        ],
-        [
-          "Existen múltiples razones jurídicas que pueden forzar esta paralización. Las más comunes incluyen el pago de la deuda por parte del ejecutado en el último momento, la presentación de un incidente de nulidad, o la solicitud de concurso de acreedores.",
-          "En ocasiones, también puede deberse a defectos de forma en la notificación o a la aparición de terceros ocupantes que hacen valer sus derechos ante el juzgado.",
-          "La paralización puede originarse por un acuerdo extrajudicial in extremis entre el banco y el deudor, logrando frenar la pérdida del {type} en el último momento.",
-          "Otra causa frecuente de suspensión en {city} es la presentación de recursos por parte de acreedores posteriores que detectan irregularidades en el procedimiento de apremio.",
-          "No es descartable que el propio juzgado haya detectado un error material en el edicto de este {type}, obligando a suspender para subsanar y evitar futuras nulidades."
-        ],
-        [
-          "Para los inversores que ya habían depositado el 5% para participar, esta suspensión implica la devolución íntegra de los fondos, aunque el proceso puede demorarse unos días dependiendo de la agilidad del juzgado.",
-          "El activo podría volver a salir a subasta en el futuro si la causa de la suspensión se resuelve a favor del ejecutante, por lo que conviene mantener el expediente en el radar.",
-          "Si tenías este {type} en tu radar, lo ideal es archivar el estudio realizado. Muchas subastas suspendidas en {city} vuelven a activarse meses después con las mismas condiciones.",
-          "El capital retenido en el depósito será liberado por el Tesoro Público, permitiendo a los postores redirigir su liquidez hacia otras oportunidades activas.",
-          "La lección aquí es clara: nunca des por cerrada una compra hasta tener el decreto de adjudicación. Las suspensiones son el recordatorio de que estamos ante un proceso judicial vivo."
-        ]
+        "Cambio de estado: el {type} de {city} ya no admite pujas por suspensión del procedimiento."
       ]
     },
     CLOSED: {
@@ -272,57 +307,33 @@ export function generateEditorialArticle(slug: string, auction: AuctionData): Ed
       titles: [
         "Resolución: así cerró la subasta del {type} en {city}",
         "Finaliza la puja por el {type} en {city}: análisis post-subasta",
-        "Caso de estudio: el desenlace de la subasta del {type} en {city}",
-        "Adjudicado: fin del proceso para este {type} en {city}",
-        "Cierre de expediente: lo que nos enseña la subasta de este {type} en {city}",
-        "Subasta concluida: el mercado dicta sentencia sobre el {type} en {city}"
+        "Caso de estudio: el desenlace de la subasta del {type} en {city}"
       ],
       excerpts: [
         "El plazo de pujas ha concluido para este inmueble en {city}. Repasamos los datos de este expediente finalizado como caso de estudio.",
         "Subasta cerrada en {city}. Analizamos a posteriori los números de este {type} para entender la dinámica del mercado local.",
-        "Fin del procedimiento para el {type} en {city}. Lecciones y métricas que deja esta ejecución hipotecaria.",
-        "El BOE ha cerrado la recepción de posturas para este {type}. Revisamos cómo ha quedado el escenario tras el cierre.",
-        "Con la subasta finalizada, este {type} en {city} pasa a la fase de adjudicación judicial. Analizamos el resultado."
-      ],
-      paragraphs: [
-        [
-          "El martillo virtual ha caído. La subasta de este {type} en {city} ha finalizado oficialmente, cerrando el periodo de recepción de pujas y pasando a la fase de resolución judicial.",
-          "Analizar subastas ya concluidas es una de las mejores formas de entender la temperatura real del mercado inmobiliario de inversión en la zona, más allá de los precios teóricos de los portales inmobiliarios.",
-          "El periodo de pujas para este {type} en {city} ha llegado a su fin. Ahora, el expediente entra en la fase burocrática donde el juzgado deberá validar la postura ganadora.",
-          "La subasta de este {type} ya es historia. Con el cierre del plazo en el BOE, los inversores de {city} ya pueden añadir este caso a sus bases de datos de comparables.",
-          "Se acabó el tiempo. La ejecución de este {type} en {city} ha cerrado su ventana pública, dejando tras de sí datos muy valiosos para futuros análisis de mercado."
-        ],
-        [
-          debt !== undefined 
-            ? `El expediente partía con una tasación de ${vars.appraisal} y una deuda de ${vars.debt}. El margen teórico inicial era del ${vars.discount}, un colchón que los postores han tenido que ajustar en base a sus investigaciones.`
-            : `Con una tasación de ${vars.appraisal}, los inversores han tenido que pujar a ciegas respecto a la deuda reclamada, un factor que suele deprimir las pujas máximas por prudencia.`,
-          "Ahora, el Letrado de la Administración de Justicia (LAJ) deberá dictar el decreto de aprobación del remate a favor de la mejor postura, siempre que esta cumpla con los porcentajes legales exigidos respecto al valor de tasación.",
-          debt !== undefined 
-            ? `Recordando los números: tasación de ${vars.appraisal} y deuda de ${vars.debt}. Quien haya logrado adjudicarse el bien por debajo de ese ${vars.discount} de descuento teórico, habrá firmado una buena operación.`
-            : `El riesgo de no conocer la deuda reclamada (frente a la tasación de ${vars.appraisal}) seguramente haya filtrado a los postores menos experimentados, dejando la puja a los profesionales.`,
-          "La fase actual es de espera. El mejor postor deberá consignar el resto del precio ofrecido (descontando el depósito) en el plazo legalmente establecido, normalmente 40 días.",
-          debt !== undefined
-            ? `Este {type} atrajo miradas por su descuento aparente del ${vars.discount} (deuda de ${vars.debt} vs tasación de ${vars.appraisal}). Ahora veremos si las cargas ocultas permitieron mantener ese margen.`
-            : `La tasación de ${vars.appraisal} fue el único faro para los inversores. La ausencia del dato de deuda reclamada convirtió esta subasta en un ejercicio de investigación registral avanzada.`
-        ],
-        [
-          "Si la puja ganadora no alcanza el 70% del valor de tasación (en caso de vivienda habitual) o el 50% (en otros inmuebles), se abre un periodo donde el deudor o el acreedor pueden presentar a un tercero que mejore la postura.",
-          "Este caso en {city} se suma al histórico de adjudicaciones, sirviendo como referencia valiosa para futuras oportunidades de características similares en la misma provincia.",
-          "Para el adjudicatario, el trabajo no termina aquí. Ahora comienza el proceso de toma de posesión, que puede ser rápido si el inmueble está vacío, o requerir un lanzamiento si está ocupado.",
-          "Estudiar los resultados de estas subastas cerradas en {city} es el mejor entrenamiento para afinar los números en futuras pujas. El mercado secundario de ejecuciones tiene sus propias reglas.",
-          "Una vez dictado el decreto de adjudicación y canceladas las cargas posteriores, el nuevo propietario podrá inscribir el {type} a su nombre en el Registro de la Propiedad, culminando así la inversión."
-        ]
+        "Fin del procedimiento para el {type} en {city}. Lecciones y métricas que deja esta ejecución hipotecaria."
       ]
     }
   };
 
-  const tpl = templates[phase];
+  const tpl = phaseTemplates[phase];
   const title = replaceVars(pickRandom(tpl.titles, random));
   const excerpt = replaceVars(pickRandom(tpl.excerpts, random));
   
-  const content = tpl.paragraphs.map(pGroup => {
-    return replaceVars(pickRandom(pGroup, random));
-  });
+  // Build the content array by picking one template from each section and splitting by \n
+  const rawContent = [
+    pickRandom(introTemplates, random),
+    pickRandom(analysisTemplates, random),
+    pickRandom(riskTemplates, random),
+    pickRandom(investmentTemplates, random),
+    pickRandom(conclusionTemplates, random)
+  ];
+
+  // Flatten the paragraphs and replace variables
+  const content = rawContent.flatMap(section => 
+    section.split('\n').map(p => replaceVars(p)).filter(p => p.trim() !== '')
+  );
 
   return {
     phase,
@@ -334,4 +345,5 @@ export function generateEditorialArticle(slug: string, auction: AuctionData): Ed
     tagColor: tpl.tagColor
   };
 }
+
 

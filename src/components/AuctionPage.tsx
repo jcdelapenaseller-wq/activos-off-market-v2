@@ -12,7 +12,9 @@ import { getFilteredAuctions, isAuctionFinished, getAuctionType, getProcedureTyp
 import { ROUTES } from '../constants/routes';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel, normalizeProvince, formatAddress } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
+import { getImageForPropertyType } from '../constants/auctionImages';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
+import { ShareButtons } from './ShareButtons';
 import ConversionBlock from './ConversionBlock';
 import PremiumValueBlock from './PremiumValueBlock';
 import ConsultingCTA from './ConsultingCTA';
@@ -56,13 +58,6 @@ const AuctionPage: React.FC = () => {
     if (auction) {
       setValorMercado(auction.appraisalValue || '');
       setDeudas(auction.claimedDebt || '');
-      
-      // DEBUG: Address field analysis
-      console.log('DEBUG - Auction Address Field:', {
-        raw: auction.address,
-        exists: !!auction.address,
-        type: typeof auction.address
-      });
       
       const propertyType = normalizePropertyType(auction.propertyType);
       const cityName = normalizeCity(auction) || 'España';
@@ -252,8 +247,166 @@ const AuctionPage: React.FC = () => {
 
   const urgencyBadge = getUrgencyBadge(auction.auctionDate);
 
+  const jsonLd = useMemo(() => {
+    if (!auction || !slug) return null;
+
+    const propertyType = normalizePropertyType(auction.propertyType);
+    const cityName = normalizeCity(auction) || 'España';
+    const discount = auction.appraisalValue && auction.claimedDebt 
+      ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) 
+      : 0;
+    
+    const addressPart = formatAddress(auction.address);
+    const streetPart = addressPart ? ` (${addressPart})` : '';
+    
+    let discountPart = '';
+    if (auction.claimedDebt === 0) {
+      discountPart = ' (Sin cargas declaradas)';
+    } else if (discount > 85) {
+      discountPart = ' (Oportunidad a analizar)';
+    } else if (discount > 0) {
+      discountPart = ` con ${discount}% de descuento`;
+    }
+    
+    const title = `${propertyType} en subasta en ${cityName}${streetPart}${discountPart}`;
+    const finalTitle = title.length > 70 ? title.substring(0, 67) + '...' : title;
+
+    const description = analysisInsights 
+      ? `${analysisInsights.marketContext} ${analysisInsights.investorProfile}`.substring(0, 160) + '...'
+      : `Subasta de ${propertyType.toLowerCase()} en ${cityName}, ${provinceName}.`;
+
+    const imageUrl = getImageForPropertyType(auction.propertyType, slug);
+    const price = auction.claimedDebt ?? auction.appraisalValue ?? auction.valorSubasta ?? 0;
+    const url = window.location.href;
+    
+    const now = new Date();
+    let publishedDate = auction.publishedAt ? new Date(auction.publishedAt) : now;
+    if (publishedDate > now) publishedDate = now;
+
+    const availability = isFinished ? "https://schema.org/OutOfStock" : "https://schema.org/InStock";
+
+    const realEstateListing: any = {
+      "@context": "https://schema.org",
+      "@type": "RealEstateListing",
+      "name": finalTitle,
+      "description": description,
+      "image": imageUrl,
+      "url": url,
+      "datePosted": publishedDate.toISOString().split('T')[0],
+      "category": propertyType,
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": cityName,
+        "addressRegion": provinceName,
+        "addressCountry": "ES"
+      }
+    };
+
+    if (auction.auctionDate) {
+      realEstateListing["availabilityEnds"] = new Date(auction.auctionDate).toISOString().split('T')[0];
+    }
+
+    const product: any = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": finalTitle,
+      "image": imageUrl,
+      "description": description,
+      "brand": {
+        "@type": "Brand",
+        "name": "Activos Off-Market"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": price,
+        "priceCurrency": "EUR",
+        "availability": availability,
+        "url": url
+      }
+    };
+
+    if (auction.auctionDate) {
+      product.offers["validThrough"] = new Date(auction.auctionDate).toISOString().split('T')[0];
+    }
+
+    const faqPage: any = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": []
+    };
+
+    // 1. ¿Cuánto podría costar esta subasta en {ciudad}?
+    faqPage.mainEntity.push({
+      "@type": "Question",
+      "name": `¿Cuánto podría costar esta subasta de ${propertyType.toLowerCase()} en ${cityName}?`,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": auction.appraisalValue 
+          ? `El valor de tasación oficial para esta subasta en ${cityName} es de ${auction.appraisalValue.toLocaleString('es-ES')}€. Sin embargo, el precio final dependerá de las pujas y de si existe un tipo mínimo establecido.`
+          : `El valor de tasación para esta subasta en ${cityName} no se ha especificado públicamente. Recomendamos revisar el edicto oficial para más detalles sobre el valor de mercado.`
+      }
+    });
+
+    // 2. ¿Está ocupada esta subasta?
+    const occupancyStatus = auction.occupancy || 'No consta información registral sobre la ocupación';
+    faqPage.mainEntity.push({
+      "@type": "Question",
+      "name": `¿Está ocupada esta propiedad en subasta?`,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": `Según la información disponible, el estado de ocupación es: ${occupancyStatus}. Es fundamental verificar la situación posesoria real antes de participar en cualquier subasta inmobiliaria.`
+      }
+    });
+
+    // 3. ¿Qué deudas puede tener esta subasta?
+    faqPage.mainEntity.push({
+      "@type": "Question",
+      "name": `¿Qué deudas o cargas tiene esta subasta?`,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": auction.claimedDebt !== undefined
+          ? `La cantidad reclamada que origina esta subasta es de ${auction.claimedDebt.toLocaleString('es-ES')}€. Es imprescindible solicitar una nota simple actualizada para comprobar si existen cargas anteriores que el adjudicatario deba asumir.`
+          : `No se ha especificado la cantidad reclamada exacta. Es imprescindible solicitar una nota simple actualizada para comprobar las cargas y deudas que el adjudicatario deba asumir.`
+      }
+    });
+
+    // 4. ¿Cuál es el depósito necesario?
+    faqPage.mainEntity.push({
+      "@type": "Question",
+      "name": `¿Cuál es el depósito necesario para participar?`,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": auction.deposito
+          ? `Para participar en esta subasta es necesario realizar un depósito previo de ${auction.deposito.toLocaleString('es-ES')}€ a través del Portal de Subastas del BOE.`
+          : `El importe del depósito no está especificado en los datos básicos. Generalmente corresponde al 5% del valor de tasación de la propiedad.`
+      }
+    });
+
+    // 5. ¿Es rentable esta subasta?
+    faqPage.mainEntity.push({
+      "@type": "Question",
+      "name": `¿Es rentable invertir en esta subasta en ${cityName}?`,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": discount > 0
+          ? `Esta subasta presenta un descuento teórico del ${discount}% respecto a su valor de tasación. La rentabilidad real dependerá de las cargas anteriores, el estado físico del inmueble, los costes de posesión y el precio final de adjudicación.`
+          : `Para determinar la rentabilidad de esta subasta en ${cityName} es necesario realizar un estudio de mercado local, descontar las cargas anteriores y estimar los costes de adecuación y posesión del inmueble.`
+      }
+    });
+
+    return [realEstateListing, product, faqPage];
+  }, [auction, slug, cityName, provinceName, isFinished, analysisInsights]);
+
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
+      {jsonLd && (
+        <>
+          <script type="application/ld+json">
+            {JSON.stringify(jsonLd)}
+          </script>
+          <link rel="preload" as="image" href={jsonLd[0].image} />
+        </>
+      )}
       <div className="max-w-5xl mx-auto px-6 pt-12 pb-20">
         {/* Breadcrumbs */}
         <nav className="flex items-center text-sm text-slate-500 mb-10 font-medium" aria-label="Breadcrumb">
@@ -306,6 +459,24 @@ const AuctionPage: React.FC = () => {
                   </span>
                 )}
               </h1>
+
+              <ShareButtons title={`${propertyType} en subasta en ${cityName}`} className="mb-8 -mt-2" />
+
+              {jsonLd && (
+                <figure className="mb-10 relative group rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                  <img 
+                    src={jsonLd[0].image} 
+                    alt={`Subasta de ${propertyType.toLowerCase()} en ${cityName}`}
+                    className="w-full h-[300px] md:h-[450px] object-cover"
+                    referrerPolicy="no-referrer"
+                    width="1200"
+                    height="675"
+                    fetchPriority="high"
+                    decoding="async"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-40"></div>
+                </figure>
+              )}
               
               <div className="flex flex-wrap items-center gap-8 text-slate-500 text-base mb-12">
                 <div className="flex items-center gap-2">

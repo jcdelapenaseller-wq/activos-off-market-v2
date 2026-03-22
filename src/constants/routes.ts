@@ -44,6 +44,7 @@ export const ROUTES = {
   NOTICIAS_SUBASTAS_PROVINCE: '/noticias-subastas/provincia/:province',
   NOTICIAS_SUBASTAS_ANALYSIS: '/noticias-subastas/analisis/:slug',
   NOTICIAS_SUBASTAS: '/noticias-subastas/:slug',
+  DISCOVER_REPORT: '/discover/reportajes/:slug',
   AUCTION_PAGE: '/subasta/:slug',
   PROVINCE_PROPERTY: '/subastas/:province/:propertyType',
   ZONE_PROPERTY_PROVINCE: '/subastas-:propertyType-:province-:zone',

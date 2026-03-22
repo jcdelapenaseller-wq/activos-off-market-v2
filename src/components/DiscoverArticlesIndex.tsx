@@ -6,7 +6,7 @@ import { Calendar, ChevronRight, MapPin } from 'lucide-react';
 import { isAuctionFinished } from '../utils/auctionHelpers';
 import { normalizeProvince, normalizePropertyType } from '../utils/auctionNormalizer';
 import { getImageForPropertyType } from '../constants/auctionImages';
-import { generateEditorialArticle } from '../utils/editorialGenerator';
+import { generateEditorialArticle, shouldGenerateDiscoverArticle } from '../utils/editorialGenerator';
 import TelegramCTA from './TelegramCTA';
 import DiscoverSingleAuctionArticle from './DiscoverSingleAuctionArticle';
 
@@ -92,7 +92,7 @@ const DiscoverArticlesIndex: React.FC = () => {
       const endDate = new Date(a.auctionDate.includes('T') ? a.auctionDate : `${a.auctionDate}T00:00:00Z`);
       const daysSinceClose = (new Date().getTime() - endDate.getTime()) / (1000 * 3600 * 24);
       return daysSinceClose <= 7; // Keep closed auctions for 7 days
-    });
+    }).filter(([_, a]) => shouldGenerateDiscoverArticle(a));
     
     const auctionArticles = recentAuctionEntries
       .map(([slug, data]) => {
@@ -120,10 +120,8 @@ const DiscoverArticlesIndex: React.FC = () => {
     // Combine and sort all articles by date
     const combinedArticles = [...auctionArticles, ...provinceArticles].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-    let previousImage: string | undefined = undefined;
     const allArticles = combinedArticles.map(article => {
-      const img = getImageForPropertyType(article.propertyType, article.slug, previousImage);
-      previousImage = img;
+      const img = getImageForPropertyType(article.propertyType, article.slug);
       return { ...article, imageUrl: img };
     });
 
@@ -132,6 +130,9 @@ const DiscoverArticlesIndex: React.FC = () => {
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 px-6 pt-10">
+      {allArticles.length > 0 && (
+        <link rel="preload" as="image" href={allArticles[0].imageUrl} />
+      )}
       <div className="max-w-4xl mx-auto">
         <header className="mb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
@@ -149,6 +150,7 @@ const DiscoverArticlesIndex: React.FC = () => {
 
         <div className="grid grid-cols-1 gap-8">
           {allArticles.map((article, index) => {
+            const isPriority = index === 0;
             if (article.id.startsWith('auction-')) {
               return (
                 <div key={`featured-${article.id}`}>
@@ -157,6 +159,7 @@ const DiscoverArticlesIndex: React.FC = () => {
                     slug={article.id.replace('auction-', '')} 
                     article={article.editorialData}
                     imageUrl={article.imageUrl}
+                    isPriority={isPriority}
                   />
                 </div>
               );
@@ -170,6 +173,11 @@ const DiscoverArticlesIndex: React.FC = () => {
                         alt={article.title}
                         className="w-full h-64 md:h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         referrerPolicy="no-referrer"
+                        width="1200"
+                        height="675"
+                        loading={isPriority ? "eager" : "lazy"}
+                        decoding="async"
+                        fetchPriority={isPriority ? "high" : "auto"}
                       />
                       <div className={`absolute top-4 left-4 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg ${article.tagColor}`}>
                         {article.tag}

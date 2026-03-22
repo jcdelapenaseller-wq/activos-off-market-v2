@@ -12,6 +12,7 @@ import PremiumValueBlock from './PremiumValueBlock';
 import Header from './Header';
 import Footer from './Footer';
 import TelegramCTA from './TelegramCTA';
+import { ShareButtons } from './ShareButtons';
 import { getImageForPropertyType } from '../constants/auctionImages';
 
 const DiscoverProvinceArticle: React.FC = () => {
@@ -236,6 +237,8 @@ const DiscoverProvinceArticle: React.FC = () => {
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600 flex flex-col">
       <Header />
       
+      {content && <link rel="preload" as="image" href={content.image} />}
+      
       {jsonLd && (
         <script type="application/ld+json">
           {JSON.stringify(jsonLd)}
@@ -275,6 +278,8 @@ const DiscoverProvinceArticle: React.FC = () => {
               {content.title}
             </h1>
 
+            <ShareButtons title={content.title} className="mb-8 -mt-2" />
+
             {/* Imagen principal grande para Discover */}
             <figure className="mb-10 -mx-6 md:-mx-10 relative group">
               <img 
@@ -282,6 +287,10 @@ const DiscoverProvinceArticle: React.FC = () => {
                 alt={`Subastas inmobiliarias en ${provinceName}`}
                 className="w-full h-[300px] md:h-[450px] object-cover md:rounded-none"
                 referrerPolicy="no-referrer"
+                width="1200"
+                height="675"
+                fetchPriority="high"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-40"></div>
               <figcaption className="absolute bottom-6 left-6 md:left-10 text-white">
@@ -295,6 +304,10 @@ const DiscoverProvinceArticle: React.FC = () => {
                 src="https://activosoffmarket.es/logo.png" 
                 alt="Activos Off-Market" 
                 className="w-12 h-12 rounded-full bg-slate-900 object-cover border-2 border-white shadow-sm"
+                width="48"
+                height="48"
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=Activos+OffMarket&background=0f172a&color=fff';
                 }}

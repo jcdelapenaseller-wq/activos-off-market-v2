@@ -7,6 +7,8 @@ import { getFilteredAuctions, isAuctionFinished, sortAuctions, formatDate, isAuc
 import { AuctionCard } from './AuctionCard';
 import { AuctionFilters } from './AuctionFilters';
 import { AuctionData } from '../data/auctions';
+import { ShareButtons } from './ShareButtons';
+import { DiscoverReportsBlock } from './DiscoverReportsBlock';
 
 const RecentAuctions: React.FC = () => {
   const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(() => getFilteredAuctions(AUCTIONS));
@@ -54,8 +56,11 @@ const RecentAuctions: React.FC = () => {
           <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-8 leading-tight">
             Últimas subastas inmobiliarias detectadas
           </h1>
+          <ShareButtons title="Últimas subastas inmobiliarias detectadas en España" className="-mt-2" />
         </div>
       </header>
+
+      <DiscoverReportsBlock />
 
       <main className="max-w-7xl mx-auto px-6 py-16">
         <AuctionFilters auctions={AUCTIONS} onFilteredChange={setFilteredAuctions} onSortChange={setSortBy} />

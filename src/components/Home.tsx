@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import Hero from './Hero';
+import { DiscoverReportsBlock } from './DiscoverReportsBlock';
 import RecentAuctionsHome from './RecentAuctionsHome';
 import LeadMagnetBlock from './LeadMagnetBlock';
 import Services from './Services';
@@ -20,6 +21,7 @@ const Home: React.FC = () => {
   return (
     <>
       <Hero />
+      <DiscoverReportsBlock />
       <RecentAuctionsHome />
       <div className="max-w-7xl mx-auto px-6">
         <LeadMagnetBlock />

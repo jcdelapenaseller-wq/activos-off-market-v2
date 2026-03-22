@@ -72,6 +72,7 @@ import HistoricalAuctions from './components/HistoricalAuctions';
 import HighDiscountAuctions from './components/HighDiscountAuctions';
 import DiscoverProvinceArticle from './components/DiscoverProvinceArticle';
 import DiscoverAuctionArticle from './components/DiscoverAuctionArticle';
+import DiscoverReportArticle from './components/DiscoverReportArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
 import ProvinceHub from './components/ProvinceHub';
 import AuctionPage from './components/AuctionPage';
@@ -291,6 +292,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.NOTICIAS_SUBASTAS_ANALYSIS,
     element: createElement(DiscoverAuctionArticle),
+  },
+  {
+    path: ROUTES.DISCOVER_REPORT,
+    element: createElement(DiscoverReportArticle),
   },
   {
     path: ROUTES.NOTICIAS_SUBASTAS,

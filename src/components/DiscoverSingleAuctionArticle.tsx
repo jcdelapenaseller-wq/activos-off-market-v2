@@ -9,9 +9,10 @@ interface Props {
   slug: string;
   article: EditorialArticle;
   imageUrl: string;
+  isPriority?: boolean;
 }
 
-const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug, article, imageUrl }) => {
+const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug, article, imageUrl, isPriority = false }) => {
   const formattedDate = article.dateModified.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
@@ -23,6 +24,11 @@ const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug, article,
             alt={`${auction.propertyType} en ${auction.city}`} 
             className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
             referrerPolicy="no-referrer"
+            width="1200"
+            height="675"
+            loading={isPriority ? "eager" : "lazy"}
+            decoding="async"
+            fetchPriority={isPriority ? "high" : "auto"}
           />
           <div className="absolute top-4 left-4 flex gap-2">
             <span className={`text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow-lg text-white ${article.tagColor}`}>
