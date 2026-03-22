@@ -294,6 +294,10 @@ export const routes: RouteObject[] = [
     element: createElement(DiscoverAuctionArticle),
   },
   {
+    path: '/discover/reportajes/:slug',
+    element: createElement(RedirectSlug, { to: '/analisis/:slug' }),
+  },
+  {
     path: ROUTES.DISCOVER_REPORT,
     element: createElement(DiscoverReportArticle),
   },

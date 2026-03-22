@@ -151,6 +151,18 @@ function generateSitemap() {
     }
   }
 
+  // Extract slugs from DISCOVER_REPORTS
+  const reportsFilePath = path.join(process.cwd(), 'src/data/discoverReports.ts');
+  const reportsSlugs = [];
+  if (fs.existsSync(reportsFilePath)) {
+    const reportsContent = fs.readFileSync(reportsFilePath, 'utf-8');
+    const reportSlugRegex = /'([^']+)'\s*:\s*\{/g;
+    let reportMatch;
+    while ((reportMatch = reportSlugRegex.exec(reportsContent)) !== null) {
+      reportsSlugs.push(reportMatch[1]);
+    }
+  }
+
   const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticPages.map(page => `  <url>
@@ -200,6 +212,11 @@ ${slugs.map(slug => `  <url>
   </url>
   <url>
     <loc>${BASE_URL}/noticias-subastas/analisis/${slug}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>`).join('\n')}
+${reportsSlugs.map(slug => `  <url>
+    <loc>${BASE_URL}/analisis/${slug}</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>`).join('\n')}

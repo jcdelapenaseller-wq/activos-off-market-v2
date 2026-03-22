@@ -146,9 +146,7 @@ const DiscoverAuctionArticle: React.FC = () => {
   const imageUrl = getImageForPropertyType(auction.propertyType, slug);
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans text-slate-600 flex flex-col">
-      <Header />
-      
+    <>
       <link rel="preload" as="image" href={imageUrl} />
       <link rel="canonical" href={`${window.location.origin}/noticias-subastas/analisis/${slug}`} />
       
@@ -158,7 +156,7 @@ const DiscoverAuctionArticle: React.FC = () => {
         </script>
       )}
       
-      <main className="flex-grow max-w-3xl mx-auto px-6 py-12 w-full">
+      <div className="flex-grow max-w-3xl mx-auto px-6 py-12 w-full">
         <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
           <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
           <ChevronRight size={14} className="mx-2" />
@@ -341,9 +339,8 @@ const DiscoverAuctionArticle: React.FC = () => {
             </div>
           </div>
         </article>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

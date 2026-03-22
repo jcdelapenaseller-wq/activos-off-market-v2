@@ -118,11 +118,9 @@ const DiscoverReportArticle: React.FC = () => {
   if (!report) return <Navigate to={ROUTES.HOME} replace />;
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans text-slate-600 flex flex-col">
-      <Header />
-      
+    <>
       <link rel="preload" as="image" href={report.image} />
-      <link rel="canonical" href={`${window.location.origin}/discover/reportajes/${slug}`} />
+      <link rel="canonical" href={`${window.location.origin}/analisis/${slug}`} />
       
       {jsonLd && (
         <script type="application/ld+json">
@@ -130,7 +128,7 @@ const DiscoverReportArticle: React.FC = () => {
         </script>
       )}
 
-      <main className="max-w-3xl mx-auto px-6 py-12 w-full">
+      <div className="max-w-3xl mx-auto px-6 py-12 w-full">
         <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
           <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
           <ChevronRight size={14} className="mx-2" />
@@ -329,10 +327,8 @@ const DiscoverReportArticle: React.FC = () => {
 
           <TelegramCTA />
         </article>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

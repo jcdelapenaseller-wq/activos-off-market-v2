@@ -125,9 +125,7 @@ const ProvinceHub: React.FC = () => {
   if (!province) return <Navigate to={ROUTES.HOME} replace />;
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
-      <Header />
-      
+    <>
       {/* SEO Guide Section (Top) */}
       {GuideComponent ? (
         <div className="city-guide-wrapper">
@@ -302,9 +300,7 @@ const ProvinceHub: React.FC = () => {
           </div>
         )}
       </section>
-
-      <Footer />
-    </div>
+    </>
   );
 };
 
