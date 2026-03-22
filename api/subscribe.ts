@@ -21,6 +21,12 @@ export default async function handler(req: any, res: any) {
     groupId = '182569815674717523';
   }
 
+  console.log('⚙️ [MAILERLITE CONFIG]', {
+    source,
+    env_default: process.env.MAILERLITE_GROUP_DEFAULT ? 'SET' : 'MISSING',
+    mapped_groupId: groupId
+  });
+
   // Use provided groups from frontend, or fallback to mapped groupId
   const finalGroups = Array.isArray(groups) && groups.length > 0 ? groups : (groupId ? [groupId] : []);
 
@@ -35,10 +41,13 @@ export default async function handler(req: any, res: any) {
     fields: fields || {}
   };
 
-  // Only add groups if they exist and are not empty
-  if (finalGroups.length > 0) {
-    payload.groups = finalGroups;
+  // Only add groups if they exist, are not empty and don't look like placeholders
+  const validGroups = finalGroups.filter(g => g && g !== 'TODO' && g !== 'undefined' && g.length > 5);
+  if (validGroups.length > 0) {
+    payload.groups = validGroups;
   }
+
+  console.log('📦 [MAILERLITE PAYLOAD]', JSON.stringify(payload, null, 2));
 
   try {
     const response = await fetch('https://connect.mailerlite.com/api/subscribers', {
