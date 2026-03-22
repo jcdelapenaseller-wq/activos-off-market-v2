@@ -5,7 +5,15 @@ export const trackConversion = (
   province: string, 
   origin: TrackingOrigin, 
   clickType: TrackingClickType,
-  metadata?: { roi?: number | string; precio?: number | string; tipo_subasta?: string; plan?: string }
+  metadata?: { 
+    roi?: number | string; 
+    precio?: number | string; 
+    tipo_subasta?: string; 
+    plan?: string;
+    step?: string;
+    email?: string;
+    [key: string]: any;
+  }
 ) => {
   const event = {
     timestamp: new Date().toISOString(),

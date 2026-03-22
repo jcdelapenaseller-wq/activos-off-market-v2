@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { CheckCircle, Zap, Clock, ShieldCheck, ArrowRight, Star, Mail, Bell } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
+import { trackConversion } from '../utils/tracking';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -14,10 +15,15 @@ const AlertSuccessPage: React.FC = () => {
   // Se añade el parámetro prefilled_email para mejorar la UX
   const STRIPE_PAYMENT_LINK = `https://buy.stripe.com/cNifZj2Uf6hX8lT6WAdjO03?prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(email)}`;
 
+  const handleStripeClick = () => {
+    trackConversion('espana', 'alert_creation', 'pro_checkout', { plan: 'radar_premium', email });
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = "Confirma tu Alerta | Activos Off-Market";
-  }, []);
+    trackConversion('espana', 'alert_creation', 'pro_unlock', { step: 'upsell_arrival', email });
+  }, [email]);
 
   return (
     <div className="bg-slate-50 min-h-screen flex flex-col">
@@ -59,17 +65,21 @@ const AlertSuccessPage: React.FC = () => {
                   <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6 leading-tight">
                     Recibe nuevas subastas sin tener que <span className="text-brand-500">revisar el BOE</span>
                   </h2>
-                  <p className="text-slate-300 text-xl leading-relaxed">
-                    Evita revisar decenas de anuncios del BOE cada día. Recibe solo los que encajan con tu búsqueda directamente en tu bandeja de entrada.
+                  <p className="text-slate-300 text-xl leading-relaxed mb-6">
+                    Evita revisar el BOE manualmente cada día. Recibe solo las oportunidades que encajan con tu búsqueda directamente en tu bandeja de entrada.
                   </p>
+                  <div className="flex items-center gap-2 text-brand-400 text-sm font-bold mb-8">
+                    <Star size={16} fill="currentColor" />
+                    <span>Usuarios ya reciben alertas personalizadas cada día</span>
+                  </div>
                 </div>
                 <div className="flex-shrink-0">
                    <div className="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 backdrop-blur-sm text-center min-w-[200px]">
                       <p className="text-brand-400 text-sm uppercase font-bold tracking-widest mb-1">Prueba Gratuita</p>
                       <p className="text-4xl font-bold text-white">7 Días</p>
                       <div className="h-px bg-slate-700 my-4"></div>
-                      <p className="text-slate-300 text-lg font-medium">Después 5€/mes</p>
-                      <p className="text-slate-500 text-xs mt-2">Cancela cuando quieras</p>
+                      <p className="text-slate-300 text-lg font-bold">Después 5€/mes</p>
+                      <p className="text-slate-500 text-xs mt-2">Sin compromiso. Cancela en 1 clic.</p>
                    </div>
                 </div>
               </div>
@@ -117,6 +127,7 @@ const AlertSuccessPage: React.FC = () => {
                 <div className="w-full sm:w-auto text-center md:text-left">
                   <a 
                     href={STRIPE_PAYMENT_LINK}
+                    onClick={handleStripeClick}
                     className="w-full sm:w-auto px-10 py-5 bg-brand-600 text-white font-bold rounded-2xl text-xl hover:bg-brand-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-brand-600/20 group"
                   >
                     Probar 7 días gratis <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />

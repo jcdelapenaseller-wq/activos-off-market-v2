@@ -10,6 +10,7 @@ import { calculateDiscount } from '../utils/auctionHelpers';
 import Header from './Header';
 import Footer from './Footer';
 import ConversionBlock from './ConversionBlock';
+import RadarPremiumCTA from './RadarPremiumCTA';
 import { ShareButtons } from './ShareButtons';
 
 const renderParagraph = (text: string, idx: number, prefix: string) => {
@@ -321,6 +322,13 @@ const DiscoverAuctionArticle: React.FC = () => {
 
             <div className="text-slate-600 mb-12 leading-9 mt-12">
               {article.content.slice(16).map((paragraph, idx) => renderParagraph(paragraph, idx, 'p3'))}
+            </div>
+
+            <div className="my-16">
+              <RadarPremiumCTA 
+                location={auction.province || auction.city} 
+                origin="discover-auction"
+              />
             </div>
 
             <div className="my-12 flex flex-col sm:flex-row gap-4 w-full border-t border-slate-200 pt-10">

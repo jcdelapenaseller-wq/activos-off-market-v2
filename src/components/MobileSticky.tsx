@@ -1,5 +1,8 @@
 import React from 'react';
 import { Send, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../constants/routes';
+import { trackConversion } from '../utils/tracking';
 
 const MobileSticky: React.FC = () => {
   return (
@@ -12,14 +15,13 @@ const MobileSticky: React.FC = () => {
         >
             <Send size={18} className="text-brand-600" /> Canal Gratis
         </a>
-        <a 
-            href="https://sublaunch.com/activosoffmarket"
-            target="_blank"
-            rel="noopener noreferrer"
+        <Link 
+            to={ROUTES.ALERTAS}
+            onClick={() => trackConversion('espana', 'footer', 'premium', { plan: 'radar_premium' })}
             className="flex-1 bg-brand-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 text-sm active:bg-brand-800 shadow-md"
         >
             <Sparkles size={18} className="text-yellow-400" /> Premium
-        </a>
+        </Link>
     </div>
   );
 };

@@ -16,8 +16,8 @@ import { getImageForPropertyType } from '../constants/auctionImages';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
 import { ShareButtons } from './ShareButtons';
 import ConversionBlock from './ConversionBlock';
-import PremiumValueBlock from './PremiumValueBlock';
 import ConsultingCTA from './ConsultingCTA';
+import RadarPremiumCTA from './RadarPremiumCTA';
 import RelatedAuctions from './RelatedAuctions';
 import Header from './Header';
 import Footer from './Footer';
@@ -848,6 +848,14 @@ const AuctionPage: React.FC = () => {
                     </div>
                   </div>
                 )}
+              </div>
+
+              <div className="mt-16">
+                <RadarPremiumCTA 
+                  location={provinceName} 
+                  propertyType={propertyType} 
+                  variant="compact" 
+                />
               </div>
 
               {/* Dynamic SEO Block */}

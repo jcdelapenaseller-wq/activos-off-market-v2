@@ -9,6 +9,7 @@ import { MetricHighlight, MetricNeutral, MetricWarning, MetricTag, getDiscountCo
 import { CITY_MAP, PROPERTY_TYPE_MAP } from '../constants';
 import { AuctionCard } from './AuctionCard';
 import { AuctionFilters } from './AuctionFilters';
+import RadarPremiumCTA from './RadarPremiumCTA';
 import { AuctionData } from '../data/auctions';
 import { isAuctionFinished, sortAuctions, isAuctionActive, calculateDiscount } from '../utils/auctionHelpers';
 import { normalizePropertyType as normalizeTypeLabel, normalizeProvince, normalizeCity, normalizeLocationLabel } from '../utils/auctionNormalizer';
@@ -329,15 +330,33 @@ const CityPropertyAuctions: React.FC = () => {
         </div>
 
         {sortedAuctions.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {(() => {
-              let newBadgeCount = 0;
-              return sortedAuctions.map(([slug, data]: [string, any]) => {
-                const showNewBadge = data.isNew && newBadgeCount < 6;
-                if (showNewBadge) newBadgeCount++;
-                return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
-              });
-            })()}
+          <div className="space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {(() => {
+                let newBadgeCount = 0;
+                return sortedAuctions.slice(0, 3).map(([slug, data]: [string, any]) => {
+                  const showNewBadge = data.isNew && newBadgeCount < 6;
+                  if (showNewBadge) newBadgeCount++;
+                  return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+                });
+              })()}
+            </div>
+
+            <RadarPremiumCTA 
+              location={province} 
+              origin="listing"
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {(() => {
+                let newBadgeCount = 0; 
+                return sortedAuctions.slice(3).map(([slug, data]: [string, any]) => {
+                  const showNewBadge = data.isNew && newBadgeCount < 6;
+                  if (showNewBadge) newBadgeCount++;
+                  return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
+                });
+              })()}
+            </div>
           </div>
         ) : (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">
