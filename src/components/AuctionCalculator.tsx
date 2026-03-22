@@ -135,6 +135,8 @@ const AuctionCalculator: React.FC = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [showProCheckout, setShowProCheckout] = useState(false);
   const [proEmail, setProEmail] = useState('');
+  const [selectedStripeLink, setSelectedStripeLink] = useState('');
+  const [showPlanEmailCapture, setShowPlanEmailCapture] = useState(false);
 
   // Load from URL
   useEffect(() => {
@@ -369,64 +371,119 @@ const AuctionCalculator: React.FC = () => {
                 <p className="text-slate-400 text-sm mt-2 max-w-lg mx-auto">Por encima de este precio empiezas a perder dinero.</p>
               </>
             ) : (
-              <div className="flex flex-col items-center w-full max-w-4xl mx-auto">
+              <div id="pro-plans-block" className="flex flex-col items-center w-full max-w-4xl mx-auto">
                 <div className="text-6xl md:text-7xl font-bold mb-4 text-white/20 tracking-tighter blur-[8px] select-none">
                   € 145.000
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center">Aquí ves si esta subasta tiene margen real</h3>
                 <p className="text-slate-300 text-lg mb-10 text-center">Tu resultado real depende de tu puja. Desbloquea el escenario completo.</p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-stretch">
-                  {/* 24h Plan */}
-                  <a 
-                    href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_24h', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
-                    className="flex flex-col p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-left group"
-                  >
-                    <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">Pase 24h</div>
-                    <div className="text-white font-bold text-3xl mb-2">5€</div>
-                    <p className="text-slate-400 text-sm mb-6 flex-grow">Para validar una oportunidad puntual.</p>
-                    <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
-                  </a>
+                {!showPlanEmailCapture ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-stretch">
+                    {/* 24h Plan */}
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedStripeLink('https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00');
+                        setShowPlanEmailCapture(true);
+                        setProEmail(email || localStorage.getItem('aom_user_email') || '');
+                        trackConversion(comunidad, 'calculator', 'pro_checkout_24h', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' });
+                      }}
+                      className="flex flex-col p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-left group w-full"
+                    >
+                      <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">Pase 24h</div>
+                      <div className="text-white font-bold text-3xl mb-2">5€</div>
+                      <p className="text-slate-400 text-sm mb-6 flex-grow">Para validar una oportunidad puntual.</p>
+                      <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
+                    </button>
 
-                  {/* Monthly Plan (Highlighted) */}
-                  <a 
-                    href="https://buy.stripe.com/00w00l52neOteKh4OsdjO01" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_monthly', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
-                    className="flex flex-col p-6 rounded-2xl bg-brand-600 border border-brand-500 hover:bg-brand-500 transition-all transform md:-translate-y-2 shadow-xl shadow-brand-500/20 text-left relative group"
-                  >
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-brand-900 text-[10px] font-bold uppercase tracking-widest py-1 px-3 rounded-full shadow-sm whitespace-nowrap">
-                      Más usado
-                    </div>
-                    <div className="text-brand-100 text-sm font-bold uppercase tracking-wider mb-1">Ilimitado</div>
-                    <div className="text-white font-bold text-3xl mb-2">19€<span className="text-lg font-normal text-brand-200">/mes</span></div>
-                    <p className="text-brand-100 text-sm mb-6 flex-grow">Para analizar varias subastas sin límite.</p>
-                    <div className="bg-white text-brand-900 text-sm font-bold py-3 px-4 rounded-xl text-center group-hover:bg-brand-50 transition-colors">
-                      Ver mi análisis completo
-                    </div>
-                  </a>
+                    {/* Monthly Plan (Highlighted) */}
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedStripeLink('https://buy.stripe.com/00w00l52neOteKh4OsdjO01');
+                        setShowPlanEmailCapture(true);
+                        setProEmail(email || localStorage.getItem('aom_user_email') || '');
+                        trackConversion(comunidad, 'calculator', 'pro_checkout_monthly', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' });
+                      }}
+                      className="flex flex-col p-6 rounded-2xl bg-brand-600 border border-brand-500 hover:bg-brand-500 transition-all transform md:-translate-y-2 shadow-xl shadow-brand-500/20 text-left relative group w-full"
+                    >
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-brand-900 text-[10px] font-bold uppercase tracking-widest py-1 px-3 rounded-full shadow-sm whitespace-nowrap">
+                        Más usado
+                      </div>
+                      <div className="text-brand-100 text-sm font-bold uppercase tracking-wider mb-1">Ilimitado</div>
+                      <div className="text-white font-bold text-3xl mb-2">19€<span className="text-lg font-normal text-brand-200">/mes</span></div>
+                      <p className="text-brand-100 text-sm mb-6 flex-grow">Para analizar varias subastas sin límite.</p>
+                      <div className="bg-white text-brand-900 text-sm font-bold py-3 px-4 rounded-xl text-center group-hover:bg-brand-50 transition-colors w-full">
+                        Ver mi análisis completo
+                      </div>
+                    </button>
 
-                  {/* Lifetime Plan */}
-                  <a 
-                    href="https://buy.stripe.com/aFabJ31Qb6hX0Tr94IdjO02" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout_lifetime', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
-                    className="flex flex-col p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-left relative group"
-                  >
-                    <div className="absolute top-5 right-5 bg-slate-800 text-slate-300 text-[10px] font-bold uppercase tracking-widest py-1 px-2 rounded-md">
-                      Pago único
-                    </div>
-                    <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">De por vida</div>
-                    <div className="text-white font-bold text-3xl mb-2">59€</div>
-                    <p className="text-slate-400 text-sm mb-6 flex-grow">Acceso completo permanente. Sin suscripciones.</p>
-                    <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
-                  </a>
-                </div>
+                    {/* Lifetime Plan */}
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedStripeLink('https://buy.stripe.com/aFabJ31Qb6hX0Tr94IdjO02');
+                        setShowPlanEmailCapture(true);
+                        setProEmail(email || localStorage.getItem('aom_user_email') || '');
+                        trackConversion(comunidad, 'calculator', 'pro_checkout_lifetime', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' });
+                      }}
+                      className="flex flex-col p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-left relative group w-full"
+                    >
+                      <div className="absolute top-5 right-5 bg-slate-800 text-slate-300 text-[10px] font-bold uppercase tracking-widest py-1 px-2 rounded-md">
+                        Pago único
+                      </div>
+                      <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">De por vida</div>
+                      <div className="text-white font-bold text-3xl mb-2">59€</div>
+                      <p className="text-slate-400 text-sm mb-6 flex-grow">Acceso completo permanente. Sin suscripciones.</p>
+                      <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-full max-w-md mx-auto bg-white/10 backdrop-blur-md border border-white/20 p-6 md:p-8 rounded-2xl animate-in fade-in zoom-in-95 duration-300">
+                    <form 
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!proEmail) return;
+                        localStorage.setItem('aom_user_email', proEmail);
+                        if (!email) setEmail(proEmail);
+                        window.open(selectedStripeLink, '_blank');
+                      }}
+                      className="flex flex-col gap-4 text-left"
+                    >
+                      <div className="text-center mb-2">
+                        <div className="w-12 h-12 bg-brand-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Lock className="text-brand-300" size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Activa tu acceso PRO</h3>
+                        <p className="text-sm text-slate-300 font-medium">
+                          Introduce tu email para guardar tus cálculos y acceder a la versión completa.
+                        </p>
+                      </div>
+                      <input 
+                        type="email" 
+                        required
+                        placeholder="Tu mejor email..."
+                        value={proEmail}
+                        onChange={(e) => setProEmail(e.target.value)}
+                        className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full"
+                      />
+                      <button 
+                        type="submit"
+                        className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full"
+                      >
+                        Continuar al pago
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setShowPlanEmailCapture(false)}
+                        className="text-xs text-slate-400 hover:text-white font-medium text-center mt-2 transition-colors"
+                      >
+                        ← Volver a los planes
+                      </button>
+                    </form>
+                  </div>
+                )}
                 
                 <div className="mt-8 flex flex-col items-center gap-2">
                   <p className="text-slate-400 text-sm font-medium flex items-center gap-2">
@@ -539,9 +596,18 @@ const AuctionCalculator: React.FC = () => {
                     />
                     <span className={`absolute right-4 top-1/2 -translate-y-1/2 font-medium ${input.isProOnly && !isPro ? 'text-slate-300' : 'text-slate-400'}`}>€</span>
                     {input.isProOnly && !isPro && (
-                      <a href="https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00" target="_blank" rel="noopener noreferrer" onClick={() => trackConversion(comunidad, 'calculator', 'pro_checkout', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })} className="absolute inset-0 z-10 flex items-center justify-center opacity-0 hover:opacity-100 bg-white/60 backdrop-blur-[1px] rounded-xl transition-opacity">
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const plansBlock = document.getElementById('pro-plans-block');
+                          if (plansBlock) {
+                            plansBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }
+                        }}
+                        className="absolute inset-0 z-10 flex items-center justify-center opacity-0 hover:opacity-100 bg-white/60 backdrop-blur-[1px] rounded-xl transition-opacity w-full h-full"
+                      >
                         <span className="bg-white text-brand-600 text-xs font-bold px-2 py-1 rounded shadow-sm flex items-center gap-1">👉 Ver mi límite de puja</span>
-                      </a>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -721,53 +787,18 @@ const AuctionCalculator: React.FC = () => {
                   <p className="text-brand-600 font-bold text-sm bg-brand-50 py-1.5 px-3 rounded-lg inline-block mb-2">Así varía tu beneficio según tu puja</p>
                   <p className="text-slate-500 text-xs mb-6 font-medium italic">Aquí es donde se ve el margen real de la operación</p>
                   
-                  {!showProCheckout ? (
-                    <>
-                      <button 
-                        onClick={() => {
-                          setProEmail(email || localStorage.getItem('aom_user_email') || '');
-                          setShowProCheckout(true);
-                        }}
-                        className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full mb-3"
-                      >
-                        Ver mi análisis completo
-                      </button>
-                      <p className="text-xs text-slate-500 font-medium">Acceso inmediato tras el pago</p>
-                    </>
-                  ) : (
-                    <form 
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (!proEmail) return;
-                        localStorage.setItem('aom_user_email', proEmail);
-                        if (!email) setEmail(proEmail);
-                        trackConversion(comunidad, 'calculator', 'pro_checkout_24h', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' });
-                        window.open('https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00', '_blank');
-                      }}
-                      className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left"
-                    >
-                      <p className="text-sm text-slate-700 font-medium mb-1 text-center">
-                        Introduce tu email para activar tu acceso PRO y guardar tus cálculos.
-                      </p>
-                      <input 
-                        type="email" 
-                        required
-                        placeholder="Tu mejor email..."
-                        value={proEmail}
-                        onChange={(e) => setProEmail(e.target.value)}
-                        className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full"
-                      />
-                      <button 
-                        type="submit"
-                        className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full"
-                      >
-                        Continuar al pago
-                      </button>
-                      <p className="text-[10px] text-slate-500 font-medium text-center">
-                        Solo para activar tu acceso. Sin spam.
-                      </p>
-                    </form>
-                  )}
+                  <button 
+                    onClick={() => {
+                      const plansBlock = document.getElementById('pro-plans-block');
+                      if (plansBlock) {
+                        plansBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }}
+                    className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full mb-3"
+                  >
+                    Ver mi análisis completo
+                  </button>
+                  <p className="text-xs text-slate-500 font-medium">Acceso inmediato tras el pago</p>
                 </div>
               </div>
             )}
@@ -807,8 +838,7 @@ const AuctionCalculator: React.FC = () => {
                         source: 'calculadora_free',
                         groups: ['182569815674717523'],
                         fields: {
-                          source: 'calculadora_free',
-                          timestamp: Date.now()
+                          source: 'calculadora_free'
                         }
                       });
                       

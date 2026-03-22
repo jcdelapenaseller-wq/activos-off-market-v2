@@ -17,10 +17,12 @@ export default async function handler(req: any, res: any) {
     groupId = process.env.MAILERLITE_GROUP_CHECKLIST || groupId;
   } else if (source === 'calculadora') {
     groupId = process.env.MAILERLITE_GROUP_CALCULADORA || groupId;
+  } else if (source === 'calculadora_free') {
+    groupId = '182569815674717523';
   }
 
   // Use provided groups from frontend, or fallback to mapped groupId
-  const finalGroups = groups && groups.length > 0 ? groups : (groupId ? [groupId] : []);
+  const finalGroups = Array.isArray(groups) && groups.length > 0 ? groups : (groupId ? [groupId] : []);
 
   try {
     const response = await fetch('https://connect.mailerlite.com/api/subscribers', {
