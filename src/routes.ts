@@ -79,6 +79,8 @@ import AuctionPage from './components/AuctionPage';
 import Legal from './components/Legal';
 import AdminTracking from './components/AdminTracking';
 import ChecklistPage from './components/ChecklistPage';
+import AlertForm from './components/AlertForm';
+import AlertSuccessPage from './components/AlertSuccessPage';
 
 export const routes: RouteObject[] = [
   {
@@ -372,6 +374,14 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.CHECKLIST,
     element: createElement(ChecklistPage),
+  },
+  {
+    path: ROUTES.ALERTAS,
+    element: createElement(AlertForm),
+  },
+  {
+    path: ROUTES.ALERTA_CONFIRMADA,
+    element: createElement(AlertSuccessPage),
   },
   {
     path: '*',

@@ -1,4 +1,4 @@
-export type TrackingOrigin = 'discover' | 'discover-auction' | 'listing' | 'ficha' | 'home' | 'footer' | 'lead_magnet' | 'calculator';
+export type TrackingOrigin = 'discover' | 'discover-auction' | 'listing' | 'ficha' | 'home' | 'footer' | 'lead_magnet' | 'calculator' | 'alert_creation';
 export type TrackingClickType = 'listado' | 'premium' | 'consultoria' | 'download' | 'calculator' | 'pro_checkout' | 'pro_checkout_24h' | 'pro_checkout_monthly' | 'pro_checkout_lifetime' | 'pro_unlock' | 'email_submit' | 'calculator_from_card_click';
 
 export const trackConversion = (

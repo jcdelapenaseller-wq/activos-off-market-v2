@@ -9,6 +9,10 @@ export interface MailerLiteSubscriber {
     precio?: string | number;
     tipo_subasta?: string;
     plan?: string;
+    plan_status?: 'free' | 'pro';
+    alerta_provincia?: string;
+    alerta_tipo?: string;
+    alerta_municipio?: string;
     timestamp?: number;
   };
   groups?: string[]; // Array of group IDs
