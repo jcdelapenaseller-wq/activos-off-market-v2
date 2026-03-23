@@ -37,6 +37,13 @@ const highlightText = (text: string, cityName?: string) => {
   // Highlight currency (e.g. 100.000€, 33.946€)
   highlighted = highlighted.replace(/(\d{1,3}(?:\.\d{3})*(?:,\d+)?\s*€)/g, '<strong class="font-bold text-slate-900">$1</strong>');
   
+  // Highlight key financial/real estate terms
+  const keyTerms = ['okupa', 'okupas', 'desahucio', 'rentabilidad', 'chollo', 'descuento', 'ROI', 'TIR', 'cash for keys', 'due diligence', 'cargas', 'embargo', 'subasta'];
+  keyTerms.forEach(term => {
+    const termRegex = new RegExp(`\\b${term}\\b`, 'gi');
+    highlighted = highlighted.replace(termRegex, `<strong class="font-bold text-slate-900">$&</strong>`);
+  });
+
   // Highlight city if provided
   if (cityName) {
     const cityRegex = new RegExp(`\\b${cityName}\\b`, 'gi');
@@ -166,12 +173,17 @@ const DiscoverReportArticle: React.FC = () => {
                 />
                 <div>
                   <div className="font-bold text-slate-900">Equipo Activos Off-Market</div>
-                  <div className="text-sm text-slate-500 flex items-center gap-2">
+                  <div className="text-sm text-slate-500 flex items-center gap-2 flex-wrap">
                     <time dateTime={report.publishDate} className="font-medium text-emerald-700">
                       {getRelativeTime(report.publishDate)}
                     </time>
                     <span className="w-1 h-1 rounded-full bg-slate-300"></span>
                     <span>{new Date(report.publishDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    <span className="w-1 h-1 rounded-full bg-slate-300 hidden sm:block"></span>
+                    <span className="hidden sm:inline-flex items-center gap-1">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      {Math.max(1, Math.ceil((report.intro.length + report.conclusion.length + report.auctionDetails.reduce((acc, curr) => acc + curr.analysis.length + curr.risks.length + curr.investorProfile.length, 0)) / 1000))} min de lectura
+                    </span>
                   </div>
                 </div>
               </div>
@@ -201,12 +213,12 @@ const DiscoverReportArticle: React.FC = () => {
               <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Resumen del reportaje</h3>
               <div className="flex flex-wrap gap-3">
                 {reportAuctions.map((item, idx) => (
-                  <div key={idx} className="bg-white border border-slate-200 shadow-sm rounded-xl px-4 py-3 flex items-center gap-2 text-slate-700 font-medium">
+                  <a href={`#subasta-${idx + 1}`} key={idx} className="bg-white border border-slate-200 shadow-sm rounded-xl px-4 py-3 flex items-center gap-2 text-slate-700 font-medium hover:border-brand-300 hover:shadow-md transition-all no-underline">
                     <span className="text-brand-600">📍</span> 
                     <span>
                       <strong>{normalizeCity(item.data) || item.data.province}</strong>: {normalizePropertyType(item.data.propertyType)}
                     </span>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
