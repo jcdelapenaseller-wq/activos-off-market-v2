@@ -9,6 +9,7 @@ import { AuctionFilters } from './AuctionFilters';
 import { AuctionData } from '../data/auctions';
 import { ShareButtons } from './ShareButtons';
 import { DiscoverReportsBlock } from './DiscoverReportsBlock';
+import RadarPremiumCTA from './RadarPremiumCTA';
 
 const RecentAuctions: React.FC = () => {
   const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(() => getFilteredAuctions(AUCTIONS));
@@ -53,17 +54,26 @@ const RecentAuctions: React.FC = () => {
             <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md" aria-current="page">Subastas Recientes</span>
           </nav>
 
-          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-8 leading-tight">
+          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
             Últimas subastas inmobiliarias detectadas
           </h1>
+          <p className="text-slate-500 text-sm mb-8 max-w-2xl">
+            Filtra por provincia, tipo de inmueble o estado para encontrar oportunidades más rápido.
+          </p>
+
           <ShareButtons title="Últimas subastas inmobiliarias detectadas en España" className="-mt-2" />
         </div>
       </header>
 
-      <DiscoverReportsBlock />
-
-      <main className="max-w-7xl mx-auto px-6 py-16">
-        <AuctionFilters auctions={AUCTIONS} onFilteredChange={setFilteredAuctions} onSortChange={setSortBy} />
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <div className="sticky top-[72px] z-30 bg-slate-50/95 backdrop-blur-sm -mx-6 px-6 pt-4 pb-2 mb-6 border-b border-slate-200/50">
+          <RadarPremiumCTA 
+            location="España" 
+            variant="bar"
+            origin="listing"
+          />
+          <AuctionFilters auctions={AUCTIONS} onFilteredChange={setFilteredAuctions} onSortChange={setSortBy} />
+        </div>
         
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm w-fit">
@@ -167,6 +177,10 @@ const RecentAuctions: React.FC = () => {
             <Link to="/subastas-en/valencia" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Valencia</Link>
             <Link to="/subastas-en/sevilla" className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm">Sevilla</Link>
           </div>
+        </div>
+
+        <div className="mt-24">
+          <DiscoverReportsBlock />
         </div>
       </main>
     </div>

@@ -7,7 +7,7 @@ import { trackConversion, TrackingOrigin } from '../utils/tracking';
 interface RadarPremiumCTAProps {
   location?: string;
   propertyType?: string;
-  variant?: 'compact' | 'full';
+  variant?: 'compact' | 'full' | 'bar' | 'minimal';
   origin?: TrackingOrigin;
 }
 
@@ -18,12 +18,75 @@ const RadarPremiumCTA: React.FC<RadarPremiumCTAProps> = ({
   origin = 'ficha'
 }) => {
   const title = location 
-    ? `Recibe nuevas subastas en ${location} automáticamente`
-    : "Recibe nuevas subastas como esta automáticamente";
+    ? `¿Quieres que te avisemos si aparecen oportunidades en ${location}?`
+    : "¿Quieres que te avisemos si aparecen oportunidades en tu ciudad?";
 
   const handleTrack = () => {
     trackConversion(location || 'espana', origin, 'premium', { plan: 'radar_premium' });
   };
+
+  if (variant === 'bar') {
+    return (
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 mb-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 group hover:border-brand-300 transition-all">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600 shrink-0 group-hover:scale-110 transition-transform">
+            <Bell size={24} />
+          </div>
+          <div>
+            <p className="text-slate-900 font-bold text-lg leading-tight">
+              {title}
+            </p>
+            <p className="text-slate-500 text-sm mt-1">
+              Ahorra horas infinitas revisando el BOE cada día y activa las alertas
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center md:items-end gap-2 w-full md:w-auto">
+          <Link 
+            to={ROUTES.ALERTAS}
+            onClick={handleTrack}
+            className="w-full md:w-auto whitespace-nowrap px-8 py-3 bg-brand-600 text-white font-bold rounded-xl text-base hover:bg-brand-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-600/10"
+          >
+            Crear alerta gratis <ArrowRight size={18} />
+          </Link>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            7 días gratis · luego 5€/mes
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === 'minimal') {
+    return (
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm overflow-hidden relative group">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-brand-50 rounded-bl-full -mr-8 -mt-8 opacity-50"></div>
+        <div className="relative z-10">
+          <h3 className="font-serif text-xl font-bold text-slate-900 mb-2 leading-tight">
+            {title}
+          </h3>
+          <p className="text-slate-600 text-sm mb-6">
+            Ahorra horas infinitas revisando el BOE cada día y activa las alertas
+          </p>
+          <div className="flex flex-col gap-3">
+            <Link 
+              to={ROUTES.ALERTAS}
+              onClick={handleTrack}
+              className="w-full py-3 bg-brand-600 text-white font-bold rounded-xl text-sm hover:bg-brand-700 transition-all flex items-center justify-center gap-2 shadow-md shadow-brand-600/10"
+            >
+              Crear alerta gratis <ArrowRight size={16} />
+            </Link>
+            <Link 
+              to={ROUTES.ALERTAS}
+              className="text-center text-xs text-slate-400 hover:text-brand-600 underline underline-offset-4"
+            >
+              ¿cómo funciona?
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (variant === 'compact') {
     return (
@@ -44,7 +107,7 @@ const RadarPremiumCTA: React.FC<RadarPremiumCTAProps> = ({
             Recíbelas antes de que otros las vean
           </div>
           <p className="text-slate-400 text-sm mb-4">
-            Evita revisar el BOE manualmente cada día. Nosotros filtramos las mejores oportunidades por ti.
+            Ahorra horas infinitas revisando el BOE cada día y activa las alertas
           </p>
           <div className="flex items-center gap-2 text-[10px] text-slate-500 mb-4">
             <Star size={10} className="text-brand-400" fill="currentColor" />
@@ -84,7 +147,7 @@ const RadarPremiumCTA: React.FC<RadarPremiumCTAProps> = ({
             Recibe nuevas subastas antes de que otros las vean
           </div>
           <p className="text-slate-600 text-lg mb-6">
-            Evita revisar el BOE manualmente cada día. Recibe solo las oportunidades que encajan con tu búsqueda directamente en tu email.
+            Ahorra horas infinitas revisando el BOE cada día y activa las alertas
           </p>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-8">
             <div className="flex -space-x-2">

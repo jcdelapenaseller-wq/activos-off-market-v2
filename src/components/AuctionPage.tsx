@@ -12,7 +12,6 @@ import { getFilteredAuctions, isAuctionFinished, getAuctionType, getProcedureTyp
 import { ROUTES } from '../constants/routes';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel, normalizeProvince, formatAddress } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
-import { getImageForPropertyType } from '../constants/auctionImages';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
 import { ShareButtons } from './ShareButtons';
 import ConversionBlock from './ConversionBlock';
@@ -275,7 +274,7 @@ const AuctionPage: React.FC = () => {
       ? `${analysisInsights.marketContext} ${analysisInsights.investorProfile}`.substring(0, 160) + '...'
       : `Subasta de ${propertyType.toLowerCase()} en ${cityName}, ${provinceName}.`;
 
-    const imageUrl = getImageForPropertyType(auction.propertyType, slug);
+    const imageUrl = auction.imageUrl;
     const price = auction.claimedDebt ?? auction.appraisalValue ?? auction.valorSubasta ?? 0;
     const url = window.location.href;
     
@@ -290,7 +289,6 @@ const AuctionPage: React.FC = () => {
       "@type": "RealEstateListing",
       "name": finalTitle,
       "description": description,
-      "image": imageUrl,
       "url": url,
       "datePosted": publishedDate.toISOString().split('T')[0],
       "category": propertyType,
@@ -302,6 +300,10 @@ const AuctionPage: React.FC = () => {
       }
     };
 
+    if (imageUrl) {
+      realEstateListing["image"] = imageUrl;
+    }
+
     if (auction.auctionDate) {
       realEstateListing["availabilityEnds"] = new Date(auction.auctionDate).toISOString().split('T')[0];
     }
@@ -310,7 +312,6 @@ const AuctionPage: React.FC = () => {
       "@context": "https://schema.org",
       "@type": "Product",
       "name": finalTitle,
-      "image": imageUrl,
       "description": description,
       "brand": {
         "@type": "Brand",
@@ -324,6 +325,10 @@ const AuctionPage: React.FC = () => {
         "url": url
       }
     };
+
+    if (imageUrl) {
+      product["image"] = imageUrl;
+    }
 
     if (auction.auctionDate) {
       product.offers["validThrough"] = new Date(auction.auctionDate).toISOString().split('T')[0];
@@ -404,7 +409,7 @@ const AuctionPage: React.FC = () => {
           <script type="application/ld+json">
             {JSON.stringify(jsonLd)}
           </script>
-          <link rel="preload" as="image" href={jsonLd[0].image} />
+          {jsonLd[0].image && <link rel="preload" as="image" href={jsonLd[0].image} />}
         </>
       )}
       <div className="max-w-5xl mx-auto px-6 pt-12 pb-20">
@@ -462,68 +467,152 @@ const AuctionPage: React.FC = () => {
 
               <ShareButtons title={`${propertyType} en subasta en ${cityName}`} className="mb-8 -mt-2" />
 
-              {jsonLd && (
-                <figure className="mb-10 relative group rounded-3xl overflow-hidden shadow-sm border border-slate-200">
-                  <img 
-                    src={jsonLd[0].image} 
-                    alt={`Subasta de ${propertyType.toLowerCase()} en ${cityName}`}
-                    className="w-full h-[300px] md:h-[450px] object-cover"
-                    referrerPolicy="no-referrer"
-                    width="1200"
-                    height="675"
-                    fetchPriority="high"
-                    decoding="async"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-40"></div>
-                </figure>
-              )}
-              
-              <div className="flex flex-wrap items-center gap-8 text-slate-500 text-base mb-12">
-                <div className="flex items-center gap-2">
-                  <MapPin size={20} className="text-brand-500" />
-                  <span>{locationLabel}</span>
-                </div>
-                {auction.auctionDate && (
-                  <div className="flex items-center gap-2">
-                    <Calendar size={20} className="text-brand-500" />
-                    <span>Finaliza: {new Date(auction.auctionDate).toLocaleDateString('es-ES')}</span>
-                  </div>
-                )}
-              </div>
+              {auction.imageUrl ? (
+                <>
+                  <figure className="mb-10 relative group rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                    <img 
+                      src={auction.imageUrl} 
+                      alt={`Subasta de ${propertyType.toLowerCase()} en ${cityName}`}
+                      className="w-full h-[300px] md:h-[450px] object-cover"
+                      referrerPolicy="no-referrer"
+                      width="1200"
+                      height="675"
+                      fetchPriority="high"
+                      decoding="async"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-40"></div>
+                  </figure>
 
-              {/* Quick Data Grid (Technical Block) */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
-                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Descuento Bruto</span>
-                  {auction.claimedDebt === 0 ? (
-                    <span className="text-xl font-bold text-slate-700">Sin cargas</span>
-                  ) : (auction.appraisalValue && auction.claimedDebt && (1 - auction.claimedDebt / auction.appraisalValue) > 0.85) ? (
-                    <span className="text-xl font-bold text-slate-700">Oportunidad</span>
-                  ) : (
-                    <span className={`text-4xl font-black ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-700' : 'text-brand-700'}`}>
-                      {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
-                    </span>
-                  )}
+                  <div className="flex flex-wrap items-center gap-8 text-slate-500 text-base mb-12">
+                    <div className="flex items-center gap-2">
+                      <MapPin size={20} className="text-brand-500" />
+                      <span>{locationLabel}</span>
+                    </div>
+                    {auction.auctionDate && (
+                      <div className="flex items-center gap-2">
+                        <Calendar size={20} className="text-brand-500" />
+                        <span>Finaliza: {new Date(auction.auctionDate).toLocaleDateString('es-ES')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Data Grid (Technical Block) */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
+                      <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Descuento Bruto</span>
+                      {auction.claimedDebt === 0 ? (
+                        <span className="text-xl font-bold text-slate-700">Sin cargas</span>
+                      ) : (auction.appraisalValue && auction.claimedDebt && (1 - auction.claimedDebt / auction.appraisalValue) > 0.85) ? (
+                        <span className="text-xl font-bold text-slate-700">Oportunidad</span>
+                      ) : (
+                        <span className={`text-4xl font-black ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-700' : 'text-brand-700'}`}>
+                          {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
+                      <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Valor Referencia</span>
+                      <span className="text-xl font-bold text-slate-900">
+                        {(auction.appraisalValue || auction.valorSubasta) ? (auction.appraisalValue || auction.valorSubasta)!.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
+                      </span>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
+                      <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Deuda Reclamada</span>
+                      <span className="text-xl font-bold text-slate-900">
+                        {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
+                      </span>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
+                      <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Tipo de subasta</span>
+                      <span className="text-xl font-bold text-slate-900">
+                        {getAuctionType(auction.boeId)}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Professional Technical Header (Ficha Inversor) */
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-12">
+                  <div className="bg-slate-900 px-8 py-5 text-white flex flex-wrap justify-between items-center gap-4">
+                    <div className="flex items-center gap-3">
+                      <Scale size={20} className="text-brand-400" />
+                      <div>
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block leading-none mb-1">Expediente Judicial</span>
+                        <span className="font-mono text-sm font-bold">{auction.boeId}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block leading-none mb-1">Estado</span>
+                        <span className="text-sm font-bold flex items-center gap-1.5 justify-end">
+                          <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
+                          {isSuspended ? 'Pausada' : isUpcoming ? 'Próxima' : isFinished ? 'Finalizada' : 'Activa'}
+                        </span>
+                      </div>
+                      <div className="h-8 w-px bg-slate-800 hidden sm:block"></div>
+                      <div className="text-right">
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block leading-none mb-1">Procedimiento</span>
+                        <span className="text-sm font-bold">{getAuctionType(auction.boeId)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">Activo</h3>
+                        <p className="text-2xl font-serif font-bold text-slate-900 flex items-center gap-2">
+                          <Home size={24} className="text-brand-600" /> {propertyType}
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">Localización</h3>
+                        <p className="text-lg font-medium text-slate-700 flex items-center gap-2">
+                          <MapPin size={20} className="text-brand-600" /> {cityName}, {provinceName}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6 md:border-l md:border-slate-100 md:pl-10">
+                      <div>
+                        <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">Valor de Tasación</h3>
+                        <p className="text-3xl font-black text-slate-900">
+                          {auction.appraisalValue ? auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">Deuda Reclamada</h3>
+                          <p className="text-xl font-bold text-slate-700">
+                            {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
+                          </p>
+                        </div>
+                        <div className="bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 text-center">
+                          <span className="text-[10px] uppercase font-bold text-emerald-600 block leading-none mb-1">Margen</span>
+                          <span className="text-lg font-black text-emerald-700">
+                            {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-2xl p-6 flex flex-col justify-center border border-slate-100">
+                      <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-3">Cierre de Subasta</h3>
+                      <div className="flex items-center gap-4">
+                        <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                          <Calendar size={28} className="text-brand-600" />
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-slate-900">
+                            {auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}
+                          </p>
+                          <p className="text-xs text-slate-500 font-medium">Fecha límite BOE</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
-                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Valor Referencia</span>
-                  <span className="text-xl font-bold text-slate-900">
-                    {(auction.appraisalValue || auction.valorSubasta) ? (auction.appraisalValue || auction.valorSubasta)!.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
-                  </span>
-                </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
-                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Deuda Reclamada</span>
-                  <span className="text-xl font-bold text-slate-900">
-                    {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
-                  </span>
-                </div>
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
-                  <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Tipo de subasta</span>
-                  <span className="text-xl font-bold text-slate-900">
-                    {getAuctionType(auction.boeId)}
-                  </span>
-                </div>
-              </div>
+              )}
 
               <div className="mt-6 flex flex-col items-center md:items-start gap-2">
                 <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
@@ -854,7 +943,8 @@ const AuctionPage: React.FC = () => {
                 <RadarPremiumCTA 
                   location={provinceName} 
                   propertyType={propertyType} 
-                  variant="compact" 
+                  variant="minimal"
+                  origin="ficha"
                 />
               </div>
 

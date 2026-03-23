@@ -11,6 +11,8 @@ import { AuctionCard } from './AuctionCard';
 import Header from './Header';
 import Footer from './Footer';
 
+import RadarPremiumCTA from './RadarPremiumCTA';
+
 // Import existing guides
 import AuctionMadridGuide from './AuctionMadridGuide';
 import AuctionBarcelonaGuide from './AuctionBarcelonaGuide';
@@ -152,6 +154,55 @@ const ProvinceHub: React.FC = () => {
 
       {/* Dynamic Auctions Section (Bottom) */}
       <section className="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200">
+        <div className="sticky top-[72px] z-30 bg-slate-50/95 backdrop-blur-sm -mx-6 px-6 pt-4 pb-2 mb-12 border-b border-slate-200/50">
+          <RadarPremiumCTA 
+            location={province} 
+            variant="bar"
+            origin="listing"
+          />
+          
+          {/* Filters moved here for sticky behavior */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
+            {zones.length > 0 && (
+              <div>
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <MapPin size={12} /> Por zona
+                </h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {zones.slice(0, 8).map(zone => (
+                    <Link 
+                      key={zone}
+                      to={`/subastas/${normalizedProvinceParam}/${zone.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="bg-white border border-slate-200 px-3 py-1 rounded-lg text-xs font-medium hover:border-brand-500 hover:text-brand-700 transition-all shadow-sm"
+                    >
+                      {zone}
+                    </Link>
+                  ))}
+                  {zones.length > 8 && <span className="text-[10px] text-slate-400 self-center ml-1">+{zones.length - 8} más</span>}
+                </div>
+              </div>
+            )}
+
+            {propertyTypes.length > 0 && (
+              <div>
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <Filter size={12} /> Por tipo
+                </h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {propertyTypes.map(type => (
+                    <span 
+                      key={type}
+                      className="bg-white border border-slate-200 px-3 py-1 rounded-lg text-xs font-medium text-slate-600 capitalize shadow-sm"
+                    >
+                      {type}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {marketStats && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -235,46 +286,6 @@ const ProvinceHub: React.FC = () => {
               <TrendingUp size={18} /> Ver Oportunidades
             </Link>
           </div>
-        </div>
-
-        {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
-          {zones.length > 0 && (
-            <div>
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <MapPin size={14} /> Por zona
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {zones.map(zone => (
-                  <Link 
-                    key={zone}
-                    to={`/subastas/${normalizedProvinceParam}/${zone.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="bg-white border border-slate-200 px-4 py-2 rounded-lg text-sm font-medium hover:border-brand-500 hover:text-brand-700 transition-all shadow-sm"
-                  >
-                    {zone}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {propertyTypes.length > 0 && (
-            <div>
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Filter size={14} /> Por tipo
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {propertyTypes.map(type => (
-                  <span 
-                    key={type}
-                    className="bg-white border border-slate-200 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 capitalize shadow-sm"
-                  >
-                    {type}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {provinceAuctions.length > 0 ? (
