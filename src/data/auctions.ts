@@ -36,6 +36,7 @@ export interface AuctionData {
   imageUrl?: string;
   auctionResultStatus?: 'adjudicated' | 'deserted' | 'suspended';
   resultCheckedAt?: string;
+  opportunityScore?: number;
 }
 
 export const AUCTIONS: Record<string, AuctionData> = {

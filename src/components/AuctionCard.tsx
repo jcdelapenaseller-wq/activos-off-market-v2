@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, ChevronRight, Percent, Calculator } from 'lucide-react';
 import { AuctionData } from '../data/auctions';
-import { isAuctionFinished, getComputedStatus, isConflictZone } from '../utils/auctionHelpers';
+import { isAuctionFinished, getComputedStatus } from '../utils/auctionHelpers';
 import { normalizeLocationLabel, normalizePropertyType, normalizeCity, normalizeProvince } from '../utils/auctionNormalizer';
 import { ROUTES } from '../constants/routes';
 import { trackConversion } from '../utils/tracking';
@@ -17,11 +17,6 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
   const id = slug;
   const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue;
   const cantidadReclamada = data.claimedDebt;
-  
-  // Ratio de Oportunidad
-  const opportunityRatio = (valorReferencia && cantidadReclamada !== undefined && cantidadReclamada !== null) 
-    ? Math.round(((valorReferencia - cantidadReclamada) / valorReferencia) * 100) 
-    : null;
 
   const computedStatus = getComputedStatus(data);
   const isFinished = computedStatus === 'closed';
@@ -33,69 +28,22 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
 
   const city = normalizeCity(data);
   const province = normalizeProvince(data.province || data.city);
-  const isCityCapital = city && city !== 'España' && city.toLowerCase() === province.toLowerCase();
-  const hasConflict = isConflictZone(data);
 
-  // Ranking visual (Absoluto para no añadir complejidad a los listados)
-  let rankingLabel = null;
-  let rankingColor = "";
-  if (!isFinished && !isSuspended && !isUpcoming) {
-    if (hasConflict) {
-      rankingLabel = "⚠️ Zona a analizar";
-      rankingColor = "bg-rose-50 text-rose-700 border-rose-200";
-    } else if (opportunityRatio !== null) {
-      if (cantidadReclamada === 0) {
-        // Already handled in the main badge
-      } else if (opportunityRatio > 85) {
-        // Already handled in the main badge
-      } else if (opportunityRatio >= 50) {
-        rankingLabel = "🥇 Top oportunidad";
-        rankingColor = "bg-amber-100 text-amber-800 border-amber-300";
-      } else if (opportunityRatio >= 40) {
-        rankingLabel = "🥈 Muy interesante";
-        rankingColor = "bg-slate-100 text-slate-700 border-slate-300";
-      } else if (opportunityRatio >= 30) {
-        rankingLabel = "🥉 A seguir";
-        rankingColor = "bg-orange-50 text-orange-800 border-orange-200";
-      }
-    }
-  }
+  // Badge Principal (Prioridad estricta)
+  let primaryBadgeLabel = null;
+  let primaryBadgeColor = "";
+  const oppScore = data.opportunityScore || 0;
+  const isNew = showNewBadge !== undefined ? showNewBadge : data.isNew;
 
-  // Formateo de Fecha y FOMO
-  const auctionDate = data.auctionDate ? new Date(data.auctionDate) : null;
-  const now = new Date();
-  
-  const diffMs = auctionDate ? auctionDate.getTime() - now.getTime() : null;
-  const diffDays = diffMs !== null ? Math.ceil(diffMs / (1000 * 60 * 60 * 24)) : null;
-  const diffHours = diffMs !== null ? Math.ceil(diffMs / (1000 * 60 * 60)) : null;
-  
-  let fomoLabel = "";
-  let fomoColor = "text-slate-500";
-
-  if (isFinished) {
-    fomoLabel = "⌛ Finalizada";
-    fomoColor = "text-slate-400 bg-slate-100 border-slate-200";
-  } else if (isSuspended) {
-    fomoLabel = "⏸️ Pausada";
-    fomoColor = "text-amber-700 bg-amber-50 border-amber-200";
-  } else if (isUpcoming) {
-    fomoLabel = "📅 Próxima apertura";
-    fomoColor = "text-blue-700 bg-blue-50 border-blue-200";
-  } else if (diffHours !== null && diffHours > 0 && diffHours <= 24) {
-    fomoLabel = "🚨 Cierra en horas";
-    fomoColor = "text-red-700 bg-red-50 border-red-200";
-  } else if (diffDays !== null && diffDays > 0 && diffDays <= 5) {
-    fomoLabel = `⏳ Cierra en ${diffDays} días`;
-    fomoColor = "text-amber-700 bg-amber-50 border-amber-200";
-  } else if (showNewBadge !== undefined ? showNewBadge : data.isNew) {
-    fomoLabel = "✨ Recién publicada";
-    fomoColor = "text-brand-700 bg-brand-50 border-brand-200";
-  } else if (opportunityRatio !== null && opportunityRatio >= 35 && isCityCapital) {
-    fomoLabel = "🔥 Alta oportunidad";
-    fomoColor = "text-emerald-700 bg-emerald-50 border-emerald-200";
-  } else {
-    fomoLabel = "";
-    fomoColor = "";
+  if (oppScore >= 70) {
+    primaryBadgeLabel = "🔥 Alta oportunidad";
+    primaryBadgeColor = "text-emerald-700 bg-emerald-50 border-emerald-200";
+  } else if (isNew) {
+    primaryBadgeLabel = "✨ Nueva";
+    primaryBadgeColor = "text-brand-700 bg-brand-50 border-brand-200";
+  } else if (oppScore >= 50) {
+    primaryBadgeLabel = "⭐ Buena oportunidad";
+    primaryBadgeColor = "text-amber-800 bg-amber-100 border-amber-300";
   }
 
   const locationLabel = normalizeLocationLabel(data);
@@ -107,38 +55,14 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
         <div className="flex justify-between items-start mb-4 gap-2">
           {/* Left: Commercial Badges */}
           <div className="flex flex-col gap-2">
-            {isCityCapital ? (
-              <span className="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-indigo-200 w-fit flex items-center gap-1">
-                👉 Ubicación Top
-              </span>
-            ) : cantidadReclamada === 0 ? (
-              <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-slate-200 w-fit">
-                Sin cargas declaradas
-              </span>
-            ) : (opportunityRatio !== null && opportunityRatio <= 80) ? (
-              opportunityRatio > 40 ? (
-                <span className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider shadow-sm flex items-center gap-1 w-fit">
-                  🔥 -{opportunityRatio}% DTO
-                </span>
-              ) : opportunityRatio >= 15 ? (
-                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-emerald-200 w-fit">
-                  -{opportunityRatio}% DTO
-                </span>
-              ) : null
-            ) : (cantidadReclamada === undefined || cantidadReclamada === null) && valorReferencia ? (
-              <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border border-slate-200 w-fit">
-                Análisis requerido
-              </span>
-            ) : null}
-
-            {rankingLabel && (!isCityCapital || hasConflict) && (
-              <span className={`inline-flex items-center text-[10px] font-bold px-2.5 py-1.5 rounded-md border ${rankingColor} w-fit`}>
-                {rankingLabel}
+            {primaryBadgeLabel && (
+              <span className={`inline-flex items-center text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border ${primaryBadgeColor} w-fit`}>
+                {primaryBadgeLabel}
               </span>
             )}
           </div>
 
-          {/* Right: Status & FOMO */}
+          {/* Right: Status */}
           <div className="flex flex-col items-end gap-2">
             {isFinished ? (
               <span className="bg-slate-200 text-slate-600 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-slate-300">
@@ -155,12 +79,6 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
             ) : (
               <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-emerald-200">
                 En curso
-              </span>
-            )}
-
-            {fomoLabel && !isFinished && !isSuspended && !isUpcoming && (
-              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${fomoColor} whitespace-nowrap`}>
-                {fomoLabel}
               </span>
             )}
           </div>

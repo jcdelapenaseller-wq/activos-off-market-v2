@@ -7,6 +7,37 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const normalizeProvince = (raw: string): string => {
+  if (!raw) return raw;
+
+  let cleaned = raw
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  cleaned = cleaned
+    .replace(" provincia", "")
+    .replace(" capital", "")
+    .trim();
+
+  const map: Record<string,string> = {
+    "valencia": "Valencia",
+    "valencia/valencia": "Valencia",
+    "valencia/valencia ": "Valencia",
+    "alicante": "Alicante",
+    "alacant": "Alicante",
+    "castellon": "Castellón",
+    "castello": "Castellón",
+    "a coruna": "A Coruña",
+    "la coruna": "A Coruña",
+    "vizcaya": "Vizcaya",
+    "bizkaia": "Vizcaya"
+  };
+
+  return map[cleaned] || raw.trim();
+};
+
 /**
  * Crawler para obtener subastas activas del portal del BOE usando Puppeteer.
  * Se enfoca en la sección de Inmuebles para obtener un mayor volumen de datos.
@@ -371,8 +402,9 @@ async function runCrawler() {
         const valorReferencia = tasacionNum || subastaNum;
         let esRatioBajo = false;
         let esRatioExcesivo = false;
+        let ratio = 0;
         if (valorReferencia && deudaNum !== null && deudaNum !== undefined) {
-          const ratio = Math.round(((valorReferencia - deudaNum) / valorReferencia) * 100);
+          ratio = Math.round(((valorReferencia - deudaNum) / valorReferencia) * 100);
           // Descartamos si el ratio es explícitamente < 18% o > 85%
           if (ratio < 18) esRatioBajo = true;
           if (ratio > 85) esRatioExcesivo = true;
@@ -382,6 +414,50 @@ async function runCrawler() {
         const esDeudaCero = deudaNum === 0;
 
         if (subastaNum !== null && subastaNum >= 5000 && !esEstadoInvalido && !esTipoExcluido && !esRatioBajo && !esRatioExcesivo && !esValorBajo && !esDeudaCero) {
+          let opportunityScore = 0;
+
+          // base por descuento
+          if (ratio >= 50) opportunityScore += 40;
+          else if (ratio >= 35) opportunityScore += 30;
+          else if (ratio >= 25) opportunityScore += 20;
+          else if (ratio >= 18) opportunityScore += 10;
+
+          // capital provincia
+          const capitalCities = [
+            "Madrid","Barcelona","Valencia","Sevilla",
+            "Málaga","Bilbao","Zaragoza","Alicante",
+            "Murcia","Palma","Las Palmas"
+          ];
+
+          if (capitalCities.includes(city)) {
+            opportunityScore += 30;
+          }
+
+          // tipo inmueble
+          if (
+            tipoBienLimpio?.toLowerCase().includes("vivienda") ||
+            tipoBienLimpio?.toLowerCase().includes("piso") ||
+            tipoBienLimpio?.toLowerCase().includes("casa")
+          ) {
+            opportunityScore += 20;
+          }
+
+          // penalización garajes
+          if (
+            tipoBienLimpio?.toLowerCase().includes("garaje") ||
+            tipoBienLimpio?.toLowerCase().includes("trastero")
+          ) {
+            opportunityScore -= 20;
+          }
+
+          // valor alto
+          if (valorReferencia && valorReferencia > 150000) {
+            opportunityScore += 10;
+          }
+
+          // clamp 0-100
+          opportunityScore = Math.max(0, Math.min(100, opportunityScore));
+
           finalResults.push({
             idSub,
             titulo: item.titulo,
@@ -397,11 +473,12 @@ async function runCrawler() {
             tipoBien: tipoBienLimpio,
             direccion: cleanAddress(bienesData.direccion || ''),
             municipality: bienesData.localidad || city,
-            province: bienesData.provincia || item.provinceText.split(' ')[0],
-            city,
+            province: normalizeProvince(bienesData.provincia || item.provinceText),
+            city: bienesData.localidad || city,
             zone,
             superficie: superficieNum,
-            cargas: bienesData.cargas
+            cargas: bienesData.cargas,
+            opportunityScore,
           });
         } else {
           let motivo = "";
@@ -532,7 +609,8 @@ async function runCrawler() {
     auctionDate: "${auctionDate}",
     status: "${mappedStatus}",
     isActive: ${isActive},
-    isNew: true
+    isNew: true,
+    opportunityScore: ${s.opportunityScore || 0}
   },`;
 
             const insertionPoint = auctionsContent.indexOf('export const AUCTIONS: Record<string, AuctionData> = {');

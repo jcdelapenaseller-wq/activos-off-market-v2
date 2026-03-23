@@ -312,7 +312,8 @@ async function runNotifier() {
   console.log('🚀 Iniciando notificador Premium...');
   console.log("TEST_MODE:", process.env.TEST_MODE);
 
-  const isTestMode = process.env.TEST_MODE === "true";
+  // Forzado a false para producción
+  const isTestMode = false; // process.env.TEST_MODE === "true";
 
   if (isTestMode) {
     await runTestMode();
@@ -334,48 +335,83 @@ async function runNotifier() {
     }
   }
 
-  // Filtrar por tipos permitidos
-  pending = pending.filter(a => ALLOWED_TYPES.includes((a.propertyType || '').toLowerCase()));
+  if (pending.length === 0) {
+    return;
+  }
 
-  // Priorizar ciudades TOP
-  pending.sort((a, b) => {
-    const aIsTop = TOP_CITIES.includes(a.city);
-    const bIsTop = TOP_CITIES.includes(b.city);
-    if (aIsTop && !bIsTop) return -1;
-    if (!aIsTop && bIsTop) return 1;
-    return 0;
+  const MAX_PREMIUM = 3;
+  console.log(`Found auctions: ${pending.length}`);
+
+  // 4) Filtrado obligatorio y Seguridad extra
+  pending = pending.filter(a => {
+    if (!a.slug) return false;
+    if (!a.appraisalValue || a.appraisalValue <= 0) return false;
+    if (!a.claimedDebt || a.claimedDebt <= 0) return false;
+    
+    const typeLower = (a.propertyType || '').toLowerCase();
+    if (!ALLOWED_TYPES.includes(typeLower)) return false;
+    
+    return true;
   });
+  console.log(`After type filter: ${pending.length}`);
 
-  // Limitar a 3 alertas por ejecución
-  const toProcess = pending.slice(0, 3);
+  // 3) Evitar duplicados dentro del mismo run
+  const uniqueAuctions = [];
+  const seenSlugs = new Set();
+  for (const a of pending) {
+    if (!seenSlugs.has(a.slug)) {
+      seenSlugs.add(a.slug);
+      uniqueAuctions.push(a);
+    }
+  }
+  pending = uniqueAuctions;
+  console.log(`After dedupe: ${pending.length}`);
 
-  console.log(`📢 Procesando ${toProcess.length} subastas (filtradas y priorizadas)...`);
-
+  // 2) Evitar duplicados históricos
   let sentSlugs = [];
   if (fs.existsSync(CONFIG.SENT_FILE)) {
     sentSlugs = fs.readFileSync(CONFIG.SENT_FILE, 'utf8').split('\n').filter(Boolean);
   }
+  const sentSlugsSet = new Set(sentSlugs);
+
+  pending = pending.filter(a => !sentSlugsSet.has(a.slug));
+  console.log(`After sent filter: ${pending.length}`);
+
+  // 5) Prioridad de envío
+  pending.sort((a, b) => {
+    const scoreA = a.opportunityScore || 0;
+    const scoreB = b.opportunityScore || 0;
+    if (scoreA !== scoreB) return scoreB - scoreA;
+
+    const aIsTop = TOP_CITIES.includes(a.city) ? 1 : 0;
+    const bIsTop = TOP_CITIES.includes(b.city) ? 1 : 0;
+    if (aIsTop !== bIsTop) return bIsTop - aIsTop;
+
+    const discountA = a.discount || (a.appraisalValue ? Math.round(((a.appraisalValue - a.claimedDebt) / a.appraisalValue) * 100) : 0);
+    const discountB = b.discount || (b.appraisalValue ? Math.round(((b.appraisalValue - b.claimedDebt) / b.appraisalValue) * 100) : 0);
+    if (discountA !== discountB) return discountB - discountA;
+
+    const ratioA = a.appraisalValue ? (a.claimedDebt / a.appraisalValue) : 1;
+    const ratioB = b.appraisalValue ? (b.claimedDebt / b.appraisalValue) : 1;
+    return ratioA - ratioB;
+  });
+
+  // 1) Límite por ejecución
+  const toProcess = pending.slice(0, MAX_PREMIUM);
+  console.log(`Sending PREMIUM: ${toProcess.length}`);
 
   const processedSlugs = [];
 
   for (let i = 0; i < toProcess.length; i++) {
     const auction = toProcess[i];
     
-    if (sentSlugs.includes(auction.slug)) {
-      console.log(`⏭️ Saltando duplicado: ${auction.slug}`);
-      processedSlugs.push(auction.slug);
-      continue;
-    }
-
     const message = formatPremiumMessage(auction);
 
     const success = await sendTelegramMessage(message);
     if (success) {
       console.log(`✅ Notificación premium enviada: ${auction.slug}`);
-      if (!sentSlugs.includes(auction.slug)) {
-        fs.appendFileSync(CONFIG.SENT_FILE, auction.slug + '\n');
-        sentSlugs.push(auction.slug);
-      }
+      fs.appendFileSync(CONFIG.SENT_FILE, auction.slug + '\n');
+      sentSlugsSet.add(auction.slug);
       processedSlugs.push(auction.slug);
     }
     await new Promise(resolve => setTimeout(resolve, 2000));
