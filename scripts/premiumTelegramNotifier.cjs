@@ -90,24 +90,48 @@ async function sendTelegramMessage(text) {
 
 async function runNotifier() {
   console.log('🚀 Iniciando notificador Premium...');
+  console.log("TEST_MODE:", process.env.TEST_MODE);
 
-  if (!fs.existsSync(CONFIG.PENDING_FILE)) {
+  const isTestMode = process.env.TEST_MODE === "true";
+
+  if (!fs.existsSync(CONFIG.PENDING_FILE) && !isTestMode) {
     console.log('ℹ️ No hay subastas pendientes para el canal Premium.');
     return;
   }
 
   let pending = [];
-  try {
-    pending = JSON.parse(fs.readFileSync(CONFIG.PENDING_FILE, 'utf8'));
-  } catch (error) {
-    console.error('❌ Error leyendo pending_premium.json:', error.message);
-    return;
+  if (fs.existsSync(CONFIG.PENDING_FILE)) {
+    try {
+      pending = JSON.parse(fs.readFileSync(CONFIG.PENDING_FILE, 'utf8'));
+    } catch (error) {
+      console.error('❌ Error leyendo pending_premium.json:', error.message);
+      if (!isTestMode) return;
+    }
+  }
+
+  // En modo test, si no hay pendientes, inyectamos una de prueba para validar el formato
+  if (isTestMode && pending.length === 0) {
+    console.log('🧪 MODO TEST: No hay subastas en pending_premium.json, usando subasta de prueba.');
+    pending = [{
+      slug: 'subasta-test-premium-manual',
+      propertyType: 'Piso',
+      city: 'Madrid',
+      zone: 'Chamberí',
+      address: 'Calle de Almagro, 15',
+      appraisalValue: 450000,
+      claimedDebt: 185000,
+      procedureType: 'JUDICIAL EN VIA DE APREMIO',
+      occupancy: 'Ocupado sin título',
+      auctionDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+      discount: 58
+    }];
   }
 
   console.log(`📢 Procesando ${pending.length} subastas pendientes...`);
 
   let sentSlugs = [];
-  if (fs.existsSync(CONFIG.SENT_FILE)) {
+  // Sin leer sent_slugs si estamos en modo test
+  if (!isTestMode && fs.existsSync(CONFIG.SENT_FILE)) {
     sentSlugs = fs.readFileSync(CONFIG.SENT_FILE, 'utf8').split('\n').filter(Boolean);
   }
 
@@ -115,17 +139,17 @@ async function runNotifier() {
 
   for (let i = 0; i < pending.length; i++) {
     const auction = pending[i];
-    const isTestMode = process.env.TEST_MODE === "true";
     const shouldForce = isTestMode && i === 0;
 
-    if (sentSlugs.includes(auction.slug) && !shouldForce) {
+    // Si es la primera en modo test, saltamos la comprobación de duplicados
+    if (!shouldForce && sentSlugs.includes(auction.slug)) {
       console.log(`⏭️ Saltando duplicado: ${auction.slug}`);
       processedSlugs.push(auction.slug);
       continue;
     }
 
     if (shouldForce) {
-      console.log(`🧪 MODO TEST: Forzando envío de la primera subasta (${auction.slug})`);
+      console.log(`🧪 MODO TEST: Forzando envío de la primera subasta (${auction.slug}) sin comprobar duplicados.`);
     }
 
     const hashtags = `${toHashtag(auction.propertyType)} ${toHashtag(auction.city)} ${auction.zone && auction.zone !== 'Desconocida' ? toHashtag(auction.zone) : ''}`;
