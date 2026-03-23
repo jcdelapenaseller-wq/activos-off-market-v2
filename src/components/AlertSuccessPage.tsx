@@ -36,64 +36,82 @@ const AlertSuccessPage: React.FC = () => {
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
             
             <div className="relative z-10">
-              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto mb-8 shadow-inner">
-                <CheckCircle size={40} />
+              <div className="w-20 h-20 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 mx-auto mb-8 shadow-inner">
+                <Zap size={40} fill="currentColor" />
               </div>
               
-              <h1 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                ¡Alerta creada con éxito!
+              <h1 className="font-serif text-3xl md:text-4xl font-bold text-slate-900 mb-4 px-4">
+                Recibe solo oportunidades que encajan contigo
               </h1>
               
-              <p className="text-slate-600 text-lg mb-10 leading-relaxed">
-                Te avisaremos en <span className="font-bold text-slate-900">{email}</span> cuando detectemos subastas que encajen con tu búsqueda.
+              <p className="text-slate-600 text-lg mb-10 leading-relaxed px-4">
+                Te avisamos cuando detectemos una subasta que encaje con tu búsqueda. <br className="hidden md:block" />
+                <span className="font-bold text-slate-900">Sin ruido. Solo oportunidades relevantes.</span>
               </p>
 
-              {/* Radar Premium Upsell Block */}
-              <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-2xl mb-8 border border-slate-800 text-left relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-brand-600 rounded-full opacity-10 blur-2xl -mr-12 -mt-12"></div>
+              {/* Radar Premium Conversion Block */}
+              <div className="bg-slate-900 rounded-[2rem] p-8 md:p-10 text-white shadow-2xl mb-10 border border-slate-800 text-center relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-brand-600 rounded-full opacity-10 blur-3xl -mr-20 -mt-20 group-hover:opacity-20 transition-opacity"></div>
+                <div className="absolute bottom-0 left-0 w-40 h-40 bg-brand-600 rounded-full opacity-5 blur-3xl -ml-20 -mb-20"></div>
                 
                 <div className="relative z-10">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Zap size={16} className="text-brand-400" fill="currentColor" />
-                    <span className="text-xs font-bold tracking-widest uppercase text-brand-400">Radar Premium</span>
+                  <div className="inline-flex items-center gap-2 mb-6 bg-brand-600/20 px-3 py-1 rounded-full border border-brand-600/30">
+                    <Zap size={14} className="text-brand-400" fill="currentColor" />
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-brand-400">Radar Premium</span>
                   </div>
                   
-                  <h3 className="text-2xl font-bold mb-2">7 Días Gratis</h3>
-                  <p className="text-slate-400 text-sm mb-6">Recibe las subastas antes que nadie y ahorra horas de búsqueda.</p>
-
+                  <h3 className="text-4xl font-black mb-6 tracking-tight">7 Días Gratis</h3>
+                  
                   <a 
                     href={STRIPE_PAYMENT_LINK}
                     onClick={handleStripeClick}
-                    className="w-full py-4 bg-brand-600 text-white font-bold rounded-xl text-lg hover:bg-brand-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20 group mb-4"
+                    className="w-full py-5 bg-brand-600 text-white font-bold rounded-2xl text-xl hover:bg-brand-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-600/30 group mb-8 scale-100 hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    Activar Radar Premium <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    Probar 7 días gratis <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
                   </a>
                   
-                  <p className="text-center text-[11px] text-slate-500">
-                    Después 5€/mes. Sin compromiso. Cancela en 1 clic.
-                  </p>
+                  <div className="grid grid-cols-2 gap-4 text-left border-t border-slate-800 pt-8">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                        <CheckCircle size={12} />
+                      </div>
+                      <span className="text-xs font-medium text-slate-300">Después 5€/mes</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                        <CheckCircle size={12} />
+                      </div>
+                      <span className="text-xs font-medium text-slate-300">Sin compromiso</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                        <CheckCircle size={12} />
+                      </div>
+                      <span className="text-xs font-medium text-slate-300">Cancela en 1 clic</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                        <CheckCircle size={12} />
+                      </div>
+                      <span className="text-xs font-medium text-slate-300">Aviso inmediato</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div className="flex flex-col gap-4">
                 <Link 
                   to={ROUTES.RECENT_AUCTIONS}
-                  className="text-brand-700 font-bold hover:text-brand-800 transition-colors flex items-center justify-center gap-2"
+                  className="text-slate-400 font-medium hover:text-brand-700 transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  Volver al listado de subastas <ArrowRight size={18} />
-                </Link>
-                <Link 
-                  to={ROUTES.HOME}
-                  className="text-slate-400 hover:text-slate-600 text-sm transition-colors"
-                >
-                  Ir al inicio
+                  Seguir buscando subastas <ArrowRight size={16} />
                 </Link>
               </div>
             </div>
           </div>
           
           <div className="mt-8 flex items-center justify-center gap-2 text-slate-400 text-xs font-medium">
-            <Star size={12} className="text-brand-500" fill="currentColor" />
+            <ShieldCheck size={14} className="text-brand-500" />
             <span>Inversores ya reciben alertas cada día</span>
           </div>
         </div>
