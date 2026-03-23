@@ -87,7 +87,8 @@ async function runCrawler() {
       // Reset paginación por provincia
       const visitedPages = new Set();
       let currentPage = 1;
-      const maxPagesPerProvince = 2; // Límite controlado: máximo 2 páginas por provincia
+      const maxPages = 3; // Límite controlado: máximo 3 páginas por provincia
+      console.log(`Límite páginas activo: ${maxPages}`);
       let hasNextPage = true;
 
       try {
@@ -101,7 +102,7 @@ async function runCrawler() {
           ]);
         }
 
-        while (hasNextPage && currentPage <= maxPagesPerProvince) {
+        while (hasNextPage && currentPage <= maxPages) {
           const currentUrl = page.url();
           if (visitedPages.has(currentUrl)) break;
           visitedPages.add(currentUrl);
@@ -142,8 +143,8 @@ async function runCrawler() {
             }
           }
 
-          if (currentPage >= maxPagesPerProvince) {
-            console.log(` - Límite de páginas alcanzado (${maxPagesPerProvince}) para ${province.text}.`);
+          if (currentPage >= maxPages) {
+            console.log(` - Límite de páginas alcanzado (${maxPages}) para ${province.text}.`);
             break;
           }
 

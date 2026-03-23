@@ -83,6 +83,13 @@ export function sortAuctions(items: [string, AuctionData][], sortBy: string = 'd
     if (!aActive && bActive) return 1;
 
     if (sortBy === 'recent') {
+      if (aData.auctionDate && bData.auctionDate) {
+        const aClose = new Date(aData.auctionDate).getTime();
+        const bClose = new Date(bData.auctionDate).getTime();
+        if (aClose !== bClose) {
+          return aClose - bClose;
+        }
+      }
       const aDate = new Date(aData.publishedAt || aData.startDate || 0).getTime();
       const bDate = new Date(bData.publishedAt || bData.startDate || 0).getTime();
       return bDate - aDate;
