@@ -38,6 +38,60 @@ const TRANSITIONS = [
   "Entrando al detalle:"
 ];
 
+const TEST_SCENARIOS = [
+  {
+    name: 'chollo',
+    data: {
+      slug: 'test-chollo-retiro',
+      propertyType: 'Piso',
+      city: 'Madrid',
+      zone: 'Retiro',
+      address: 'Calle de Alfonso XII, 20',
+      appraisalValue: 850000,
+      claimedDebt: 320000,
+      procedureType: 'JUDICIAL EN VIA DE APREMIO',
+      occupancy: 'Vacío',
+      auctionDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+      discount: 62,
+      squareMeters: 110
+    }
+  },
+  {
+    name: 'urgencia',
+    data: {
+      slug: 'test-urgencia-pozuelo',
+      propertyType: 'Chalet',
+      city: 'Pozuelo de Alarcón',
+      zone: 'Somosaguas',
+      address: 'Avenida de Europa, 10',
+      appraisalValue: 1200000,
+      claimedDebt: 950000,
+      procedureType: 'SEGURIDAD SOCIAL',
+      occupancy: 'Ocupado por el deudor',
+      auctionDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      discount: 21,
+      surface: 250
+    }
+  },
+  {
+    name: 'escasa',
+    data: {
+      slug: 'test-escasa-soria',
+      propertyType: 'Nave',
+      city: 'Soria',
+      zone: 'Polígono Industrial',
+      address: 'Calle C, Parcela 42',
+      appraisalValue: 300000,
+      claimedDebt: 120000,
+      procedureType: 'NOTARIAL',
+      occupancy: 'Sin datos',
+      auctionDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      discount: 60,
+      squareMeters: 500
+    }
+  }
+];
+
 const FOMO_LINES = [
   "No es para improvisar.",
   "Aquí se gana en el detalle.",
@@ -61,9 +115,10 @@ function toHashtag(str) {
   return '#' + clean.charAt(0).toUpperCase() + clean.slice(1);
 }
 
-async function sendTelegramMessage(text) {
-  if (!process.env.BOT_TOKEN || !process.env.PREMIUM_CHAT_ID) {
-    console.error('❌ Error: BOT_TOKEN o PREMIUM_CHAT_ID no configurados.');
+async function sendTelegramMessage(text, chatId = null) {
+  const targetChatId = chatId || process.env.PREMIUM_CHAT_ID;
+  if (!process.env.BOT_TOKEN || !targetChatId) {
+    console.error('❌ Error: BOT_TOKEN o CHAT_ID no configurados.');
     return;
   }
   const url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`;
@@ -71,7 +126,7 @@ async function sendTelegramMessage(text) {
     await axios.post(
       url,
       {
-        chat_id: process.env.PREMIUM_CHAT_ID,
+        chat_id: targetChatId,
         text: text,
         parse_mode: "HTML"
       },
@@ -88,13 +143,165 @@ async function sendTelegramMessage(text) {
   }
 }
 
+function formatPremiumMessage(auction) {
+  const hashtags = `${toHashtag(auction.propertyType)} ${toHashtag(auction.city)} ${auction.zone && auction.zone !== 'Desconocida' ? toHashtag(auction.zone) : ''}`;
+  const debtRatio = auction.appraisalValue > 0 ? ((auction.claimedDebt / auction.appraisalValue) * 100).toFixed(1) : "N/A";
+  
+  let discountVal = auction.discount;
+  if (!discountVal && auction.appraisalValue && auction.claimedDebt) {
+     discountVal = Math.round(((auction.appraisalValue - auction.claimedDebt) / auction.appraisalValue) * 100);
+  }
+  const isHighDiscount = discountVal && discountVal > 40;
+
+  let daysLeft = null;
+  if (auction.auctionDate) {
+    const closing = new Date(auction.auctionDate);
+    const now = new Date();
+    const diffTime = closing - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays > 0 && diffDays < 7) {
+      daysLeft = diffDays;
+    }
+  }
+
+  const sqm = auction.squareMeters || auction.surface || 0;
+  let pricePerSqm = null;
+  if (sqm > 0 && auction.appraisalValue > 0) {
+    pricePerSqm = Math.round(auction.appraisalValue / sqm);
+  }
+
+  const propertyType = auction.propertyType ? auction.propertyType.charAt(0).toUpperCase() + auction.propertyType.slice(1) : 'Activo';
+  const location = auction.zone && auction.zone !== 'Desconocida' 
+    ? `${auction.city} (${auction.zone})` 
+    : `${auction.city}`;
+
+  let message = `🔒 <b>Análisis Premium</b>\n\n`;
+  const typeAndLocation = `🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}`;
+  const discountText = isHighDiscount ? (Math.random() > 0.5 ? `🔥 <b>¡OPORTUNIDAD: ${discountVal}% por debajo de tasación!</b>` : `🔥 <b>Descuento del ${discountVal}% detectado</b>`) : '';
+  const urgencyText = daysLeft ? `⏳ <b>¡Cierra en solo ${daysLeft} días!</b>` : '';
+  const hook = getRandom(HOOKS);
+  const introType = Math.floor(Math.random() * 3);
+
+  if (introType === 0 && isHighDiscount) {
+    message += `${discountText}\n\n${typeAndLocation}\n\n${hook}\n\n`;
+  } else if (introType === 1) {
+    message += `${hook}\n\n${typeAndLocation}\n\n`;
+    if (discountText) message += `${discountText}\n\n`;
+  } else if (introType === 2 && daysLeft) {
+    message += `${urgencyText}\n\n${typeAndLocation}\n\n${hook}\n\n`;
+    if (discountText) message += `${discountText}\n\n`;
+  } else {
+    if (discountText) message += `${discountText}\n\n`;
+    message += `${typeAndLocation}\n\n${hook}\n\n`;
+  }
+
+  if (daysLeft && introType !== 2) {
+    message += `⏳ <b>Quedan ${daysLeft} días</b>\n`;
+  }
+  
+  message += `\n🔎 <b>Claves del expediente</b>\n\n`;
+  message += `• Procedimiento: ${auction.procedureType}\n`;
+  message += `• Situación posesoria: ${auction.occupancy || "La clave aquí suele estar en la situación posesoria y el orden de cargas"}\n`;
+  message += `• Posibles cargas a revisar: El margen real dependerá del orden de cargas en la certificación registral, conviene revisarla bien antes de plantear puja.\n\n`;
+  message += `📊 <b>Lectura rápida</b>\n\n`;
+  message += `• deuda reclamada: ${formatCurrency(auction.claimedDebt)}\n`;
+  message += `• valor de subasta: ${formatCurrency(auction.appraisalValue)}\n`;
+  if (pricePerSqm) message += `• ref. tasación m²: ${pricePerSqm} €/m²\n`;
+  message += `• ratio deuda / subasta: ${debtRatio}%\n`;
+  message += `• descuento teórico: ${auction.discount ? auction.discount + '%' : 'A determinar'}\n\n`;
+  message += `${getRandom(INTERPRETATIONS)}\n\n`;
+  message += `💰 <b>Escenario orientativo</b>\n\n`;
+  message += `• rango posible de adjudicación: Estimación inicial basada en tipología\n`;
+  message += `• valor estimado de mercado en la zona: Si el activo acompaña en estado, el mercado suele absorber bien este producto\n`;
+  message += `• margen potencial aproximado: Margen a confirmar tras revisar cargas registrales\n\n`;
+  message += `${getRandom(TRANSITIONS)}\n\n`;
+  message += `🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>\n\n`;
+  message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver fotos, cargas registrales y rentabilidad estimada</a>\n\n`;
+  message += `${getRandom(FOMO_LINES)}\n\n`;
+  message += `👉 <a href="https://calendly.com/activosoffmarket">Reservar consultoría</a>\n\n`;
+  message += `${hashtags}`;
+  
+  return message;
+}
+
+function formatFreeMessage(auction) {
+  const propertyType = auction.propertyType ? auction.propertyType.charAt(0).toUpperCase() + auction.propertyType.slice(1) : 'Activo';
+  const location = auction.zone && auction.zone !== 'Desconocida' 
+    ? `${auction.city} (${auction.zone})` 
+    : `${auction.city}`;
+  const hashtags = `${toHashtag(auction.propertyType)} ${toHashtag(auction.city)}`;
+  
+  let discountVal = auction.discount;
+  if (!discountVal && auction.appraisalValue && auction.claimedDebt) {
+     discountVal = Math.round(((auction.appraisalValue - auction.claimedDebt) / auction.appraisalValue) * 100);
+  }
+  const isHighDiscount = discountVal && discountVal > 40;
+
+  let message = `🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}\n\n`;
+  message += `${getRandom(HOOKS)}\n\n`;
+  
+  if (isHighDiscount) {
+    message += `🔥 <b>Oportunidad con descuento del ${discountVal}%</b>\n\n`;
+  }
+  
+  message += `📊 <b>Datos rápidos</b>\n\n`;
+  message += `• Tasación: ${formatCurrency(auction.appraisalValue)}\n`;
+  message += `• Deuda: ${formatCurrency(auction.claimedDebt)}\n\n`;
+  
+  message += `⚠️ <b>Hay un detalle clave en el expediente que cambia el escenario</b>\n\n`;
+  message += `👉 <a href="https://www.activosoffmarket.es/subasta/${auction.slug}">Analizar expediente completo aquí</a>\n\n`;
+  
+  message += `🔒 <b>En premium: análisis completo + riesgos reales + estrategia</b>\n`;
+  message += `👉 <a href="https://sublaunch.com/activosoffmarket">Acceso premium</a>\n\n`;
+  
+  message += `${hashtags}`;
+  
+  return message;
+}
+
+async function runTestMode() {
+  console.log('🧪 Ejecutando en MODO TEST con dataset interno...');
+  
+  // Seleccionar 2 escenarios aleatorios
+  const shuffled = [...TEST_SCENARIOS].sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, 2);
+  
+  for (let i = 0; i < selected.length; i++) {
+    const scenario = selected[i];
+    console.log(`🧪 TEST scenario: ${scenario.name}`);
+    
+    // El primero lo enviamos como Premium, el segundo como Free (o ambos premium si se prefiere, 
+    // pero el usuario pidió probar ambos formatos)
+    if (i === 0) {
+      console.log('🧪 Generando formato PREMIUM...');
+      const msg = formatPremiumMessage(scenario.data);
+      await sendTelegramMessage(msg, process.env.PREMIUM_CHAT_ID);
+    } else {
+      console.log('🧪 Generando formato FREE...');
+      const msg = formatFreeMessage(scenario.data);
+      // Enviamos al canal free si está configurado, si no al premium para ver el resultado
+      const targetId = process.env.CHAT_ID || process.env.PREMIUM_CHAT_ID;
+      await sendTelegramMessage(msg, targetId);
+    }
+    
+    if (i === 0) await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+  
+  console.log('🧪 MODO TEST finalizado.');
+}
+
 async function runNotifier() {
   console.log('🚀 Iniciando notificador Premium...');
   console.log("TEST_MODE:", process.env.TEST_MODE);
 
   const isTestMode = process.env.TEST_MODE === "true";
 
-  if (!fs.existsSync(CONFIG.PENDING_FILE) && !isTestMode) {
+  if (isTestMode) {
+    await runTestMode();
+    return;
+  }
+
+  if (!fs.existsSync(CONFIG.PENDING_FILE)) {
     console.log('ℹ️ No hay subastas pendientes para el canal Premium.');
     return;
   }
@@ -105,33 +312,14 @@ async function runNotifier() {
       pending = JSON.parse(fs.readFileSync(CONFIG.PENDING_FILE, 'utf8'));
     } catch (error) {
       console.error('❌ Error leyendo pending_premium.json:', error.message);
-      if (!isTestMode) return;
+      return;
     }
-  }
-
-  // En modo test, si no hay pendientes, inyectamos una de prueba para validar el formato
-  if (isTestMode && pending.length === 0) {
-    console.log('🧪 MODO TEST: No hay subastas en pending_premium.json, usando subasta de prueba.');
-    pending = [{
-      slug: 'subasta-test-premium-manual',
-      propertyType: 'Piso',
-      city: 'Madrid',
-      zone: 'Chamberí',
-      address: 'Calle de Almagro, 15',
-      appraisalValue: 450000,
-      claimedDebt: 185000,
-      procedureType: 'JUDICIAL EN VIA DE APREMIO',
-      occupancy: 'Ocupado sin título',
-      auctionDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
-      discount: 58
-    }];
   }
 
   console.log(`📢 Procesando ${pending.length} subastas pendientes...`);
 
   let sentSlugs = [];
-  // Sin leer sent_slugs si estamos en modo test
-  if (!isTestMode && fs.existsSync(CONFIG.SENT_FILE)) {
+  if (fs.existsSync(CONFIG.SENT_FILE)) {
     sentSlugs = fs.readFileSync(CONFIG.SENT_FILE, 'utf8').split('\n').filter(Boolean);
   }
 
@@ -139,106 +327,18 @@ async function runNotifier() {
 
   for (let i = 0; i < pending.length; i++) {
     const auction = pending[i];
-    const shouldForce = isTestMode && i === 0;
-
-    // Si es la primera en modo test, saltamos la comprobación de duplicados
-    if (!shouldForce && sentSlugs.includes(auction.slug)) {
+    
+    if (sentSlugs.includes(auction.slug)) {
       console.log(`⏭️ Saltando duplicado: ${auction.slug}`);
       processedSlugs.push(auction.slug);
       continue;
     }
 
-    if (shouldForce) {
-      console.log(`🧪 MODO TEST: Forzando envío de la primera subasta (${auction.slug}) sin comprobar duplicados.`);
-    }
-
-    const hashtags = `${toHashtag(auction.propertyType)} ${toHashtag(auction.city)} ${auction.zone && auction.zone !== 'Desconocida' ? toHashtag(auction.zone) : ''}`;
-    const debtRatio = auction.appraisalValue > 0 ? ((auction.claimedDebt / auction.appraisalValue) * 100).toFixed(1) : "N/A";
-    
-    // FOMO Logic
-    let discountVal = auction.discount;
-    if (!discountVal && auction.appraisalValue && auction.claimedDebt) {
-       discountVal = Math.round(((auction.appraisalValue - auction.claimedDebt) / auction.appraisalValue) * 100);
-    }
-    const isHighDiscount = discountVal && discountVal > 40;
-
-    let daysLeft = null;
-    if (auction.auctionDate) {
-      const closing = new Date(auction.auctionDate);
-      const now = new Date();
-      const diffTime = closing - now;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays > 0 && diffDays < 7) {
-        daysLeft = diffDays;
-      }
-    }
-
-    const similarCount = pending.filter(a => a.city === auction.city && a.propertyType === auction.propertyType).length;
-    const isScarce = similarCount < 5;
-
-    const sqm = auction.squareMeters || auction.surface || 0;
-    let pricePerSqm = null;
-    if (sqm > 0 && auction.appraisalValue > 0) {
-      pricePerSqm = Math.round(auction.appraisalValue / sqm);
-    }
-
-    const propertyType = auction.propertyType ? auction.propertyType.charAt(0).toUpperCase() + auction.propertyType.slice(1) : 'Activo';
-    const location = auction.zone && auction.zone !== 'Desconocida' 
-      ? `${auction.city} (${auction.zone})` 
-      : `${auction.city}`;
-
-    let message = `🔒 <b>Análisis Premium</b>\n\n`;
-    const typeAndLocation = `🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}`;
-    const discountText = isHighDiscount ? (Math.random() > 0.5 ? `🔥 <b>¡OPORTUNIDAD: ${discountVal}% por debajo de tasación!</b>` : `🔥 <b>Descuento del ${discountVal}% detectado</b>`) : '';
-    const urgencyText = daysLeft ? `⏳ <b>¡Cierra en solo ${daysLeft} días!</b>` : '';
-    const hook = getRandom(HOOKS);
-    const introType = Math.floor(Math.random() * 3);
-
-    if (introType === 0 && isHighDiscount) {
-      message += `${discountText}\n\n${typeAndLocation}\n\n${hook}\n\n`;
-    } else if (introType === 1) {
-      message += `${hook}\n\n${typeAndLocation}\n\n`;
-      if (discountText) message += `${discountText}\n\n`;
-    } else if (introType === 2 && daysLeft) {
-      message += `${urgencyText}\n\n${typeAndLocation}\n\n${hook}\n\n`;
-      if (discountText) message += `${discountText}\n\n`;
-    } else {
-      if (discountText) message += `${discountText}\n\n`;
-      message += `${typeAndLocation}\n\n${hook}\n\n`;
-    }
-
-    if (daysLeft && introType !== 2) {
-      message += `⏳ <b>Quedan ${daysLeft} días</b>\n`;
-    }
-    if (isScarce) {
-      message += `📉 <b>Pocas oportunidades así en esta zona</b>\n`;
-    }
-    message += `\n🔎 <b>Claves del expediente</b>\n\n`;
-    message += `• Procedimiento: ${auction.procedureType}\n`;
-    message += `• Situación posesoria: ${auction.occupancy || "La clave aquí suele estar en la situación posesoria y el orden de cargas"}\n`;
-    message += `• Posibles cargas a revisar: El margen real dependerá del orden de cargas en la certificación registral, conviene revisarla bien antes de plantear puja.\n\n`;
-    message += `📊 <b>Lectura rápida</b>\n\n`;
-    message += `• deuda reclamada: ${formatCurrency(auction.claimedDebt)}\n`;
-    message += `• valor de subasta: ${formatCurrency(auction.appraisalValue)}\n`;
-    if (pricePerSqm) message += `• ref. tasación m²: ${pricePerSqm} €/m²\n`;
-    message += `• ratio deuda / subasta: ${debtRatio}%\n`;
-    message += `• descuento teórico: ${auction.discount ? auction.discount + '%' : 'A determinar'}\n\n`;
-    message += `${getRandom(INTERPRETATIONS)}\n\n`;
-    message += `💰 <b>Escenario orientativo</b>\n\n`;
-    message += `• rango posible de adjudicación: Estimación inicial basada en tipología\n`;
-    message += `• valor estimado de mercado en la zona: Si el activo acompaña en estado, el mercado suele absorber bien este producto\n`;
-    message += `• margen potencial aproximado: Margen a confirmar tras revisar cargas registrales\n\n`;
-    message += `${getRandom(TRANSITIONS)}\n\n`;
-    message += `🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>\n\n`;
-    message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver fotos, cargas registrales y rentabilidad estimada</a>\n\n`;
-    message += `${getRandom(FOMO_LINES)}\n\n`;
-    message += `👉 <a href="https://calendly.com/activosoffmarket">Reservar consultoría</a>\n\n`;
-    message += `${hashtags}`;
+    const message = formatPremiumMessage(auction);
 
     const success = await sendTelegramMessage(message);
     if (success) {
       console.log(`✅ Notificación premium enviada: ${auction.slug}`);
-      // Solo añadir al archivo de enviados si no estaba ya (evitar duplicados en modo test)
       if (!sentSlugs.includes(auction.slug)) {
         fs.appendFileSync(CONFIG.SENT_FILE, auction.slug + '\n');
         sentSlugs.push(auction.slug);
