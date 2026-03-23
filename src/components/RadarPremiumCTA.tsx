@@ -17,7 +17,7 @@ const RadarPremiumCTA: React.FC<RadarPremiumCTAProps> = ({
   variant = 'full',
   origin = 'ficha'
 }) => {
-  const title = location 
+  const title = (location && location !== 'España')
     ? `¿Quieres que te avisemos si aparecen oportunidades en ${location}?`
     : "¿Quieres que te avisemos si aparecen oportunidades en tu ciudad?";
 
