@@ -23,7 +23,8 @@ import Footer from './Footer';
 
 const AuctionPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const auction = slug ? AUCTIONS[slug] : null;
+  const cleanSlug = slug ? decodeURIComponent(slug).replace(/\/$/, '').toLowerCase() : '';
+  const auction = cleanSlug ? AUCTIONS[cleanSlug] : null;
 
   // Calculator State
   const [valorMercado, setValorMercado] = useState<number | ''>('');
@@ -80,7 +81,7 @@ const AuctionPage: React.FC = () => {
       
       document.title = title.length > 70 ? title.substring(0, 67) + '...' : title;
     }
-  }, [slug, auction]);
+  }, [cleanSlug, auction]);
 
   const analysisInsights = useMemo(() => {
     if (!auction) return null;
@@ -247,7 +248,7 @@ const AuctionPage: React.FC = () => {
   const urgencyBadge = getUrgencyBadge(auction.auctionDate);
 
   const jsonLd = useMemo(() => {
-    if (!auction || !slug) return null;
+    if (!auction || !cleanSlug) return null;
 
     const propertyType = normalizePropertyType(auction.propertyType);
     const cityName = normalizeCity(auction) || 'España';
@@ -638,21 +639,21 @@ const AuctionPage: React.FC = () => {
             </header>
 
             {/* Auction Result Banner */}
-            {slug && AUCTION_RESULTS[slug] && (
+            {cleanSlug && AUCTION_RESULTS[cleanSlug] && (
               <div className="bg-white border-2 border-slate-900 p-8 rounded-2xl mb-16 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                 <h3 className="text-2xl font-bold mb-4 flex items-center gap-2 text-slate-900">
                   <CheckCircle className="text-emerald-600" /> Resultado de la subasta
                 </h3>
-                {AUCTION_RESULTS[slug].auctionResultStatus === 'adjudicated' ? (
+                {AUCTION_RESULTS[cleanSlug].auctionResultStatus === 'adjudicated' ? (
                   <div>
                     <p className="text-lg text-slate-700 mb-2">
-                      Precio de adjudicación: <span className="font-bold text-slate-900 text-xl">{AUCTION_RESULTS[slug].finalPrice?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
+                      Precio de adjudicación: <span className="font-bold text-slate-900 text-xl">{AUCTION_RESULTS[cleanSlug].finalPrice?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
                     </p>
                     <p className="text-md text-slate-600 italic">
-                      {auction.appraisalValue && AUCTION_RESULTS[slug].finalPrice 
-                        ? AUCTION_RESULTS[slug].finalPrice! < auction.appraisalValue * 0.9 
+                      {auction.appraisalValue && AUCTION_RESULTS[cleanSlug].finalPrice 
+                        ? AUCTION_RESULTS[cleanSlug].finalPrice! < auction.appraisalValue * 0.9 
                           ? "Adjudicada significativamente por debajo del valor de tasación."
-                          : AUCTION_RESULTS[slug].finalPrice! > auction.appraisalValue * 1.1
+                          : AUCTION_RESULTS[cleanSlug].finalPrice! > auction.appraisalValue * 1.1
                             ? "Adjudicada por encima del valor de tasación."
                             : "Adjudicada en línea con el valor de tasación."
                         : "Resultado confirmado."}
@@ -1021,7 +1022,7 @@ const AuctionPage: React.FC = () => {
               </Link>
             </div>
 
-            {slug && <div className="mt-16"><RelatedAuctions currentAuctionSlug={slug} currentAuctionData={auction} /></div>}
+            {cleanSlug && <div className="mt-16"><RelatedAuctions currentAuctionSlug={cleanSlug} currentAuctionData={auction} /></div>}
           </div>
         </div>
       </div>
