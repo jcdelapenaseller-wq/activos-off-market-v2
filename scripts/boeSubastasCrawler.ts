@@ -406,6 +406,14 @@ async function runCrawler() {
         const tipoBienLimpio = cleanPropertyType(bienesData.tipoBien || '');
         const esTipoExcluido = tipoBienLimpio === 'Local' || tipoBienLimpio === 'Garaje';
 
+        if (idSub === 'SUB-JA-2026-259025') {
+          console.log(`[DIAGNOSTICO] parsed SUB-JA-2026-259025:`, {
+            subastaNum, tasacionNum, deudaNum, depositoNum, superficieNum,
+            estadoSubasta: generalData.estadoSubasta,
+            tipoBienLimpio
+          });
+        }
+
         // Cálculo de ratio para filtro (18% - 85%)
         const valorReferencia = tasacionNum || subastaNum;
         let esRatioBajo = false;
@@ -420,6 +428,13 @@ async function runCrawler() {
 
         const esValorBajo = tasacionNum !== null && tasacionNum < 100000;
         const esDeudaCero = deudaNum === 0;
+
+        if (idSub === 'SUB-JA-2026-259025') {
+          console.log(`[DIAGNOSTICO] passed filters SUB-JA-2026-259025:`, {
+            subastaNumValid: subastaNum !== null && subastaNum >= 5000,
+            esEstadoInvalido, esTipoExcluido, esRatioBajo, esRatioExcesivo, esValorBajo, esDeudaCero
+          });
+        }
 
         if (subastaNum !== null && subastaNum >= 5000 && !esEstadoInvalido && !esTipoExcluido && !esRatioBajo && !esRatioExcesivo && !esValorBajo && !esDeudaCero) {
           let opportunityScore = 0;
@@ -510,6 +525,10 @@ async function runCrawler() {
 
     const nuevas = finalResults.filter(s => !existingIds.has(s.idSub));
     
+    if (finalResults.some(s => s.idSub === 'SUB-JA-2026-259025')) {
+      console.log(`[DIAGNOSTICO] merging SUB-JA-2026-259025`);
+    }
+
     const output = {
       totalEncontradas: allAuctions.length,
       totalValidas: finalResults.length,
@@ -638,6 +657,11 @@ async function runCrawler() {
         }
         
         fs.writeFileSync(auctionsFilePath, auctionsContent);
+        
+        if (auctionsContent.includes('SUB-JA-2026-259025')) {
+          console.log(`[DIAGNOSTICO] final dataset includes SUB-JA-2026-259025`);
+        }
+
         output.totalNuevas = output.subastasInsertadas;
         output.totalActualizadas = output.subastasActualizadas;
         
