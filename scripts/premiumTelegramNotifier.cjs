@@ -113,11 +113,19 @@ async function runNotifier() {
 
   const processedSlugs = [];
 
-  for (const auction of pending) {
-    if (sentSlugs.includes(auction.slug)) {
+  for (let i = 0; i < pending.length; i++) {
+    const auction = pending[i];
+    const isTestMode = process.env.TEST_MODE === "true";
+    const shouldForce = isTestMode && i === 0;
+
+    if (sentSlugs.includes(auction.slug) && !shouldForce) {
       console.log(`⏭️ Saltando duplicado: ${auction.slug}`);
       processedSlugs.push(auction.slug);
       continue;
+    }
+
+    if (shouldForce) {
+      console.log(`🧪 MODO TEST: Forzando envío de la primera subasta (${auction.slug})`);
     }
 
     const hashtags = `${toHashtag(auction.propertyType)} ${toHashtag(auction.city)} ${auction.zone && auction.zone !== 'Desconocida' ? toHashtag(auction.zone) : ''}`;
@@ -206,8 +214,11 @@ async function runNotifier() {
     const success = await sendTelegramMessage(message);
     if (success) {
       console.log(`✅ Notificación premium enviada: ${auction.slug}`);
-      fs.appendFileSync(CONFIG.SENT_FILE, auction.slug + '\n');
-      sentSlugs.push(auction.slug);
+      // Solo añadir al archivo de enviados si no estaba ya (evitar duplicados en modo test)
+      if (!sentSlugs.includes(auction.slug)) {
+        fs.appendFileSync(CONFIG.SENT_FILE, auction.slug + '\n');
+        sentSlugs.push(auction.slug);
+      }
       processedSlugs.push(auction.slug);
     }
     await new Promise(resolve => setTimeout(resolve, 2000));
