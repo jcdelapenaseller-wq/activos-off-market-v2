@@ -76,11 +76,33 @@ function getRandom(arr) {
 /**
  * Limpia strings para hashtags
  */
+function isValuable(val) {
+  if (!val) return false;
+  const forbidden = ['null', 'undefined', 'vacio', 'sin datos', 'desconocida', '—', '-', 'none'];
+  const normalized = val.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  return !forbidden.includes(normalized);
+}
+
 function toHashtag(str) {
-  if (!str) return '';
+  if (!isValuable(str)) return null;
   // Elimina acentos, espacios y caracteres especiales, capitaliza la primera letra
-  const clean = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "");
+  const clean = str.normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "");
+  if (!clean) return null;
   return '#' + clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
+function generateHashtags(auction) {
+  const tags = [
+    toHashtag(auction.propertyType),
+    toHashtag(auction.city),
+    toHashtag(auction.province),
+    toHashtag(auction.zone)
+  ].filter(Boolean);
+  
+  // Eliminar duplicados manteniendo el orden
+  return [...new Set(tags)].join(' ');
 }
 
 /**
@@ -186,11 +208,7 @@ async function runNotifier() {
     const emoji = EMOJI_MAP[typeLower] || '🏢';
 
     // Construcción de hashtags
-    const hashtags = [
-      toHashtag(auction.propertyType),
-      toHashtag(auction.city),
-      auction.zone && auction.zone !== 'Desconocida' ? toHashtag(auction.zone) : ''
-    ].filter(Boolean).join(' ');
+    const hashtags = generateHashtags(auction);
 
     // Formateo de datos
     const appraisal = formatCurrency(auction.appraisalValue);
@@ -198,18 +216,22 @@ async function runNotifier() {
     const discountVal = auction.calculatedScore;
 
     // Línea de ubicación y tipo
-    const location = auction.zone && auction.zone !== 'Desconocida' 
+    const location = isValuable(auction.zone)
       ? `${auction.city} (${auction.zone})` 
       : `${auction.city}`;
     const propertyType = auction.propertyType ? auction.propertyType.charAt(0).toUpperCase() + auction.propertyType.slice(1) : 'Activo';
 
+    const typeTag = toHashtag(auction.propertyType) || '#Activo';
+    const cityTag = toHashtag(auction.city) || '#España';
+    const zoneTag = isValuable(auction.zone) ? ` (${toHashtag(auction.zone)})` : '';
+
     // Construcción del mensaje (DIETA: Corto, preciso, 1 CTA)
     let message = `${hashtags}\n\n`;
-    message += `${emoji} <b>${propertyType} en ${location}</b>\n`;
+    message += `${emoji} <b>${typeTag} en ${cityTag}${zoneTag}</b>\n`;
+    message += `📍 ${auction.address}\n\n`;
+
     if (discountVal > 0) {
-      message += `🔥 <b>${discountVal}% descuento</b>\n\n`;
-    } else {
-      message += `\n`;
+      message += `🔥 <b>${discountVal}% descuento teórico</b>\n\n`;
     }
     
     if (appraisal) message += `💰 Tasación: ${appraisal}\n`;
@@ -217,10 +239,9 @@ async function runNotifier() {
     
     message += `⚠️ <b>Hay un detalle clave en el expediente que cambia el escenario.</b>\n\n`;
     
-    message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver oportunidad</a>\n\n`;
+    message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver análisis completo</a>\n\n`;
     
-    message += `🔒 <b>En premium: análisis completo + estrategia</b>\n`;
-    message += `👉 <a href="https://sublaunch.com/activosoffmarket">Acceso premium</a>`;
+    message += `🔒 <a href="https://sublaunch.com/activosoffmarket">Análisis completo + estrategia en Premium</a>`;
 
     // Enviar mensaje
     const success = await sendTelegramMessage(message);

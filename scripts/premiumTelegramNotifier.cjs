@@ -47,6 +47,7 @@ const TEST_SCENARIOS = [
       slug: 'test-chollo-retiro',
       propertyType: 'Piso',
       city: 'Madrid',
+      province: 'Madrid',
       zone: 'Retiro',
       address: 'Calle de Alfonso XII, 20',
       appraisalValue: 850000,
@@ -64,6 +65,7 @@ const TEST_SCENARIOS = [
       slug: 'test-urgencia-pozuelo',
       propertyType: 'Chalet',
       city: 'Pozuelo de Alarcón',
+      province: 'Madrid',
       zone: 'Somosaguas',
       address: 'Avenida de Europa, 10',
       appraisalValue: 1200000,
@@ -81,6 +83,7 @@ const TEST_SCENARIOS = [
       slug: 'test-escasa-soria',
       propertyType: 'Nave',
       city: 'Soria',
+      province: 'Soria',
       zone: 'Polígono Industrial',
       address: 'Calle C, Parcela 42',
       appraisalValue: 300000,
@@ -110,10 +113,33 @@ function getRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+function isValuable(val) {
+  if (!val) return false;
+  const forbidden = ['null', 'undefined', 'vacio', 'sin datos', 'desconocida', '—', '-', 'none'];
+  const normalized = val.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  return !forbidden.includes(normalized);
+}
+
 function toHashtag(str) {
-  if (!str) return '';
-  const clean = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "");
+  if (!isValuable(str)) return null;
+  // Elimina acentos, espacios y caracteres especiales, capitaliza la primera letra
+  const clean = str.normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "");
+  if (!clean) return null;
   return '#' + clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
+function generateHashtags(auction) {
+  const tags = [
+    toHashtag(auction.propertyType),
+    toHashtag(auction.city),
+    toHashtag(auction.province),
+    toHashtag(auction.zone)
+  ].filter(Boolean);
+  
+  // Eliminar duplicados manteniendo el orden
+  return [...new Set(tags)].join(' ');
 }
 
 async function sendTelegramMessage(text, chatId = null) {
@@ -145,7 +171,7 @@ async function sendTelegramMessage(text, chatId = null) {
 }
 
 function formatPremiumMessage(auction) {
-  const hashtags = `${toHashtag(auction.propertyType)} ${toHashtag(auction.city)} ${auction.zone && auction.zone !== 'Desconocida' ? toHashtag(auction.zone) : ''}`;
+  const hashtags = generateHashtags(auction);
   const debtRatio = auction.appraisalValue > 0 ? ((auction.claimedDebt / auction.appraisalValue) * 100).toFixed(1) : "N/A";
   
   let discountVal = auction.discount;
@@ -160,7 +186,7 @@ function formatPremiumMessage(auction) {
     const now = new Date();
     const diffTime = closing - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays > 0 && diffDays < 7) {
+    if (diffDays > 0) {
       daysLeft = diffDays;
     }
   }
@@ -171,30 +197,44 @@ function formatPremiumMessage(auction) {
     pricePerSqm = Math.round(auction.appraisalValue / sqm);
   }
 
-  const propertyType = auction.propertyType ? auction.propertyType.charAt(0).toUpperCase() + auction.propertyType.slice(1) : 'Activo';
-  const location = auction.zone && auction.zone !== 'Desconocida' 
-    ? `${auction.city} (${auction.zone})` 
-    : `${auction.city}`;
+  const typeTag = toHashtag(auction.propertyType) || '#Activo';
+  const cityTag = toHashtag(auction.city) || '#España';
+  const zoneTag = auction.zone && auction.zone !== 'Desconocida' && auction.zone !== 'Sin datos' ? ` (${toHashtag(auction.zone)})` : '';
 
-  const discountText = isHighDiscount ? `🔥 <b>${discountVal}% descuento</b>` : '';
+  const discountText = discountVal ? `🔥 <b>${discountVal}% descuento teórico</b>` : '';
   
   let message = `${hashtags}\n\n`;
+  
+  message += `🏠 <b>${typeTag} en ${cityTag}${zoneTag}</b>\n`;
+  message += `📍 ${auction.address}\n\n`;
+
   message += `🔒 <b>Análisis Premium</b>\n`;
   if (discountText) message += `${discountText}\n`;
-  message += `\n🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}\n\n`;
+  message += `📉 ratio deuda/tasación: ${debtRatio}%\n\n`;
+
+  if (daysLeft) {
+    message += `⏳ <b>Plazos</b>\n`;
+    message += `• Cierre: en ${daysLeft} días\n\n`;
+  }
   
   message += `📊 <b>Lectura rápida</b>\n`;
-  message += `• Deuda: ${formatCurrency(auction.claimedDebt)}\n`;
-  message += `• Tasación: ${formatCurrency(auction.appraisalValue)}\n`;
-  if (pricePerSqm) message += `• Ref. m²: ${pricePerSqm} €/m²\n`;
-  message += `• Ratio: ${debtRatio}%\n`;
-  if (daysLeft) message += `• Cierre: en ${daysLeft} días\n`;
+  message += `• deuda: ${formatCurrency(auction.claimedDebt)}\n`;
+  message += `• tasación: ${formatCurrency(auction.appraisalValue)}\n`;
+  if (pricePerSqm) message += `• ref m²: ${pricePerSqm} €/m²\n`;
+  message += `• ratio: ${debtRatio}%\n`;
   
-  message += `\n🔎 <b>Claves</b>\n`;
-  message += `• ${auction.procedureType}\n`;
-  message += `• ${auction.occupancy || "Revisar situación posesoria"}\n\n`;
+  const hasProcedure = isValuable(auction.procedureType);
+  const hasOccupancy = isValuable(auction.occupancy);
+  const hasCharges = isValuable(auction.charges);
 
-  message += `🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>\n\n`;
+  if (hasProcedure || hasOccupancy || hasCharges) {
+    message += `\n🔎 <b>Claves</b>\n`;
+    if (hasProcedure) message += `• ${auction.procedureType}\n`;
+    if (hasOccupancy) message += `• ${auction.occupancy}\n`;
+    if (hasCharges) message += `• ${auction.charges}\n`;
+  }
+
+  message += `\n🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>\n`;
   message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver ficha completa</a>\n\n`;
   
   // Consultoría solo si es oportunidad fuerte (score alto basado en descuento)
@@ -206,35 +246,31 @@ function formatPremiumMessage(auction) {
 }
 
 function formatFreeMessage(auction) {
-  const propertyType = auction.propertyType ? auction.propertyType.charAt(0).toUpperCase() + auction.propertyType.slice(1) : 'Activo';
-  const location = auction.zone && auction.zone !== 'Desconocida' 
-    ? `${auction.city} (${auction.zone})` 
-    : `${auction.city}`;
-  const hashtags = `${toHashtag(auction.propertyType)} ${toHashtag(auction.city)}`;
+  const typeTag = toHashtag(auction.propertyType) || '#Activo';
+  const cityTag = toHashtag(auction.city) || '#España';
+  const zoneTag = auction.zone && auction.zone !== 'Desconocida' && auction.zone !== 'Sin datos' ? ` (${toHashtag(auction.zone)})` : '';
+  const hashtags = generateHashtags(auction);
   
   let discountVal = auction.discount;
   if (!discountVal && auction.appraisalValue && auction.claimedDebt) {
      discountVal = Math.round(((auction.appraisalValue - auction.claimedDebt) / auction.appraisalValue) * 100);
   }
-  const isHighDiscount = discountVal && discountVal > 40;
 
   let message = `${hashtags}\n\n`;
-  message += `🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}\n\n`;
-  message += `${getRandom(HOOKS)}\n\n`;
+  message += `🏠 <b>${typeTag} en ${cityTag}${zoneTag}</b>\n`;
+  message += `📍 ${auction.address}\n\n`;
   
-  if (isHighDiscount) {
-    message += `🔥 <b>Oportunidad con descuento del ${discountVal}%</b>\n\n`;
+  if (discountVal) {
+    message += `🔥 <b>${discountVal}% descuento teórico</b>\n\n`;
   }
   
-  message += `📊 <b>Datos rápidos</b>\n\n`;
-  message += `• Tasación: ${formatCurrency(auction.appraisalValue)}\n`;
-  message += `• Deuda: ${formatCurrency(auction.claimedDebt)}\n\n`;
+  message += `💰 Tasación: ${formatCurrency(auction.appraisalValue)}\n`;
+  message += `🏦 Deuda: ${formatCurrency(auction.claimedDebt)}\n\n`;
   
-  message += `⚠️ <b>Hay un detalle clave en el expediente que cambia el escenario</b>\n\n`;
-  message += `👉 <a href="https://www.activosoffmarket.es/subasta/${auction.slug}">Analizar expediente completo aquí</a>\n\n`;
+  message += `⚠️ <b>Hay un detalle clave en el expediente que cambia el escenario.</b>\n\n`;
+  message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver análisis completo</a>\n\n`;
   
-  message += `🔒 <b>En premium: análisis completo + riesgos reales + estrategia</b>\n`;
-  message += `👉 <a href="https://sublaunch.com/activosoffmarket">Acceso premium</a>\n\n`;
+  message += `🔒 <a href="https://sublaunch.com/activosoffmarket">Análisis completo + estrategia en Premium</a>\n\n`;
   
   return message;
 }
