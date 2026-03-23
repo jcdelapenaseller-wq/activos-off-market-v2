@@ -28,6 +28,7 @@ const HOOKS = [
 
 const EMOJI_MAP = {
   'piso': '🏠',
+  'vivienda': '🏠',
   'casa': '🏡',
   'chalet': '🏡',
   'local': '🏬',
@@ -215,19 +216,8 @@ async function runNotifier() {
     const debt = formatCurrency(auction.claimedDebt);
     const discountVal = auction.calculatedScore;
 
-    // Línea de ubicación y tipo
-    const location = isValuable(auction.zone)
-      ? `${auction.city} (${auction.zone})` 
-      : `${auction.city}`;
-    const propertyType = auction.propertyType ? auction.propertyType.charAt(0).toUpperCase() + auction.propertyType.slice(1) : 'Activo';
-
-    const typeTag = toHashtag(auction.propertyType) || '#Activo';
-    const cityTag = toHashtag(auction.city) || '#España';
-    const zoneTag = isValuable(auction.zone) ? ` (${toHashtag(auction.zone)})` : '';
-
     // Construcción del mensaje (DIETA: Corto, preciso, 1 CTA)
-    let message = `${hashtags}\n\n`;
-    message += `${emoji} <b>${typeTag} en ${cityTag}${zoneTag}</b>\n`;
+    let message = `${emoji} <b>${hashtags}</b>\n`;
     message += `📍 ${auction.address}\n\n`;
 
     if (discountVal > 0) {
@@ -239,7 +229,7 @@ async function runNotifier() {
     
     message += `⚠️ <b>Hay un detalle clave en el expediente que cambia el escenario.</b>\n\n`;
     
-    message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver análisis completo</a>\n\n`;
+    message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver oportunidad</a>\n\n`;
     
     message += `🔒 <a href="https://sublaunch.com/activosoffmarket">Análisis completo + estrategia en Premium</a>`;
 

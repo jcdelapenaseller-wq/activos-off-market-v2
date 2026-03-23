@@ -19,6 +19,13 @@ const CONFIG = {
 const TOP_CITIES = ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Málaga', 'Bilbao'];
 const ALLOWED_TYPES = ['piso', 'vivienda', 'casa', 'chalet'];
 
+const EMOJI_MAP = {
+  'piso': '🏠',
+  'casa': '🏡',
+  'chalet': '🏡',
+  'vivienda': '🏠'
+};
+
 const HOOKS = [
   "Ojo con esta. Acaba de entrar.",
   "Expediente interesante para revisar con calma.",
@@ -197,15 +204,12 @@ function formatPremiumMessage(auction) {
     pricePerSqm = Math.round(auction.appraisalValue / sqm);
   }
 
-  const typeTag = toHashtag(auction.propertyType) || '#Activo';
-  const cityTag = toHashtag(auction.city) || '#España';
-  const zoneTag = auction.zone && auction.zone !== 'Desconocida' && auction.zone !== 'Sin datos' ? ` (${toHashtag(auction.zone)})` : '';
+  const typeLower = (auction.propertyType || '').toLowerCase();
+  const emoji = EMOJI_MAP[typeLower] || '🏠';
 
   const discountText = discountVal ? `🔥 <b>${discountVal}% descuento teórico</b>` : '';
   
-  let message = `${hashtags}\n\n`;
-  
-  message += `🏠 <b>${typeTag} en ${cityTag}${zoneTag}</b>\n`;
+  let message = `${emoji} <b>${hashtags}</b>\n`;
   message += `📍 ${auction.address}\n\n`;
 
   message += `🔒 <b>Análisis Premium</b>\n`;
@@ -246,9 +250,8 @@ function formatPremiumMessage(auction) {
 }
 
 function formatFreeMessage(auction) {
-  const typeTag = toHashtag(auction.propertyType) || '#Activo';
-  const cityTag = toHashtag(auction.city) || '#España';
-  const zoneTag = auction.zone && auction.zone !== 'Desconocida' && auction.zone !== 'Sin datos' ? ` (${toHashtag(auction.zone)})` : '';
+  const typeLower = (auction.propertyType || '').toLowerCase();
+  const emoji = EMOJI_MAP[typeLower] || '🏠';
   const hashtags = generateHashtags(auction);
   
   let discountVal = auction.discount;
@@ -256,8 +259,7 @@ function formatFreeMessage(auction) {
      discountVal = Math.round(((auction.appraisalValue - auction.claimedDebt) / auction.appraisalValue) * 100);
   }
 
-  let message = `${hashtags}\n\n`;
-  message += `🏠 <b>${typeTag} en ${cityTag}${zoneTag}</b>\n`;
+  let message = `${emoji} <b>${hashtags}</b>\n`;
   message += `📍 ${auction.address}\n\n`;
   
   if (discountVal) {
@@ -268,7 +270,7 @@ function formatFreeMessage(auction) {
   message += `🏦 Deuda: ${formatCurrency(auction.claimedDebt)}\n\n`;
   
   message += `⚠️ <b>Hay un detalle clave en el expediente que cambia el escenario.</b>\n\n`;
-  message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver análisis completo</a>\n\n`;
+  message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver oportunidad</a>\n\n`;
   
   message += `🔒 <a href="https://sublaunch.com/activosoffmarket">Análisis completo + estrategia en Premium</a>\n\n`;
   
