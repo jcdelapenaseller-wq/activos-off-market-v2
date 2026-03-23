@@ -13,12 +13,14 @@ const CONFIG = {
   SENT_FILE: path.join(__dirname, 'sent_slugs_premium.txt'),
   BOT_TOKEN: process.env.BOT_TOKEN,
   PREMIUM_CHAT_ID: process.env.PREMIUM_CHAT_ID,
-  BASE_URL: 'https://www.activosoffmarket.es/ejemplo-subasta'
+  BASE_URL: 'https://www.activosoffmarket.es/subasta'
 };
+
+const TOP_CITIES = ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Málaga', 'Bilbao'];
+const ALLOWED_TYPES = ['piso', 'vivienda', 'casa', 'chalet'];
 
 const HOOKS = [
   "Ojo con esta. Acaba de entrar.",
-  "Esto no se ve todos los días.",
   "Expediente interesante para revisar con calma.",
   "Acaba de saltar. Pinta bien.",
   "Atentos a los números de este activo."
@@ -93,7 +95,6 @@ const TEST_SCENARIOS = [
 ];
 
 const FOMO_LINES = [
-  "No es para improvisar.",
   "Aquí se gana en el detalle.",
   "Revisad bien antes de consignar.",
   "La diferencia está en lo que no sale en el edicto.",
@@ -175,51 +176,31 @@ function formatPremiumMessage(auction) {
     ? `${auction.city} (${auction.zone})` 
     : `${auction.city}`;
 
-  let message = `🔒 <b>Análisis Premium</b>\n\n`;
-  const typeAndLocation = `🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}`;
-  const discountText = isHighDiscount ? (Math.random() > 0.5 ? `🔥 <b>¡OPORTUNIDAD: ${discountVal}% por debajo de tasación!</b>` : `🔥 <b>Descuento del ${discountVal}% detectado</b>`) : '';
-  const urgencyText = daysLeft ? `⏳ <b>¡Cierra en solo ${daysLeft} días!</b>` : '';
-  const hook = getRandom(HOOKS);
-  const introType = Math.floor(Math.random() * 3);
-
-  if (introType === 0 && isHighDiscount) {
-    message += `${discountText}\n\n${typeAndLocation}\n\n${hook}\n\n`;
-  } else if (introType === 1) {
-    message += `${hook}\n\n${typeAndLocation}\n\n`;
-    if (discountText) message += `${discountText}\n\n`;
-  } else if (introType === 2 && daysLeft) {
-    message += `${urgencyText}\n\n${typeAndLocation}\n\n${hook}\n\n`;
-    if (discountText) message += `${discountText}\n\n`;
-  } else {
-    if (discountText) message += `${discountText}\n\n`;
-    message += `${typeAndLocation}\n\n${hook}\n\n`;
-  }
-
-  if (daysLeft && introType !== 2) {
-    message += `⏳ <b>Quedan ${daysLeft} días</b>\n`;
-  }
+  const discountText = isHighDiscount ? `🔥 <b>${discountVal}% descuento</b>` : '';
   
-  message += `\n🔎 <b>Claves del expediente</b>\n\n`;
-  message += `• Procedimiento: ${auction.procedureType}\n`;
-  message += `• Situación posesoria: ${auction.occupancy || "La clave aquí suele estar en la situación posesoria y el orden de cargas"}\n`;
-  message += `• Posibles cargas a revisar: El margen real dependerá del orden de cargas en la certificación registral, conviene revisarla bien antes de plantear puja.\n\n`;
-  message += `📊 <b>Lectura rápida</b>\n\n`;
-  message += `• deuda reclamada: ${formatCurrency(auction.claimedDebt)}\n`;
-  message += `• valor de subasta: ${formatCurrency(auction.appraisalValue)}\n`;
-  if (pricePerSqm) message += `• ref. tasación m²: ${pricePerSqm} €/m²\n`;
-  message += `• ratio deuda / subasta: ${debtRatio}%\n`;
-  message += `• descuento teórico: ${auction.discount ? auction.discount + '%' : 'A determinar'}\n\n`;
-  message += `${getRandom(INTERPRETATIONS)}\n\n`;
-  message += `💰 <b>Escenario orientativo</b>\n\n`;
-  message += `• rango posible de adjudicación: Estimación inicial basada en tipología\n`;
-  message += `• valor estimado de mercado en la zona: Si el activo acompaña en estado, el mercado suele absorber bien este producto\n`;
-  message += `• margen potencial aproximado: Margen a confirmar tras revisar cargas registrales\n\n`;
-  message += `${getRandom(TRANSITIONS)}\n\n`;
+  let message = `${hashtags}\n\n`;
+  message += `🔒 <b>Análisis Premium</b>\n`;
+  if (discountText) message += `${discountText}\n`;
+  message += `\n🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}\n\n`;
+  
+  message += `📊 <b>Lectura rápida</b>\n`;
+  message += `• Deuda: ${formatCurrency(auction.claimedDebt)}\n`;
+  message += `• Tasación: ${formatCurrency(auction.appraisalValue)}\n`;
+  if (pricePerSqm) message += `• Ref. m²: ${pricePerSqm} €/m²\n`;
+  message += `• Ratio: ${debtRatio}%\n`;
+  if (daysLeft) message += `• Cierre: en ${daysLeft} días\n`;
+  
+  message += `\n🔎 <b>Claves</b>\n`;
+  message += `• ${auction.procedureType}\n`;
+  message += `• ${auction.occupancy || "Revisar situación posesoria"}\n\n`;
+
   message += `🧮 <a href="https://www.activosoffmarket.es/calculadora-subastas">Simular inversión</a>\n\n`;
-  message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver fotos, cargas registrales y rentabilidad estimada</a>\n\n`;
-  message += `${getRandom(FOMO_LINES)}\n\n`;
-  message += `👉 <a href="https://calendly.com/activosoffmarket">Reservar consultoría</a>\n\n`;
-  message += `${hashtags}`;
+  message += `👉 <a href="${CONFIG.BASE_URL}/${auction.slug}">Ver ficha completa</a>\n\n`;
+  
+  // Consultoría solo si es oportunidad fuerte (score alto basado en descuento)
+  if (isHighDiscount) {
+    message += `📞 <a href="https://calendly.com/activosoffmarket">Reservar consultoría</a>\n\n`;
+  }
   
   return message;
 }
@@ -237,7 +218,8 @@ function formatFreeMessage(auction) {
   }
   const isHighDiscount = discountVal && discountVal > 40;
 
-  let message = `🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}\n\n`;
+  let message = `${hashtags}\n\n`;
+  message += `🏠 <b>${propertyType} en ${location}</b>\n📍 ${auction.address}\n\n`;
   message += `${getRandom(HOOKS)}\n\n`;
   
   if (isHighDiscount) {
@@ -253,8 +235,6 @@ function formatFreeMessage(auction) {
   
   message += `🔒 <b>En premium: análisis completo + riesgos reales + estrategia</b>\n`;
   message += `👉 <a href="https://sublaunch.com/activosoffmarket">Acceso premium</a>\n\n`;
-  
-  message += `${hashtags}`;
   
   return message;
 }
@@ -316,7 +296,22 @@ async function runNotifier() {
     }
   }
 
-  console.log(`📢 Procesando ${pending.length} subastas pendientes...`);
+  // Filtrar por tipos permitidos
+  pending = pending.filter(a => ALLOWED_TYPES.includes((a.propertyType || '').toLowerCase()));
+
+  // Priorizar ciudades TOP
+  pending.sort((a, b) => {
+    const aIsTop = TOP_CITIES.includes(a.city);
+    const bIsTop = TOP_CITIES.includes(b.city);
+    if (aIsTop && !bIsTop) return -1;
+    if (!aIsTop && bIsTop) return 1;
+    return 0;
+  });
+
+  // Limitar a 3 alertas por ejecución
+  const toProcess = pending.slice(0, 3);
+
+  console.log(`📢 Procesando ${toProcess.length} subastas (filtradas y priorizadas)...`);
 
   let sentSlugs = [];
   if (fs.existsSync(CONFIG.SENT_FILE)) {
@@ -325,8 +320,8 @@ async function runNotifier() {
 
   const processedSlugs = [];
 
-  for (let i = 0; i < pending.length; i++) {
-    const auction = pending[i];
+  for (let i = 0; i < toProcess.length; i++) {
+    const auction = toProcess[i];
     
     if (sentSlugs.includes(auction.slug)) {
       console.log(`⏭️ Saltando duplicado: ${auction.slug}`);
@@ -348,9 +343,10 @@ async function runNotifier() {
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
 
+  // Eliminar las procesadas de la lista original de pendientes
   const remaining = pending.filter(a => !processedSlugs.includes(a.slug));
   fs.writeFileSync(CONFIG.PENDING_FILE, JSON.stringify(remaining, null, 2));
-  console.log(`🏁 Proceso finalizado. ${remaining.length} subastas restantes.`);
+  console.log(`🏁 Proceso finalizado. ${remaining.length} subastas restantes en cola.`);
 }
 
 runNotifier();
