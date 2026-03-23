@@ -45,8 +45,7 @@ const AlertSuccessPage: React.FC = () => {
               </h1>
               
               <p className="text-slate-600 text-lg mb-10 leading-relaxed px-4">
-                Te avisamos cuando detectemos una subasta que encaje con tu búsqueda. <br className="hidden md:block" />
-                <span className="font-bold text-slate-900">Sin ruido. Solo oportunidades relevantes.</span>
+                Te avisamos cuando detectemos una subasta que encaje con tu búsqueda.
               </p>
 
               {/* Radar Premium Conversion Block */}
@@ -60,7 +59,7 @@ const AlertSuccessPage: React.FC = () => {
                     <span className="text-[10px] font-bold tracking-widest uppercase text-brand-400">Radar Premium</span>
                   </div>
                   
-                  <h3 className="text-4xl font-black mb-6 tracking-tight">7 Días Gratis</h3>
+                  <h3 className="text-3xl font-black mb-6 tracking-tight">Recibe solo oportunidades relevantes</h3>
                   
                   <a 
                     href={STRIPE_PAYMENT_LINK}
