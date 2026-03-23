@@ -62,7 +62,7 @@ export const AUCTIONS: Record<string, AuctionData> = {
     auctionDate: "2026-03-23",
     status: "active",
     isActive: true,
-    isNew: false
+    isNew: true
   },
   'subasta-sub-ja-2026-257184': {
     propertyType: "Piso",
