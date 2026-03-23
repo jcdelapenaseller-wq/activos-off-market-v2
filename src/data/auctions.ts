@@ -37,6 +37,8 @@ export interface AuctionData {
   auctionResultStatus?: 'adjudicated' | 'deserted' | 'suspended';
   resultCheckedAt?: string;
   opportunityScore?: number;
+  opportunityRatio?: number;
+  currentBid?: number;
 }
 
 export const AUCTIONS: Record<string, AuctionData> = {
@@ -58,13 +60,14 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2026-259025",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-259025&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-20",
-    lastCheckedAt: "2026-03-23T18:52:07.831Z",
+    lastCheckedAt: "2026-03-23T21:59:53.637Z",
     startDate: "2026-03-20",
     auctionDate: "2026-04-09",
     status: "active",
     isActive: true,
     isNew: false,
-    opportunityScore: 100
+    opportunityScore: 100,
+    opportunityRatio: 0.54,
   },
   'subasta-sub-ja-2024-226924': {
     propertyType: "Piso",
@@ -84,13 +87,14 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2024-226924",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2024-226924&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-20",
-    lastCheckedAt: "2026-03-23T18:52:07.829Z",
+    lastCheckedAt: "2026-03-23T21:59:53.632Z",
     startDate: "2026-03-20",
     auctionDate: "2026-04-09",
     status: "active",
     isActive: true,
     isNew: false,
-    opportunityScore: 100
+    opportunityScore: 100,
+    opportunityRatio: 0.59,
   },
   'subasta-sub-ja-2026-258001': {
     propertyType: "Piso",
@@ -712,11 +716,13 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2026-257960",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-257960&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-05",
-    lastCheckedAt: "2026-03-23T18:52:07.842Z",
+    lastCheckedAt: "2026-03-23T21:59:53.673Z",
     startDate: "2026-03-05",
     auctionDate: "2026-03-25",
     status: "active",
     isActive: true,
+    opportunityScore: 70,
+    opportunityRatio: 0.21,
     isNew: false
   },
   'subasta-sub-at-2026-25r2886001859': {
@@ -737,11 +743,13 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-AT-2026-25R2886001859",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-25R2886001859&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-10",
-    lastCheckedAt: "2026-03-23T18:52:07.836Z",
+    lastCheckedAt: "2026-03-23T21:59:53.644Z",
     startDate: "2026-03-10",
     auctionDate: "2026-03-30",
     status: "active",
     isActive: true,
+    opportunityScore: 50,
+    opportunityRatio: 0,
     isNew: false
   },
   'subasta-sub-at-2026-25r2886001856': {
@@ -762,11 +770,13 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-AT-2026-25R2886001856",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-25R2886001856&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-10",
-    lastCheckedAt: "2026-03-23T18:52:07.840Z",
+    lastCheckedAt: "2026-03-23T21:59:53.670Z",
     startDate: "2026-03-10",
     auctionDate: "2026-03-30",
     status: "active",
     isActive: true,
+    opportunityScore: 60,
+    opportunityRatio: 0,
     isNew: false
   },
   'subasta-sub-at-2026-25r2886001854': {
@@ -787,11 +797,13 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-AT-2026-25R2886001854",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-AT-2026-25R2886001854&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-10",
-    lastCheckedAt: "2026-03-23T18:52:07.835Z",
+    lastCheckedAt: "2026-03-23T21:59:53.643Z",
     startDate: "2026-03-10",
     auctionDate: "2026-03-30",
     status: "active",
     isActive: true,
+    opportunityScore: 50,
+    opportunityRatio: 0,
     isNew: false
   },
   'subasta-sub-ja-2025-256239': {
@@ -812,11 +824,13 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2025-256239",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2025-256239&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-12",
-    lastCheckedAt: "2026-03-23T18:52:07.834Z",
+    lastCheckedAt: "2026-03-23T21:59:53.641Z",
     startDate: "2026-03-12",
     auctionDate: "2026-04-01",
     status: "active",
     isActive: true,
+    opportunityScore: 80,
+    opportunityRatio: 0.59,
     isNew: false
   },
   'subasta-sub-ja-2026-258904': {
@@ -837,11 +851,13 @@ export const AUCTIONS: Record<string, AuctionData> = {
     boeId: "SUB-JA-2026-258904",
     boeUrl: "https://subastas.boe.es/detalleSubasta.php?idSub=SUB-JA-2026-258904&idBus=NW5oQ0dSSTlWYUJKVDJzSHZKbFlKZWJ5RjVkRmhuV2tLaWZlM1ZXRFdINVp1eFlIUCtIZ3hzQWRESWxqampWb0JSTWViK3o5OExmMmZEbXNEVElYYVNOWlV1UDRXc0pZQjFrQnRSMEd6eUJRMFQvcVlqZlozdTEvTUtRL0Q5US9uaXlHR1RRNkQvRjMxYnhuQmYwSE1BT2orcVplT3A2RWJZMXV1NEZLb2w3YkVlbzg2Y21qMkNYczlFeTVWZThTK0thYzRiYkR5eXh4WFVTWkFwa0w2QmlCMGI4azZYUjZhUFp0eTIwLzJjWlVXWk8xaEZ2cEN2RThwektyUXNzaEgwa2JuWHRwRXpFM2RSdjU5d29ubzBZNGhFUGsxWGZMTGxCamRYNnBiUU14WmdzR282ZEZvM2FKekZNZmp3Ynozcm93d05udGdDVUd3cnhHeFF5Q2JpcE9QUGZTNVR3RmRnNzRoanpRUDI4PQ,,--50",
     publishedAt: "2026-03-17",
-    lastCheckedAt: "2026-03-23T18:52:07.832Z",
+    lastCheckedAt: "2026-03-23T21:59:53.639Z",
     startDate: "2026-03-17",
     auctionDate: "2026-04-06",
     status: "active",
     isActive: true,
+    opportunityScore: 100,
+    opportunityRatio: 0.54,
     isNew: false
   },
   'subasta-sub-ja-2026-258340': {

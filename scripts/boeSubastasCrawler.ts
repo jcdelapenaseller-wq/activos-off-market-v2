@@ -439,6 +439,7 @@ async function runCrawler() {
 
         if (subastaNum !== null && subastaNum >= 5000 && !esEstadoInvalido && !esTipoExcluido && !esRatioBajo && !esRatioExcesivo && !esValorBajo && !esDeudaCero) {
           let opportunityScore = 0;
+          let opportunityRatio = ratio / 100;
 
           // base por descuento
           if (ratio >= 50) opportunityScore += 40;
@@ -503,6 +504,7 @@ async function runCrawler() {
             superficie: superficieNum,
             cargas: bienesData.cargas,
             opportunityScore,
+            opportunityRatio,
           });
         } else {
           let motivo = "";
@@ -572,7 +574,7 @@ async function runCrawler() {
           const exists = slugPattern.test(auctionsContent);
 
           if (exists) {
-            // ACTUALIZAR SOLO: status, auctionDate, startDate, isActive, lastCheckedAt
+            // ACTUALIZAR: status, auctionDate, startDate, isActive, lastCheckedAt, opportunityScore, opportunityRatio
             console.log(`Actualizando subasta existente: ${slug}`);
             
             // Usar regex para reemplazar campos específicos dentro del bloque de la subasta
@@ -601,6 +603,20 @@ async function runCrawler() {
                 updated = updated.replace(/lastCheckedAt:\s*"[^"]*"/, `lastCheckedAt: "${now}"`);
               } else {
                 updated = updated.replace(/(publishedAt:\s*"[^"]*",?)/, `$1\n    lastCheckedAt: "${now}",`);
+              }
+
+              // Actualizar opportunityScore
+              if (updated.includes('opportunityScore:')) {
+                updated = updated.replace(/opportunityScore:\s*\d+/, `opportunityScore: ${s.opportunityScore || 0}`);
+              } else {
+                updated = updated.replace(/isActive:\s*(true|false),?/, `isActive: $1,\n    opportunityScore: ${s.opportunityScore || 0},`);
+              }
+
+              // Actualizar opportunityRatio
+              if (updated.includes('opportunityRatio:')) {
+                updated = updated.replace(/opportunityRatio:\s*[\d.]+/, `opportunityRatio: ${s.opportunityRatio || 0}`);
+              } else {
+                updated = updated.replace(/opportunityScore:\s*\d+,?/, `opportunityScore: ${s.opportunityScore || 0},\n    opportunityRatio: ${s.opportunityRatio || 0},`);
               }
 
               // Asegurar que isNew sea false para subastas existentes
@@ -645,7 +661,8 @@ async function runCrawler() {
     status: "${mappedStatus}",
     isActive: ${isActive},
     isNew: true,
-    opportunityScore: ${s.opportunityScore || 0}
+    opportunityScore: ${s.opportunityScore || 0},
+    opportunityRatio: ${s.opportunityRatio || 0}
   },`;
 
             const insertionPoint = auctionsContent.indexOf('export const AUCTIONS: Record<string, AuctionData> = {');

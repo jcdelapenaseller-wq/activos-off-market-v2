@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, ChevronRight, Percent, Calculator } from 'lucide-react';
 import { AuctionData } from '../data/auctions';
-import { isAuctionFinished, getComputedStatus } from '../utils/auctionHelpers';
+import { isAuctionFinished, getComputedStatus, isCapital, calculateDiscount, isConflictZone } from '../utils/auctionHelpers';
 import { normalizeLocationLabel, normalizePropertyType, normalizeCity, normalizeProvince } from '../utils/auctionNormalizer';
 import { ROUTES } from '../constants/routes';
 import { trackConversion } from '../utils/tracking';
@@ -26,64 +26,119 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
   
   const pricePerM2 = data.pricePerM2 || (data.surface && valorReferencia ? Math.round(valorReferencia / data.surface) : null);
 
-  const city = normalizeCity(data);
+  const city = normalizeCity(data) || '';
   const province = normalizeProvince(data.province || data.city);
 
-  // Badge Principal (Prioridad estricta)
-  let primaryBadgeLabel = null;
-  let primaryBadgeColor = "";
+  // Badges Logic
   const oppScore = data.opportunityScore || 0;
-  const isNew = showNewBadge !== undefined ? showNewBadge : data.isNew;
+  const oppRatio = data.opportunityRatio || 0;
+  
+  // 1. "Recién publicada": publishedAt < 48h
+  const isRecienPublicada = data.publishedAt ? (new Date().getTime() - new Date(data.publishedAt).getTime()) < (48 * 60 * 60 * 1000) : false;
+  
+  // 2. "Alta oportunidad": opportunityRatio >= 0.35 && isCityCapital
+  const isCapitalCity = isCapital(data);
+  const isAltaOportunidad = oppRatio >= 0.35 && isCapitalCity;
+  
+  const discount = calculateDiscount(data.valorTasacion, data.valorSubasta, data.claimedDebt);
+  
+  // Urgency: closing in less than 3 days
+  const isClosingSoon = data.auctionDate ? (new Date(data.auctionDate).getTime() - new Date().getTime()) < (3 * 24 * 60 * 60 * 1000) && (new Date(data.auctionDate).getTime() - new Date().getTime()) > 0 : false;
 
-  if (oppScore >= 70) {
-    primaryBadgeLabel = "🔥 Alta oportunidad";
-    primaryBadgeColor = "text-emerald-700 bg-emerald-50 border-emerald-200";
-  } else if (isNew) {
-    primaryBadgeLabel = "✨ Nueva";
-    primaryBadgeColor = "text-brand-700 bg-brand-50 border-brand-200";
-  } else if (oppScore >= 50) {
-    primaryBadgeLabel = "⭐ Buena oportunidad";
-    primaryBadgeColor = "text-amber-800 bg-amber-100 border-amber-300";
-  }
+  const isConflict = isConflictZone(data);
+
+  const isTopLocation = isCapitalCity;
+
+  // Ranking Label (Example: Top 10% en Madrid)
+  const rankingLabel = oppScore >= 90 ? `Top ${100 - oppScore + 5}% en ${province}` : null;
+
+  const getDiscountColor = (d: number) => {
+    if (d >= 70) return "text-rose-700 bg-rose-50 border-rose-200";
+    if (d >= 50) return "text-amber-700 bg-amber-50 border-amber-200";
+    if (d >= 30) return "text-blue-700 bg-blue-50 border-blue-200";
+    return "text-slate-700 bg-slate-50 border-slate-200";
+  };
 
   const locationLabel = normalizeLocationLabel(data);
 
   return (
     <div className={`bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}>
-      <div className="p-5 flex-grow flex flex-col">
-        {/* Top Badges Row: Commercial (Left) vs Status (Right) */}
-        <div className="flex justify-between items-start mb-4 gap-2">
-          {/* Left: Commercial Badges */}
-          <div className="flex flex-col gap-2">
-            {primaryBadgeLabel && (
-              <span className={`inline-flex items-center text-[10px] font-bold px-2.5 py-1.5 rounded-md uppercase tracking-wider border ${primaryBadgeColor} w-fit`}>
-                {primaryBadgeLabel}
-              </span>
-            )}
-          </div>
+      {/* Absolute Badges Container */}
+      <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-start gap-2">
+        {/* Left: Commercial Badges */}
+        <div className="flex flex-col items-start gap-1.5">
+          {isAltaOportunidad && (
+            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-emerald-700 bg-emerald-50 border-emerald-200 shadow-sm">
+              🔥 Alta oportunidad
+            </span>
+          )}
+          
+          {isRecienPublicada && (
+            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-brand-700 bg-brand-50 border-brand-200 shadow-sm">
+              ✨ Recién publicada
+            </span>
+          )}
 
-          {/* Right: Status */}
-          <div className="flex flex-col items-end gap-2">
+          {discount !== null && discount > 0 ? (
+            <span className={`inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border shadow-sm ${getDiscountColor(discount)}`}>
+              -{discount}% DTO
+            </span>
+          ) : (
+            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-slate-500 bg-slate-50 border-slate-200 shadow-sm">
+              🔍 Análisis requerido
+            </span>
+          )}
+
+          {rankingLabel && (
+            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-indigo-700 bg-indigo-50 border-indigo-200 shadow-sm">
+              🏆 {rankingLabel}
+            </span>
+          )}
+
+          {isConflict && (
+            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-rose-700 bg-rose-50 border-rose-200 shadow-sm">
+              ⚠️ Revisar zona
+            </span>
+          )}
+        </div>
+
+        {/* Right: Status + FOMO */}
+        <div className="flex flex-col items-end gap-1.5">
+          {isTopLocation && (
+            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-violet-700 bg-violet-50 border-violet-200 shadow-sm">
+              📍 Ubicación Top
+            </span>
+          )}
+
+          {isClosingSoon && !isFinished && (
+            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-rose-700 bg-rose-50 border-rose-200 shadow-sm animate-pulse">
+              ⏳ Termina pronto
+            </span>
+          )}
+
+          <div className="flex flex-col items-end">
             {isFinished ? (
-              <span className="bg-slate-200 text-slate-600 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-slate-300">
+              <span className="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-slate-300 shadow-sm">
                 Finalizada
               </span>
             ) : isSuspended ? (
-              <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-amber-200">
+              <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-amber-200 shadow-sm">
                 Pausada
               </span>
             ) : isUpcoming ? (
-              <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-blue-200">
+              <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-blue-200 shadow-sm">
                 Próxima apertura
               </span>
             ) : (
-              <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest border border-emerald-200">
+              <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-200 shadow-sm">
                 En curso
               </span>
             )}
           </div>
         </div>
+      </div>
 
+      <div className="p-5 flex-grow flex flex-col pt-24">
         <Link to={`/subasta/${id}`} className="block mb-4">
           <h2 className="text-lg font-bold text-slate-900 leading-tight hover:text-brand-600 transition-colors line-clamp-2">
             {normalizePropertyType(data.propertyType)} en {data.address?.split(',')[0] || normalizeLocationLabel(data).split(',')[0]}
