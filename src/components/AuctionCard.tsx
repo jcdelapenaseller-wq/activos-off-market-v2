@@ -30,27 +30,37 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
   const province = normalizeProvince(data.province || data.city);
 
   // Badges Logic
-  const oppScore = data.opportunityScore || 0;
   const oppRatio = data.opportunityRatio || 0;
   
   // 1. "Recién publicada": publishedAt < 48h
   const isRecienPublicada = data.publishedAt ? (new Date().getTime() - new Date(data.publishedAt).getTime()) < (48 * 60 * 60 * 1000) : false;
   
-  // 2. "Alta oportunidad": opportunityRatio >= 0.35 && isCityCapital
   const isCapitalCity = isCapital(data);
-  const isAltaOportunidad = oppRatio >= 0.35 && isCapitalCity;
-  
   const discount = calculateDiscount(data.valorTasacion, data.valorSubasta, data.claimedDebt);
   
   // Urgency: closing in less than 3 days
   const isClosingSoon = data.auctionDate ? (new Date(data.auctionDate).getTime() - new Date().getTime()) < (3 * 24 * 60 * 60 * 1000) && (new Date(data.auctionDate).getTime() - new Date().getTime()) > 0 : false;
 
   const isConflict = isConflictZone(data);
-
   const isTopLocation = isCapitalCity;
 
-  // Ranking Label (Example: Top 10% en Madrid)
-  const rankingLabel = oppScore >= 90 ? `Top ${100 - oppScore + 5}% en ${province}` : null;
+  // New Dynamic Opportunity Badge
+  const getOpportunityBadge = () => {
+    if (oppRatio >= 0.50) return { label: "🔥 Top Oportunidad", color: "text-emerald-700 bg-emerald-50 border-emerald-200" };
+    if (oppRatio >= 0.21) return { label: "⭐ Buena oportunidad", color: "text-amber-700 bg-amber-50 border-amber-200" };
+    if (oppRatio >= 0.20) return { label: "🧐 Interesante", color: "text-blue-700 bg-blue-50 border-blue-200" };
+    return null;
+  };
+  const oppBadge = getOpportunityBadge();
+
+  // Secondary Badge (Left) - Priority: Conflict > Analysis > New
+  const getSecondaryBadge = () => {
+    if (isConflict) return { label: "⚠️ Revisar zona", color: "text-rose-700 bg-rose-50 border-rose-200" };
+    if (discount === null) return { label: "🔍 Análisis requerido", color: "text-slate-500 bg-slate-50 border-slate-200" };
+    if (isRecienPublicada) return { label: "✨ Recién publicada", color: "text-brand-700 bg-brand-50 border-brand-200" };
+    return null;
+  };
+  const secondaryBadge = getSecondaryBadge();
 
   const getDiscountColor = (d: number) => {
     if (d >= 70) return "text-rose-700 bg-rose-50 border-rose-200";
@@ -65,56 +75,32 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
     <div className={`bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}>
       {/* Absolute Badges Container */}
       <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-start gap-2">
-        {/* Left: Commercial Badges */}
+        {/* Left: Commercial Badges (Max 2) */}
         <div className="flex flex-col items-start gap-1.5">
-          {isAltaOportunidad && (
-            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-emerald-700 bg-emerald-50 border-emerald-200 shadow-sm">
-              🔥 Alta oportunidad
+          {oppBadge && (
+            <span className={`inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border shadow-sm ${oppBadge.color}`}>
+              {oppBadge.label}
             </span>
           )}
           
-          {isRecienPublicada && (
-            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-brand-700 bg-brand-50 border-brand-200 shadow-sm">
-              ✨ Recién publicada
-            </span>
-          )}
-
-          {discount !== null && discount > 0 ? (
-            <span className={`inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border shadow-sm ${getDiscountColor(discount)}`}>
-              -{discount}% DTO
-            </span>
-          ) : (
-            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-slate-500 bg-slate-50 border-slate-200 shadow-sm">
-              🔍 Análisis requerido
-            </span>
-          )}
-
-          {rankingLabel && (
-            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-indigo-700 bg-indigo-50 border-indigo-200 shadow-sm">
-              🏆 {rankingLabel}
-            </span>
-          )}
-
-          {isConflict && (
-            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-rose-700 bg-rose-50 border-rose-200 shadow-sm">
-              ⚠️ Revisar zona
+          {secondaryBadge && (
+            <span className={`inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border shadow-sm ${secondaryBadge.color}`}>
+              {secondaryBadge.label}
             </span>
           )}
         </div>
 
-        {/* Right: Status + FOMO */}
+        {/* Right: Status + FOMO (Max 2) */}
         <div className="flex flex-col items-end gap-1.5">
-          {isTopLocation && (
-            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-violet-700 bg-violet-50 border-violet-200 shadow-sm">
-              📍 Ubicación Top
-            </span>
-          )}
-
-          {isClosingSoon && !isFinished && (
+          {isClosingSoon && !isFinished ? (
             <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-rose-700 bg-rose-50 border-rose-200 shadow-sm animate-pulse">
               ⏳ Termina pronto
             </span>
-          )}
+          ) : isTopLocation ? (
+            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-violet-700 bg-violet-50 border-violet-200 shadow-sm">
+              📍 Ubicación Top
+            </span>
+          ) : null}
 
           <div className="flex flex-col items-end">
             {isFinished ? (

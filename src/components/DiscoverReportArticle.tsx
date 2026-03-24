@@ -38,7 +38,7 @@ const highlightText = (text: string, cityName?: string) => {
   highlighted = highlighted.replace(/(\d{1,3}(?:\.\d{3})*(?:,\d+)?\s*€)/g, '<strong class="font-bold text-slate-900">$1</strong>');
   
   // Highlight key financial/real estate terms
-  const keyTerms = ['okupa', 'okupas', 'desahucio', 'rentabilidad', 'chollo', 'descuento', 'ROI', 'TIR', 'cash for keys', 'due diligence', 'cargas', 'embargo', 'subasta'];
+  const keyTerms = ['rentabilidad', 'oportunidad', 'seguridad', 'descuento', 'ROI', 'TIR', 'due diligence', 'cargas', 'embargo', 'subasta', 'nota simple', 'datos', 'análisis', 'estrategia', 'mercado', 'inversión'];
   keyTerms.forEach(term => {
     const termRegex = new RegExp(`\\b${term}\\b`, 'gi');
     highlighted = highlighted.replace(termRegex, `<strong class="font-bold text-slate-900">$&</strong>`);
@@ -223,6 +223,24 @@ const DiscoverReportArticle: React.FC = () => {
               </div>
             </div>
 
+            {report.keyPoints && report.keyPoints.length > 0 && (
+              <div className="mb-12 bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
+                <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <span className="text-brand-600">💡</span> Puntos Clave
+                </h3>
+                <ul className="space-y-3 m-0 p-0 list-none">
+                  {report.keyPoints.map((point, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-slate-700 text-lg">
+                      <span className="text-brand-500 mt-1 flex-shrink-0">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                      <span>{highlightText(point)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="prose prose-lg prose-slate max-w-none">
               {report.intro.split('\n').filter(p => p.trim() !== '').map((paragraph, idx) => (
                 <p key={idx} className="text-lg leading-relaxed text-slate-700 mb-8">
@@ -232,15 +250,17 @@ const DiscoverReportArticle: React.FC = () => {
             </div>
 
             {/* CTA Pre-Subastas */}
-            <div className="bg-slate-900 text-white rounded-2xl p-6 md:p-8 mt-12 mb-4 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
-              <div>
-                <h3 className="text-xl font-bold mb-2 text-white mt-0">Analizamos {reportAuctions.length} oportunidades reales</h3>
-                <p className="text-slate-300 text-sm m-0">Seleccionadas por su alto margen de descuento y viabilidad jurídica.</p>
+            {!report.hidePreAuctionCTA && (
+              <div className="bg-slate-900 text-white rounded-2xl p-6 md:p-8 mt-12 mb-4 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
+                <div>
+                  <h3 className="text-xl font-bold mb-2 text-white mt-0">Analizamos {reportAuctions.length} oportunidades reales</h3>
+                  <p className="text-slate-300 text-sm m-0">Seleccionadas por su alto margen de descuento y viabilidad jurídica.</p>
+                </div>
+                <a href="#subasta-1" className="shrink-0 bg-brand-500 hover:bg-brand-400 text-white px-6 py-3 rounded-xl font-bold transition-colors flex items-center gap-2 no-underline">
+                  Ver primera oportunidad <ArrowRight size={18} />
+                </a>
               </div>
-              <a href="#subasta-1" className="shrink-0 bg-brand-500 hover:bg-brand-400 text-white px-6 py-3 rounded-xl font-bold transition-colors flex items-center gap-2 no-underline">
-                Ver primera oportunidad <ArrowRight size={18} />
-              </a>
-            </div>
+            )}
           </header>
 
           <div className="space-y-20 mb-16">
@@ -274,7 +294,7 @@ const DiscoverReportArticle: React.FC = () => {
                   {/* Riesgos Card */}
                   <div className="bg-white border border-slate-200 rounded-xl p-6 md:p-8 my-8 shadow-sm">
                     <h3 className="text-slate-900 font-bold mb-4 flex items-center gap-2 text-xl">
-                      ⚠️ Riesgos a considerar
+                      🔍 Puntos de atención
                     </h3>
                     <div className="space-y-4">
                       {item.detail.risks.split('\n').filter(p => p.trim() !== '').map((p, i) => (

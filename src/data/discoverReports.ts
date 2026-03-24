@@ -10,6 +10,8 @@ export interface DiscoverReport {
   id: string;
   title: string;
   intro: string;
+  keyPoints?: string[];
+  hidePreAuctionCTA?: boolean;
   auctionDetails: DiscoverReportAuctionDetail[];
   conclusion: string;
   publishDate: string;
@@ -17,6 +19,82 @@ export interface DiscoverReport {
 }
 
 export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
+  'mapa-descuento-inmobiliario-provincias-rentables': {
+    id: 'mapa-descuento-inmobiliario-provincias-rentables',
+    title: 'El mapa del descuento inmobiliario: Las 3 provincias donde las subastas del BOE son más rentables',
+    intro: 'El acceso a la vivienda se ha convertido en un desafío para muchos, pero los datos revelan una realidad paralela: el mercado de subastas públicas ofrece oportunidades excepcionales si sabes dónde buscar. Un análisis detallado de las adjudicaciones recientes muestra que ciertas regiones costeras y mediterráneas concentran los mayores márgenes de descuento entre el valor de tasación y el precio final.\n\nExploramos las tres provincias que lideran este ranking de rentabilidad y analizamos ejemplos reales que demuestran el potencial de esta vía de inversión. Si buscas maximizar tu capital, el secreto no está solo en cómo inviertes, sino en dónde pones el foco.',
+    keyPoints: [
+      'Concentración geográfica: El arco mediterráneo (Alicante, Valencia y Málaga) lidera el volumen de subastas con altos márgenes de rentabilidad.',
+      'Descuentos reales: La diferencia entre la deuda reclamada y el valor de tasación en estas zonas supera frecuentemente el 50%.',
+      'Alta demanda de alquiler: Estas provincias ofrecen una doble ventaja: precio de adquisición bajo y un mercado de alquiler dinámico.',
+      'Análisis de datos: La clave del éxito radica en monitorizar estas regiones específicas y actuar con rapidez ante nuevas publicaciones.'
+    ],
+    hidePreAuctionCTA: true,
+    auctionDetails: [
+      {
+        slug: 'subasta-sub-ja-2025-250658',
+        subtitle: 'Alicante: El epicentro de la inversión inteligente',
+        analysis: 'Alicante se consolida como un polo de atracción para inversores. Este inmueble, con una tasación cercana a los 300.000€ y una deuda reclamada de apenas 53.000€, ilustra perfectamente el potencial de la región. La brecha entre el valor real y la carga financiera permite márgenes de maniobra muy amplios, ideales para estrategias de compra, reforma y venta (flipping) o alquiler a largo plazo.',
+        risks: 'Es fundamental verificar el estado posesorio y la existencia de cargas preferentes, como deudas de IBI o comunidad, que son comunes en propiedades de alto valor en la costa.',
+        investorProfile: 'Perfil Estratégico. Ideal para inversores que buscan maximizar el ROI aprovechando la fuerte demanda residencial y turística de la Costa Blanca.'
+      },
+      {
+        slug: 'subasta-sub-ja-2026-258340',
+        subtitle: 'Valencia: Dinamismo metropolitano y alta demanda',
+        analysis: 'La provincia de Valencia, y en particular municipios como Torrent, ofrecen un mercado muy dinámico. Este piso presenta una tasación de 228.000€ frente a una deuda de 102.000€. Es un ejemplo de libro de una oportunidad de inversión "Buy to Let" (comprar para alquilar) gracias a la fuerte demanda residencial en el área metropolitana, impulsada por su cercanía a la capital.',
+        risks: 'En zonas de alta demanda, la competencia en la puja puede elevar el precio final. Es vital establecer un límite máximo de puja basado en un estudio de rentabilidad previo y estricto.',
+        investorProfile: 'Perfil Patrimonialista. Orientado a quienes buscan construir una cartera de alquiler estable con flujos de caja positivos desde el primer día.'
+      },
+      {
+        slug: 'subasta-sub-ja-2026-258731',
+        subtitle: 'Málaga: El mercado premium con descuentos ocultos',
+        analysis: 'Estepona y la Costa del Sol representan el mercado premium de las subastas. Con una tasación de 208.000€ y una deuda de 68.000€, este activo demuestra que también existen oportunidades de alto nivel. La revalorización constante de esta zona añade un atractivo extra a la inversión a largo plazo, atrayendo tanto a capital nacional como extranjero.',
+        risks: 'Las propiedades en zonas turísticas requieren una revisión exhaustiva de las normativas locales sobre alquiler vacacional y posibles derramas en comunidades de propietarios complejas.',
+        investorProfile: 'Perfil Value / Internacional. Excelente para inversores que buscan activos refugio en zonas de alta revalorización y prestigio.'
+      }
+    ],
+    conclusion: 'Los datos son claros: el éxito en las subastas del BOE no solo depende de cómo se invierte, sino de dónde se busca. Alicante, Valencia y Málaga se posicionan como los epicentros de la rentabilidad inmobiliaria a través de esta vía. Sin embargo, un gran descuento inicial debe ir siempre acompañado de un análisis jurídico y financiero riguroso. Utilizar herramientas de cálculo precisas y contar con asesoramiento experto son los pasos definitivos para transformar estos datos en inversiones sólidas y seguras.',
+    publishDate: '2026-03-24',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200'
+  },
+  'trampas-legales-subastas-boe-cargas-ocultas': {
+    id: 'trampas-legales-subastas-boe-cargas-ocultas',
+    title: 'El método de los expertos: 3 claves para identificar las subastas inmobiliarias más seguras del BOE',
+    intro: 'El mercado de subastas públicas en España ofrece excelentes oportunidades para adquirir inmuebles por debajo de su valor de mercado. Sin embargo, el éxito de los grandes inversores no se basa en la suerte, sino en saber leer la información oficial para seleccionar los activos más seguros y rentables. A diario, el BOE publica cientos de expedientes, y la clave está en realizar una revisión detallada antes de participar.\n\nEn este reportaje, te mostramos cómo los profesionales analizan los expedientes para asegurar su inversión. Nos centraremos en tres aspectos fundamentales: la situación posesoria, la revisión de cargas registrales y las ventajas de las subastas administrativas (AEAT). Para ilustrarlo, hemos seleccionado tres expedientes reales actualmente activos.\n\nAcompáñanos en este recorrido técnico y descubre cómo filtrar el mercado para encontrar las oportunidades más sólidas y construir un patrimonio inmobiliario con total tranquilidad.',
+    keyPoints: [
+      'La importancia de verificar la situación posesoria para una entrega de llaves ágil.',
+      'Cómo interpretar la nota simple para asegurar una compra libre de cargas previas.',
+      'Las ventajas de las subastas de la Agencia Tributaria para perfiles conservadores.',
+      'Estrategias de revisión que utilizan los fondos y profesionales del sector.'
+    ],
+    hidePreAuctionCTA: true,
+    auctionDetails: [
+      {
+        slug: 'subasta-sub-ja-2026-258001',
+        subtitle: 'La situación posesoria: Clave para una rentabilidad inmediata',
+        analysis: 'Este piso en Alcorcón (Madrid) presenta unos números muy atractivos: una tasación oficial de 277.698€ y una cantidad reclamada de 156.550€. Para consolidar este margen, el inversor profesional siempre verifica quién habita la vivienda. En muchas subastas, el edicto detalla si el inmueble está vacío o si existen ocupantes. Conocer esta información permite planificar los plazos de entrega y los costes asociados. Los inversores con experiencia incluyen en sus cálculos los tiempos de los trámites judiciales o las negociaciones amistosas para asegurar una transición fluida y rentable.',
+        risks: 'El punto de atención principal es confirmar la disponibilidad del inmueble. Además, al tratarse de un piso en un bloque residencial, es fundamental prever la liquidación de las cuotas pendientes con la comunidad de propietarios y los recibos de IBI, asegurando así que la propiedad quede perfectamente al día.',
+        investorProfile: 'Perfil Value / Especialista. Ideal para inversores con liquidez que no necesiten disponer del activo a corto plazo y cuenten con asesoramiento legal para gestionar la toma de posesión de forma eficiente.'
+      },
+      {
+        slug: 'subasta-sub-ja-2026-257184',
+        subtitle: 'La revisión registral: El paso previo para una compra impecable',
+        analysis: 'En este chalet en Nuevo Baztán, con una tasación de 335.958€ y una deuda ejecutada de 164.793€, el margen aparente es excelente. El edicto menciona: "APARTE DE LA HIPOTECA QUE SE EJECUTA, LA FINCA TIENE OTRAS CARGAS POSTERIORES...". La normativa establece que las cargas posteriores se cancelan tras la adjudicación, lo cual es una gran ventaja. No obstante, el inversor meticuloso siempre solicita una nota simple actualizada el mismo día de la subasta para confirmar el orden exacto de las anotaciones y garantizar que la carga por la que puja es la preferente.',
+        risks: 'Es vital realizar un seguimiento del proceso de cancelación registral. La presencia de otros acreedores requiere que el juzgado notifique correctamente a todas las partes. Una revisión cuidadosa de este trámite asegura que la inscripción de tu título de propiedad se realice sin demoras.',
+        investorProfile: 'Perfil Técnico. Orientado a inversores que dominan la lectura de notas simples y comprenden la prelación de créditos, capaces de asegurar la viabilidad jurídica de la operación.'
+      },
+      {
+        slug: 'subasta-sub-at-2026-25r4186001875',
+        subtitle: 'El refugio de la AEAT: Activos con máxima transparencia',
+        analysis: 'Las subastas administrativas de la Agencia Tributaria (AEAT) destacan por su claridad. Esta nave industrial en Utrera (Sevilla) sale a subasta por 124.569€ con una característica muy valorada: "Cargas: 0,00 €". Cuando Hacienda subasta un bien en primera posición, el adjudicatario adquiere el activo completamente libre de anotaciones previas. Esta transparencia registral facilita enormemente la posterior financiación bancaria del activo, optimizando el retorno sobre la inversión (ROI) para proyectos comerciales o industriales.',
+        risks: 'Al ser expedientes tan atractivos y transparentes, suelen generar mayor interés y participación, lo que puede ajustar los márgenes finales. En activos industriales, siempre es recomendable verificar el estado físico de las instalaciones y la vigencia de las licencias de actividad.',
+        investorProfile: 'Perfil Conservador / Patrimonialista. Excelente para inversores que priorizan la máxima seguridad jurídica y buscan activos fáciles de financiar para proyectos a largo plazo.'
+      }
+    ],
+    conclusion: 'El mercado de subastas del BOE es un entorno profesional donde la información precisa marca la diferencia. Como hemos analizado, comprender la situación posesoria, dominar la lectura registral y aprovechar las ventajas de las subastas administrativas son pilares fundamentales para el éxito.\n\nLa regla de oro es la preparación exhaustiva. Antes de participar, solicita siempre una nota simple actualizada, evalúa los costes asociados (ITP, comunidad, saneamiento) y define tu estrategia con claridad. Utiliza herramientas profesionales de cálculo y apóyate en expertos para tomar decisiones informadas. Con el enfoque adecuado, las subastas públicas ofrecen una vía excelente para construir un patrimonio inmobiliario sólido y rentable.',
+    publishDate: '2026-03-24',
+    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=1200'
+  },
   'top-3-subastas-mayor-descuento-semana': {
     id: 'top-3-subastas-mayor-descuento-semana',
     title: 'Las 3 subastas con mayor descuento esta semana',
