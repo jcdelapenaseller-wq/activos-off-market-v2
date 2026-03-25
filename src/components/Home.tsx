@@ -18,6 +18,15 @@ import { trackConversion } from '../utils/tracking';
 import PremiumValueBlock from './PremiumValueBlock';
 
 const Home: React.FC = () => {
+  React.useEffect(() => {
+    document.title = "Activos Off-Market | Expertos en Subastas Judiciales y BOE";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', "Encuentra las mejores oportunidades en subastas judiciales, BOE y AEAT en España. Análisis técnico, jurídico y financiero para inversores inmobiliarios.");
+    }
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <>
       <Hero />

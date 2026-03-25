@@ -80,6 +80,12 @@ const AuctionPage: React.FC = () => {
       const title = `${propertyType} en subasta en ${cityName}${streetPart}${discountPart}`;
       
       document.title = title.length > 70 ? title.substring(0, 67) + '...' : title;
+
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        const desc = `Subasta de ${propertyType} en ${cityName}${streetPart}. Valor de tasación: ${auction.appraisalValue?.toLocaleString('es-ES')}€. Consulta cargas, deudas y rentabilidad.`;
+        metaDesc.setAttribute('content', desc.length > 160 ? desc.substring(0, 157) + '...' : desc);
+      }
     }
   }, [cleanSlug, auction]);
 

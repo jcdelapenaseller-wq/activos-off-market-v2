@@ -56,7 +56,7 @@ const AuctionGuideIndex: React.FC = () => {
           "author": {
             "@type": "Person",
             "name": "José de la Peña",
-            "url": "https://activosoffmarket.es/quien-soy"
+            "url": "https://activosoffmarket.es/equipo"
           },
           "mainEntityOfPage": {
             "@type": "WebPage",

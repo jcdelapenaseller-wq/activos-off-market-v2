@@ -120,7 +120,13 @@ const ProvinceHub: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (province) {
-      document.title = `Subastas en ${province.charAt(0).toUpperCase() + province.slice(1)} | Activos Off-Market`;
+      const provinceName = province.charAt(0).toUpperCase() + province.slice(1);
+      document.title = `Subastas Judiciales en ${provinceName} | Activos Off-Market`;
+      
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', `Oportunidades de inversión en subastas judiciales en ${provinceName}. Análisis de cargas, rentabilidad y asesoramiento experto en el BOE.`);
+      }
     }
   }, [province]);
 

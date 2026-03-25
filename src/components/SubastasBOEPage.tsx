@@ -19,16 +19,16 @@ const SubastasBOEPage: React.FC = () => {
     window.scrollTo(0, 0);
 
     // 2. SEO Meta Tags
-    document.title = "Subastas BOE en España | Guía Completa para Invertir 2025";
+    document.title = "Subastas BOE en España | Guía Completa para Invertir";
     
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-        metaDesc.setAttribute('content', "Descubre cómo funcionan las subastas BOE en España, tipos de procedimientos y cómo analizar oportunidades antes de invertir.");
+        metaDesc.setAttribute('content', "Aprende cómo funcionan las subastas del BOE en España: procedimientos, análisis de cargas y estrategias de inversión inmobiliaria segura.");
     }
 
     // Open Graph Tags
     const setMeta = (property: string, content: string) => {
-        let element = document.querySelector(`meta[property="${property}"]`);
+        let element = document.head.querySelector(`meta[property="${property}"]`);
         if (!element) {
             element = document.createElement('meta');
             element.setAttribute('property', property);
@@ -37,8 +37,8 @@ const SubastasBOEPage: React.FC = () => {
         element.setAttribute('content', content);
     };
 
-    setMeta('og:title', "Subastas BOE en España | Guía Completa para Invertir 2025");
-    setMeta('og:description', "Descubre cómo funcionan las subastas BOE en España, tipos de procedimientos y cómo analizar oportunidades antes de invertir.");
+    setMeta('og:title', "Subastas BOE en España | Guía Completa para Invertir");
+    setMeta('og:description', "Aprende cómo funcionan las subastas del BOE en España: procedimientos, análisis de cargas y estrategias de inversión inmobiliaria segura.");
     setMeta('og:type', "article");
     setMeta('og:url', "https://activosoffmarket.es/subastas-boe/");
     setMeta('og:image', IMG_HERO);
