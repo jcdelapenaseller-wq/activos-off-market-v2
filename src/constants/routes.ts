@@ -1,6 +1,6 @@
 export const ROUTES = {
   HOME: '/',
-  ABOUT: '/quien-soy',
+  ABOUT: '/equipo',
   SUBASTAS_BOE: '/subastas-boe',
   RECENT_AUCTIONS: '/subastas-recientes',
   HISTORICAL_AUCTIONS: '/subastas-historico',

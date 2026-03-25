@@ -68,7 +68,7 @@ const Header: React.FC = () => {
             className={`text-sm lg:text-base font-medium transition-colors ${location.pathname === ROUTES.ABOUT ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
             onClick={() => window.scrollTo(0, 0)}
           >
-            Sobre mí
+            Equipo
           </Link>
           <Link 
             to={ROUTES.CALCULATOR} 
@@ -141,7 +141,7 @@ const Header: React.FC = () => {
               window.scrollTo(0, 0);
             }}
           >
-            Sobre mí
+            Equipo
           </Link>
           <Link 
             to={ROUTES.CALCULATOR} 

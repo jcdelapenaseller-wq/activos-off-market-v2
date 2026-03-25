@@ -97,6 +97,18 @@ export const routes: RouteObject[] = [
     element: createElement(Home),
   },
   {
+    path: '/quien-soy',
+    element: createElement(RedirectStatic, { to: '/equipo' }),
+  },
+  {
+    path: '/metodologia',
+    element: createElement(RedirectStatic, { to: '/equipo' }),
+  },
+  {
+    path: '/quienes-somos',
+    element: createElement(RedirectStatic, { to: '/equipo' }),
+  },
+  {
     path: ROUTES.ABOUT,
     element: createElement(About),
   },

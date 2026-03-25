@@ -199,7 +199,7 @@ const Footer: React.FC = () => {
               <li>
                 <Link to={ROUTES.ABOUT} className="flex items-center gap-2 hover:text-white transition-colors group">
                   <User size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
-                  <span>Sobre mí</span>
+                  <span>Equipo</span>
                 </Link>
               </li>
             </ul>
