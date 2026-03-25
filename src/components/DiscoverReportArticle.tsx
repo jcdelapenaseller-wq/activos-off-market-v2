@@ -62,7 +62,7 @@ const DiscoverReportArticle: React.FC = () => {
   }, [slug]);
 
   const reportAuctions = useMemo(() => {
-    if (!report) return [];
+    if (!report || !report.auctionDetails) return [];
     return report.auctionDetails
       .map(detail => ({ detail, data: AUCTIONS[detail.slug] }))
       .filter(item => item.data !== undefined);
@@ -71,17 +71,7 @@ const DiscoverReportArticle: React.FC = () => {
   const jsonLd = useMemo(() => {
     if (!report) return null;
     
-    const itemListElements = reportAuctions.map((item, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "item": {
-        "@type": "RealEstateListing",
-        "url": `${window.location.origin}/subasta/${item.detail.slug}`,
-        "name": `Subasta de ${item.data.propertyType || 'Inmueble'} en ${item.data.city || item.data.province}`
-      }
-    }));
-
-    return {
+    const baseJsonLd: any = {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
       "headline": report.title,
@@ -105,12 +95,25 @@ const DiscoverReportArticle: React.FC = () => {
       "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": window.location.href
-      },
-      "mainEntity": {
-        "@type": "ItemList",
-        "itemListElement": itemListElements
       }
     };
+
+    if (reportAuctions.length > 0) {
+      baseJsonLd.mainEntity = {
+        "@type": "ItemList",
+        "itemListElement": reportAuctions.map((item, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "item": {
+            "@type": "RealEstateListing",
+            "url": `${window.location.origin}/subasta/${item.detail.slug}`,
+            "name": `Subasta de ${item.data.propertyType || 'Inmueble'} en ${item.data.city || item.data.province}`
+          }
+        }))
+      };
+    }
+
+    return baseJsonLd;
   }, [report, reportAuctions]);
 
   useEffect(() => {
@@ -182,7 +185,7 @@ const DiscoverReportArticle: React.FC = () => {
                     <span className="w-1 h-1 rounded-full bg-slate-300 hidden sm:block"></span>
                     <span className="hidden sm:inline-flex items-center gap-1">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                      {Math.max(1, Math.ceil((report.intro.length + report.conclusion.length + report.auctionDetails.reduce((acc, curr) => acc + curr.analysis.length + curr.risks.length + curr.investorProfile.length, 0)) / 1000))} min de lectura
+                      {Math.max(1, Math.ceil((report.intro.length + report.conclusion.length + (report.auctionDetails?.reduce((acc, curr) => acc + curr.analysis.length + curr.risks.length + curr.investorProfile.length, 0) || 0) + (report.editorialSections?.reduce((acc, curr) => acc + curr.content.length, 0) || 0)) / 1000))} min de lectura
                     </span>
                   </div>
                 </div>
@@ -209,19 +212,21 @@ const DiscoverReportArticle: React.FC = () => {
             </figure>
 
             {/* Mini Resumen Superior */}
-            <div className="mb-12">
-              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Resumen del reportaje</h3>
-              <div className="flex flex-wrap gap-3">
-                {reportAuctions.map((item, idx) => (
-                  <a href={`#subasta-${idx + 1}`} key={idx} className="bg-white border border-slate-200 shadow-sm rounded-xl px-4 py-3 flex items-center gap-2 text-slate-700 font-medium hover:border-brand-300 hover:shadow-md transition-all no-underline">
-                    <span className="text-brand-600">📍</span> 
-                    <span>
-                      <strong>{normalizeCity(item.data) || item.data.province}</strong>: {normalizePropertyType(item.data.propertyType)}
-                    </span>
-                  </a>
-                ))}
+            {reportAuctions.length > 0 && (
+              <div className="mb-12">
+                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Resumen del reportaje</h3>
+                <div className="flex flex-wrap gap-3">
+                  {reportAuctions.map((item, idx) => (
+                    <a href={`#subasta-${idx + 1}`} key={idx} className="bg-white border border-slate-200 shadow-sm rounded-xl px-4 py-3 flex items-center gap-2 text-slate-700 font-medium hover:border-brand-300 hover:shadow-md transition-all no-underline">
+                      <span className="text-brand-600">📍</span> 
+                      <span>
+                        <strong>{normalizeCity(item.data) || item.data.province}</strong>: {normalizePropertyType(item.data.propertyType)}
+                      </span>
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {report.keyPoints && report.keyPoints.length > 0 && (
               <div className="mb-12 bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
@@ -250,7 +255,7 @@ const DiscoverReportArticle: React.FC = () => {
             </div>
 
             {/* CTA Pre-Subastas */}
-            {!report.hidePreAuctionCTA && (
+            {!report.hidePreAuctionCTA && reportAuctions.length > 0 && (
               <div className="bg-slate-900 text-white rounded-2xl p-6 md:p-8 mt-12 mb-4 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
                 <div>
                   <h3 className="text-xl font-bold mb-2 text-white mt-0">Analizamos {reportAuctions.length} oportunidades reales</h3>
@@ -331,6 +336,83 @@ const DiscoverReportArticle: React.FC = () => {
             })}
           </div>
 
+          {report.editorialSections && report.editorialSections.length > 0 && (
+            <div className="space-y-16 mb-16">
+              {report.editorialSections.map((section, idx) => (
+                <section key={idx} className="scroll-mt-24">
+                  <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-6 leading-tight">
+                    {section.subtitle}
+                  </h2>
+                  <div className="prose prose-lg prose-slate max-w-none mb-8">
+                    {section.content.split('\n').filter(p => p.trim() !== '').map((paragraph, pIdx) => (
+                      <p key={pIdx} className="text-lg leading-relaxed text-slate-700 mb-6">
+                        {highlightText(paragraph)}
+                      </p>
+                    ))}
+                  </div>
+                  
+                  {section.chartData && section.chartType === 'bar' && (
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm my-8">
+                      <div className="space-y-6">
+                        {section.chartData.map((data, i) => {
+                          const maxVal = Math.max(...section.chartData!.map(d => d.value));
+                          const percentage = (data.value / maxVal) * 100;
+                          return (
+                            <div key={i}>
+                              <div className="flex justify-between text-sm font-bold text-slate-700 mb-2">
+                                <span>{data.label}</span>
+                                <span>
+                                  {data.suffix 
+                                    ? `${data.value}${data.suffix}`
+                                    : new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(data.value)
+                                  }
+                                </span>
+                              </div>
+                              <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
+                                <div 
+                                  className={`h-4 rounded-full ${data.color || 'bg-brand-500'}`} 
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {section.chartData && section.chartType === 'ranking' && (
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm my-8">
+                      <div className="space-y-4">
+                        {section.chartData.map((data, i) => {
+                          const maxVal = Math.max(...section.chartData!.map(d => d.value));
+                          const percentage = (data.value / maxVal) * 100;
+                          return (
+                            <div key={i} className="flex items-center gap-4">
+                              <div className="w-8 font-bold text-slate-400 text-right">{i + 1}º</div>
+                              <div className="flex-grow">
+                                <div className="flex justify-between text-sm font-bold text-slate-700 mb-1">
+                                  <span>{data.label}</span>
+                                  <span>{data.suffix ? `${data.value}${data.suffix}` : `${data.value}%`}</span>
+                                </div>
+                                <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                                  <div 
+                                    className={`h-3 rounded-full ${data.color || 'bg-brand-500'}`} 
+                                    style={{ width: `${percentage}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </section>
+              ))}
+            </div>
+          )}
+
           <div className="prose prose-lg prose-slate max-w-none mb-16 bg-slate-50 p-8 md:p-10 rounded-2xl border border-slate-200">
             <h3 className="text-2xl font-serif font-bold text-slate-900 mb-6 mt-0">Conclusión</h3>
             {report.conclusion.split('\n').filter(p => p.trim() !== '').map((paragraph, idx) => (
@@ -343,7 +425,7 @@ const DiscoverReportArticle: React.FC = () => {
           <div className="bg-brand-50 border border-brand-100 rounded-2xl p-8 md:p-12 text-center mb-16 shadow-sm">
             <Calculator className="w-12 h-12 text-brand-600 mx-auto mb-4" />
             <h3 className="text-2xl font-serif font-bold text-slate-900 mb-4">
-              ¿Quieres saber cuánto pujar por estas propiedades?
+              {reportAuctions.length > 0 ? '¿Quieres saber cuánto pujar por estas propiedades?' : '¿Quieres saber cuánto pujar por una propiedad en subasta?'}
             </h3>
             <p className="text-slate-600 mb-8 max-w-2xl mx-auto text-lg">
               No te dejes llevar por la emoción. Utiliza nuestra calculadora gratuita para determinar tu puja máxima y asegurar la rentabilidad de tu inversión.

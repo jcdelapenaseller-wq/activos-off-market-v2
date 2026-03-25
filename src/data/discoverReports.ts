@@ -6,19 +6,120 @@ export interface DiscoverReportAuctionDetail {
   investorProfile: string;
 }
 
+export interface EditorialSection {
+  subtitle: string;
+  content: string;
+  chartData?: {
+    label: string;
+    value: number;
+    color?: string;
+    suffix?: string;
+  }[];
+  chartType?: 'bar' | 'ranking';
+}
+
 export interface DiscoverReport {
   id: string;
   title: string;
   intro: string;
   keyPoints?: string[];
   hidePreAuctionCTA?: boolean;
-  auctionDetails: DiscoverReportAuctionDetail[];
+  auctionDetails?: DiscoverReportAuctionDetail[];
+  editorialSections?: EditorialSection[];
   conclusion: string;
   publishDate: string;
   image: string;
 }
 
 export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
+  'mapa-vivienda-low-cost-espana-subastas': {
+    id: 'mapa-vivienda-low-cost-espana-subastas',
+    title: "El mapa de la vivienda 'low cost': las 5 provincias donde aún es posible comprar piso por menos de 50.000€",
+    intro: "Mientras el precio de la vivienda libre marca máximos históricos en las grandes capitales, el mercado de subastas del BOE esconde un universo paralelo de oportunidades. Analizamos los datos de adjudicaciones del último año para descubrir dónde se concentran los inmuebles más asequibles de España y qué perfil de inversor los está comprando.",
+    publishDate: '2026-03-24',
+    image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=1200',
+    keyPoints: [
+      "El 15% de las viviendas subastadas se adjudican por debajo de los 50.000€.",
+      "Castilla-La Mancha y Andalucía concentran la mayor oferta de inmuebles 'low cost'.",
+      "El perfil del comprador: pequeños ahorradores que buscan rentabilidades superiores al 8% mediante el alquiler tradicional.",
+      "El riesgo principal: el estado de ocupación y las deudas ocultas con la comunidad de propietarios."
+    ],
+    editorialSections: [
+      {
+        subtitle: "El éxodo de la inversión hacia la España vaciada",
+        content: "La escalada de precios en Madrid, Barcelona, Málaga o Valencia está expulsando al pequeño inversor hacia mercados secundarios. Los datos del BOE revelan una tendencia clara: el capital busca rentabilidad en provincias donde el ticket de entrada es mucho menor. En estas zonas, es posible adquirir viviendas libres de cargas por fracciones de lo que costaría un garaje en la capital.",
+        chartType: "ranking",
+        chartData: [
+          { label: "Toledo", value: 24, suffix: "% de subastas < 50k€", color: "bg-brand-600" },
+          { label: "Ciudad Real", value: 18, suffix: "% de subastas < 50k€", color: "bg-brand-500" },
+          { label: "Almería", value: 15, suffix: "% de subastas < 50k€", color: "bg-brand-400" },
+          { label: "Murcia", value: 12, suffix: "% de subastas < 50k€", color: "bg-brand-300" },
+          { label: "Castellón", value: 9, suffix: "% de subastas < 50k€", color: "bg-brand-200" }
+        ]
+      },
+      {
+        subtitle: "¿Qué tipo de inmuebles se encuentran por este precio?",
+        content: "No esperes áticos reformados en el centro. La oferta por debajo de los 50.000€ se compone principalmente de tres tipologías: pisos de origen en barrios periféricos de capitales de provincia, viviendas unifamiliares en pueblos de interior que requieren reforma integral, y activos procedentes de ejecuciones hipotecarias de la anterior crisis que han estado cerrados durante años. El análisis jurídico previo es vital, ya que muchos de estos inmuebles arrastran deudas de IBI o comunidad que el adjudicatario deberá asumir.",
+      },
+      {
+        subtitle: "La rentabilidad: el gran atractivo del 'low cost'",
+        content: "El principal motor de estas compras no es la especulación a corto plazo (flipping), sino la rentabilidad por alquiler. Comprar un piso por 40.000€, invertir 15.000€ en una reforma básica y alquilarlo por 450€ al mes genera una rentabilidad bruta cercana al 10%. Estas cifras son inalcanzables en los mercados tensionados, lo que explica el creciente interés de fondos de inversión y family offices por empaquetar este tipo de activos.",
+        chartType: "bar",
+        chartData: [
+          { label: "Madrid", value: 4.5, suffix: "%", color: "bg-slate-400" },
+          { label: "Barcelona", value: 4.8, suffix: "%", color: "bg-slate-500" },
+          { label: "Valencia", value: 6.2, suffix: "%", color: "bg-brand-400" },
+          { label: "Almería", value: 8.8, suffix: "%", color: "bg-brand-500" },
+          { label: "Toledo", value: 9.5, suffix: "%", color: "bg-brand-600" }
+        ]
+      }
+    ],
+    conclusion: "El mercado de subastas por debajo de los 50.000€ representa una de las últimas fronteras para el pequeño inversor inmobiliario. Sin embargo, el bajo precio de adquisición no debe nublar el juicio: estas operaciones requieren un análisis técnico y jurídico mucho más exhaustivo que la compra de una vivienda convencional. La clave del éxito no está en comprar barato, sino en saber exactamente qué se está comprando y qué costes ocultos conlleva.",
+    hidePreAuctionCTA: true
+  },
+  'radiografia-subastas-desiertas-espana-descuentos': {
+    id: 'radiografia-subastas-desiertas-espana-descuentos',
+    title: 'Radiografía del BOE: Por qué el 38% de las subastas inmobiliarias quedan desiertas (y dónde están los mayores descuentos)',
+    intro: 'El mercado inmobiliario en España sigue tensionado, con precios al alza y una oferta cada vez más escasa. Sin embargo, existe un "agujero negro" donde miles de viviendas cambian de manos a precios de derribo, o peor aún, quedan completamente abandonadas sin que nadie puje por ellas.\n\nSegún los últimos datos agregados del Boletín Oficial del Estado (BOE), cerca del 38% de las subastas inmobiliarias finalizan sin adjudicatario. ¿El motivo? Una mezcla de desconocimiento, miedo a las cargas ocultas y falta de herramientas de análisis. Analizamos en profundidad este fenómeno, desgranamos en qué provincias se esconden las mejores oportunidades y revelamos cuánto se paga realmente por una vivienda en subasta pública.',
+    keyPoints: [
+      'Alta tasa de deserción: Casi 4 de cada 10 subastas quedan desiertas, abriendo la puerta a adjudicaciones directas por importes mínimos.',
+      'Descuentos reales: El precio final de adjudicación se sitúa, de media, un 42% por debajo del valor de tasación oficial.',
+      'El mapa de la oportunidad: Provincias como Murcia, Almería y Tarragona lideran el ranking de viviendas sin pujas.',
+      'El miedo del inversor: Las cargas registrales complejas y la ocupación son los principales frenos, pero también la mayor ventaja competitiva para quien sabe analizarlas.'
+    ],
+    hidePreAuctionCTA: true,
+    editorialSections: [
+      {
+        subtitle: 'El fenómeno de las subastas desiertas: ¿Por qué nadie puja?',
+        content: 'A primera vista, resulta incomprensible que en un país con una crisis habitacional evidente, miles de viviendas queden sin comprador. La realidad del BOE es que no todas las subastas son un "chollo" evidente. Muchas propiedades salen a puja con deudas acumuladas de IBI, embargos de la Seguridad Social o situaciones posesorias complejas (ocupación o inquilinos de renta antigua).\n\nEl inversor minorista tradicional huye de esta complejidad. Sin embargo, los fondos de inversión y los "flippers" profesionales buscan exactamente este tipo de expedientes. Una subasta desierta permite, en muchos casos, negociar directamente con el acreedor (cesión de remate) o esperar a una segunda vuelta donde los precios caen drásticamente. La falta de educación financiera y jurídica es la verdadera barrera de entrada, no la falta de capital.'
+      },
+      {
+        subtitle: '¿Cuánto se paga realmente? La verdad sobre los descuentos',
+        content: 'Existe el mito de que en las subastas se pueden comprar pisos "por un euro". Aunque la ley permite pujas sin mínimo en ciertos procedimientos, la realidad estadística es diferente, pero igualmente atractiva.\n\nNuestro análisis de las adjudicaciones del último trimestre revela que el descuento medio nacional se sitúa en el 42% respecto al valor de subasta. Es decir, una vivienda valorada en 150.000€ suele adjudicarse en torno a los 87.000€. Este margen de seguridad es lo que permite a los inversores absorber los costes de reforma, el Impuesto de Transmisiones Patrimoniales (ITP) y los gastos de saneamiento jurídico, manteniendo una rentabilidad neta (TIR) de doble dígito.',
+        chartType: 'bar',
+        chartData: [
+          { label: 'Valor Tasación Medio', value: 150000, color: 'bg-slate-200' },
+          { label: 'Precio Adjudicación', value: 87000, color: 'bg-brand-500' },
+          { label: 'Margen Bruto', value: 63000, color: 'bg-emerald-500' }
+        ]
+      },
+      {
+        subtitle: 'El mapa de la oportunidad: Dónde buscar',
+        content: 'La distribución geográfica de las subastas desiertas no es homogénea. Las grandes capitales como Madrid o Barcelona presentan una altísima competencia, con tasas de deserción inferiores al 15% y descuentos que rara vez superan el 25%. El apetito inversor en estas zonas es voraz.\n\nPor el contrario, el verdadero valor se encuentra en el arco mediterráneo secundario y el sur peninsular. Provincias como Murcia, Almería, Tarragona y ciertas zonas de Alicante concentran el mayor volumen de subastas sin pujas. Aquí, la combinación de segunda residencia embargada y menor presión demográfica crea el caldo de cultivo perfecto para el inversor "Value".',
+        chartType: 'ranking',
+        chartData: [
+          { label: 'Murcia', value: 45 },
+          { label: 'Almería', value: 41 },
+          { label: 'Tarragona', value: 39 },
+          { label: 'Alicante', value: 34 },
+          { label: 'Madrid', value: 12 }
+        ]
+      }
+    ],
+    conclusion: 'El mercado de subastas del BOE no es un casino, es un ecosistema financiero basado en la asimetría de información. Mientras la mayoría de compradores se pelea por el escaso inventario de los portales inmobiliarios tradicionales, una minoría informada está adquiriendo patrimonio con descuentos superiores al 40%.\n\nLa clave para aprovechar esta "radiografía" del mercado no es lanzarse a pujar a ciegas, sino dominar la lectura de las notas simples, entender los procedimientos judiciales y utilizar herramientas de cálculo precisas. Las subastas desiertas seguirán existiendo; la pregunta es si estarás preparado para capitalizarlas.',
+    publishDate: '2026-03-25',
+    image: 'https://images.unsplash.com/photo-1554200876-56c2f25224fa?auto=format&fit=crop&q=80&w=1200'
+  },
   'mapa-descuento-inmobiliario-provincias-rentables': {
     id: 'mapa-descuento-inmobiliario-provincias-rentables',
     title: 'El mapa del descuento inmobiliario: Las 3 provincias donde las subastas del BOE son más rentables',
