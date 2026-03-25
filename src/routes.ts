@@ -74,6 +74,7 @@ import DiscoverProvinceArticle from './components/DiscoverProvinceArticle';
 import DiscoverAuctionArticle from './components/DiscoverAuctionArticle';
 import DiscoverReportArticle from './components/DiscoverReportArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
+import DiscoverReportsIndex from './components/DiscoverReportsIndex';
 import ProvinceHub from './components/ProvinceHub';
 import AuctionPage from './components/AuctionPage';
 import Legal from './components/Legal';
@@ -302,6 +303,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.DISCOVER_REPORT,
     element: createElement(DiscoverReportArticle),
+  },
+  {
+    path: ROUTES.REPORTS_INDEX,
+    element: createElement(DiscoverReportsIndex),
   },
   {
     path: ROUTES.NOTICIAS_SUBASTAS,

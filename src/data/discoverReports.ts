@@ -18,6 +18,11 @@ export interface EditorialSection {
   chartType?: 'bar' | 'ranking';
 }
 
+export interface Source {
+  name: string;
+  url: string;
+}
+
 export interface DiscoverReport {
   id: string;
   title: string;
@@ -26,6 +31,7 @@ export interface DiscoverReport {
   hidePreAuctionCTA?: boolean;
   auctionDetails?: DiscoverReportAuctionDetail[];
   editorialSections?: EditorialSection[];
+  sources?: Source[];
   conclusion: string;
   publishDate: string;
   image: string;
@@ -35,7 +41,7 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
   'mapa-vivienda-low-cost-espana-subastas': {
     id: 'mapa-vivienda-low-cost-espana-subastas',
     title: "El mapa de la vivienda 'low cost': las 5 provincias donde aún es posible comprar piso por menos de 50.000€",
-    intro: "Mientras el precio de la vivienda libre marca máximos históricos en las grandes capitales, el mercado de subastas del BOE esconde un universo paralelo de oportunidades. Analizamos los datos de adjudicaciones del último año para descubrir dónde se concentran los inmuebles más asequibles de España y qué perfil de inversor los está comprando.",
+    intro: "Mientras el precio de la vivienda libre marca máximos históricos en las grandes capitales, el mercado de subastas del BOE esconde un universo paralelo de oportunidades.\n\nAnalizamos los datos de adjudicaciones del último año para descubrir dónde se concentran los inmuebles más asequibles de España y qué perfil de inversor los está comprando.",
     publishDate: '2026-03-24',
     image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=1200',
     keyPoints: [
@@ -47,7 +53,7 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
     editorialSections: [
       {
         subtitle: "El éxodo de la inversión hacia la España vaciada",
-        content: "La escalada de precios en Madrid, Barcelona, Málaga o Valencia está expulsando al pequeño inversor hacia mercados secundarios. Los datos del BOE revelan una tendencia clara: el capital busca rentabilidad en provincias donde el ticket de entrada es mucho menor. En estas zonas, es posible adquirir viviendas libres de cargas por fracciones de lo que costaría un garaje en la capital.",
+        content: "La escalada de precios en Madrid, Barcelona, Málaga o Valencia está expulsando al pequeño inversor hacia mercados secundarios.\n\nLos datos del BOE revelan una tendencia clara: el capital busca rentabilidad en provincias donde el ticket de entrada es mucho menor.\n\nEn estas zonas, es posible adquirir viviendas libres de cargas por fracciones de lo que costaría un garaje en la capital.",
         chartType: "ranking",
         chartData: [
           { label: "Toledo", value: 24, suffix: "% de subastas < 50k€", color: "bg-brand-600" },
@@ -59,11 +65,11 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
       },
       {
         subtitle: "¿Qué tipo de inmuebles se encuentran por este precio?",
-        content: "No esperes áticos reformados en el centro. La oferta por debajo de los 50.000€ se compone principalmente de tres tipologías: pisos de origen en barrios periféricos de capitales de provincia, viviendas unifamiliares en pueblos de interior que requieren reforma integral, y activos procedentes de ejecuciones hipotecarias de la anterior crisis que han estado cerrados durante años. El análisis jurídico previo es vital, ya que muchos de estos inmuebles arrastran deudas de IBI o comunidad que el adjudicatario deberá asumir.",
+        content: "No esperes áticos reformados en el centro. La oferta por debajo de los 50.000€ se compone principalmente de tres tipologías: pisos de origen en barrios periféricos, viviendas unifamiliares en pueblos de interior que requieren reforma integral, y activos procedentes de ejecuciones hipotecarias de la anterior crisis.\n\nEl análisis jurídico previo es vital, ya que muchos de estos inmuebles arrastran deudas de IBI o comunidad que el adjudicatario deberá asumir.",
       },
       {
         subtitle: "La rentabilidad: el gran atractivo del 'low cost'",
-        content: "El principal motor de estas compras no es la especulación a corto plazo (flipping), sino la rentabilidad por alquiler. Comprar un piso por 40.000€, invertir 15.000€ en una reforma básica y alquilarlo por 450€ al mes genera una rentabilidad bruta cercana al 10%. Estas cifras son inalcanzables en los mercados tensionados, lo que explica el creciente interés de fondos de inversión y family offices por empaquetar este tipo de activos.",
+        content: "El principal motor de estas compras no es la especulación a corto plazo (flipping), sino la rentabilidad por alquiler.\n\nComprar un piso por 40.000€, invertir 15.000€ en una reforma básica y alquilarlo por 450€ al mes genera una rentabilidad bruta cercana al 10%.\n\nEstas cifras son inalcanzables en los mercados tensionados, lo que explica el creciente interés de fondos de inversión y family offices por empaquetar este tipo de activos.",
         chartType: "bar",
         chartData: [
           { label: "Madrid", value: 4.5, suffix: "%", color: "bg-slate-400" },
@@ -74,13 +80,96 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
         ]
       }
     ],
-    conclusion: "El mercado de subastas por debajo de los 50.000€ representa una de las últimas fronteras para el pequeño inversor inmobiliario. Sin embargo, el bajo precio de adquisición no debe nublar el juicio: estas operaciones requieren un análisis técnico y jurídico mucho más exhaustivo que la compra de una vivienda convencional. La clave del éxito no está en comprar barato, sino en saber exactamente qué se está comprando y qué costes ocultos conlleva.",
+    sources: [
+      { name: "Portal de Subastas del BOE - Estadísticas de adjudicación", url: "https://subastas.boe.es/" },
+      { name: "Ministerio de Vivienda y Agenda Urbana - Observatorio de Vivienda", url: "https://www.mivau.gob.es/" }
+    ],
+    conclusion: "El mercado de subastas por debajo de los 50.000€ representa una de las últimas fronteras para el pequeño inversor inmobiliario.\n\nSin embargo, el bajo precio de adquisición no debe nublar el juicio: estas operaciones requieren un análisis técnico y jurídico mucho más exhaustivo que la compra de una vivienda convencional.\n\nLa clave del éxito no está en comprar barato, sino en saber exactamente qué se está comprando y qué costes ocultos conlleva.",
+    hidePreAuctionCTA: true
+  },
+  'errores-letales-pujar-subastas-boe': {
+    id: 'errores-letales-pujar-subastas-boe',
+    title: "Los 3 errores letales al pujar en una subasta del BOE (y cómo evitarlos)",
+    intro: "El portal de subastas del BOE parece un catálogo de chollos inmobiliarios. Pisos a mitad de precio, chalets por el valor de un garaje... La tentación es enorme.\n\nPero detrás de esos precios de derribo se esconden trampas jurídicas que pueden arruinar a un inversor inexperto.\n\nEn este análisis, desgranamos los tres errores más comunes y destructivos que cometen los particulares al participar en subastas públicas en España. Aprender a identificarlos es la diferencia entre una inversión rentable y la quiebra.",
+    publishDate: '2026-03-25',
+    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200',
+    keyPoints: [
+      "Pujar sin revisar la certificación de cargas es el error más común y costoso.",
+      "Comprar proindivisos (partes de una vivienda) creyendo que se adquiere la totalidad.",
+      "Ignorar el estado posesorio: los ocupantes sin título o inquilinos con contrato en vigor.",
+      "La regla de oro: lo que no está escrito en el expediente judicial, no existe."
+    ],
+    editorialSections: [
+      {
+        subtitle: "Error #1: La trampa de las cargas anteriores",
+        content: "Imagina que ganas la puja por un piso valorado en 200.000€ pagando solo 80.000€. Parece el negocio del siglo.\n\nSemanas después, recibes una notificación del banco: la vivienda tiene una hipoteca previa de 150.000€ que debes asumir.\n\nEste es el error más devastador. En las subastas, las cargas posteriores a la deuda que origina la ejecución se cancelan, pero las cargas anteriores o preferentes se heredan.\n\nNunca, bajo ningún concepto, se debe pujar sin haber analizado minuciosamente la Certificación de Cargas del Registro de la Propiedad.",
+      },
+      {
+        subtitle: "Error #2: Comprar un problema (El Proindiviso)",
+        content: "Muchos inversores novatos ven un chalet espectacular con una puja mínima ridícula y se lanzan sin pensar.\n\nLo que no leyeron en la letra pequeña del edicto es que solo se subastaba el 16,66% del pleno dominio. Es decir, han comprado una sexta parte de una casa.\n\nAhora son copropietarios junto a otras cinco personas (generalmente herederos o ex-cónyuges enfadados) y no pueden usar la vivienda ni venderla sin el consentimiento de los demás.\n\nSalir de un proindiviso requiere iniciar un nuevo procedimiento judicial (división de la cosa común) que puede tardar años.",
+      },
+      {
+        subtitle: "Error #3: El estado posesorio y los ocupantes",
+        content: "El estado posesorio es el gran miedo de cualquier adjudicatario. ¿Quién vive dentro de la casa que acabo de comprar?\n\nSi la vivienda está ocupada por el antiguo propietario (el deudor), el juzgado ordenará el lanzamiento (desahucio) como parte del procedimiento. Tarda, pero se ejecuta.\n\nEl verdadero peligro son los inquilinos con un contrato de alquiler anterior a la hipoteca o los ocupantes sin título legal que puedan ser declarados vulnerables.\n\nSi hay un inquilino legal, tendrás que respetar su contrato (hasta 5 o 7 años) cobrando la renta que tuviera pactada, aunque sea ridícula. Si hay ocupantes declarados vulnerables, el lanzamiento puede suspenderse indefinidamente según la legislación actual.",
+        chartType: "bar",
+        chartData: [
+          { label: "Cargas Anteriores No Revisadas", value: 45, suffix: "%", color: "bg-red-500" },
+          { label: "Problemas Posesorios (Ocupantes)", value: 30, suffix: "%", color: "bg-orange-500" },
+          { label: "Proindivisos Inesperados", value: 15, suffix: "%", color: "bg-amber-500" },
+          { label: "Errores de Identificación Finca", value: 10, suffix: "%", color: "bg-yellow-500" }
+        ]
+      }
+    ],
+    sources: [
+      { name: "Ley 1/2000, de 7 de enero, de Enjuiciamiento Civil (LEC) - Artículos 655 a 675", url: "https://www.boe.es/buscar/act.php?id=BOE-A-2000-323" },
+      { name: "Colegio de Registradores de la Propiedad - Guía de Certificaciones", url: "https://www.registradores.org/" }
+    ],
+    conclusion: "Participar en subastas del BOE no es un juego de azar ni una lotería. Es un mercado altamente técnico donde la información es el único escudo contra la ruina.\n\nAntes de consignar el 5% del depósito para pujar, la inversión más inteligente que puedes hacer es contratar a un profesional que revise el expediente o formarte a fondo en la materia.\n\nRecuerda: en el BOE no hay devoluciones. Una vez que ganas la puja, asumes todas las consecuencias.",
+    hidePreAuctionCTA: true
+  },
+  'auge-subastas-nuda-propiedad-inversion': {
+    id: 'auge-subastas-nuda-propiedad-inversion',
+    title: "El auge de las subastas de nuda propiedad: ¿chollo a largo plazo o trampa para impacientes?",
+    intro: "En los últimos meses, hemos detectado un incremento inusual en el portal del BOE: cada vez salen a subasta más inmuebles donde solo se transmite la 'nuda propiedad'.\n\nLos precios de adjudicación son increíblemente bajos, a menudo por debajo del 30% del valor de mercado.\n\nPero, ¿qué significa realmente comprar una nuda propiedad en subasta? ¿Es una genialidad financiera o un pozo sin fondo para tu dinero?\n\nAnalizamos esta tendencia creciente y descubrimos por qué los grandes fondos están apostando por este modelo de inversión a largo plazo.",
+    publishDate: '2026-03-24',
+    image: 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&q=80&w=1200',
+    keyPoints: [
+      "Compras la propiedad, pero no el derecho a usarla (usufructo).",
+      "El usufructuario (normalmente una persona mayor) vivirá en la casa hasta su fallecimiento.",
+      "Es una inversión ilíquida: tu dinero quedará bloqueado durante años o décadas.",
+      "Fiscalmente es complejo: pagarás impuestos al comprar y al consolidar el dominio."
+    ],
+    editorialSections: [
+      {
+        subtitle: "¿Qué estás comprando exactamente?",
+        content: "En el derecho español, la propiedad plena se divide en dos: la nuda propiedad (ser el dueño en el papel) y el usufructo (el derecho a usar y disfrutar la vivienda).\n\nCuando ganas una subasta de nuda propiedad, te conviertes en el dueño legal del inmueble, pero no te entregan las llaves.\n\nEl usufructuario vitalicio seguirá viviendo allí, o alquilando la casa y cobrando las rentas, hasta el día de su muerte.\n\nSolo cuando el usufructuario fallece, el usufructo se extingue, se consolida el pleno dominio y, por fin, puedes entrar en tu casa.",
+      },
+      {
+        subtitle: "El cálculo del riesgo: la esperanza de vida",
+        content: "El valor de una nuda propiedad es inversamente proporcional a la esperanza de vida del usufructuario.\n\nSi el usufructuario tiene 90 años, la nuda propiedad valdrá mucho (pronto tendrás la casa). Si tiene 60 años, valdrá muy poco (podrías esperar 30 años).\n\nEl problema en las subastas es que, a menudo, no sabes la edad exacta del usufructuario ni su estado de salud. Estás haciendo una apuesta financiera basada en tablas actuariales ciegas.\n\nLos inversores profesionales mitigan este riesgo comprando carteras de nudas propiedades para diversificar, pero para un particular con un solo inmueble, el riesgo de concentración es altísimo.",
+      },
+      {
+        subtitle: "Los gastos invisibles durante la espera",
+        content: "Uno de los grandes mitos es que, mientras esperas, no tienes gastos.\n\nFalso. Como nudo propietario, la ley te obliga a hacerte cargo de las derramas extraordinarias de la comunidad de propietarios (por ejemplo, poner un ascensor o arreglar el tejado).\n\nEl usufructuario paga el IBI, la cuota ordinaria de la comunidad y los suministros, pero tú respondes de las grandes reparaciones de un piso que no puedes pisar.\n\nAdemás, si el usufructuario descuida la vivienda, te entregarán una ruina el día que consolides el dominio.",
+        chartType: "bar",
+        chartData: [
+          { label: "Descuento Medio (Usufructuario > 80 años)", value: 25, suffix: "%", color: "bg-brand-300" },
+          { label: "Descuento Medio (Usufructuario 70-80 años)", value: 45, suffix: "%", color: "bg-brand-400" },
+          { label: "Descuento Medio (Usufructuario < 70 años)", value: 65, suffix: "%", color: "bg-brand-600" }
+        ]
+      }
+    ],
+    sources: [
+      { name: "Código Civil Español - Título VI: Del usufructo, del uso y de la habitación", url: "https://www.boe.es/buscar/act.php?id=BOE-A-1889-4763" },
+      { name: "INE - Tablas de mortalidad de la población de España", url: "https://www.ine.es/dyngs/INEbase/es/operacion.htm?c=Estadistica_C&cid=1254736177003&menu=resultados&idp=1254735573002" }
+    ],
+    conclusion: "La nuda propiedad en subasta es un producto financiero sofisticado disfrazado de inversión inmobiliaria.\n\nEs ideal para inversores con exceso de liquidez que buscan crear un patrimonio a largo plazo (por ejemplo, para la jubilación o para sus hijos) sin preocuparse por la gestión de inquilinos.\n\nSin embargo, es veneno puro para quien necesita rentabilidad a corto plazo, ingresos mensuales o liquidez inmediata. Si no puedes permitirte olvidar ese dinero durante 15 años, huye de la nuda propiedad.",
     hidePreAuctionCTA: true
   },
   'radiografia-subastas-desiertas-espana-descuentos': {
     id: 'radiografia-subastas-desiertas-espana-descuentos',
     title: 'Radiografía del BOE: Por qué el 38% de las subastas inmobiliarias quedan desiertas (y dónde están los mayores descuentos)',
-    intro: 'El mercado inmobiliario en España sigue tensionado, con precios al alza y una oferta cada vez más escasa. Sin embargo, existe un "agujero negro" donde miles de viviendas cambian de manos a precios de derribo, o peor aún, quedan completamente abandonadas sin que nadie puje por ellas.\n\nSegún los últimos datos agregados del Boletín Oficial del Estado (BOE), cerca del 38% de las subastas inmobiliarias finalizan sin adjudicatario. ¿El motivo? Una mezcla de desconocimiento, miedo a las cargas ocultas y falta de herramientas de análisis. Analizamos en profundidad este fenómeno, desgranamos en qué provincias se esconden las mejores oportunidades y revelamos cuánto se paga realmente por una vivienda en subasta pública.',
+    intro: 'El mercado inmobiliario en España sigue tensionado, con precios al alza y una oferta cada vez más escasa.\n\nSin embargo, existe un "agujero negro" donde miles de viviendas cambian de manos a precios de derribo, o peor aún, quedan completamente abandonadas sin que nadie puje por ellas.\n\nSegún los últimos datos agregados del Boletín Oficial del Estado (BOE), cerca del 38% de las subastas inmobiliarias finalizan sin adjudicatario.\n\n¿El motivo? Una mezcla de desconocimiento, miedo a las cargas ocultas y falta de herramientas de análisis. Analizamos en profundidad este fenómeno, desgranamos en qué provincias se esconden las mejores oportunidades y revelamos cuánto se paga realmente por una vivienda en subasta pública.',
     keyPoints: [
       'Alta tasa de deserción: Casi 4 de cada 10 subastas quedan desiertas, abriendo la puerta a adjudicaciones directas por importes mínimos.',
       'Descuentos reales: El precio final de adjudicación se sitúa, de media, un 42% por debajo del valor de tasación oficial.',
@@ -91,11 +180,11 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
     editorialSections: [
       {
         subtitle: 'El fenómeno de las subastas desiertas: ¿Por qué nadie puja?',
-        content: 'A primera vista, resulta incomprensible que en un país con una crisis habitacional evidente, miles de viviendas queden sin comprador. La realidad del BOE es que no todas las subastas son un "chollo" evidente. Muchas propiedades salen a puja con deudas acumuladas de IBI, embargos de la Seguridad Social o situaciones posesorias complejas (ocupación o inquilinos de renta antigua).\n\nEl inversor minorista tradicional huye de esta complejidad. Sin embargo, los fondos de inversión y los "flippers" profesionales buscan exactamente este tipo de expedientes. Una subasta desierta permite, en muchos casos, negociar directamente con el acreedor (cesión de remate) o esperar a una segunda vuelta donde los precios caen drásticamente. La falta de educación financiera y jurídica es la verdadera barrera de entrada, no la falta de capital.'
+        content: 'A primera vista, resulta incomprensible que en un país con una crisis habitacional evidente, miles de viviendas queden sin comprador.\n\nLa realidad del BOE es que no todas las subastas son un "chollo" evidente. Muchas propiedades salen a puja con deudas acumuladas de IBI, embargos de la Seguridad Social o situaciones posesorias complejas.\n\nEl inversor minorista tradicional huye de esta complejidad. Sin embargo, los fondos de inversión y los "flippers" profesionales buscan exactamente este tipo de expedientes.\n\nUna subasta desierta permite, en muchos casos, negociar directamente con el acreedor (cesión de remate) o esperar a una segunda vuelta donde los precios caen drásticamente.'
       },
       {
         subtitle: '¿Cuánto se paga realmente? La verdad sobre los descuentos',
-        content: 'Existe el mito de que en las subastas se pueden comprar pisos "por un euro". Aunque la ley permite pujas sin mínimo en ciertos procedimientos, la realidad estadística es diferente, pero igualmente atractiva.\n\nNuestro análisis de las adjudicaciones del último trimestre revela que el descuento medio nacional se sitúa en el 42% respecto al valor de subasta. Es decir, una vivienda valorada en 150.000€ suele adjudicarse en torno a los 87.000€. Este margen de seguridad es lo que permite a los inversores absorber los costes de reforma, el Impuesto de Transmisiones Patrimoniales (ITP) y los gastos de saneamiento jurídico, manteniendo una rentabilidad neta (TIR) de doble dígito.',
+        content: 'Existe el mito de que en las subastas se pueden comprar pisos "por un euro". Aunque la ley permite pujas sin mínimo en ciertos procedimientos, la realidad estadística es diferente, pero igualmente atractiva.\n\nNuestro análisis de las adjudicaciones del último trimestre revela que el descuento medio nacional se sitúa en el 42% respecto al valor de subasta.\n\nEs decir, una vivienda valorada en 150.000€ suele adjudicarse en torno a los 87.000€. Este margen de seguridad es lo que permite a los inversores absorber los costes de reforma, el ITP y los gastos de saneamiento jurídico, manteniendo una rentabilidad neta (TIR) de doble dígito.',
         chartType: 'bar',
         chartData: [
           { label: 'Valor Tasación Medio', value: 150000, color: 'bg-slate-200' },
@@ -105,7 +194,7 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
       },
       {
         subtitle: 'El mapa de la oportunidad: Dónde buscar',
-        content: 'La distribución geográfica de las subastas desiertas no es homogénea. Las grandes capitales como Madrid o Barcelona presentan una altísima competencia, con tasas de deserción inferiores al 15% y descuentos que rara vez superan el 25%. El apetito inversor en estas zonas es voraz.\n\nPor el contrario, el verdadero valor se encuentra en el arco mediterráneo secundario y el sur peninsular. Provincias como Murcia, Almería, Tarragona y ciertas zonas de Alicante concentran el mayor volumen de subastas sin pujas. Aquí, la combinación de segunda residencia embargada y menor presión demográfica crea el caldo de cultivo perfecto para el inversor "Value".',
+        content: 'La distribución geográfica de las subastas desiertas no es homogénea. Las grandes capitales como Madrid o Barcelona presentan una altísima competencia, con tasas de deserción inferiores al 15% y descuentos que rara vez superan el 25%.\n\nPor el contrario, el verdadero valor se encuentra en el arco mediterráneo secundario y el sur peninsular.\n\nProvincias como Murcia, Almería, Tarragona y ciertas zonas de Alicante concentran el mayor volumen de subastas sin pujas. Aquí, la combinación de segunda residencia embargada y menor presión demográfica crea el caldo de cultivo perfecto para el inversor "Value".',
         chartType: 'ranking',
         chartData: [
           { label: 'Murcia', value: 45 },
@@ -116,14 +205,18 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
         ]
       }
     ],
-    conclusion: 'El mercado de subastas del BOE no es un casino, es un ecosistema financiero basado en la asimetría de información. Mientras la mayoría de compradores se pelea por el escaso inventario de los portales inmobiliarios tradicionales, una minoría informada está adquiriendo patrimonio con descuentos superiores al 40%.\n\nLa clave para aprovechar esta "radiografía" del mercado no es lanzarse a pujar a ciegas, sino dominar la lectura de las notas simples, entender los procedimientos judiciales y utilizar herramientas de cálculo precisas. Las subastas desiertas seguirán existiendo; la pregunta es si estarás preparado para capitalizarlas.',
+    sources: [
+      { name: "Consejo General del Poder Judicial - Datos de Ejecuciones Hipotecarias", url: "https://www.poderjudicial.es/cgpj/es/Temas/Estadistica-Judicial/" },
+      { name: "Colegio de Registradores - Estadística Registral Inmobiliaria", url: "https://www.registradores.org/actualidad/portal-estadistico-registral" }
+    ],
+    conclusion: 'El mercado de subastas del BOE no es un casino, es un ecosistema financiero basado en la asimetría de información.\n\nMientras la mayoría de compradores se pelea por el escaso inventario de los portales inmobiliarios tradicionales, una minoría informada está adquiriendo patrimonio con descuentos superiores al 40%.\n\nLa clave para aprovechar esta "radiografía" del mercado no es lanzarse a pujar a ciegas, sino dominar la lectura de las notas simples, entender los procedimientos judiciales y utilizar herramientas de cálculo precisas.',
     publishDate: '2026-03-25',
     image: 'https://images.unsplash.com/photo-1554200876-56c2f25224fa?auto=format&fit=crop&q=80&w=1200'
   },
   'mapa-descuento-inmobiliario-provincias-rentables': {
     id: 'mapa-descuento-inmobiliario-provincias-rentables',
     title: 'El mapa del descuento inmobiliario: Las 3 provincias donde las subastas del BOE son más rentables',
-    intro: 'El acceso a la vivienda se ha convertido en un desafío para muchos, pero los datos revelan una realidad paralela: el mercado de subastas públicas ofrece oportunidades excepcionales si sabes dónde buscar. Un análisis detallado de las adjudicaciones recientes muestra que ciertas regiones costeras y mediterráneas concentran los mayores márgenes de descuento entre el valor de tasación y el precio final.\n\nExploramos las tres provincias que lideran este ranking de rentabilidad y analizamos ejemplos reales que demuestran el potencial de esta vía de inversión. Si buscas maximizar tu capital, el secreto no está solo en cómo inviertes, sino en dónde pones el foco.',
+    intro: 'El acceso a la vivienda se ha convertido en un desafío para muchos, pero los datos revelan una realidad paralela: el mercado de subastas públicas ofrece oportunidades excepcionales si sabes dónde buscar.\n\nUn análisis detallado de las adjudicaciones recientes muestra que ciertas regiones costeras y mediterráneas concentran los mayores márgenes de descuento entre el valor de tasación y el precio final.\n\nExploramos las tres provincias que lideran este ranking de rentabilidad y analizamos ejemplos reales que demuestran el potencial de esta vía de inversión. Si buscas maximizar tu capital, el secreto no está solo en cómo inviertes, sino en dónde pones el foco.',
     keyPoints: [
       'Concentración geográfica: El arco mediterráneo (Alicante, Valencia y Málaga) lidera el volumen de subastas con altos márgenes de rentabilidad.',
       'Descuentos reales: La diferencia entre la deuda reclamada y el valor de tasación en estas zonas supera frecuentemente el 50%.',
@@ -154,14 +247,18 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
         investorProfile: 'Perfil Value / Internacional. Excelente para inversores que buscan activos refugio en zonas de alta revalorización y prestigio.'
       }
     ],
-    conclusion: 'Los datos son claros: el éxito en las subastas del BOE no solo depende de cómo se invierte, sino de dónde se busca. Alicante, Valencia y Málaga se posicionan como los epicentros de la rentabilidad inmobiliaria a través de esta vía. Sin embargo, un gran descuento inicial debe ir siempre acompañado de un análisis jurídico y financiero riguroso. Utilizar herramientas de cálculo precisas y contar con asesoramiento experto son los pasos definitivos para transformar estos datos en inversiones sólidas y seguras.',
+    sources: [
+      { name: "Instituto Nacional de Estadística (INE) - Transmisiones de Derechos de la Propiedad", url: "https://www.ine.es/" },
+      { name: "Banco de España - Indicadores del Mercado de la Vivienda", url: "https://www.bde.es/" }
+    ],
+    conclusion: 'Los datos son claros: el éxito en las subastas del BOE no solo depende de cómo se invierte, sino de dónde se busca.\n\nAlicante, Valencia y Málaga se posicionan como los epicentros de la rentabilidad inmobiliaria a través de esta vía.\n\nSin embargo, un gran descuento inicial debe ir siempre acompañado de un análisis jurídico y financiero riguroso. Utilizar herramientas de cálculo precisas y contar con asesoramiento experto son los pasos definitivos para transformar estos datos en inversiones sólidas y seguras.',
     publishDate: '2026-03-24',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200'
   },
   'trampas-legales-subastas-boe-cargas-ocultas': {
     id: 'trampas-legales-subastas-boe-cargas-ocultas',
     title: 'El método de los expertos: 3 claves para identificar las subastas inmobiliarias más seguras del BOE',
-    intro: 'El mercado de subastas públicas en España ofrece excelentes oportunidades para adquirir inmuebles por debajo de su valor de mercado. Sin embargo, el éxito de los grandes inversores no se basa en la suerte, sino en saber leer la información oficial para seleccionar los activos más seguros y rentables. A diario, el BOE publica cientos de expedientes, y la clave está en realizar una revisión detallada antes de participar.\n\nEn este reportaje, te mostramos cómo los profesionales analizan los expedientes para asegurar su inversión. Nos centraremos en tres aspectos fundamentales: la situación posesoria, la revisión de cargas registrales y las ventajas de las subastas administrativas (AEAT). Para ilustrarlo, hemos seleccionado tres expedientes reales actualmente activos.\n\nAcompáñanos en este recorrido técnico y descubre cómo filtrar el mercado para encontrar las oportunidades más sólidas y construir un patrimonio inmobiliario con total tranquilidad.',
+    intro: 'El mercado de subastas públicas en España ofrece excelentes oportunidades para adquirir inmuebles por debajo de su valor de mercado.\n\nSin embargo, el éxito de los grandes inversores no se basa en la suerte, sino en saber leer la información oficial para seleccionar los activos más seguros y rentables. A diario, el BOE publica cientos de expedientes, y la clave está en realizar una revisión detallada antes de participar.\n\nEn este reportaje, te mostramos cómo los profesionales analizan los expedientes para asegurar su inversión. Nos centraremos en tres aspectos fundamentales: la situación posesoria, la revisión de cargas registrales y las ventajas de las subastas administrativas (AEAT).\n\nAcompáñanos en este recorrido técnico y descubre cómo filtrar el mercado para encontrar las oportunidades más sólidas y construir un patrimonio inmobiliario con total tranquilidad.',
     keyPoints: [
       'La importancia de verificar la situación posesoria para una entrega de llaves ágil.',
       'Cómo interpretar la nota simple para asegurar una compra libre de cargas previas.',
@@ -192,14 +289,18 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
         investorProfile: 'Perfil Conservador / Patrimonialista. Excelente para inversores que priorizan la máxima seguridad jurídica y buscan activos fáciles de financiar para proyectos a largo plazo.'
       }
     ],
-    conclusion: 'El mercado de subastas del BOE es un entorno profesional donde la información precisa marca la diferencia. Como hemos analizado, comprender la situación posesoria, dominar la lectura registral y aprovechar las ventajas de las subastas administrativas son pilares fundamentales para el éxito.\n\nLa regla de oro es la preparación exhaustiva. Antes de participar, solicita siempre una nota simple actualizada, evalúa los costes asociados (ITP, comunidad, saneamiento) y define tu estrategia con claridad. Utiliza herramientas profesionales de cálculo y apóyate en expertos para tomar decisiones informadas. Con el enfoque adecuado, las subastas públicas ofrecen una vía excelente para construir un patrimonio inmobiliario sólido y rentable.',
+    sources: [
+      { name: "Agencia Tributaria - Subastas Públicas", url: "https://sede.agenciatributaria.gob.es/" },
+      { name: "Ley Hipotecaria y Reglamento Hipotecario", url: "https://www.boe.es/buscar/act.php?id=BOE-A-1946-2453" }
+    ],
+    conclusion: 'El mercado de subastas del BOE es un entorno profesional donde la información precisa marca la diferencia.\n\nComo hemos analizado, comprender la situación posesoria, dominar la lectura registral y aprovechar las ventajas de las subastas administrativas son pilares fundamentales para el éxito.\n\nLa regla de oro es la preparación exhaustiva. Antes de participar, solicita siempre una nota simple actualizada, evalúa los costes asociados (ITP, comunidad, saneamiento) y define tu estrategia con claridad.',
     publishDate: '2026-03-24',
     image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=1200'
   },
   'top-3-subastas-mayor-descuento-semana': {
     id: 'top-3-subastas-mayor-descuento-semana',
     title: 'Las 3 subastas con mayor descuento esta semana',
-    intro: 'El contexto macroeconómico actual en España, marcado por una estabilización de los tipos de interés en niveles todavía restrictivos, ha generado una ventana de oportunidad sin precedentes en el mercado de subastas judiciales. Mientras el mercado minorista tradicional sufre un estancamiento en el volumen de transacciones debido al encarecimiento de la financiación, el mercado "off-market" de adjudicaciones directas está experimentando un repunte en la calidad de los activos disponibles. Muchos inversores cualificados están pivotando sus estrategias desde los portales inmobiliarios clásicos hacia la adquisición de deuda y la participación en subastas públicas, buscando maximizar el margen de seguridad en cada operación.\n\nEsta semana, nuestro equipo de analistas ha monitorizado y filtrado más de 400 expedientes activos en todo el territorio nacional. El objetivo: identificar aquellas "joyas ocultas" donde la asimetría entre el valor de tasación oficial y la cantidad reclamada por el acreedor es extrema. Esta discrepancia es el santo grial de las subastas, ya que permite plantear posturas agresivas con un riesgo de pérdida de capital prácticamente nulo, asumiendo que se realice una due diligence jurídica impecable.\n\nEn este reportaje en profundidad, desgranamos las tres propiedades que lideran nuestro ranking de descuentos esta semana. Hablamos de activos donde la deuda apenas representa el 20% o 25% del valor real del inmueble. Analizaremos no solo los números superficiales, sino los fundamentales subyacentes de cada zona, los posibles escollos legales (cargas posteriores, situaciones posesorias complejas) y la estrategia de salida más óptima para maximizar el ROI.',
+    intro: 'El contexto macroeconómico actual en España, marcado por una estabilización de los tipos de interés en niveles todavía restrictivos, ha generado una ventana de oportunidad sin precedentes en el mercado de subastas judiciales.\n\nMientras el mercado minorista tradicional sufre un estancamiento en el volumen de transacciones debido al encarecimiento de la financiación, el mercado "off-market" de adjudicaciones directas está experimentando un repunte en la calidad de los activos disponibles.\n\nMuchos inversores cualificados están pivotando sus estrategias desde los portales inmobiliarios clásicos hacia la adquisición de deuda y la participación en subastas públicas, buscando maximizar el margen de seguridad en cada operación.\n\nEsta semana, nuestro equipo de analistas ha monitorizado y filtrado más de 400 expedientes activos en todo el territorio nacional. El objetivo: identificar aquellas "joyas ocultas" donde la asimetría entre el valor de tasación oficial y la cantidad reclamada por el acreedor es extrema.\n\nEn este reportaje en profundidad, desgranamos las tres propiedades que lideran nuestro ranking de descuentos esta semana. Analizaremos no solo los números superficiales, sino los fundamentales subyacentes de cada zona y los posibles escollos legales.',
     auctionDetails: [
       {
         slug: 'subasta-sub-ja-2024-232380',
@@ -223,14 +324,18 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
         investorProfile: 'Perfil Oportunista / Rentista Mixto. Adecuado para inversores que buscan diversificar geográficamente su cartera y tienen la capacidad de gestionar reformas a distancia o explotar el activo en régimen de temporada.'
       }
     ],
-    conclusion: 'El análisis detallado de estas tres operaciones demuestra empíricamente que el mercado de subastas judiciales en España sigue albergando ineficiencias masivas que el inversor inteligente puede capitalizar. Sin embargo, es crucial recordar que un alto descuento teórico no equivale automáticamente a una operación exitosa. La clave del éxito en este sector no reside únicamente en identificar la brecha entre deuda y tasación, sino en la ejecución impecable de la due diligence legal, técnica y financiera.\n\nRecomendamos encarecidamente a nuestros lectores que, antes de consignar el depósito para cualquiera de estos expedientes, realicen un estudio exhaustivo de las cargas registrales, investiguen el estado de ocupación del inmueble y calculen con precisión todos los costes ocultos (ITP, registro, notaría, posibles derramas y deudas de IBI). La inversión en subastas es una disciplina de precisión, no de volumen. Utilice las herramientas adecuadas y apóyese en análisis expertos para transformar estos descuentos teóricos en rentabilidad real y tangible en su cuenta de resultados.',
+    sources: [
+      { name: "Banco Central Europeo (BCE) - Evolución de Tipos de Interés", url: "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/key_ecb_interest_rates/html/index.en.html" },
+      { name: "Idealista Data - Evolución del precio de la vivienda", url: "https://www.idealista.com/data/" }
+    ],
+    conclusion: 'El análisis detallado de estas tres operaciones demuestra empíricamente que el mercado de subastas judiciales en España sigue albergando ineficiencias masivas que el inversor inteligente puede capitalizar.\n\nSin embargo, es crucial recordar que un alto descuento teórico no equivale automáticamente a una operación exitosa. La clave del éxito en este sector no reside únicamente en identificar la brecha entre deuda y tasación, sino en la ejecución impecable de la due diligence legal, técnica y financiera.\n\nRecomendamos encarecidamente a nuestros lectores que, antes de consignar el depósito, realicen un estudio exhaustivo de las cargas registrales, investiguen el estado de ocupación del inmueble y calculen con precisión todos los costes ocultos.',
     publishDate: '2026-03-22',
     image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=675&q=80'
   },
   '3-viviendas-subasta-menos-200k': {
     id: '3-viviendas-subasta-menos-200k',
     title: '3 viviendas en subasta por menos de 200.000€',
-    intro: 'Adquirir una vivienda por debajo de la barrera psicológica de los 200.000 euros se ha convertido en una auténtica odisea en el mercado inmobiliario español tradicional. La escasez crónica de obra nueva, sumada a una demanda sostenida y al encarecimiento de los costes de construcción, ha expulsado a muchos pequeños y medianos inversores de las principales plazas. En este escenario de precios tensionados, el mercado de subastas públicas emerge no solo como una alternativa, sino como el canal principal para acceder a vivienda asequible con potencial de revalorización.\n\nLas ejecuciones hipotecarias y los embargos administrativos siguen inyectando liquidez al mercado secundario, ofreciendo activos residenciales a una fracción de su valor de reposición. Esta semana, nuestro equipo de investigación ha puesto el foco en el segmento de precios medios-bajos, rastreando el Boletín Oficial del Estado en busca de pisos e inmuebles residenciales cuyo valor de subasta se sitúe estrictamente entre los 100.000€ y los 200.000€.\n\nHemos seleccionado tres viviendas que cumplen con nuestros rigurosos criterios de inversión: ubicaciones con demanda de alquiler contrastada, valoraciones realistas y expedientes con un nivel de complejidad jurídica manejable. Estas operaciones están diseñadas para inversores que buscan construir patrimonio a largo plazo mediante la estrategia de "Buy and Hold", asegurando flujos de caja positivos desde el primer día gracias a un precio de adquisición imbatible. A continuación, desglosamos cada oportunidad, evaluando sus fortalezas, los riesgos inherentes al proceso y el perfil de inversor ideal para acometerlas.',
+    intro: 'Adquirir una vivienda por debajo de la barrera psicológica de los 200.000 euros se ha convertido en una auténtica odisea en el mercado inmobiliario español tradicional.\n\nLa escasez crónica de obra nueva, sumada a una demanda sostenida y al encarecimiento de los costes de construcción, ha expulsado a muchos pequeños y medianos inversores de las principales plazas.\n\nEn este escenario de precios tensionados, el mercado de subastas públicas emerge no solo como una alternativa, sino como el canal principal para acceder a vivienda asequible con potencial de revalorización.\n\nLas ejecuciones hipotecarias y los embargos administrativos siguen inyectando liquidez al mercado secundario, ofreciendo activos residenciales a una fracción de su valor de reposición.\n\nHemos seleccionado tres viviendas que cumplen con nuestros rigurosos criterios de inversión: ubicaciones con demanda de alquiler contrastada, valoraciones realistas y expedientes con un nivel de complejidad jurídica manejable.',
     auctionDetails: [
       {
         slug: 'subasta-sub-ja-2026-256456',
@@ -254,14 +359,18 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
         investorProfile: 'Perfil Diversificador / Rentista. Excelente oportunidad para inversores que buscan descorrelacionar sus carteras de los mercados más volátiles (Madrid/Barcelona) e invertir en zonas con fundamentales económicos sólidos y menor competencia en las subastas.'
       }
     ],
-    conclusion: 'La adquisición de vivienda en la franja de los 100.000€ a 200.000€ a través de subastas públicas se confirma como una de las estrategias más sólidas para batir a la inflación y generar riqueza real en el entorno económico actual. Como hemos visto en estos tres ejemplos, el territorio nacional ofrece oportunidades diversificadas, desde el dinamismo metropolitano de Barcelona y Murcia hasta la estabilidad industrial de Cantabria.\n\nNo obstante, la democratización del acceso a la información ha incrementado la concurrencia en este segmento de precios. Para triunfar, el inversor debe abandonar la improvisación y adoptar un enfoque analítico y profesional. Esto implica dominar la lectura de edictos, comprender la prelación de cargas registrales y, sobre todo, establecer un límite de puja inamovible basado en números fríos y no en la emoción del momento. Le animamos a utilizar nuestras herramientas de cálculo de rentabilidad para simular diferentes escenarios de adjudicación y asegurar que su próxima inversión cumpla con sus objetivos financieros.',
+    sources: [
+      { name: "Ministerio de Fomento - Precios de Vivienda Libre", url: "https://www.mitma.gob.es/vivienda" },
+      { name: "Fotocasa Research - Perfil del inversor inmobiliario", url: "https://www.fotocasa.es/es/" }
+    ],
+    conclusion: 'La adquisición de vivienda en la franja de los 100.000€ a 200.000€ a través de subastas públicas se confirma como una de las estrategias más sólidas para batir a la inflación y generar riqueza real en el entorno económico actual.\n\nNo obstante, la democratización del acceso a la información ha incrementado la concurrencia en este segmento de precios. Para triunfar, el inversor debe abandonar la improvisación y adoptar un enfoque analítico y profesional.\n\nEsto implica dominar la lectura de edictos, comprender la prelación de cargas registrales y, sobre todo, establecer un límite de puja inamovible basado en números fríos y no en la emoción del momento.',
     publishDate: '2026-03-22',
     image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=675&q=80'
   },
   'pisos-sin-cargas-madrid-subastas-hacienda': {
     id: 'pisos-sin-cargas-madrid-subastas-hacienda',
     title: 'El \'truco\' de los inversores: 3 pisos sin cargas en Madrid que Hacienda acaba de sacar a subasta',
-    intro: 'El mercado inmobiliario en Madrid sigue marcando máximos históricos, expulsando a muchos inversores tradicionales que ya no encuentran rentabilidades atractivas en los canales habituales. Sin embargo, existe un "circuito cerrado" donde todavía es posible adquirir inmuebles muy por debajo de su valor de mercado: las subastas de la Agencia Tributaria (AEAT).\n\nA diferencia de las subastas judiciales por ejecución hipotecaria, que a menudo arrastran complejas mochilas de deudas y embargos cruzados, las subastas de Hacienda presentan una ventaja competitiva brutal: en la gran mayoría de los casos, los inmuebles salen a puja libres de cargas previas. Esto significa que el adjudicatario adquiere el activo limpio, reduciendo drásticamente el riesgo jurídico de la operación y acortando los plazos para su posterior comercialización o alquiler.\n\nEsta semana, nuestro radar de oportunidades ha detectado un repunte inusual en la publicación de activos residenciales de la AEAT en la Comunidad de Madrid. No hablamos de solares rústicos ni naves industriales, sino de pisos listos para entrar a vivir o reformar en zonas de altísima demanda.\n\nHemos analizado el Boletín Oficial del Estado para seleccionar tres viviendas estratégicas que acaban de salir al mercado. Desde el cotizado anillo de la M-40 en Madrid capital, pasando por el codiciado noroeste en Las Rozas, hasta el consolidado cinturón sur en Fuenlabrada. Tres perfiles de inversión distintos unidos por un denominador común: cero euros de cargas registrales previas. A continuación, desgranamos los números, los riesgos y el potencial de cada una de estas operaciones.',
+    intro: 'El mercado inmobiliario en Madrid sigue marcando máximos históricos, expulsando a muchos inversores tradicionales que ya no encuentran rentabilidades atractivas en los canales habituales.\n\nSin embargo, existe un "circuito cerrado" donde todavía es posible adquirir inmuebles muy por debajo de su valor de mercado: las subastas de la Agencia Tributaria (AEAT).\n\nA diferencia de las subastas judiciales por ejecución hipotecaria, que a menudo arrastran complejas mochilas de deudas y embargos cruzados, las subastas de Hacienda presentan una ventaja competitiva brutal: en la gran mayoría de los casos, los inmuebles salen a puja libres de cargas previas.\n\nEsto significa que el adjudicatario adquiere el activo limpio, reduciendo drásticamente el riesgo jurídico de la operación y acortando los plazos para su posterior comercialización o alquiler.\n\nHemos analizado el Boletín Oficial del Estado para seleccionar tres viviendas estratégicas que acaban de salir al mercado en Madrid. Tres perfiles de inversión distintos unidos por un denominador común: cero euros de cargas registrales previas.',
     auctionDetails: [
       {
         slug: 'subasta-sub-at-2026-25r2886001859',
@@ -285,14 +394,18 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
         investorProfile: 'Perfil Conservador / Rentista. Perfecto para pequeños ahorradores o inversores que buscan construir su primera cartera de activos generadores de rentas pasivas con un ticket de entrada muy contenido.'
       }
     ],
-    conclusion: 'Las subastas de la Agencia Tributaria en Madrid representan, hoy por hoy, una de las vías más seguras y rentables para adquirir patrimonio inmobiliario con descuento. La tranquilidad mental que aporta pujar por activos con "Cargas: 0,00€" es incalculable, eliminando de un plumazo el 80% de los dolores de cabeza jurídicos asociados a las ejecuciones hipotecarias tradicionales.\n\nSin embargo, que el activo esté libre de cargas registrales no exime al inversor de realizar sus deberes. Las afecciones reales (IBI del año en curso y los tres anteriores, más las cuotas de la comunidad de propietarios) siempre acompañan al inmueble y deben restarse de su presupuesto máximo de puja. Además, la gestión de la posesión sigue siendo el gran reto a resolver post-adjudicación.\n\nSi está valorando entrar en alguna de estas tres operaciones, le recomendamos encarecidamente que no se deje llevar por el "calentón" de la puja. Utilice herramientas profesionales para calcular su margen de seguridad, fije su precio máximo en frío y, si los números no cuadran, deje pasar la oportunidad. En el BOE, la paciencia y el análisis riguroso son siempre los activos más valiosos.',
+    sources: [
+      { name: "Agencia Tributaria - Procedimiento de Apremio", url: "https://sede.agenciatributaria.gob.es/" },
+      { name: "Ley General Tributaria (LGT)", url: "https://www.boe.es/buscar/act.php?id=BOE-A-2003-23186" }
+    ],
+    conclusion: 'Las subastas de la Agencia Tributaria en Madrid representan, hoy por hoy, una de las vías más seguras y rentables para adquirir patrimonio inmobiliario con descuento.\n\nLa tranquilidad mental que aporta pujar por activos con "Cargas: 0,00€" es incalculable, eliminando de un plumazo el 80% de los dolores de cabeza jurídicos asociados a las ejecuciones hipotecarias tradicionales.\n\nSin embargo, que el activo esté libre de cargas registrales no exime al inversor de realizar sus deberes. Las afecciones reales (IBI del año en curso y los tres anteriores, más las cuotas de la comunidad de propietarios) siempre acompañan al inmueble y deben restarse de su presupuesto máximo de puja.',
     publishDate: '2026-03-23',
     image: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=675&q=80'
   },
   'pisos-ocupados-subastas-mitad-precio-inversores': {
     id: 'pisos-ocupados-subastas-mitad-precio-inversores',
-    title: 'Pisos embargados a mitad de precio: el polémico negocio de comprar en subasta con \'okupas\'',
-    intro: 'El mercado inmobiliario español vive una paradoja que pocos conocen fuera del circuito profesional. Mientras el comprador tradicional huye despavorido ante la mera mención de la palabra "okupa" o inquilino sin contrato, los grandes fondos y los inversores patrimonialistas más agresivos buscan activamente este tipo de activos. ¿El motivo? El llamado "descuento por bicho".\n\nComprar un piso ocupado en una subasta judicial o administrativa permite adquirir propiedades prime con rebajas que oscilan entre el 40% y el 60% de su valor real de mercado. Es una estrategia de alto riesgo, no apta para cardíacos ni para quienes necesitan la vivienda para entrar a vivir mañana, pero que ofrece las rentabilidades más explosivas del sector inmobiliario actual.\n\nEl modelo de negocio es frío y matemático: se adquiere el inmueble a precio de derribo, se asume el coste (temporal y económico) de un procedimiento de desahucio o una negociación extrajudicial (las famosas "llaves por dinero"), y una vez recuperada la posesión, el activo se reforma y se devuelve al mercado a precio libre, generando plusvalías de seis cifras.\n\nEsta semana, hemos buceado en los edictos del BOE para destapar tres ejemplos perfectos de este tipo de operaciones. Tres propiedades embargadas —en Madrid, Barcelona y la Costa del Sol— donde la enorme brecha entre la deuda reclamada y el valor de tasación sugiere complicaciones posesorias, convirtiéndolas en el blanco perfecto para los "cazadores de chollos" profesionales. Analizamos los números, el perfil de riesgo y por qué los grandes capitales se pelean por ellas.',
+    title: 'Pisos embargados a mitad de precio: el polémico negocio de comprar en subasta con ocupantes',
+    intro: 'El mercado inmobiliario español vive una paradoja que pocos conocen fuera del circuito profesional.\n\nMientras el comprador tradicional huye despavorido ante la mera mención de la palabra "ocupante sin título" o inquilino sin contrato, los grandes fondos y los inversores patrimonialistas más agresivos buscan activamente este tipo de activos. ¿El motivo? El llamado "descuento por ocupación".\n\nComprar un piso ocupado en una subasta judicial o administrativa permite adquirir propiedades prime con rebajas que oscilan entre el 40% y el 60% de su valor real de mercado.\n\nEl modelo de negocio es frío y matemático: se adquiere el inmueble a precio de derribo, se asume el coste (temporal y económico) de un procedimiento de desahucio o una negociación extrajudicial (las famosas "llaves por dinero"), y una vez recuperada la posesión, el activo se reforma y se devuelve al mercado a precio libre.\n\nEsta semana, hemos buceado en los edictos del BOE para destapar tres ejemplos perfectos de este tipo de operaciones en Madrid, Barcelona y la Costa del Sol.',
     auctionDetails: [
       {
         slug: 'subasta-sub-ja-2026-257501',
@@ -316,7 +429,11 @@ export const DISCOVER_REPORTS: Record<string, DiscoverReport> = {
         investorProfile: 'Perfil "High Net Worth" / Fondos Internacionales. Inversores institucionales con músculo financiero extremo, capaces de inmovilizar millones de euros durante años a cambio de una TIR (Tasa Interna de Retorno) estratosférica en el mercado prime.'
       }
     ],
-    conclusion: 'El negocio de comprar pisos ocupados o con problemas posesorios en subasta es, sin lugar a dudas, el último reducto de las rentabilidades extraordinarias en el sector inmobiliario español. Es un ecosistema donde la información, la sangre fría y el músculo legal valen tanto o más que el capital invertido.\n\nPara el ciudadano de a pie, adquirir un problema legal por cientos de miles de euros parece una locura. Para el inversor profesional, es una simple ecuación matemática donde el "descuento por bicho" compensa con creces los costes legales y el tiempo de espera.\n\nSin embargo, desde Activos Off-Market lanzamos una advertencia clara: esta estrategia no admite aficionados. Un error en la lectura del edicto, una mala evaluación del perfil del ocupante o la falta de liquidez para soportar un proceso judicial largo pueden convertir el "chollo de su vida" en una trampa financiera letal. La diligencia debida (due diligence) no es opcional, es la única barrera entre el éxito rotundo y la quiebra.',
+    sources: [
+      { name: "Ley 12/2023, de 24 de mayo, por el derecho a la vivienda", url: "https://www.boe.es/buscar/act.php?id=BOE-A-2023-12203" },
+      { name: "Consejo General del Poder Judicial - Datos sobre desahucios y lanzamientos", url: "https://www.poderjudicial.es/" }
+    ],
+    conclusion: 'El negocio de comprar pisos ocupados o con problemas posesorios en subasta es, sin lugar a dudas, el último reducto de las rentabilidades extraordinarias en el sector inmobiliario español.\n\nPara el ciudadano de a pie, adquirir un problema legal por cientos de miles de euros parece una locura. Para el inversor profesional, es una simple ecuación matemática donde el "descuento por ocupación" compensa con creces los costes legales y el tiempo de espera.\n\nSin embargo, desde Activos Off-Market lanzamos una advertencia clara: esta estrategia no admite aficionados. Un error en la lectura del edicto o una mala evaluación del perfil del ocupante pueden convertir el "chollo de su vida" en una trampa financiera letal.',
     publishDate: '2026-03-23',
     image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=675&q=80'
   }

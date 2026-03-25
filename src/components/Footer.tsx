@@ -114,6 +114,7 @@ const Footer: React.FC = () => {
 
             <h4 className="text-slate-300 font-bold text-sm mb-4">Recursos</h4>
             <ul className="space-y-3 text-sm">
+              <li><Link to={ROUTES.REPORTS_INDEX} className="hover:text-white transition-colors">Reportajes y Análisis</Link></li>
               <li><Link to={ROUTES.NOTICIAS_SUBASTAS_INDEX} className="hover:text-white transition-colors">Noticias de subastas</Link></li>
               <li><Link to={ROUTES.GLOSSARY} className="hover:text-white transition-colors">Glosario de términos</Link></li>
               <li><Link to={ROUTES.HISTORICAL_AUCTIONS} className="hover:text-white transition-colors">Histórico de Subastas</Link></li>

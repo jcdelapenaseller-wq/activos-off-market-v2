@@ -142,9 +142,9 @@ const DiscoverReportArticle: React.FC = () => {
         <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
           <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
           <ChevronRight size={14} className="mx-2" />
-          <Link to={ROUTES.RECENT_AUCTIONS} className="hover:text-brand-600 transition-colors">Subastas</Link>
+          <Link to={ROUTES.REPORTS_INDEX} className="hover:text-brand-600 transition-colors">Reportajes</Link>
           <ChevronRight size={14} className="mx-2" />
-          <span className="text-slate-900 truncate" aria-current="page">Reportaje</span>
+          <span className="text-slate-900 truncate" aria-current="page">{report.title}</span>
         </nav>
 
         <article className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-200">
@@ -248,7 +248,7 @@ const DiscoverReportArticle: React.FC = () => {
 
             <div className="prose prose-lg prose-slate max-w-none">
               {report.intro.split('\n').filter(p => p.trim() !== '').map((paragraph, idx) => (
-                <p key={idx} className="text-lg leading-relaxed text-slate-700 mb-8">
+                <p key={idx} className="text-lg md:text-xl leading-loose text-slate-700 mb-8">
                   {highlightText(paragraph)}
                 </p>
               ))}
@@ -343,9 +343,9 @@ const DiscoverReportArticle: React.FC = () => {
                   <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-6 leading-tight">
                     {section.subtitle}
                   </h2>
-                  <div className="prose prose-lg prose-slate max-w-none mb-8">
+                  <div className="prose prose-lg prose-slate max-w-none mb-10">
                     {section.content.split('\n').filter(p => p.trim() !== '').map((paragraph, pIdx) => (
-                      <p key={pIdx} className="text-lg leading-relaxed text-slate-700 mb-6">
+                      <p key={pIdx} className="text-lg md:text-xl leading-loose text-slate-700 mb-8">
                         {highlightText(paragraph)}
                       </p>
                     ))}
@@ -413,14 +413,35 @@ const DiscoverReportArticle: React.FC = () => {
             </div>
           )}
 
-          <div className="prose prose-lg prose-slate max-w-none mb-16 bg-slate-50 p-8 md:p-10 rounded-2xl border border-slate-200">
-            <h3 className="text-2xl font-serif font-bold text-slate-900 mb-6 mt-0">Conclusión</h3>
+          <div className="prose prose-lg prose-slate max-w-none mb-16 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-200">
+            <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-8 mt-0">Conclusión</h3>
             {report.conclusion.split('\n').filter(p => p.trim() !== '').map((paragraph, idx) => (
-              <p key={idx} className="text-slate-700 leading-relaxed text-lg mb-6">
+              <p key={idx} className="text-slate-700 leading-loose text-lg md:text-xl mb-8">
                 {highlightText(paragraph)}
               </p>
             ))}
           </div>
+
+          {report.sources && report.sources.length > 0 && (
+            <div className="mb-16 border-t border-slate-200 pt-8">
+              <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Fuentes y Metodología</h4>
+              <ul className="space-y-2 m-0 p-0 list-none">
+                {report.sources.map((source, idx) => (
+                  <li key={idx} className="text-sm text-slate-600">
+                    <a 
+                      href={source.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-brand-600 hover:text-brand-700 hover:underline inline-flex items-center gap-1"
+                    >
+                      {source.name}
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="bg-brand-50 border border-brand-100 rounded-2xl p-8 md:p-12 text-center mb-16 shadow-sm">
             <Calculator className="w-12 h-12 text-brand-600 mx-auto mb-4" />
