@@ -47,6 +47,7 @@ export const ROUTES = {
   DISCOVER_REPORT: '/analisis/:slug',
   REPORTS_INDEX: '/reportajes-subastas',
   AUCTION_PAGE: '/subasta/:slug',
+  CALCULATOR_SLUG: '/calculadora-subasta/:slug',
   PROVINCE_PROPERTY: '/subastas/:province/:propertyType',
   ZONE_PROPERTY_PROVINCE: '/subastas-:propertyType-:province-:zone',
   STREET: '/subastas/:province/:zone/:street',

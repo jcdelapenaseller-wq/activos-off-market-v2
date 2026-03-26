@@ -26,7 +26,31 @@ const ITP_RATES: Record<string, number> = {
   'La Rioja': 0.07,
 };
 
-const AuctionCalculator: React.FC = () => {
+interface AuctionCalculatorProps {
+  appraisalValue?: number;
+  claimedDebt?: number;
+  surface?: number;
+  city?: string;
+  onClose?: () => void;
+}
+
+const AuctionCalculator: React.FC<AuctionCalculatorProps> = ({ 
+  appraisalValue, 
+  claimedDebt, 
+  surface, 
+  city,
+  onClose 
+}) => {
+  useEffect(() => {
+    if (appraisalValue) setTasacionBOE(appraisalValue);
+    if (claimedDebt) setDeudas(claimedDebt);
+    if (city) {
+      // Find matching community if possible
+      const match = Object.keys(ITP_RATES).find(c => city.toLowerCase().includes(c.toLowerCase()));
+      if (match) setComunidad(match);
+    }
+  }, [appraisalValue, claimedDebt, city]);
+
   useEffect(() => {
     document.title = "Calculadora de Rentabilidad en Subastas Judiciales | ROI e ITP";
     const metaDesc = document.querySelector('meta[name="description"]');

@@ -4,8 +4,10 @@ import {
   Calculator, Gavel, TrendingUp, Search, ChevronRight, 
   MapPin, Home, DollarSign, AlertTriangle, CheckCircle, 
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon,
-  Clock, Calendar, User, Share2, Printer
+  Clock, Calendar, User, Twitter, Linkedin, Mail, MessageCircle,
+  ExternalLink, AlertCircle, Lock, ArrowUpRight
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { AUCTIONS } from '../data/auctions';
 import { AUCTION_RESULTS } from '../data/auctionResults';
 import { getFilteredAuctions, isAuctionFinished, getAuctionType, getProcedureType } from '../utils/auctionHelpers';
@@ -18,8 +20,10 @@ import ConversionBlock from './ConversionBlock';
 import ConsultingCTA from './ConsultingCTA';
 import RadarPremiumCTA from './RadarPremiumCTA';
 import RelatedAuctions from './RelatedAuctions';
+import LoadAnalysisBlock from './LoadAnalysisBlock';
 import Header from './Header';
 import Footer from './Footer';
+import AuctionCalculator from './AuctionCalculator';
 
 const AuctionPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -29,6 +33,7 @@ const AuctionPage: React.FC = () => {
   // Calculator State
   const [valorMercado, setValorMercado] = useState<number | ''>('');
   const [deudas, setDeudas] = useState<number | ''>('');
+  const [showCalculator, setShowCalculator] = useState(false);
 
   if (!auction) return <Navigate to={ROUTES.HOME} replace />;
 
@@ -101,85 +106,62 @@ const AuctionPage: React.FC = () => {
     }
     const isJudicial = auction.boeId?.startsWith('SUB-JA');
     
-    // Market Context Logic (Natural Language)
-    let marketContext = "";
-    if (auction.appraisalValue) {
-      marketContext = `En este caso, los niveles de mercado para activos similares en esta zona de ${cityName} validan la tasación oficial de forma coherente. Se trata de rangos habituales para ${propertyType.toLowerCase()} en este barrio, lo que sugiere que el valor de referencia es una base sólida para el cálculo de rentabilidad y minimiza la incertidumbre técnica en la valoración.`;
+    // Interpretation Logic
+    let interpretation = "";
+    const debtToAppraisalRatio = auction.appraisalValue && auction.claimedDebt ? (auction.claimedDebt / auction.appraisalValue) * 100 : 0;
+    const currentDiscount = auction.appraisalValue && auction.claimedDebt ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) : 0;
+    
+    if (auction.appraisalValue && auction.claimedDebt) {
+      if (currentDiscount > 50) {
+        interpretation = `Este expediente destaca por un margen excepcional del ${currentDiscount}%, lo que lo posiciona como una oportunidad de alto impacto. La carga reclamada representa solo el ${debtToAppraisalRatio.toFixed(1)}% de la tasación oficial, generando un colchón de seguridad extraordinario para absorber cualquier contingencia procesal o de posesión.`;
+      } else if (currentDiscount > 25) {
+        interpretation = `La oportunidad en este activo reside en un equilibrio sólido entre riesgo y rentabilidad. Con un margen del ${currentDiscount}%, el inversor cuenta con margen suficiente para gestionar el lanzamiento y posibles deudas de comunidad o IBI sin comprometer el objetivo de rentabilidad neta de dos dígitos.`;
+      } else {
+        interpretation = `Se trata de un activo con margen ajustado (${currentDiscount}%), donde la clave del éxito reside en la ubicación estratégica o la tipología del inmueble. Es un expediente ideal para compradores finalistas o inversores patrimonialistas que priorizan la seguridad del activo sobre el descuento agresivo.`;
+      }
     } else {
-      marketContext = `Al no contar con una tasación oficial detallada, el análisis debe basarse necesariamente en los niveles de mercado similares en la zona de ${provinceName}. Esto implica que la demanda en este sector es constante, lo que aporta una capa de prudencia necesaria al definir el escenario de salida tras la adjudicación.`;
+      interpretation = "La ausencia de desglose de deuda en el anuncio público exige un enfoque de máxima cautela. La oportunidad en este caso no es evidente por los números, sino que reside en la posible baja concurrencia de postores debido a la opacidad inicial, lo que requiere una investigación directa en el juzgado.";
     }
 
     // Investor Profile Logic
     let investorProfile = "";
-    const notHabitual = isJudicial ? "Por otro lado, conviene tener en cuenta que no es un activo habitual para perfiles que necesiten financiación bancaria inmediata o posesión en menos de 3 meses debido a los tiempos del juzgado." : "Por otro lado, es recomendable observar que no es habitual para perfiles que busquen los tiempos flexibles de una compraventa tradicional entre particulares.";
+    const notHabitual = isJudicial 
+      ? "No es un activo apto para perfiles que dependan de financiación bancaria convencional o necesiten posesión inmediata." 
+      : "No es recomendable para compradores que busquen la inmediatez de una compraventa tradicional.";
     
     if (discount > 45) {
-      investorProfile = `Este activo encaja principalmente con inversores especialistas en 'flipping' o activos con gestión jurídica compleja que buscan maximizar el retorno. ${notHabitual}`;
+      investorProfile = `Perfil ideal: Inversores especialistas en 'flipping' o gestión de activos complejos que buscan maximizar el retorno sobre capital. ${notHabitual}`;
     } else if (discount > 25) {
-      investorProfile = `El perfil ideal aquí es el de inversores patrimonialistas (Buy-to-Rent) que buscan maximizar el flujo de caja mediante un coste de entrada reducido. ${notHabitual}`;
+      investorProfile = `Perfil ideal: Inversores patrimonialistas (Buy-to-Rent) que buscan optimizar el flujo de caja mediante un coste de adquisición reducido. ${notHabitual}`;
     } else {
-      investorProfile = `Se trata de una opción para compradores finalistas o inversores conservadores que priorizan la ubicación estratégica sobre el descuento extremo. ${notHabitual}`;
+      investorProfile = `Perfil ideal: Compradores finalistas o inversores conservadores que buscan activos en ubicaciones consolidadas con un descuento moderado. ${notHabitual}`;
     }
 
-    // Interpretation Logic
-    let interpretation = "";
-    if (auction.appraisalValue && auction.claimedDebt) {
-      const ratio = (auction.claimedDebt / auction.appraisalValue) * 100;
-      interpretation = `La oportunidad real en este expediente reside en la excelente relación deuda/valor, ya que la carga reclamada representa solo el ${ratio.toFixed(1)}% de la tasación oficial. En este contexto, esto genera un "colchón" de seguridad muy relevante que permite absorber posibles desviaciones en gastos de desahucio o IBI pendiente sin comprometer la viabilidad financiera de la operación.`;
-    } else {
-      interpretation = "La falta de desglose de deuda en el edicto aconseja un enfoque de 'máxima cautela' por parte del analista. En este caso, la oportunidad no es evidente por los números públicos, sino que debe buscarse en la posible ausencia de otros postores debido a la opacidad inicial del expediente, lo que requiere una investigación de campo más profunda.";
-    }
-
-    // Practical Implications
-    const practicalImplications = isJudicial 
-      ? "Un inversor en este procedimiento debe centrarse prioritariamente en la obtención del testimonio del decreto de adjudicación. Esto implica que el paso crítico no es la puja en sí, sino la gestión posterior del lanzamiento si el inmueble no se entrega voluntariamente, algo que requiere prever un presupuesto específico para procurador y cerrajería técnica."
-      : "En este procedimiento administrativo, el éxito depende críticamente de la velocidad de liquidación y el cumplimiento de hitos. A diferencia del juzgado, aquí los plazos de pago son improrrogables y la comprobación de cargas previas es responsabilidad exclusiva del postor antes de depositar la fianza, lo que exige una diligencia previa impecable.";
-
-    // Scenarios
-    const bestCase = "En el mejor de los escenarios, la adjudicación se produciría cerca de la deuda mínima, encontrando el inmueble vacío de ocupantes y logrando un registro de la propiedad limpio en menos de 5 meses.";
-    const worstCase = "Por el contrario, el escenario de mayor complejidad contempla una ocupación por terceros sin título, deudas de comunidad de varios ejercicios y una demora judicial que podría superar los 14 meses hasta la toma de posesión.";
-
-    // Sense Logic
-    const hasSense = discount > 25 && auction.claimedDebt;
-    const senseText = hasSense 
-      ? "Esta subasta tiene sentido si buscas un activo con margen suficiente para delegar la gestión jurídica y aun así obtener una rentabilidad neta superior al 12% anual."
-      : "En este caso, el sentido de la puja reside en buscar un activo específico por ubicación o tipología que rara vez sale al mercado abierto, aceptando un margen más estrecho a cambio de la exclusividad del inmueble.";
+    // Market Context Logic (Rule-based)
+    const auctionsInCity = Object.values(AUCTIONS).filter(a => normalizeCity(a) === cityName).length;
+    let marketContext = "";
     
-    const cautionText = !auction.claimedDebt 
-      ? "Se requiere una atención especial si no tienes capacidad para investigar el expediente directamente en el juzgado o no cuentas con liquidez para cubrir cargas imprevistas de última hora."
-      : isJudicial 
-        ? "Conviene revisar los tiempos si necesitas disponer de la vivienda de forma inmediata; los plazos judiciales en este tipo de activos suelen ser incompatibles con urgencias habitacionales."
-        : "Es recomendable verificar la libertad de cargas en el Registro de la Propiedad en las últimas 48 horas, dado el carácter administrativo del proceso.";
+    if (auctionsInCity > 5) {
+      marketContext = `El mercado de subastas en ${cityName} presenta actualmente una alta actividad con ${auctionsInCity} expedientes activos. Esta competencia exige una especialización mayor en la fase de análisis para detectar el valor real frente a otros postores profesionales.`;
+    } else {
+      marketContext = `Detectamos un volumen bajo de subastas en ${cityName} (${auctionsInCity} activas), lo que convierte a este activo en una pieza de interés por su escasez en el canal de adjudicaciones públicas de la zona.`;
+    }
 
-    // Procedural Context Logic (Dynamic SEO)
+    if (auction.appraisalValue) {
+      marketContext += ` La tasación de ${auction.appraisalValue.toLocaleString()}€ se sitúa en rangos de mercado para ${propertyType.toLowerCase()}, validando la base de cálculo para el estudio de rentabilidad.`;
+    }
+
+    // Procedural Context Logic (Rule-based)
     let proceduralContext = "";
     const typeLabel = propertyType.toLowerCase();
     const isAEAT = auction.boeId?.startsWith('SUB-AT');
-    const hasData = auction.appraisalValue && auction.claimedDebt;
 
     if (isJudicial) {
-      const intros = [
-        `Este procedimiento judicial en ${cityName} se rige por la Ley de Enjuiciamiento Civil, lo que garantiza un marco jurídico estructurado para la adquisición de este ${typeLabel}.`,
-        `La ejecución judicial que afecta a este activo en ${provinceName} requiere una validación minuciosa del decreto de adjudicación para asegurar una transmisión de propiedad limpia.`,
-        `Al tratarse de una subasta gestionada por los juzgados de ${cityName}, el proceso de toma de posesión de este ${typeLabel} seguirá los cauces procesales habituales de la zona.`
-      ];
-      const details = hasData 
-        ? `La existencia de una tasación oficial de ${auction.appraisalValue?.toLocaleString()}€ facilita la transparencia en la puja, aunque siempre conviene contrastar las cargas preferentes.`
-        : `La ausencia de valores de referencia en el edicto judicial de este ${typeLabel} sugiere que la oportunidad puede residir en la menor concurrencia de postores no profesionales.`;
-      
-      // Use a simple selection logic based on boeId length or similar to vary
-      const index = (auction.boeId?.length || 0) % intros.length;
-      proceduralContext = `${intros[index]} ${details} El elemento clave en este expediente judicial reside en la correcta interpretación de la certificación de cargas del registro.`;
+      proceduralContext = `Este procedimiento judicial en ${cityName} se rige por la LEC, garantizando un marco jurídico estable. El éxito depende de la correcta interpretación de la certificación de cargas y la gestión del decreto de adjudicación.`;
     } else if (isAEAT) {
-      const intros = [
-        `La Agencia Tributaria (AEAT) gestiona la enajenación de este ${typeLabel} en ${cityName} mediante su sistema de subastas administrativas con plazos de depósito específicos.`,
-        `Este activo en la provincia de ${provinceName} sale a subasta vía AEAT, un procedimiento que destaca por su agilidad pero que exige una revisión previa de cargas anteriores.`,
-        `Al participar en esta subasta administrativa en ${cityName}, el postor debe tener en cuenta que la AEAT no siempre detalla el estado de ocupación del ${typeLabel}.`
-      ];
-      const index = (auction.boeId?.length || 0) % intros.length;
-      proceduralContext = `${intros[index]} Es recomendable verificar la libertad de cargas en el Registro de la Propiedad, ya que en el ámbito tributario la responsabilidad de comprobación recae totalmente en el postor.`;
+      proceduralContext = `Subasta administrativa vía AEAT en ${cityName}. Destaca por su agilidad procesal, aunque exige una revisión exhaustiva de cargas anteriores, ya que la responsabilidad de comprobación recae íntegramente en el postor.`;
     } else {
-      proceduralContext = `Este expediente administrativo para el ${typeLabel} situado en ${cityName} presenta las particularidades propias de los organismos públicos locales o de la Seguridad Social. Requiere una validación técnica de los plazos de adjudicación y una revisión profunda del expediente completo para evitar sorpresas en la liquidación final.`;
+      proceduralContext = `Expediente administrativo en ${cityName}. Requiere validación técnica de plazos y revisión profunda del expediente para asegurar la liquidación correcta de deudas subsistentes.`;
     }
 
     // Appraisal warning logic integrated
@@ -187,44 +169,53 @@ const AuctionPage: React.FC = () => {
       proceduralContext += ` Dada la falta de tasación oficial en el anuncio de ${cityName}, se aconseja realizar una investigación de campo para evitar el riesgo de sobrepuja en este ${typeLabel}.`;
     }
 
-    // Soft FOMO Logic (Dynamic & Subtle)
-    const fomoOptions = {
-      scarcity: [
-        `No es habitual encontrar este nivel de margen en activos de esta tipología en ${cityName}.`,
-        `Oportunidades con este diferencial de precio en ${provinceName} suelen ser escasas en el mercado abierto.`,
-        `La relación deuda/valor de este expediente es poco frecuente para ${typeLabel} en esta zona.`
-      ],
-      competition: [
-        `Este tipo de activos suele atraer a inversores activos que buscan rentabilidades netas de doble dígito.`,
-        `Dada la ubicación en ${cityName}, es previsible un interés profesional por parte de fondos patrimonialistas.`,
-        `Activos con estas características técnicas suelen estar en el radar de los inversores más experimentados de ${provinceName}.`
-      ],
-      opportunity: [
-        `Situaciones con este nivel de "colchón" de seguridad suelen analizarse con rapidez por perfiles especialistas.`,
-        `Este expediente representa una de las opciones más sólidas detectadas recientemente en ${cityName} por su estructura de deuda.`,
-        `El potencial de revalorización tras la gestión jurídica convierte a este ${typeLabel} en una pieza estratégica.`
-      ],
-      timing: [
-        `Este tipo de operaciones se preparan con antelación suficiente para asegurar la viabilidad del lanzamiento posterior.`,
-        `La ventana de oportunidad para analizar este expediente antes del cierre requiere una diligencia ágil pero rigurosa.`,
-        `Los inversores que logran las mejores adjudicaciones suelen ser aquellos que inician la investigación en esta fase del proceso.`
-      ]
-    };
-
-    const getFomo = (type: keyof typeof fomoOptions) => {
-      const options = fomoOptions[type];
-      const index = (auction.boeId?.length || 0) % options.length;
-      return options[index];
-    };
-
+    // Soft FOMO Logic (Rule-based)
     const fomo = {
-      interpretation: getFomo('opportunity'),
-      market: getFomo('scarcity'),
-      preCta: getFomo('competition'),
-      timing: getFomo('timing')
+      interpretation: discount > 40 ? "Oportunidad con margen superior a la media en la zona." : "Activo con estructura de deuda clara para inversores.",
+      market: auctionsInCity < 3 ? `Escasez de activos similares en ${cityName}.` : `Activo estratégico en mercado activo de ${cityName}.`,
+      preCta: "Interés profesional previsible por ubicación y tipología.",
+      timing: "Fase crítica de análisis antes del cierre de pujas."
     };
 
-    return { marketContext, investorProfile, senseText, cautionText, interpretation, practicalImplications, bestCase, worstCase, proceduralContext, fomo };
+    // Summary Labels for the Dark Block
+    const str = (auction.boeId || '') + cityName + propertyType + (auction.claimedDebt || 0);
+    const seed = str.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    
+    // 1. Margen Estimado
+    let margenLabels: string[] = [];
+    if (opportunityRatio === null) {
+      margenLabels = ['Análisis pendiente'];
+    } else if (opportunityRatio > 0.4) {
+      margenLabels = ['Alto potencial', 'Margen muy amplio', 'Descuento relevante', 'Oportunidad clara', 'Margen excepcional', 'Entrada favorable', 'Potencial elevado', 'Gran margen', 'Muy atractivo', 'Colchón amplio'];
+    } else if (opportunityRatio > 0.25) {
+      margenLabels = ['Buen margen', 'Potencial interesante', 'Margen atractivo', 'Entrada sólida', 'Oportunidad interesante', 'Descuento atractivo', 'Potencial claro', 'Margen favorable', 'Posición ventajosa'];
+    } else if (opportunityRatio > 0.15) {
+      margenLabels = ['Margen moderado', 'Potencial ajustado', 'Entrada selectiva', 'Margen limitado', 'Oportunidad medida', 'Descuento moderado', 'Potencial medio'];
+    } else {
+      margenLabels = ['Margen reducido', 'Potencial limitado', 'Entrada ajustada', 'Oportunidad táctica', 'Margen estrecho'];
+    }
+    const margenLabel = margenLabels[seed % margenLabels.length];
+
+    // 2. Punto de Atención
+    let atencionLabels: string[] = [];
+    const hasDebt = !!auction.claimedDebt;
+    const highDebt = auction.claimedDebt && auction.appraisalValue && (auction.claimedDebt > auction.appraisalValue * 0.4);
+    
+    // Logic for "Escenario limpio" vs "Cargas/Contexto"
+    if (!isJudicial && hasDebt && !highDebt && opportunityRatio && opportunityRatio > 0.2) {
+      atencionLabels = ['Expediente claro', 'Sin cargas visibles', 'Riesgo limitado', 'Situación favorable', 'Perfil sencillo', 'Documentación clara'];
+    } else {
+      atencionLabels = ['Cargas preferentes', 'Riesgo registral', 'Revisar expediente', 'Posibles cargas', 'Análisis necesario', 'Atención jurídica', 'Revisar documentación', 'Expediente complejo', 'Riesgo potencial', 'Ver cargas', 'Atención registral', 'Revisión recomendada', 'Posible afección', 'Cargas a validar', 'Riesgo oculto', 'Precaución jurídica', 'Verificación previa', 'Comprobación necesaria'];
+    }
+    const atencionLabel = atencionLabels[seed % atencionLabels.length];
+
+    // 3. Lectura General
+    const lecturaLabels = ['Inversión interesante', 'Oportunidad inversor', 'Perfil inversor', 'Potencial flip', 'Estrategia flexible', 'Activo atractivo', 'Oportunidad selectiva', 'Inversión táctica', 'Perfil conservador', 'Inversión moderada', 'Potencial revalorización', 'Entrada estratégica', 'Oportunidad mercado', 'Inversión viable', 'Activo interesante', 'Estrategia inversión', 'Perfil oportunista', 'Oportunidad puntual', 'Potencial alquiler', 'Potencial rotación', 'Inversión analizable', 'Estrategia abierta', 'Oportunidad técnica', 'Activo analizable'];
+    const lecturaLabel = lecturaLabels[seed % lecturaLabels.length];
+
+    const summaryLabels = { margenLabel, atencionLabel, lecturaLabel };
+
+    return { marketContext, investorProfile, interpretation, proceduralContext, fomo, summaryLabels };
   }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
 
   const isCityCapital = cityName !== 'España' && cityName.toLowerCase() === provinceName.toLowerCase();
@@ -348,37 +339,55 @@ const AuctionPage: React.FC = () => {
     };
 
     // 1. ¿Cuánto podría costar esta subasta en {ciudad}?
+    const priceQuestions = [
+      `¿Cuál es el valor de referencia para esta subasta de ${propertyType.toLowerCase()} en ${cityName}?`,
+      `¿Cuánto es la tasación oficial de este activo en ${cityName}?`,
+      `¿Qué precio base tiene este ${propertyType.toLowerCase()} en subasta?`
+    ];
+    const q1Index = (auction.boeId?.length || 0) % priceQuestions.length;
     faqPage.mainEntity.push({
       "@type": "Question",
-      "name": `¿Cuánto podría costar esta subasta de ${propertyType.toLowerCase()} en ${cityName}?`,
+      "name": priceQuestions[q1Index],
       "acceptedAnswer": {
         "@type": "Answer",
         "text": auction.appraisalValue 
-          ? `El valor de tasación oficial para esta subasta en ${cityName} es de ${auction.appraisalValue.toLocaleString('es-ES')}€. Sin embargo, el precio final dependerá de las pujas y de si existe un tipo mínimo establecido.`
-          : `El valor de tasación para esta subasta en ${cityName} no se ha especificado públicamente. Recomendamos revisar el edicto oficial para más detalles sobre el valor de mercado.`
+          ? `La tasación oficial en ${cityName} asciende a ${auction.appraisalValue.toLocaleString('es-ES')}€. Este valor sirve de base para el cálculo de depósitos y tramos de puja según la LEC.`
+          : `No se ha publicado una tasación oficial para este expediente en ${cityName}. En estos casos, el mercado local de ${provinceName} dicta el valor real de adjudicación.`
       }
     });
 
     // 2. ¿Está ocupada esta subasta?
     const occupancyStatus = auction.occupancy || 'No consta información registral sobre la ocupación';
+    const occupancyQuestions = [
+      `¿Cuál es el estado de ocupación de este ${propertyType.toLowerCase()}?`,
+      `¿Se puede visitar la propiedad antes de la subasta?`,
+      `¿Hay inquilinos en este activo de ${cityName}?`
+    ];
+    const q2Index = (auction.boeId?.length || 0) % occupancyQuestions.length;
     faqPage.mainEntity.push({
       "@type": "Question",
-      "name": `¿Está ocupada esta propiedad en subasta?`,
+      "name": occupancyQuestions[q2Index],
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": `Según la información disponible, el estado de ocupación es: ${occupancyStatus}. Es fundamental verificar la situación posesoria real antes de participar en cualquier subasta inmobiliaria.`
+        "text": `El expediente indica: ${occupancyStatus}. Generalmente, las subastas judiciales en ${cityName} no permiten visitas interiores, por lo que el riesgo posesorio debe ser evaluado por un profesional.`
       }
     });
 
     // 3. ¿Qué deudas puede tener esta subasta?
+    const debtQuestions = [
+      `¿Qué cargas anteriores tiene esta subasta en ${cityName}?`,
+      `¿De cuánto es la deuda reclamada en este expediente?`,
+      `¿Existen deudas de comunidad o IBI pendientes?`
+    ];
+    const q3Index = (auction.boeId?.length || 0) % debtQuestions.length;
     faqPage.mainEntity.push({
       "@type": "Question",
-      "name": `¿Qué deudas o cargas tiene esta subasta?`,
+      "name": debtQuestions[q3Index],
       "acceptedAnswer": {
         "@type": "Answer",
         "text": auction.claimedDebt !== undefined
-          ? `La cantidad reclamada que origina esta subasta es de ${auction.claimedDebt.toLocaleString('es-ES')}€. Es imprescindible solicitar una nota simple actualizada para comprobar si existen cargas anteriores que el adjudicatario deba asumir.`
-          : `No se ha especificado la cantidad reclamada exacta. Es imprescindible solicitar una nota simple actualizada para comprobar las cargas y deudas que el adjudicatario deba asumir.`
+          ? `La deuda que motiva la ejecución es de ${auction.claimedDebt.toLocaleString('es-ES')}€. El adjudicatario en ${cityName} debe prever además el pago de IBI de los últimos años y cuotas de comunidad pendientes.`
+          : `La cantidad reclamada no es pública en este extracto. Es vital revisar la certificación de cargas en el Registro de la Propiedad de ${provinceName} para identificar deudas preferentes.`
       }
     });
 
@@ -410,7 +419,7 @@ const AuctionPage: React.FC = () => {
   }, [auction, slug, cityName, provinceName, isFinished, analysisInsights]);
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
+    <div className="bg-slate-50 min-h-screen font-sans text-slate-600 pb-20">
       {jsonLd && (
         <>
           <script type="application/ld+json">
@@ -419,618 +428,445 @@ const AuctionPage: React.FC = () => {
           {jsonLd[0].image && <link rel="preload" as="image" href={jsonLd[0].image} />}
         </>
       )}
-      <div className="max-w-5xl mx-auto px-6 pt-12 pb-20">
-        {/* Breadcrumbs */}
-        <nav className="flex items-center text-sm text-slate-500 mb-10 font-medium" aria-label="Breadcrumb">
+      
+      <Header />
+
+      <main className="max-w-4xl mx-auto px-6 pt-4">
+        {/* Breadcrumbs - TOP LEVEL */}
+        <nav className="flex items-center text-[10px] text-slate-400 mb-4 font-bold uppercase tracking-widest" aria-label="Breadcrumb">
           <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
-          <ChevronRight size={14} className="mx-2" />
-          <Link to={`/subastas/${provinceName.toLowerCase()}`} className="hover:text-brand-600 transition-colors capitalize">Subastas en {provinceName}</Link>
-          <ChevronRight size={14} className="mx-2" />
-          <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md">Ficha de activo</span>
+          <ChevronRight size={8} className="mx-2" />
+          <Link to={`/subastas/${provinceName.toLowerCase()}`} className="hover:text-brand-600 transition-colors">Subastas en {provinceName}</Link>
+          <ChevronRight size={8} className="mx-2" />
+          <span className="text-slate-300">Ficha de activo</span>
         </nav>
 
-        <div className="space-y-20">
-          {/* Main Content */}
-          <div className="w-full">
-            {isFinished && auction.auctionDate && (
-              <FinishedAuctionBanner auctionDate={auction.auctionDate} />
-            )}
+        {/* HEADER SECTION */}
+        <section className="mb-6">
+          <div className="flex flex-wrap gap-2.5 mb-3">
+            {isActive && <span className="px-3 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[9px] font-bold uppercase tracking-widest border border-emerald-200/60 hover:bg-emerald-100 transition-all cursor-default shadow-sm shadow-emerald-100/50">Activa</span>}
+            {urgencyBadge && urgencyBadge.text.includes('Cierre') && <span className="px-3 py-1 rounded-md bg-orange-50 text-orange-700 text-[9px] font-bold uppercase tracking-widest border border-orange-200/60 flex items-center gap-2 hover:bg-orange-100 transition-all cursor-default shadow-sm shadow-orange-100/50"><Clock size={10} /> {urgencyBadge.text}</span>}
+            {isFinished && <span className="px-3 py-1 rounded-md bg-slate-100 text-slate-600 text-[9px] font-bold uppercase tracking-widest border border-slate-200/60 hover:bg-slate-200 transition-all cursor-default shadow-sm shadow-slate-100/50">Finalizada</span>}
+            {opportunityRatio && opportunityRatio > 0.35 && <span className="px-3 py-1 rounded-md bg-brand-50 text-brand-700 text-[9px] font-bold uppercase tracking-widest border border-brand-200/60 hover:bg-brand-100 transition-all cursor-default shadow-sm shadow-brand-100/50">Alta oportunidad</span>}
+          </div>
 
-            <header className="mb-24">
-              <div className="flex flex-wrap items-center gap-3 mb-10">
-                <span className={`px-4 py-1.5 rounded-full text-sm font-bold border ${oppMessage.color}`}>
-                  {oppMessage.text}
-                </span>
-                {urgencyBadge && (
-                  <span className={`px-4 py-1.5 rounded-full text-sm font-bold border shadow-sm flex items-center gap-1.5 ${urgencyBadge.color}`}>
-                    <Clock size={12} /> {urgencyBadge.text}
-                  </span>
-                )}
-                {isSuspended && (
-                  <span className="px-4 py-1.5 rounded-full text-sm font-bold border bg-amber-100 text-amber-700 border-amber-200 flex items-center gap-1.5">
-                    <AlertTriangle size={14} /> Pausada temporalmente
-                  </span>
-                )}
-                {isUpcoming && (
-                  <span className="px-4 py-1.5 rounded-full text-sm font-bold border bg-blue-100 text-blue-700 border-blue-200 flex items-center gap-1.5">
-                    <Clock size={14} /> Próxima apertura
-                  </span>
-                )}
-                {isFinished && (
-                  <span className="px-4 py-1.5 rounded-full text-sm font-bold border bg-slate-100 text-slate-600 border-slate-200">
-                    Subasta Finalizada
-                  </span>
-                )}
+          <h1 className="text-[clamp(1rem,3.6vw,2.75rem)] font-serif font-bold text-slate-900 mb-8 tracking-tighter leading-tight whitespace-nowrap overflow-visible">
+            {propertyType} en subasta en {cityName}
+          </h1>
+
+          {/* Dynamic SEO Intro */}
+          <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-6 text-justify">
+            {opportunityRatio && opportunityRatio > 0.4 
+              ? `Esta subasta en ${cityName} presenta un margen excepcional del ${Math.round(opportunityRatio * 100)}% frente a la tasación oficial. Una oportunidad estratégica tanto para inversores profesionales como para familias y pequeños ahorradores que buscan su primera vivienda con un ahorro sustancial.`
+              : `Oportunidad de adquisición de ${propertyType.toLowerCase()} en ${cityName} mediante procedimiento ${getAuctionType(auction.boeId).toLowerCase()}. Un activo ideal para particulares que desean capitalizar su ahorro o inversores que buscan rentabilidad con garantías jurídicas.`}
+            {" "}El análisis de cargas es el paso crítico para asegurar el éxito de la operación.
+          </p>
+          
+          {/* Address and Share Row */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-6 border-b border-slate-100">
+            <div className="flex items-center gap-3 text-xl md:text-2xl text-slate-900 font-bold group cursor-default">
+              <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center shrink-0 group-hover:bg-brand-100 transition-colors">
+                <MapPin size={24} className="text-brand-600 group-hover:scale-110 transition-transform duration-300" />
               </div>
-              
-              <h1 className="text-4xl md:text-6xl font-serif font-bold text-slate-900 mb-8 leading-tight">
-                {propertyType} en subasta en {cityName}
-                {formatAddress(auction.address) && (
-                  <span className="block text-2xl md:text-3xl text-slate-500 mt-4 font-sans font-normal">
-                    ({formatAddress(auction.address)})
-                  </span>
-                )}
-              </h1>
+              <span className="group-hover:text-brand-700 transition-colors leading-tight">
+                {formatAddress(auction.address) || locationLabel}
+              </span>
+            </div>
 
-              <ShareButtons title={`${propertyType} en subasta en ${cityName}`} className="mb-8 -mt-2" />
+            <div className="flex items-center gap-4 shrink-0">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Compartir:</span>
+              <div className="flex items-center gap-3">
+                <a href={`https://wa.me/?text=${encodeURIComponent(document.title + ' ' + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#25D366] bg-[#25D366]/5 hover:bg-[#25D366]/10 transition-all hover:scale-110" title="WhatsApp">
+                  <MessageCircle size={18} />
+                </a>
+                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(document.title)}&url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#000000] bg-[#000000]/5 hover:bg-[#000000]/10 transition-all hover:scale-110" title="X (Twitter)">
+                  <Twitter size={18} />
+                </a>
+                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#0077B5] bg-[#0077B5]/5 hover:bg-[#0077B5]/10 transition-all hover:scale-110" title="LinkedIn">
+                  <Linkedin size={18} />
+                </a>
+                <a href={`mailto:?subject=${encodeURIComponent(document.title)}&body=${encodeURIComponent(window.location.href)}`} className="p-1.5 rounded-full text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all hover:scale-110" title="Email">
+                  <Mail size={18} />
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
 
-              {auction.imageUrl ? (
-                <>
-                  <figure className="mb-10 relative group rounded-3xl overflow-hidden shadow-sm border border-slate-200">
-                    <img 
-                      src={auction.imageUrl} 
-                      alt={`Subasta de ${propertyType.toLowerCase()} en ${cityName}`}
-                      className="w-full h-[300px] md:h-[450px] object-cover"
-                      referrerPolicy="no-referrer"
-                      width="1200"
-                      height="675"
-                      fetchPriority="high"
-                      decoding="async"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-40"></div>
-                  </figure>
-
-                  <div className="flex flex-wrap items-center gap-8 text-slate-500 text-base mb-12">
-                    <div className="flex items-center gap-2">
-                      <MapPin size={20} className="text-brand-500" />
-                      <span>{locationLabel}</span>
-                    </div>
-                    {auction.auctionDate && (
-                      <div className="flex items-center gap-2">
-                        <Calendar size={20} className="text-brand-500" />
-                        <span>Finaliza: {new Date(auction.auctionDate).toLocaleDateString('es-ES')}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Quick Data Grid (Technical Block) */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
-                      <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Descuento Bruto</span>
-                      {auction.claimedDebt === 0 ? (
-                        <span className="text-xl font-bold text-slate-700">Sin cargas</span>
-                      ) : (auction.appraisalValue && auction.claimedDebt && (1 - auction.claimedDebt / auction.appraisalValue) > 0.85) ? (
-                        <span className="text-xl font-bold text-slate-700">Oportunidad</span>
-                      ) : (
-                        <span className={`text-4xl font-black ${opportunityRatio && opportunityRatio > 0.4 ? 'text-emerald-700' : 'text-brand-700'}`}>
-                          {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
-                        </span>
-                      )}
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
-                      <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Valor Referencia</span>
-                      <span className="text-xl font-bold text-slate-900">
-                        {(auction.appraisalValue || auction.valorSubasta) ? (auction.appraisalValue || auction.valorSubasta)!.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
-                      </span>
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
-                      <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Deuda Reclamada</span>
-                      <span className="text-xl font-bold text-slate-900">
-                        {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : 'Sin datos'}
-                      </span>
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center h-32">
-                      <span className="text-sm text-slate-400 uppercase tracking-wider font-bold block mb-2">Tipo de subasta</span>
-                      <span className="text-xl font-bold text-slate-900">
-                        {getAuctionType(auction.boeId)}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                /* Professional Technical Header (Ficha Inversor) */
-                <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-12">
-                  <div className="bg-slate-900 px-8 py-5 text-white flex flex-wrap justify-between items-center gap-4">
-                    <div className="flex items-center gap-3">
-                      <Scale size={20} className="text-brand-400" />
-                      <div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block leading-none mb-1">Expediente Judicial</span>
-                        <span className="font-mono text-sm font-bold">{auction.boeId}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block leading-none mb-1">Estado</span>
-                        <span className="text-sm font-bold flex items-center gap-1.5 justify-end">
-                          <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
-                          {isSuspended ? 'Pausada' : isUpcoming ? 'Próxima' : isFinished ? 'Finalizada' : 'Activa'}
-                        </span>
-                      </div>
-                      <div className="h-8 w-px bg-slate-800 hidden sm:block"></div>
-                      <div className="text-right">
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 block leading-none mb-1">Procedimiento</span>
-                        <span className="text-sm font-bold">{getAuctionType(auction.boeId)}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-10">
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">Activo</h3>
-                        <p className="text-2xl font-serif font-bold text-slate-900 flex items-center gap-2">
-                          <Home size={24} className="text-brand-600" /> {propertyType}
-                        </p>
-                      </div>
-                      <div>
-                        <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">Localización</h3>
-                        <p className="text-lg font-medium text-slate-700 flex items-center gap-2">
-                          <MapPin size={20} className="text-brand-600" /> {cityName}, {provinceName}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6 md:border-l md:border-slate-100 md:pl-10">
-                      <div>
-                        <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">Valor de Tasación</h3>
-                        <p className="text-3xl font-black text-slate-900">
-                          {auction.appraisalValue ? auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
-                        </p>
-                      </div>
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">Deuda Reclamada</h3>
-                          <p className="text-xl font-bold text-slate-700">
-                            {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
-                          </p>
-                        </div>
-                        <div className="bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 text-center">
-                          <span className="text-[10px] uppercase font-bold text-emerald-600 block leading-none mb-1">Margen</span>
-                          <span className="text-lg font-black text-emerald-700">
-                            {opportunityRatio ? `${(opportunityRatio * 100).toFixed(0)}%` : '---'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 rounded-2xl p-6 flex flex-col justify-center border border-slate-100">
-                      <h3 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-3">Cierre de Subasta</h3>
-                      <div className="flex items-center gap-4">
-                        <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
-                          <Calendar size={28} className="text-brand-600" />
-                        </div>
-                        <div>
-                          <p className="text-xl font-bold text-slate-900">
-                            {auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}
-                          </p>
-                          <p className="text-xs text-slate-500 font-medium">Fecha límite BOE</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-6 flex flex-col items-center md:items-start gap-2">
-                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                  <Link 
-                    to={`${ROUTES.CALCULATOR}?mercado=${valorMercado}&deudas=${deudas}&ccaa=${provinceName}&tasacion=${auction.appraisalValue || ''}`}
-                    onClick={() => trackConversion(auction.province || 'unknown', 'ficha', 'calculator_from_card_click', { precio: deudas || 0 })}
-                    className="inline-flex items-center gap-2 text-sm font-bold text-brand-600 hover:text-brand-700 transition-colors group/calc bg-brand-50/50 px-4 py-2 rounded-lg border border-brand-100/50"
+        {/* MAIN ASSET DATA BLOCK - PREMIUM STYLE */}
+        <motion.section 
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.2 }}
+          className="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden mb-8 group"
+        >
+          {/* Dark Header */}
+          <div className="bg-[#151921] px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/40 group-hover:text-white/60 transition-colors">
+                <Scale size={16} />
+              </div>
+              <div>
+                <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Expediente</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-xs font-bold text-white/90">{auction.boeId}</p>
+                  <div className="w-px h-3 bg-white/10" />
+                  <a 
+                    href={`https://subastas.boe.es/detalle_subasta.php?idSub=${auction.boeId}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-[10px] text-brand-400 hover:text-brand-300 transition-colors flex items-center gap-1.5 font-bold group/link"
                   >
-                    <Calculator size={16} className="group-hover/calc:scale-110 transition-transform" />
-                    Ver mi puja máxima real
-                  </Link>
-                  
-                  <span className={`text-[11px] font-bold uppercase tracking-wider ${opportunityRatio && opportunityRatio >= 0.2 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {opportunityRatio && (opportunityRatio >= 0.2 || auction.claimedDebt === 0) 
-                      ? "✨ Esta oportunidad puede ser rentable" 
-                      : "⚠️ Podrías estar pagando de más"}
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 font-medium pl-1">
-                  En menos de 10 segundos
-                </p>
-              </div>
-            </header>
-
-            {/* Auction Result Banner */}
-            {cleanSlug && AUCTION_RESULTS[cleanSlug] && (
-              <div className="bg-white border-2 border-slate-900 p-8 rounded-2xl mb-16 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                <h3 className="text-2xl font-bold mb-4 flex items-center gap-2 text-slate-900">
-                  <CheckCircle className="text-emerald-600" /> Resultado de la subasta
-                </h3>
-                {AUCTION_RESULTS[cleanSlug].auctionResultStatus === 'adjudicated' ? (
-                  <div>
-                    <p className="text-lg text-slate-700 mb-2">
-                      Precio de adjudicación: <span className="font-bold text-slate-900 text-xl">{AUCTION_RESULTS[cleanSlug].finalPrice?.toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}</span>
-                    </p>
-                    <p className="text-md text-slate-600 italic">
-                      {auction.appraisalValue && AUCTION_RESULTS[cleanSlug].finalPrice 
-                        ? AUCTION_RESULTS[cleanSlug].finalPrice! < auction.appraisalValue * 0.9 
-                          ? "Adjudicada significativamente por debajo del valor de tasación."
-                          : AUCTION_RESULTS[cleanSlug].finalPrice! > auction.appraisalValue * 1.1
-                            ? "Adjudicada por encima del valor de tasación."
-                            : "Adjudicada en línea con el valor de tasación."
-                        : "Resultado confirmado."}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-lg font-bold text-slate-900">Subasta sin pujas</p>
-                )}
-              </div>
-            )}
-
-            {/* Status-specific Messages */}
-            {isUpcoming && (
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8 mb-16 text-blue-800 shadow-sm">
-                <div className="flex items-start gap-5">
-                  <div className="bg-blue-100 p-3 rounded-xl shrink-0">
-                    <Clock className="text-blue-600" size={28} />
-                  </div>
-                  <div>
-                    <h3 className="font-serif font-bold text-2xl mb-2 text-blue-900">Esta subasta aún no ha comenzado</h3>
-                    <p className="text-blue-800/80 text-lg leading-relaxed mb-4">
-                      Se abrirá próximamente para pujas. <span className="font-bold">Anticípate: el éxito se decide antes de la apertura.</span>
-                    </p>
-                    <div className="flex items-center gap-2 text-sm font-bold text-blue-700 uppercase tracking-widest">
-                      <ShieldCheck size={16} /> Fase de análisis recomendada
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {isSuspended && (
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 mb-16 text-amber-800 shadow-sm">
-                <div className="flex items-start gap-5">
-                  <div className="bg-amber-100 p-3 rounded-xl shrink-0">
-                    <AlertTriangle className="text-amber-600" size={28} />
-                  </div>
-                  <div>
-                    <h3 className="font-serif font-bold text-2xl mb-2 text-amber-900">Subasta pausada temporalmente</h3>
-                    <p className="text-amber-800/80 text-lg leading-relaxed">
-                      El procedimiento se encuentra en pausa técnica o administrativa. <span className="font-bold text-amber-900">Puede reactivarse en cualquier momento</span> tras la resolución del incidente.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {isActive && !isFinished && !isUpcoming && !isSuspended && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-8 mb-16 text-emerald-800 shadow-sm">
-                <div className="flex items-start gap-5">
-                  <div className="bg-emerald-100 p-3 rounded-xl shrink-0">
-                    <TrendingUp className="text-emerald-600" size={28} />
-                  </div>
-                  <div>
-                    <h3 className="font-serif font-bold text-2xl mb-2 text-emerald-900">Subasta en curso</h3>
-                    <p className="text-emerald-800/80 text-lg leading-relaxed">
-                      El periodo de pujas está abierto y activo. {auction.auctionDate && (
-                        <span>La fecha límite para consignar y pujar es el <strong className="text-emerald-900">{new Date(auction.auctionDate).toLocaleDateString('es-ES')}</strong>.</span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Quick Summary Block */}
-            <div className="bg-brand-900 text-white rounded-3xl p-6 mb-8 shadow-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/10 p-2 rounded-lg">
-                    <TrendingUp size={20} className="text-emerald-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-brand-300 uppercase font-bold tracking-widest">Margen Estimado</p>
-                    <p className="font-bold">{opportunityRatio && opportunityRatio > 0.4 ? 'Alto' : opportunityRatio && opportunityRatio > 0.2 ? 'Medio' : 'Bajo / Análisis'}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/10 p-2 rounded-lg">
-                    <AlertTriangle size={20} className="text-amber-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-brand-300 uppercase font-bold tracking-widest">Punto de atención</p>
-                    <p className="font-bold">{auction.claimedDebt ? 'Cargas preferentes' : 'Falta de datos oficiales'}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/10 p-2 rounded-lg">
-                    <Search size={20} className="text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-brand-300 uppercase font-bold tracking-widest">Lectura General</p>
-                    <p className="font-bold">{opportunityRatio && opportunityRatio > 0.3 ? 'Oportunidad para inversión' : 'Perfil conservador / Uso propio'}</p>
-                  </div>
+                    Ver subasta en el BOE <ExternalLink size={10} className="group-hover/link:translate-x-0.5 transition-transform" />
+                  </a>
                 </div>
               </div>
             </div>
-
-            {/* Secondary CTA */}
-            <div className="text-center mb-16">
-              <Link 
-                to={`${ROUTES.CALCULATOR}?mercado=${valorMercado}&deudas=${deudas}&ccaa=${provinceName}&tasacion=${auction.appraisalValue || ''}`}
-                onClick={() => trackConversion(auction.province || 'unknown', 'ficha', 'calculator')}
-                className="inline-block bg-brand-600 text-white font-bold py-4 px-8 rounded-full hover:bg-brand-700 transition shadow-md"
-              >
-                Analizar esta subasta en detalle
-              </Link>
-            </div>
-
-            {/* Analysis Block */}
-            <section className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm mb-16">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
-                <h2 className="text-3xl font-serif font-bold text-slate-900 flex items-center gap-3">
-                  <FileText className="text-brand-600" /> Análisis del Activo
-                </h2>
-                <div className="flex flex-col items-end">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-brand-600 uppercase tracking-widest bg-brand-50 px-2 py-0.5 rounded border border-brand-100">
-                      Metodología propia
-                    </span>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                      Análisis basado en datos oficiales del BOE
-                    </p>
-                  </div>
-                  {auction.boeUrl && (
-                    <a 
-                      href={auction.boeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1 mt-1"
-                    >
-                      Ver edicto original <ArrowRight size={14} />
-                    </a>
-                  )}
-                </div>
-              </div>
-              <div className="prose prose-slate prose-lg max-w-none mb-12 text-slate-700">
-                <p className="mb-6">
-                  Esta subasta presenta características técnicas que requieren un análisis pormenorizado antes de proceder con cualquier puja. 
-                  La valoración inicial y el estado de las cargas son factores determinantes para el éxito de la operación.
-                </p>
-                <p className="mb-6">
-                  El activo se encuentra en {auction.city}, una zona con {auction.propertyType === 'Vivienda' ? 'demanda residencial activa' : 'potencial de desarrollo'}. 
-                  Es fundamental revisar el estado de ocupación para evitar retrasos en la toma de posesión.
-                </p>
-                <p className="mb-6">
-                  Recomendamos encarecidamente realizar un estudio de cargas registrales actualizado, 
-                  ya que las deudas preferentes pueden alterar significativamente la rentabilidad final del activo.
-                </p>
-              </div>
-              
-              <div className="prose prose-slate max-w-none mb-12">
-                {auction.appraisalValue && auction.claimedDebt ? (
-                  <div className="space-y-16">
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <Search size={20} className="text-brand-600" /> Interpretación del expediente
-                      </h3>
-                      <p className="text-lg leading-relaxed text-slate-700">
-                        {analysisInsights?.interpretation}
-                      </p>
-                      <p className="mt-4 text-brand-700 font-medium italic border-l-2 border-brand-200 pl-4">
-                        {analysisInsights?.fomo?.interpretation}
-                      </p>
-                    </div>
-
-                    {!isFinished && (
-                      <div className="my-12">
-                        <ConsultingCTA 
-                          isHighUrgency={opportunityRatio === null} 
-                          province={provinceName} 
-                          compact={true}
-                        />
-                      </div>
-                    )}
-
-                    <div className="bg-slate-50 p-10 rounded-3xl border border-slate-100">
-                      <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                        <Scale size={20} className="text-brand-600" /> Implicaciones prácticas
-                      </h3>
-                      <p className="text-slate-700 leading-relaxed mb-10 text-lg">
-                        {analysisInsights?.practicalImplications}
-                      </p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-                          <p className="font-bold text-emerald-700 mb-3 flex items-center gap-2">
-                            <CheckCircle size={18} /> Escenario Optimista
-                          </p>
-                          <p className="text-slate-600 leading-relaxed">{analysisInsights?.bestCase}</p>
-                        </div>
-                        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-                          <p className="font-bold text-amber-700 mb-3 flex items-center gap-2">
-                            <AlertTriangle size={18} /> Escenario de mayor complejidad
-                          </p>
-                          <p className="text-slate-600 leading-relaxed">{analysisInsights?.worstCase}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-8">
-                      <p className="text-slate-700 text-lg leading-relaxed">
-                        <strong className="text-emerald-700 flex items-center gap-2 mb-2"><TrendingUp size={20}/> Potencial:</strong> 
-                        Existe un margen de seguridad para cubrir gastos de ITP, notaría y posibles reformas, manteniendo rentabilidad.
-                      </p>
-                      <p className="text-slate-700 text-lg leading-relaxed">
-                        <strong className="text-amber-700 flex items-center gap-2 mb-2"><AlertTriangle size={20}/> Precaución:</strong> 
-                        Es recomendable verificar la certificación de cargas para descartar anotaciones preventivas o hipotecas preferentes no incluidas.
-                      </p>
-                    </div>
-
-                    <div className="space-y-12 pt-12 border-t border-slate-100">
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                          <MapPin size={20} className="text-brand-600" /> Contexto de mercado
-                        </h3>
-                        <p className="text-slate-700 leading-relaxed text-lg">
-                          {analysisInsights?.marketContext}
-                        </p>
-                        <p className="mt-4 text-slate-500 italic text-sm">
-                          {analysisInsights?.fomo?.market}
-                        </p>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                          <User size={20} className="text-brand-600" /> Perfil inversor habitual
-                        </h3>
-                        <p className="text-slate-700 leading-relaxed text-lg">
-                          {analysisInsights?.investorProfile}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="bg-brand-50/50 p-10 rounded-3xl border border-brand-100">
-                      <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                        <CheckCircle size={20} className="text-brand-600" /> ¿Tiene sentido esta subasta?
-                      </h3>
-                      <div className="space-y-6">
-                        <div className="flex items-start gap-4">
-                          <div className="mt-1 bg-emerald-100 p-1.5 rounded-full shrink-0">
-                            <CheckCircle size={16} className="text-emerald-700" />
-                          </div>
-                          <p className="text-slate-700 text-lg">
-                            <strong className="block text-emerald-800 mb-1">Sí, si buscas:</strong> {analysisInsights?.senseText}
-                          </p>
-                        </div>
-                        <div className="flex items-start gap-4">
-                          <div className="mt-1 bg-amber-100 p-1.5 rounded-full shrink-0">
-                            <AlertOctagon size={16} className="text-amber-700" />
-                          </div>
-                          <p className="text-slate-700 text-lg">
-                            <strong className="block text-amber-800 mb-1">⚠ Requiere precaución si:</strong> {analysisInsights?.cautionText}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-slate-500 italic text-sm mt-8">
-                      {analysisInsights?.fomo?.preCta} {analysisInsights?.fomo?.timing} Este tipo de expedientes suele requerir revisión completa del expediente judicial y de las cargas registrales antes de tomar una decisión.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-amber-800">
-                    <div className="flex items-start gap-4">
-                      <AlertTriangle className="shrink-0 mt-1" size={28} />
-                      <div>
-                        <h3 className="font-bold text-xl mb-3">Información incompleta en el edicto</h3>
-                        <p className="mb-6 text-amber-900/80 text-lg leading-relaxed">
-                          El expediente judicial publicado no detalla la deuda reclamada o el valor de tasación. <strong>Es necesario revisar la certificación de cargas y el edicto completo</strong> para calcular la viabilidad de esta inversión y evitar adjudicaciones con deudas ocultas.
-                        </p>
-                        {!isFinished && (
-                          <a 
-                            href="https://calendly.com/activosoffmarket" 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            onClick={() => trackConversion(provinceName, 'ficha', 'consultoria')}
-                            className="inline-flex items-center gap-2 bg-amber-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-amber-900 transition-colors shadow-md"
-                          >
-                            Solicitar análisis <ChevronRight size={18} />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-16">
-                <RadarPremiumCTA 
-                  location={provinceName} 
-                  propertyType={propertyType} 
-                  variant="minimal"
-                  origin="ficha"
-                />
-              </div>
-
-              {/* Dynamic SEO Block */}
-              <div className="mt-12 pt-10 border-t border-slate-100">
-                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <Scale size={24} className="text-brand-600" /> 
-                  Contexto del procedimiento
-                </h3>
-                <div className="text-slate-700 leading-relaxed text-lg bg-slate-50 p-8 rounded-3xl border border-slate-100">
-                  <p>
-                    {analysisInsights?.proceduralContext}
+            
+            <div className="flex items-center gap-6">
+              <div className="text-right">
+                <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Estado</p>
+                <div className="flex items-center gap-1.5 justify-end">
+                  <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isSuspended ? 'bg-amber-500' : 'bg-slate-500'}`} />
+                  <p className="text-xs font-bold text-white/90">
+                    {isSuspended ? 'Pausada' : isUpcoming ? 'Próxima' : isFinished ? 'Finalizada' : 'Activa'}
                   </p>
                 </div>
               </div>
+              <div className="text-right border-l border-white/10 pl-6">
+                <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Tipo</p>
+                <p className="text-xs font-bold text-white/90">{getAuctionType(auction.boeId)}</p>
+              </div>
+            </div>
+          </div>
 
-              {/* Auction Timeline */}
-              <div className="border-t border-slate-100 pt-10 mt-12">
-                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-10 flex items-center gap-2">
-                  <Clock size={14} /> Estado de la subasta
-                </h3>
-                <div className="relative max-w-2xl mx-auto">
-                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2"></div>
-                  <div className="relative flex justify-between">
-                    <div className="bg-white pr-4 relative z-10">
-                      <div className="w-5 h-5 rounded-full bg-brand-600 border-4 border-brand-100 mb-3"></div>
-                      <p className="text-xs font-bold text-slate-400 uppercase">Publicación</p>
-                    </div>
-                    <div className="bg-white px-4 relative z-10 text-center">
-                      <div className={`w-5 h-5 rounded-full border-4 mb-3 mx-auto ${isSuspended ? 'bg-amber-500 border-amber-100' : isUpcoming ? 'bg-blue-500 border-blue-100' : 'bg-brand-600 border-brand-100'}`}></div>
-                      <p className={`text-xs font-bold uppercase ${isSuspended ? 'text-amber-600' : isUpcoming ? 'text-blue-600' : 'text-brand-600'}`}>
-                        {isSuspended ? 'Pausada' : isUpcoming ? 'Próxima' : 'En curso'}
-                      </p>
-                    </div>
-                    <div className="bg-white pl-4 relative z-10 text-right">
-                      <div className={`w-5 h-5 rounded-full mb-3 ml-auto ${isFinished ? 'bg-slate-300' : 'bg-slate-100 border-2 border-slate-200'}`}></div>
-                      <p className="text-xs font-bold text-slate-400 uppercase">Finalización</p>
-                      <p className="text-xs text-slate-400 mt-1">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}</p>
-                    </div>
+          {/* White Lower Card */}
+          <div className="p-6 md:py-6 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div className="md:col-span-3 space-y-4">
+              <div className="space-y-1">
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Activo</p>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                    <Home size={18} />
                   </div>
+                  <p className="text-xl font-serif font-bold text-slate-900">{propertyType}</p>
                 </div>
               </div>
-            </section>
-
-            {/* CTA Calculadora Interactiva */}
-            <section className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm mb-16 text-center">
-              <div className="max-w-2xl mx-auto">
-                <div className="bg-brand-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <Calculator className="text-brand-600" size={32} />
+              <div className="space-y-1">
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ubicación</p>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                    <MapPin size={18} />
+                  </div>
+                  <p className="text-base font-bold text-slate-700 leading-snug">{locationLabel}</p>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">
-                  Tienes los números. Ajusta tu rentabilidad en 30 segundos
-                </h2>
-                <p className="text-lg text-slate-600 mb-8">
-                  Simula reforma, impuestos y riesgos antes de pujar
-                </p>
-                <Link 
-                  to={`${ROUTES.CALCULATOR}?mercado=${valorMercado}&deudas=${deudas}&ccaa=${provinceName}&tasacion=${auction.appraisalValue || ''}`}
-                  onClick={() => trackConversion(auction.province || 'unknown', 'ficha', 'calculator')}
-                  className="inline-flex items-center justify-center gap-2 bg-brand-600 text-white font-bold px-10 py-4 rounded-xl hover:bg-brand-700 transition-all shadow-lg hover:shadow-brand-500/30 text-lg transform active:scale-95"
-                >
-                  Calcular mi puja real <ArrowRight size={20} />
-                </Link>
               </div>
-            </section>
-
-            {/* Noticias Link */}
-            <div className="text-center mb-16">
-              <Link 
-                to={ROUTES.NOTICIAS_SUBASTAS_INDEX}
-                className="inline-flex items-center justify-center gap-2 bg-slate-50 border-2 border-slate-200 text-slate-700 font-bold py-4 px-8 rounded-full hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm"
-              >
-                Ver más noticias y análisis de subastas <ArrowRight size={20} />
-              </Link>
             </div>
 
-            {cleanSlug && <div className="mt-16"><RelatedAuctions currentAuctionSlug={cleanSlug} currentAuctionData={auction} /></div>}
+            <div className="md:col-span-6 border-l border-slate-100 pl-8 flex items-center justify-between gap-4">
+              <div className="flex flex-col justify-center gap-y-4">
+                <div className="space-y-0.5">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Tasación</p>
+                  <p className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+                    {auction.appraisalValue ? auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
+                  </p>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Deuda</p>
+                  <p className="text-2xl md:text-3xl font-bold text-slate-600 tracking-tight">
+                    {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
+                  </p>
+                </div>
+              </div>
+              
+              {opportunityRatio !== null && (
+                <div className="flex flex-col items-end justify-center">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Margen Potencial</p>
+                  <p className="text-4xl md:text-5xl font-bold text-emerald-600 tracking-tighter leading-none">
+                    {Math.round(opportunityRatio * 100)}%
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="md:col-span-3 bg-slate-50/80 rounded-2xl p-6 border border-slate-100 text-center space-y-3 group-hover:bg-white transition-colors">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Cierre</p>
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="w-11 h-11 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-brand-500 transition-colors">
+                  <Calendar size={22} />
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-slate-900">
+                    {auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}
+                  </p>
+                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Fecha límite BOE</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* DYNAMIC AUCTION STATUS BLOCK */}
+        <section className="mb-8">
+          {isFinished ? (
+            <div className="bg-slate-50 border border-slate-200 rounded-[32px] p-6 flex items-center gap-6 opacity-80">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
+                <Gavel size={28} />
+              </div>
+              <div className="flex flex-col justify-center">
+                <h3 className="text-xl font-serif font-bold text-slate-600 leading-tight">Subasta finalizada</h3>
+                <p className="text-slate-500 text-base leading-tight mt-1">
+                  El periodo de pujas ha concluido. El activo ya no está disponible para nuevas ofertas.
+                </p>
+              </div>
+            </div>
+          ) : isSuspended ? (
+            <div className="bg-slate-100/50 border border-slate-200 rounded-[32px] p-6 flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-slate-200 text-slate-500 flex items-center justify-center shrink-0">
+                <AlertCircle size={28} />
+              </div>
+              <div className="flex flex-col justify-center">
+                <h3 className="text-xl font-serif font-bold text-slate-700 leading-tight">Subasta pausada</h3>
+                <p className="text-slate-500 text-base leading-tight mt-1">
+                  Procedimiento suspendido temporalmente. Activa alertas para recibir notificaciones de reanudación.
+                </p>
+              </div>
+            </div>
+          ) : urgencyBadge && urgencyBadge.text.includes('Cierre') ? (
+            <div className="bg-amber-50/50 border border-amber-100 rounded-[32px] p-6 flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                <Clock size={28} />
+              </div>
+              <div className="flex flex-col justify-center">
+                <h3 className="text-xl font-serif font-bold text-amber-900 leading-tight">Cierre próximo</h3>
+                <p className="text-amber-800/70 text-base leading-tight mt-1">
+                  Finaliza en pocos días. Asegura tu participación antes del <strong className="text-amber-900">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}</strong>.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-emerald-50/50 border border-emerald-100 rounded-[32px] p-6 flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                <TrendingUp size={28} />
+              </div>
+              <div className="flex flex-col justify-center">
+                <h3 className="text-xl font-serif font-bold text-emerald-900 leading-tight">Subasta en curso</h3>
+                <p className="text-emerald-800/70 text-base leading-tight mt-1">
+                  Periodo de pujas activo. Fecha límite: <strong className="text-emerald-900">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}</strong>.
+                </p>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* DARK VISUAL SUMMARY - COMPACT DYNAMIC BLOCK */}
+        <section className="bg-[#151921] rounded-2xl px-6 py-5 mb-8 shadow-xl shadow-slate-200/40 border border-white/5 overflow-hidden">
+          <div className="flex flex-nowrap items-center justify-between gap-x-8 whitespace-nowrap overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-500/20">
+                <TrendingUp size={20} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Margen estimado</span>
+                <span className="text-white text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.margenLabel}</span>
+              </div>
+            </div>
+            
+            <div className="w-px h-10 bg-white/10 shrink-0" />
+
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 shrink-0 border border-amber-500/20">
+                <AlertTriangle size={20} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Punto de atención</span>
+                <span className="text-white text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.atencionLabel}</span>
+              </div>
+            </div>
+
+            <div className="w-px h-10 bg-white/10 shrink-0" />
+
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0 border border-blue-500/20">
+                <Search size={20} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Lectura general</span>
+                <span className="text-white text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.lecturaLabel}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div id="analisis-tecnico" className="space-y-12 mb-20">
+          {/* MAIN ANALYSIS BLOCK */}
+          <section className="bg-slate-50 border-2 border-slate-200 rounded-[40px] p-10 shadow-sm hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
+              <Lock size={160} />
+            </div>
+            
+            <div className="relative z-10">
+              <LoadAnalysisBlock boeId={auction.boeId || ''} isIntegrated={true} />
+            </div>
+          </section>
+
+          {/* SECONDARY CTA ROW */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <motion.a 
+              whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
+              transition={{ duration: 0.2 }}
+              href="https://calendly.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-white border border-slate-200 p-7 rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                    <Calendar size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-lg">Agendar Consulta</h4>
+                    <p className="text-[9px] font-bold text-brand-600 uppercase tracking-widest">Consultoría Premium</p>
+                  </div>
+                </div>
+                <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                  ¿Dudas con el expediente? Analizamos nota simple, edicto y riesgos reales antes de pujar.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-xs group-hover:translate-x-1 transition-transform">
+                Reservar sesión <ArrowRight size={16} />
+              </div>
+            </motion.a>
+
+            <motion.div
+              whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
+              transition={{ duration: 0.2 }}
+            >
+              <Link 
+                to={ROUTES.CALCULATOR_SLUG.replace(':slug', cleanSlug)}
+                target="_blank"
+                className="bg-white border border-slate-200 p-7 rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col h-full justify-between"
+              >
+                <div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                      <Calculator size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-lg">Calcular Puja Máxima</h4>
+                      <p className="text-[9px] font-bold text-brand-600 uppercase tracking-widest">Herramienta de Análisis</p>
+                    </div>
+                  </div>
+                  <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                    Ahorra tiempo y decide con ventaja calculando tu margen real de beneficio.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-xs group-hover:translate-x-1 transition-transform">
+                  Ir a la calculadora <ArrowRight size={16} />
+                </div>
+              </Link>
+            </motion.div>
           </div>
         </div>
+
+        <div className="space-y-8">
+          {/* LONG-TAIL SEO CONTENT */}
+          <section className="space-y-16 pb-20">
+            <div className="prose prose-slate max-w-none">
+              <h2 className="text-4xl font-serif font-bold text-slate-900 mb-8">Análisis del Activo</h2>
+              
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                    <TrendingUp size={16} className="text-brand-500" />
+                    Contexto de Mercado
+                  </h3>
+                  <p className="text-slate-600 leading-relaxed">{analysisInsights?.marketContext}</p>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                    <Search size={16} className="text-brand-500" />
+                    Interpretación Técnica
+                  </h3>
+                  <p className="text-slate-600 leading-relaxed">{analysisInsights?.interpretation}</p>
+                </div>
+              </div>
+
+              <div className="text-slate-600 leading-relaxed text-lg space-y-6">
+                <p>{auction.description}</p>
+                <p>
+                  Esta subasta se tramita bajo el número de expediente <strong className="text-slate-900">{auction.boeId}</strong>. 
+                  El procedimiento es de tipo <strong className="text-slate-900">{getAuctionType(auction.boeId)}</strong>, lo que implica unas reglas específicas de participación y plazos de consignación definidos por la Ley de Enjuiciamiento Civil.
+                </p>
+              </div>
+
+              <h3 className="text-3xl font-serif font-bold text-slate-900 mt-16 mb-8">¿Cómo participar en esta subasta en {cityName}?</h3>
+              <div className="text-slate-600 leading-relaxed text-lg space-y-6">
+                <p>
+                  Para participar en la subasta de este {propertyType.toLowerCase()}, es necesario realizar un depósito (consignación) del 5% del valor de tasación. 
+                  En este caso, el depósito requerido es de <strong className="text-slate-900">{auction.appraisalValue ? (auction.appraisalValue * 0.05).toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : '---'}</strong>.
+                </p>
+                <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 my-8">
+                  <ul className="list-none p-0 m-0 space-y-4">
+                    <li className="flex items-start gap-3">
+                      <CheckCircle size={20} className="text-emerald-500 shrink-0 mt-1" />
+                      <span><strong>Registro:</strong> Es obligatorio estar registrado en el Portal de Subastas del BOE.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle size={20} className="text-emerald-500 shrink-0 mt-1" />
+                      <span><strong>Depósito:</strong> Se realiza de forma telemática a través de la pasarela de pagos de la AEAT.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle size={20} className="text-emerald-500 shrink-0 mt-1" />
+                      <span><strong>Puja:</strong> Las pujas se realizan en tramos definidos por el juzgado.</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <h3 className="text-3xl font-serif font-bold text-slate-900 mt-16 mb-8">Preguntas Frecuentes</h3>
+              <div className="space-y-8">
+                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <p className="font-bold text-slate-900 text-xl mb-3">¿Cuál es el descuento teórico respecto a tasación?</p>
+                  <p className="text-slate-600 text-lg">
+                    En esta subasta en {cityName}, la deuda es de {auction.claimedDebt?.toLocaleString('es-ES')}€ frente a una tasación de {auction.appraisalValue?.toLocaleString('es-ES')}€, 
+                    lo que implica un descuento teórico del {auction.appraisalValue && auction.claimedDebt ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) : '---'}%. 
+                    Esto representa un margen potencial de {auction.appraisalValue && auction.claimedDebt ? (auction.appraisalValue - auction.claimedDebt).toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'} sobre el valor oficial.
+                  </p>
+                </div>
+                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                  <p className="font-bold text-slate-900 text-xl mb-3">¿Qué cargas tiene este inmueble en {cityName}?</p>
+                  <p className="text-slate-600 text-lg">
+                    Según el edicto del expediente {auction.boeId}, la deuda reclamada asciende a {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}. 
+                    Para este {propertyType.toLowerCase()}, es fundamental analizar si existen cargas anteriores en el Registro de la Propiedad de {cityName} que subsistan tras la adjudicación.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* RELATED AUCTIONS */}
+        {cleanSlug && (
+          <div className="mt-24">
+            <RelatedAuctions currentAuctionSlug={cleanSlug} currentAuctionData={auction} />
+          </div>
+        )}
+      </main>
+
+      <Footer />
+
+      {/* Mobile Sticky CTA */}
+      <div className="lg:hidden fixed bottom-6 left-6 right-6 z-40">
+        <Link 
+          to={ROUTES.CALCULATOR_SLUG.replace(':slug', cleanSlug)}
+          target="_blank"
+          className="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold shadow-2xl flex items-center justify-center gap-3 transform active:scale-95"
+        >
+          <Calculator size={20} />
+          Calcular Puja Máxima
+        </Link>
       </div>
     </div>
   );

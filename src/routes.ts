@@ -77,6 +77,7 @@ import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
 import DiscoverReportsIndex from './components/DiscoverReportsIndex';
 import ProvinceHub from './components/ProvinceHub';
 import AuctionPage from './components/AuctionPage';
+import AuctionCalculatorPage from './components/AuctionCalculatorPage';
 import Legal from './components/Legal';
 import AdminTracking from './components/AdminTracking';
 import ChecklistPage from './components/ChecklistPage';
@@ -91,6 +92,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.AUCTION_PAGE,
     element: createElement(AuctionPage),
+  },
+  {
+    path: ROUTES.CALCULATOR_SLUG,
+    element: createElement(AuctionCalculatorPage),
   },
   {
     path: ROUTES.HOME,
