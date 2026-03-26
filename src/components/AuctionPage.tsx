@@ -511,7 +511,7 @@ const AuctionPage: React.FC = () => {
                   <p className="text-xs font-bold text-white/90">{auction.boeId}</p>
                   <div className="w-px h-3 bg-white/10" />
                   <a 
-                    href={`https://subastas.boe.es/detalle_subasta.php?idSub=${auction.boeId}`} 
+                    href={auction.boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${auction.boeId}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-[10px] text-brand-400 hover:text-brand-300 transition-colors flex items-center gap-1.5 font-bold group/link"
@@ -705,7 +705,11 @@ const AuctionPage: React.FC = () => {
             </div>
             
             <div className="relative z-10">
-              <LoadAnalysisBlock boeId={auction.boeId || ''} isIntegrated={true} />
+              <LoadAnalysisBlock 
+                boeId={auction.boeId || ''} 
+                boeUrl={auction.boeUrl}
+                isIntegrated={true} 
+              />
             </div>
           </section>
 
@@ -714,7 +718,7 @@ const AuctionPage: React.FC = () => {
             <motion.a 
               whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
               transition={{ duration: 0.2 }}
-              href="https://calendly.com/" 
+              href="https://calendly.com/activosoffmarket" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-white border border-slate-200 p-7 rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col justify-between"
@@ -743,7 +747,7 @@ const AuctionPage: React.FC = () => {
               transition={{ duration: 0.2 }}
             >
               <Link 
-                to={ROUTES.CALCULATOR_SLUG.replace(':slug', cleanSlug)}
+                to="/calculadora-subastas"
                 target="_blank"
                 className="bg-white border border-slate-200 p-7 rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col h-full justify-between"
               >
@@ -860,7 +864,7 @@ const AuctionPage: React.FC = () => {
       {/* Mobile Sticky CTA */}
       <div className="lg:hidden fixed bottom-6 left-6 right-6 z-40">
         <Link 
-          to={ROUTES.CALCULATOR_SLUG.replace(':slug', cleanSlug)}
+          to="/calculadora-subastas"
           target="_blank"
           className="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold shadow-2xl flex items-center justify-center gap-3 transform active:scale-95"
         >

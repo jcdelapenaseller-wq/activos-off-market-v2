@@ -55,15 +55,18 @@ interface AnalysisResult {
 
 interface LoadAnalysisBlockProps {
   boeId: string;
+  boeUrl?: string;
   isIntegrated?: boolean;
 }
 
-const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, isIntegrated = false }) => {
+const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, isIntegrated = false }) => {
   const [step, setStep] = useState<'locked' | 'upload' | 'loading' | 'result'>('locked');
   const [files, setFiles] = useState<File[]>([]);
   const [resultData, setResultData] = useState<AnalysisResult | null>(null);
   const [showHowToModal, setShowHowToModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const finalBoeUrl = boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${boeId}`;
 
   const handleUnlock = () => {
     setStep('upload');
@@ -86,33 +89,9 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, isIntegrat
     setFiles(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = () => {
     if (files.length === 0) return;
-    setStep('loading');
-
-    try {
-      console.log(`Enviando ${files.length} archivo(s) al servicio de IA...`);
-      const result = await analyzeDocumentWithAI(files) as any;
-      
-      // Calcular si los datos de mercado son suficientes para la siguiente fase
-      const marketDataReady = !!(
-        (result.ciudad || result.codigo_postal) &&
-        result.superficie_m2 &&
-        (result.valor_subasta || result.valor_tasacion)
-      );
-
-      const finalResult: AnalysisResult = {
-        ...result,
-        marketDataReady
-      };
-      
-      setResultData(finalResult);
-      setStep('result');
-    } catch (error) {
-      console.error("Error analyzing document:", error);
-      alert("Hubo un error al analizar el documento. Por favor, revisa la consola para más detalles.");
-      setStep('upload');
-    }
+    window.location.href = 'https://buy.stripe.com/aFa14p7avcGl6dLa8MdjO04';
   };
 
   const getConfianzaExplanation = (nivel: string) => {
@@ -343,7 +322,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, isIntegrat
                 </div>
                 <div className="flex flex-wrap justify-center gap-3 shrink-0">
                   <a 
-                    href={`https://subastas.boe.es/detalle_subasta.php?idSub=${boeId}`}
+                    href={finalBoeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs font-bold hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm"
@@ -398,7 +377,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, isIntegrat
 
                 return (
                   <a 
-                    href="https://calendly.com/" 
+                    href="https://calendly.com/activosoffmarket" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition-colors flex flex-col items-center justify-center gap-1"
@@ -806,7 +785,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, isIntegrat
 
                 <div className="space-y-6">
                   {[
-                    { step: 1, title: 'Entrar en subasta BOE', desc: 'Accede al enlace oficial de la subasta desde esta ficha.' },
+                    { step: 1, title: 'Entrar en subasta BOE', desc: 'Accede al enlace oficial de la subasta desde esta ficha.', link: true },
                     { step: 2, title: 'Identificarse', desc: 'Utiliza tu certificado digital, DNI electrónico o Cl@ve.' },
                     { step: 3, title: 'Pestaña Documentación', desc: 'Busca la pestaña de documentos en el menú lateral o superior.' },
                     { step: 4, title: 'Descargar archivos', desc: 'Descarga la Nota Simple, Certificación de Cargas o el Edicto.' },
@@ -816,9 +795,19 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, isIntegrat
                       <div className="w-6 h-6 rounded-full bg-brand-500 text-white text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">
                         {item.step}
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <h4 className="text-sm font-bold text-slate-900 mb-0.5">{item.title}</h4>
-                        <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+                        <p className="text-xs text-slate-500 leading-relaxed mb-1">{item.desc}</p>
+                        {item.link && (
+                          <a 
+                            href={finalBoeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-brand-600 hover:text-brand-700 transition-colors"
+                          >
+                            Abrir subasta en BOE <ExternalLink size={10} />
+                          </a>
+                        )}
                       </div>
                     </div>
                   ))}
