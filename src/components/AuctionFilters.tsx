@@ -60,7 +60,13 @@ export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilt
 
   const hasActiveFilters = city || province || status || type || sortBy !== 'recent';
 
-  const cities = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => a.city).filter(Boolean))), [auctions]);
+  const cities = useMemo(() => {
+    const rawCities = Object.values(auctions).map(a => a.city).filter(Boolean) as string[];
+    const normalized = rawCities.map(c => 
+      c.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+    );
+    return Array.from(new Set(normalized)).sort((a, b) => a.localeCompare(b, 'es'));
+  }, [auctions]);
   const provinces = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => a.province).filter(Boolean))), [auctions]);
   const types = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => getAuctionType(a.boeId)).filter(Boolean))), [auctions]);
 
@@ -72,25 +78,25 @@ export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilt
       <div className={`grid gap-2 md:gap-3 ${onSortChange ? 'grid-cols-2 md:grid-cols-6' : 'grid-cols-2 md:grid-cols-4'}`}>
         <div className="col-span-1">
           <select value={city} onChange={e => setCity(e.target.value)} className={`${selectBaseClass} ${selectSizeClass}`}>
-            <option value="">Ciudad</option>
+            <option value="">Municipio</option>
             {cities.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         
-        <div className="col-span-1">
-          <select value={status} onChange={e => setStatus(e.target.value)} className={`${selectBaseClass} ${selectSizeClass}`}>
-            <option value="">Estado</option>
-            <option value="active">En curso</option>
-            <option value="upcoming">Próxima apertura</option>
-            <option value="suspended">Pausada</option>
-            <option value="closed">Finalizada</option>
-          </select>
-        </div>
-
         <div className="hidden md:block col-span-1">
           <select value={province} onChange={e => setProvince(e.target.value)} className={`${selectBaseClass} ${selectSizeClass}`}>
             <option value="">Provincia</option>
             {provinces.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+
+        <div className="col-span-1">
+          <select value={status} onChange={e => setStatus(e.target.value)} className={`${selectBaseClass} ${selectSizeClass}`}>
+            <option value="">Situación</option>
+            <option value="active">En curso</option>
+            <option value="upcoming">Próxima apertura</option>
+            <option value="suspended">Pausada</option>
+            <option value="closed">Finalizada</option>
           </select>
         </div>
         
