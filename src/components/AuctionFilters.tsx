@@ -62,10 +62,15 @@ export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilt
 
   const cities = useMemo(() => {
     const rawCities = Object.values(auctions).map(a => a.city).filter(Boolean) as string[];
-    const normalized = rawCities.map(c => 
-      c.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+    
+    // Normalizar nombres eliminando tildes antes de deduplicar
+    const normalizedSet = new Set(
+      rawCities.map(c => c.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim())
     );
-    return Array.from(new Set(normalized)).sort((a, b) => a.localeCompare(b, 'es'));
+    
+    return Array.from(normalizedSet)
+      .map(c => c.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
+      .sort((a, b) => a.localeCompare(b, 'es'));
   }, [auctions]);
   const provinces = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => a.province).filter(Boolean))), [auctions]);
   const types = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => getAuctionType(a.boeId)).filter(Boolean))), [auctions]);

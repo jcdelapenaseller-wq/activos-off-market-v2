@@ -1,3 +1,4 @@
+import React from 'react';
 import { RouteObject, Navigate, useParams, useLocation } from 'react-router-dom';
 import { createElement } from 'react';
 import { ROUTES } from './constants/routes';
@@ -76,7 +77,7 @@ import DiscoverReportArticle from './components/DiscoverReportArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
 import DiscoverReportsIndex from './components/DiscoverReportsIndex';
 import ProvinceHub from './components/ProvinceHub';
-import AuctionPage from './components/AuctionPage';
+const AuctionPage = React.lazy(() => import('./components/AuctionPage'));
 import AuctionCalculatorPage from './components/AuctionCalculatorPage';
 import Legal from './components/Legal';
 import AdminTracking from './components/AdminTracking';

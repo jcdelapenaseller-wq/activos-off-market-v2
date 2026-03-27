@@ -77,14 +77,15 @@ async function runCrawler() {
     const provinceConfig: Record<string, { maxPages: number; onlyCapital: boolean; minRatio?: number; minTasacion?: number }> = {
       '28': { maxPages: 15, onlyCapital: false, minTasacion: 50000 }, // Madrid
       '08': { maxPages: 15, onlyCapital: false, minTasacion: 200000 }, // Barcelona
-      '46': { maxPages: 5, onlyCapital: true }, // Valencia
-      '03': { maxPages: 5, onlyCapital: true }, // Alicante
-      '41': { maxPages: 5, onlyCapital: true }, // Sevilla
-      '29': { maxPages: 5, onlyCapital: true }, // Málaga
+      '46': { maxPages: 5, onlyCapital: false, minTasacion: 180000 }, // Valencia
+      '03': { maxPages: 5, onlyCapital: false, minTasacion: 180000 }, // Alicante
+      '41': { maxPages: 5, onlyCapital: true, minTasacion: 150000 }, // Sevilla
+      '29': { maxPages: 5, onlyCapital: false, minTasacion: 180000 }, // Málaga
+      '50': { maxPages: 5, onlyCapital: false, minTasacion: 180000 }, // Zaragoza
     };
 
-    const provincesToTest = provinces.filter(p => p.value === '08');
-    console.log(`Ejecutando para ${provincesToTest.length} provincias: ${provincesToTest.map(p => p.text).join(', ')}`);
+    const provincesToTest = provinces;
+    console.log(`Ejecutando para ${provincesToTest.length} provincias.`);
     
     const allAuctions: any[] = [];
     const processedSlugs = new Set();
@@ -96,7 +97,7 @@ async function runCrawler() {
       // Reset paginación por provincia
       const visitedPages = new Set();
       let currentPage = 1;
-      const config = provinceConfig[province.value] || { maxPages: 3, onlyCapital: false };
+      const config = provinceConfig[province.value] || { maxPages: 3, onlyCapital: false, minTasacion: 160000 };
       const maxPages = config.maxPages;
       const capitalName = province.text.replace(/\s*\(\d+\)$/, '').trim();
       console.log(`Provincia ${capitalName} -> páginas: ${maxPages}`);
@@ -217,25 +218,6 @@ async function runCrawler() {
     try {
       let auctionsContent = fs.readFileSync(auctionsFilePath, 'utf-8');
       
-      const initialBlocks = auctionsContent.split(/(?='subasta-)/);
-      for (const b of initialBlocks) {
-        if (b.includes('province: "Barcelona"') && (b.includes('propertyType: "Piso"') || b.includes('propertyType: "Casa"') || b.includes('propertyType: "Chalet"') || b.includes('propertyType: "Vivienda"') || b.includes('propertyType: "Inmueble"'))) {
-          countAntes++;
-        }
-      }
-
-      // Cleanup old Barcelona < 200k
-      const cleanBlocks = initialBlocks.filter(b => {
-        if (b.includes('province: "Barcelona"')) {
-          const match = b.match(/appraisalValue:\s*(\d+(\.\d+)?)/);
-          if (match && parseFloat(match[1]) < 200000) return false;
-        }
-        return true;
-      });
-      
-      auctionsContent = cleanBlocks.join('');
-      fs.writeFileSync(auctionsFilePath, auctionsContent);
-
       const idRegex = /boeId:\s*["']([^"']+)["']/g;
       let match;
       while ((match = idRegex.exec(auctionsContent)) !== null) {
@@ -718,30 +700,99 @@ async function runCrawler() {
       }
     }
 
-    const finalContent = fs.readFileSync(auctionsFilePath, 'utf-8');
-    const blocks = finalContent.split(/(?='subasta-)/);
+    let finalContent = fs.readFileSync(auctionsFilePath, 'utf-8');
+    let blocks = finalContent.split(/(?='subasta-)/);
     
-    let totalSubastasBarcelonaDataset = 0;
-    let totalViviendasBarcelonaDataset = 0;
+    const cityCounts: Record<string, number> = {};
+    let totalProvinciasConReglaGlobal = 0;
+    let totalSubastasRestoProvinciasFinal = 0;
+    const globalProvincesSet = new Set<string>();
 
-    for (const block of blocks) {
-      if (block.includes('province: "Barcelona"')) {
-        totalSubastasBarcelonaDataset++;
-        if (
-          block.includes('propertyType: "Piso"') || 
-          block.includes('propertyType: "Casa"') || 
-          block.includes('propertyType: "Chalet"') || 
-          block.includes('propertyType: "Vivienda"') || 
-          block.includes('propertyType: "Inmueble"')
-        ) {
-          totalViviendasBarcelonaDataset++;
+    const filteredBlocks = blocks.filter(block => {
+      const provinceMatch = block.match(/province:\s*"([^"]+)"/);
+      if (!provinceMatch) return true;
+      const provinceRaw = provinceMatch[1];
+      const provinceLower = provinceRaw.toLowerCase();
+      
+      const isMadrid = provinceLower.includes('madrid');
+      const isBarcelona = provinceLower.includes('barcelona');
+      const isSevilla = provinceLower.includes('sevilla');
+      const isValencia = provinceLower.includes('valencia');
+      const isAlicante = provinceLower.includes('alicante');
+      const isMalaga = provinceLower.includes('málaga') || provinceLower.includes('malaga');
+      const isZaragoza = provinceLower.includes('zaragoza');
+
+      const isSpecific = isMadrid || isBarcelona || isSevilla || isValencia || isAlicante || isMalaga || isZaragoza;
+
+      const tasacionMatch = block.match(/appraisalValue:\s*(\d+(\.\d+)?)/);
+      const tasacion = tasacionMatch ? parseFloat(tasacionMatch[1]) : 0;
+
+      const cityMatch = block.match(/city:\s*"([^"]+)"/);
+      const city = cityMatch ? cityMatch[1].toLowerCase() : '';
+
+      if (isSpecific) {
+        // Specific Rules
+        if (isMadrid && tasacion < 50000) return false;
+        if (isBarcelona && tasacion < 200000) return false;
+        if (isSevilla && !city.includes('sevilla')) return false;
+        if (isSevilla && tasacion < 150000) return false;
+        if ((isValencia || isAlicante || isMalaga || isZaragoza) && tasacion < 180000) return false;
+
+        // Limit 5 for specific (except capital)
+        let isCapital = false;
+        if (isValencia && city === 'valencia') isCapital = true;
+        if (isAlicante && city === 'alicante') isCapital = true;
+        if (isMalaga && (city === 'málaga' || city === 'malaga')) isCapital = true;
+        if (isMadrid && city === 'madrid') isCapital = true;
+        if (isBarcelona && city === 'barcelona') isCapital = true;
+        if (isZaragoza && city === 'zaragoza') isCapital = true;
+        if (isSevilla && city === 'sevilla') isCapital = true;
+
+        if (!isCapital) {
+          const key = `spec-${provinceLower}-${city}`;
+          cityCounts[key] = (cityCounts[key] || 0) + 1;
+          if (cityCounts[key] > 5) return false;
         }
+      } else {
+        // Global Rule
+        if (tasacion < 160000) return false;
+        
+        // Capital check
+        const normProv = provinceLower.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+        const normCity = city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+        
+        const isCapital = normCity === normProv || 
+                          (provinceLower.includes('coruña') && city.includes('coruña')) ||
+                          (provinceLower.includes('vizcaya') && city.includes('bilbao')) ||
+                          (provinceLower.includes('guipúzcoa') && city.includes('sebastián')) ||
+                          (provinceLower.includes('álava') && city.includes('vitoria')) ||
+                          (provinceLower.includes('asturias') && city.includes('oviedo')) ||
+                          (provinceLower.includes('cantabria') && city.includes('santander')) ||
+                          (provinceLower.includes('rioja') && city.includes('logroño')) ||
+                          (provinceLower.includes('baleares') && city.includes('palma')) ||
+                          (provinceLower.includes('palmas') && city.includes('palmas')) ||
+                          (provinceLower.includes('tenerife') && city.includes('cruz')) ||
+                          (provinceLower.includes('navarra') && city.includes('pamplona'));
+        
+        if (!isCapital) {
+          const key = `global-${provinceLower}-${city}`;
+          cityCounts[key] = (cityCounts[key] || 0) + 1;
+          if (cityCounts[key] > 3) return false;
+        }
+        
+        globalProvincesSet.add(provinceRaw);
+        totalSubastasRestoProvinciasFinal++;
       }
-    }
+      return true;
+    });
+    
+    totalProvinciasConReglaGlobal = globalProvincesSet.size;
 
-    console.log(`\n--- TEST BARCELONA FINAL ---`);
-    console.log(`viviendasBarcelonaDataset antes: ${countAntes}`);
-    console.log(`viviendasBarcelonaDataset después: ${totalViviendasBarcelonaDataset}`);
+    fs.writeFileSync(auctionsFilePath, filteredBlocks.join(''));
+
+    console.log(`\n--- RESULTADOS FINALES ---`);
+    console.log(`totalProvinciasConReglaGlobal: ${totalProvinciasConReglaGlobal}`);
+    console.log(`totalSubastasRestoProvinciasFinal: ${totalSubastasRestoProvinciasFinal}`);
     console.log(`-------------------------\n`);
 
   } catch (error) {

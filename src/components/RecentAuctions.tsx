@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight, Percent } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
 import { ROUTES } from '../constants/routes';
@@ -10,10 +10,53 @@ import { AuctionData } from '../data/auctions';
 import { ShareButtons } from './ShareButtons';
 import { DiscoverReportsBlock } from './DiscoverReportsBlock';
 import RadarPremiumCTA from './RadarPremiumCTA';
+import { prefetchAuction } from '../utils/prefetch';
+
+const LazyAuctionCard: React.FC<{ slug: string; data: AuctionData; showNewBadge?: boolean }> = ({ slug, data, showNewBadge }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          prefetchAuction(slug);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [slug]);
+
+  return (
+    <div ref={ref} className="min-h-[500px]">
+      {isVisible ? (
+        <AuctionCard slug={slug} data={data} showNewBadge={showNewBadge} />
+      ) : (
+        <div className="w-full h-full bg-slate-100 animate-pulse rounded-2xl border border-slate-200" />
+      )}
+    </div>
+  );
+};
 
 const RecentAuctions: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(() => getFilteredAuctions(AUCTIONS));
   const [sortBy, setSortBy] = useState<string>('recent');
+  
+  const currentPage = useMemo(() => {
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    return isNaN(page) || page < 1 ? 1 : page;
+  }, [searchParams]);
+
+  const itemsPerPage = 12;
   
   const sortedAuctions = sortAuctions(Object.entries(filteredAuctions), sortBy);
   
@@ -21,6 +64,47 @@ const RecentAuctions: React.FC = () => {
   const totalActiveAuctions = useMemo(() => {
     return Object.values(AUCTIONS).filter(a => isAuctionActive(a)).length;
   }, []);
+
+  const auctionsWithBadges = useMemo(() => {
+    let newBadgeCount = 0;
+    return sortedAuctions.map(([slug, data]) => {
+      const showNewBadge = data.isNew && newBadgeCount < 6;
+      if (showNewBadge) newBadgeCount++;
+      return { slug, data, showNewBadge };
+    });
+  }, [sortedAuctions]);
+  
+  // Pagination logic
+  const totalPages = Math.ceil(auctionsWithBadges.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedAuctions = auctionsWithBadges.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setSearchParams(prev => {
+      if (page === 1) {
+        prev.delete('page');
+      } else {
+        prev.set('page', page.toString());
+      }
+      return prev;
+    }, { replace: false });
+  };
+
+  const handleFilterChange = (newFiltered: Record<string, AuctionData>) => {
+    setFilteredAuctions(newFiltered);
+    setSearchParams(prev => {
+      prev.delete('page');
+      return prev;
+    }, { replace: false });
+  };
+
+  const handleSortChange = (newSort: string) => {
+    setSortBy(newSort);
+    setSearchParams(prev => {
+      prev.delete('page');
+      return prev;
+    }, { replace: false });
+  };
   
   const activeCount = Object.keys(filteredAuctions).length;
   const hasFilters = activeCount !== totalActiveAuctions;
@@ -37,12 +121,39 @@ const RecentAuctions: React.FC = () => {
   const sortLabel = getSortLabel(sortBy);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if (currentPage > 1) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo(0, 0);
+    }
+    
     document.title = "Últimas subastas inmobiliarias detectadas | Activos Off-Market";
     
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute('content', "Listado de las subastas judiciales y administrativas más recientes detectadas en España. Análisis técnico y oportunidades de inversión inmobiliaria.");
-  }, []);
+
+    // SEO Pagination: noindex,follow for page > 1
+    let robotsMeta = document.querySelector('meta[name="robots"]');
+    if (currentPage > 1) {
+      if (!robotsMeta) {
+        robotsMeta = document.createElement('meta');
+        robotsMeta.setAttribute('name', 'robots');
+        document.head.appendChild(robotsMeta);
+      }
+      robotsMeta.setAttribute('content', 'noindex,follow');
+    } else if (robotsMeta) {
+      robotsMeta.setAttribute('content', 'index,follow');
+    }
+
+    // Canonical link: always base URL
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute('href', window.location.origin + window.location.pathname);
+  }, [currentPage]);
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
@@ -72,7 +183,7 @@ const RecentAuctions: React.FC = () => {
             variant="bar"
             origin="listing"
           />
-          <AuctionFilters auctions={AUCTIONS} onFilteredChange={setFilteredAuctions} onSortChange={setSortBy} />
+          <AuctionFilters auctions={AUCTIONS} onFilteredChange={handleFilterChange} onSortChange={handleSortChange} />
         </div>
         
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -93,15 +204,28 @@ const RecentAuctions: React.FC = () => {
           )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {(() => {
-            let newBadgeCount = 0;
-            return sortedAuctions.map(([slug, data]) => {
-              const showNewBadge = data.isNew && newBadgeCount < 6;
-              if (showNewBadge) newBadgeCount++;
-              return <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />;
-            });
-          })()}
+          {paginatedAuctions.map(({ slug, data, showNewBadge }) => (
+            <LazyAuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />
+          ))}
         </div>
+
+        {totalPages > 1 && (
+          <div className="mt-12 flex flex-wrap justify-center items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`w-10 h-10 rounded-lg font-bold transition-all ${
+                  currentPage === page
+                    ? 'bg-brand-600 text-white shadow-md shadow-brand-200'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:border-brand-500 hover:text-brand-600'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="mt-20 bg-brand-900 rounded-[2.5rem] p-12 text-center relative overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-800 rounded-full -mr-32 -mt-32 opacity-50 blur-3xl"></div>

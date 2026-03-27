@@ -6,6 +6,9 @@ import { isAuctionFinished, getComputedStatus, isCapital, calculateDiscount, isC
 import { normalizeLocationLabel, normalizePropertyType, normalizeCity, normalizeProvince } from '../utils/auctionNormalizer';
 import { ROUTES } from '../constants/routes';
 import { trackConversion } from '../utils/tracking';
+import { prefetchAuction } from '../utils/prefetch';
+
+import { getImageForPropertyType } from '../constants/auctionImages';
 
 interface AuctionCardProps {
   slug: string;
@@ -70,9 +73,26 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
   };
 
   const locationLabel = normalizeLocationLabel(data);
+  const imageUrl = getImageForPropertyType(data.propertyType, slug);
 
   return (
-    <div className={`bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}>
+    <div 
+      onMouseEnter={() => prefetchAuction(slug)}
+      className={`bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative group ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}
+    >
+      {/* Image Container */}
+      <div className="relative h-48 overflow-hidden bg-slate-100">
+        <img 
+          src={imageUrl} 
+          alt={`${normalizePropertyType(data.propertyType)} en ${city}`}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
+      </div>
+
       {/* Absolute Badges Container */}
       <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-start gap-2">
         {/* Left: Commercial Badges (Max 2) */}
@@ -124,7 +144,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
         </div>
       </div>
 
-      <div className="p-5 flex-grow flex flex-col pt-24">
+      <div className="p-5 flex-grow flex flex-col">
         <Link to={`/subasta/${id}`} className="block mb-4">
           <h2 className="text-lg font-bold text-slate-900 leading-tight hover:text-brand-600 transition-colors line-clamp-2">
             {normalizePropertyType(data.propertyType)} en {data.address?.split(',')[0] || normalizeLocationLabel(data).split(',')[0]}
