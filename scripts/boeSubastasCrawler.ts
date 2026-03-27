@@ -76,14 +76,14 @@ async function runCrawler() {
     
     const provinceConfig: Record<string, { maxPages: number; onlyCapital: boolean; minRatio?: number; minTasacion?: number }> = {
       '28': { maxPages: 15, onlyCapital: false, minTasacion: 50000 }, // Madrid
-      '08': { maxPages: 15, onlyCapital: false }, // Barcelona
+      '08': { maxPages: 15, onlyCapital: false, minTasacion: 200000 }, // Barcelona
       '46': { maxPages: 5, onlyCapital: true }, // Valencia
       '03': { maxPages: 5, onlyCapital: true }, // Alicante
       '41': { maxPages: 5, onlyCapital: true }, // Sevilla
       '29': { maxPages: 5, onlyCapital: true }, // Málaga
     };
 
-    const provincesToTest = provinces.filter(p => p.value === '28');
+    const provincesToTest = provinces.filter(p => p.value === '08');
     console.log(`Ejecutando para ${provincesToTest.length} provincias: ${provincesToTest.map(p => p.text).join(', ')}`);
     
     const allAuctions: any[] = [];
@@ -213,8 +213,29 @@ async function runCrawler() {
     // Cargar subastas existentes para comparar
     const auctionsFilePath = path.join(__dirname, '../src/data/auctions.ts');
     let existingIds = new Set();
+    let countAntes = 0;
     try {
-      const auctionsContent = fs.readFileSync(auctionsFilePath, 'utf-8');
+      let auctionsContent = fs.readFileSync(auctionsFilePath, 'utf-8');
+      
+      const initialBlocks = auctionsContent.split(/(?='subasta-)/);
+      for (const b of initialBlocks) {
+        if (b.includes('province: "Barcelona"') && (b.includes('propertyType: "Piso"') || b.includes('propertyType: "Casa"') || b.includes('propertyType: "Chalet"') || b.includes('propertyType: "Vivienda"') || b.includes('propertyType: "Inmueble"'))) {
+          countAntes++;
+        }
+      }
+
+      // Cleanup old Barcelona < 200k
+      const cleanBlocks = initialBlocks.filter(b => {
+        if (b.includes('province: "Barcelona"')) {
+          const match = b.match(/appraisalValue:\s*(\d+(\.\d+)?)/);
+          if (match && parseFloat(match[1]) < 200000) return false;
+        }
+        return true;
+      });
+      
+      auctionsContent = cleanBlocks.join('');
+      fs.writeFileSync(auctionsFilePath, auctionsContent);
+
       const idRegex = /boeId:\s*["']([^"']+)["']/g;
       let match;
       while ((match = idRegex.exec(auctionsContent)) !== null) {
@@ -700,12 +721,12 @@ async function runCrawler() {
     const finalContent = fs.readFileSync(auctionsFilePath, 'utf-8');
     const blocks = finalContent.split(/(?='subasta-)/);
     
-    let totalSubastasMadridDataset = 0;
-    let totalViviendasMadridDataset = 0;
+    let totalSubastasBarcelonaDataset = 0;
+    let totalViviendasBarcelonaDataset = 0;
 
     for (const block of blocks) {
-      if (block.includes('province: "Madrid"')) {
-        totalSubastasMadridDataset++;
+      if (block.includes('province: "Barcelona"')) {
+        totalSubastasBarcelonaDataset++;
         if (
           block.includes('propertyType: "Piso"') || 
           block.includes('propertyType: "Casa"') || 
@@ -713,16 +734,14 @@ async function runCrawler() {
           block.includes('propertyType: "Vivienda"') || 
           block.includes('propertyType: "Inmueble"')
         ) {
-          totalViviendasMadridDataset++;
+          totalViviendasBarcelonaDataset++;
         }
       }
     }
 
-    console.log(`\n--- TEST MADRID FINAL ---`);
-    console.log(`totalSubastasMadridDataset: ${totalSubastasMadridDataset}`);
-    console.log(`totalViviendasMadridDataset: ${totalViviendasMadridDataset}`);
-    console.log(`totalNuevasMadrid: ${output.totalNuevas}`);
-    console.log(`totalActualizadasMadrid: ${output.totalActualizadas}`);
+    console.log(`\n--- TEST BARCELONA FINAL ---`);
+    console.log(`viviendasBarcelonaDataset antes: ${countAntes}`);
+    console.log(`viviendasBarcelonaDataset después: ${totalViviendasBarcelonaDataset}`);
     console.log(`-------------------------\n`);
 
   } catch (error) {
