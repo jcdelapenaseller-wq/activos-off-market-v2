@@ -74,12 +74,21 @@ async function runCrawler() {
 
     console.log(`Provincias encontradas con resultados: ${provinces.length}`);
     
-    // Filtrar para Madrid (28)
+    const provinceConfig: Record<string, { maxPages: number; onlyCapital: boolean; minRatio?: number; minTasacion?: number }> = {
+      '28': { maxPages: 15, onlyCapital: false, minTasacion: 50000 }, // Madrid
+      '08': { maxPages: 15, onlyCapital: false }, // Barcelona
+      '46': { maxPages: 5, onlyCapital: true }, // Valencia
+      '03': { maxPages: 5, onlyCapital: true }, // Alicante
+      '41': { maxPages: 5, onlyCapital: true }, // Sevilla
+      '29': { maxPages: 5, onlyCapital: true }, // Málaga
+    };
+
     const provincesToTest = provinces.filter(p => p.value === '28');
-    console.log(`Ejecutando prueba para ${provincesToTest.length} provincias: ${provincesToTest.map(p => p.text).join(', ')}`);
+    console.log(`Ejecutando para ${provincesToTest.length} provincias: ${provincesToTest.map(p => p.text).join(', ')}`);
     
     const allAuctions: any[] = [];
     const processedSlugs = new Set();
+    let totalPagesCrawled = 0;
 
     for (const province of provincesToTest) {
       console.log(`Seleccionando provincia: ${province.text} (valor: ${province.value})`);
@@ -87,8 +96,11 @@ async function runCrawler() {
       // Reset paginación por provincia
       const visitedPages = new Set();
       let currentPage = 1;
-      const maxPages = 3; // Límite controlado: máximo 3 páginas por provincia
-      console.log(`Límite páginas activo: ${maxPages}`);
+      const config = provinceConfig[province.value] || { maxPages: 3, onlyCapital: false };
+      const maxPages = config.maxPages;
+      const capitalName = province.text.replace(/\s*\(\d+\)$/, '').trim();
+      console.log(`Provincia ${capitalName} -> páginas: ${maxPages}`);
+      console.log(`Filtro capital: ${config.onlyCapital}`);
       let hasNextPage = true;
 
       try {
@@ -103,6 +115,7 @@ async function runCrawler() {
         }
 
         while (hasNextPage && currentPage <= maxPages) {
+          totalPagesCrawled++;
           const currentUrl = page.url();
           if (visitedPages.has(currentUrl)) break;
           visitedPages.add(currentUrl);
@@ -139,7 +152,14 @@ async function runCrawler() {
           for (const res of provinceResults) {
             if (!processedSlugs.has(res.urlDetalle)) {
               processedSlugs.add(res.urlDetalle);
-              allAuctions.push({ ...res, provinceText: province.text });
+              allAuctions.push({ 
+                ...res, 
+                provinceText: province.text,
+                onlyCapital: config.onlyCapital,
+                capitalName: capitalName,
+                minRatio: config.minRatio,
+                minTasacion: config.minTasacion
+              });
             }
           }
 
@@ -219,7 +239,6 @@ async function runCrawler() {
     for (let i = 0; i < allAuctions.length; i += batchSize) {
       const batch = allAuctions.slice(i, i + batchSize);
       await Promise.all(batch.map(async (item) => {
-        console.log(`Extrayendo detalles de: ${item.titulo.substring(0, 40)}...`);
         
         const detailPage = await browser.newPage();
       await detailPage.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
@@ -400,44 +419,46 @@ async function runCrawler() {
 
         const { city, zone } = extractCityAndZone(bienesData.direccion || '', item.titulo, item.provinceText.split(' ')[0]);
 
+        if (item.onlyCapital) {
+          if (!city || !city.toLowerCase().includes(item.capitalName.toLowerCase())) {
+            return; // Skip this item
+          }
+        }
+
         // Filtro de calidad
         const estadosIgnorar = ["Suspendida", "Cancelada", "Finalizada"];
-        const esEstadoInvalido = estadosIgnorar.some(e => (generalData.estadoSubasta as string).includes(e));
+        let esEstadoInvalido = estadosIgnorar.some(e => (generalData.estadoSubasta as string).includes(e));
 
         const tipoBienLimpio = cleanPropertyType(bienesData.tipoBien || '');
-        const esTipoExcluido = tipoBienLimpio === 'Local' || tipoBienLimpio === 'Garaje';
+        let esTipoExcluido = tipoBienLimpio === 'Local' || tipoBienLimpio === 'Garaje';
 
-        if (idSub === 'SUB-JA-2026-259025') {
-          console.log(`[DIAGNOSTICO] parsed SUB-JA-2026-259025:`, {
-            subastaNum, tasacionNum, deudaNum, depositoNum, superficieNum,
-            estadoSubasta: generalData.estadoSubasta,
-            tipoBienLimpio
-          });
+        // Fallback tasación
+        let tasacionEfectiva = tasacionNum;
+        if (tasacionEfectiva === 0 || tasacionEfectiva === null) {
+          tasacionEfectiva = subastaNum;
         }
 
         // Cálculo de ratio para filtro (18% - 85%)
-        const valorReferencia = tasacionNum || subastaNum;
+        const valorReferencia = tasacionEfectiva || subastaNum;
         let esRatioBajo = false;
         let esRatioExcesivo = false;
         let ratio = 0;
-        if (valorReferencia && deudaNum !== null && deudaNum !== undefined) {
-          ratio = Math.round(((valorReferencia - deudaNum) / valorReferencia) * 100);
-          // Descartamos si el ratio es explícitamente < 18% o > 85%
-          if (ratio < 18) esRatioBajo = true;
+        const minRatio = item.minRatio !== undefined ? item.minRatio : 18;
+        
+        let missingDebt = deudaNum === null || deudaNum === undefined;
+
+        if (valorReferencia && !missingDebt) {
+          ratio = Math.round(((valorReferencia - deudaNum!) / valorReferencia) * 100);
+          // Descartamos si el ratio es explícitamente < minRatio o > 85%
+          if (ratio < minRatio) esRatioBajo = true;
           if (ratio > 85) esRatioExcesivo = true;
         }
 
-        const esValorBajo = tasacionNum !== null && tasacionNum < 100000;
-        const esDeudaCero = deudaNum === 0;
+        const minTasacion = item.minTasacion !== undefined ? item.minTasacion : 100000;
+        let esValorBajo = tasacionEfectiva !== null && tasacionEfectiva < minTasacion;
+        let esDeudaCero = deudaNum === 0;
 
-        if (idSub === 'SUB-JA-2026-259025') {
-          console.log(`[DIAGNOSTICO] passed filters SUB-JA-2026-259025:`, {
-            subastaNumValid: subastaNum !== null && subastaNum >= 5000,
-            esEstadoInvalido, esTipoExcluido, esRatioBajo, esRatioExcesivo, esValorBajo, esDeudaCero
-          });
-        }
-
-        if (subastaNum !== null && subastaNum >= 5000 && !esEstadoInvalido && !esTipoExcluido && !esRatioBajo && !esRatioExcesivo && !esValorBajo && !esDeudaCero) {
+        if (valorReferencia !== null && valorReferencia >= 5000 && !esEstadoInvalido && !esTipoExcluido && !esRatioBajo && !esRatioExcesivo && !esValorBajo && !esDeudaCero) {
           let opportunityScore = 0;
           let opportunityRatio = ratio / 100;
 
@@ -462,7 +483,8 @@ async function runCrawler() {
           if (
             tipoBienLimpio?.toLowerCase().includes("vivienda") ||
             tipoBienLimpio?.toLowerCase().includes("piso") ||
-            tipoBienLimpio?.toLowerCase().includes("casa")
+            tipoBienLimpio?.toLowerCase().includes("casa") ||
+            tipoBienLimpio?.toLowerCase().includes("inmueble")
           ) {
             opportunityScore += 20;
           }
@@ -487,8 +509,9 @@ async function runCrawler() {
             idSub,
             titulo: item.titulo,
             valorSubasta: subastaNum,
-            valorTasacion: tasacionNum,
+            valorTasacion: tasacionEfectiva,
             claimedDebt: deudaNum,
+            missingDebt,
             deposito: depositoNum,
             autoridad,
             estadoSubasta: generalData.estadoSubasta,
@@ -512,11 +535,9 @@ async function runCrawler() {
           else if (esTipoExcluido) motivo = `Tipo excluido: ${tipoBienLimpio}`;
           else if (esRatioBajo) motivo = `Ratio insuficiente`;
           else if (esRatioExcesivo) motivo = `Ratio excesivo (>85%)`;
-          else if (esValorBajo) motivo = `Valor tasación bajo (<100k)`;
+          else if (esValorBajo) { motivo = `Valor tasación bajo (<${minTasacion/1000}k)`; }
           else if (esDeudaCero) motivo = `Deuda cero`;
           else motivo = `Valor insuficiente: ${subastaNum}`;
-          
-          console.log(` - Subasta ${idSub} descartada por calidad (${motivo})`);
         }
       } catch (err) {
         console.error(`Error procesando subasta ${item.titulo}: ${(err as any).message}`);
@@ -528,10 +549,6 @@ async function runCrawler() {
 
     const nuevas = finalResults.filter(s => !existingIds.has(s.idSub));
     
-    if (finalResults.some(s => s.idSub === 'SUB-JA-2026-259025')) {
-      console.log(`[DIAGNOSTICO] merging SUB-JA-2026-259025`);
-    }
-
     const output = {
       totalEncontradas: allAuctions.length,
       totalValidas: finalResults.length,
@@ -575,8 +592,6 @@ async function runCrawler() {
 
           if (exists) {
             // ACTUALIZAR: status, auctionDate, startDate, isActive, lastCheckedAt, opportunityScore, opportunityRatio
-            console.log(`Actualizando subasta existente: ${slug}`);
-            
             // Usar regex para reemplazar campos específicos dentro del bloque de la subasta
             const blockRegex = new RegExp(`('${slug}':\\s*{[\\s\\S]*?})`, 'g');
             auctionsContent = auctionsContent.replace(blockRegex, (match) => {
@@ -631,8 +646,6 @@ async function runCrawler() {
             output.subastasActualizadas++;
           } else {
             // INSERTAR NUEVA
-            console.log(`Insertando nueva subasta: ${slug}`);
-            
             let desc = s.titulo;
             if (s.cargas) desc += ` | Cargas: ${s.cargas}`;
             if (s.deposito) desc += ` | Depósito: ${s.deposito}€`;
@@ -676,10 +689,6 @@ async function runCrawler() {
         
         fs.writeFileSync(auctionsFilePath, auctionsContent);
         
-        if (auctionsContent.includes('SUB-JA-2026-259025')) {
-          console.log(`[DIAGNOSTICO] final dataset includes SUB-JA-2026-259025`);
-        }
-
         output.totalNuevas = output.subastasInsertadas;
         output.totalActualizadas = output.subastasActualizadas;
         
@@ -688,8 +697,33 @@ async function runCrawler() {
       }
     }
 
-    console.log('\n--- RESULTADOS DEL CRAWLER ---');
-    console.log(JSON.stringify(output, null, 2));
+    const finalContent = fs.readFileSync(auctionsFilePath, 'utf-8');
+    const blocks = finalContent.split(/(?='subasta-)/);
+    
+    let totalSubastasMadridDataset = 0;
+    let totalViviendasMadridDataset = 0;
+
+    for (const block of blocks) {
+      if (block.includes('province: "Madrid"')) {
+        totalSubastasMadridDataset++;
+        if (
+          block.includes('propertyType: "Piso"') || 
+          block.includes('propertyType: "Casa"') || 
+          block.includes('propertyType: "Chalet"') || 
+          block.includes('propertyType: "Vivienda"') || 
+          block.includes('propertyType: "Inmueble"')
+        ) {
+          totalViviendasMadridDataset++;
+        }
+      }
+    }
+
+    console.log(`\n--- TEST MADRID FINAL ---`);
+    console.log(`totalSubastasMadridDataset: ${totalSubastasMadridDataset}`);
+    console.log(`totalViviendasMadridDataset: ${totalViviendasMadridDataset}`);
+    console.log(`totalNuevasMadrid: ${output.totalNuevas}`);
+    console.log(`totalActualizadasMadrid: ${output.totalActualizadas}`);
+    console.log(`-------------------------\n`);
 
   } catch (error) {
     console.error('Error crítico en el crawler:', (error as any).message);
