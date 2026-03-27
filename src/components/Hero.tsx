@@ -1,6 +1,8 @@
 import React from 'react';
-import { Search, ArrowRight, TrendingUp, ShieldCheck, UserCheck, Sparkles, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Search, ArrowRight, TrendingUp, ShieldCheck, UserCheck, Sparkles, Star, Calculator } from 'lucide-react';
 import { MetricHighlight, MetricPositive, MetricTag } from '../utils/themeClasses';
+import { ROUTES } from '../constants/routes';
 
 const Hero: React.FC = () => {
   return (
@@ -36,7 +38,8 @@ const Hero: React.FC = () => {
           </p>
           
           <p className="text-lg md:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
-             Te ayudo a ganar tiempo y minimizar riesgos antes de que pongas un euro sobre la mesa. Filtro y analizo las subastas públicas (BOE, AEAT) para que tú solo decidas.
+             Analizamos subastas públicas (BOE, AEAT) y detectamos las mejores oportunidades. 
+             Evalúa datos clave antes de pujar y decide con más seguridad.
           </p>
 
           {/* Metrics Bar */}
@@ -51,32 +54,36 @@ const Hero: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex flex-col items-center gap-8">
+          <div className="flex flex-col items-center gap-6">
             <div className="flex flex-col sm:flex-row gap-5 justify-center items-center w-full">
-                <a 
-                href="https://t.me/activosoffmarket" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-12 py-6 bg-brand-700 hover:bg-brand-800 text-white text-xl font-bold rounded-xl shadow-xl hover:shadow-brand-500/40 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
+                <Link 
+                  to={ROUTES.RECENT_AUCTIONS}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-12 py-6 bg-brand-700 hover:bg-brand-800 text-white text-xl font-bold rounded-xl shadow-xl hover:shadow-brand-500/40 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
                 >
-                <Search size={24} />
-                Ver Canal Gratuito
-                </a>
-                <div className="relative w-full sm:w-auto group">
-                    <div className={`absolute -top-3 -right-3 z-10 flex items-center gap-1 shadow-sm ${MetricTag} !bg-yellow-100 !text-yellow-800 !border-yellow-200 hover:!bg-yellow-200 !text-[10px] !font-bold uppercase tracking-wide`}>
-                        <Sparkles size={10} /> Oferta Lanzamiento
-                    </div>
-                    <a 
-                    href="https://sublaunch.com/activosoffmarket"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-10 py-5 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200 text-lg font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-3 group-hover:border-brand-300"
-                    >
-                    Canal Premium
-                    <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
-                    </a>
-                </div>
+                  <Search size={24} />
+                  Ver Oportunidades
+                </Link>
+                <Link 
+                  to={ROUTES.CALCULATOR}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-10 py-5 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200 text-lg font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-3 hover:border-brand-300"
+                >
+                  <Calculator size={22} />
+                  Calcular Puja Máxima
+                </Link>
             </div>
+
+            <a 
+              href="https://t.me/activosoffmarket" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-slate-500 hover:text-brand-600 font-medium transition-colors flex items-center gap-2 text-sm md:text-base"
+            >
+              Ver Mejores Subastas →
+            </a>
 
             {/* Trust Line */}
             <div className="flex flex-col items-center mt-3 gap-2">
@@ -116,11 +123,11 @@ const Hero: React.FC = () => {
             {/* Card 1: Oportunidades filtradas (Azul) */}
             <div className="bg-white p-10 md:p-12 rounded-3xl shadow-lg border-t-4 border-t-blue-500 border-x border-b border-slate-100 hover:border-blue-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
                 <div className="bg-blue-50 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                    <TrendingUp size={40} />
+                    <Search size={40} />
                 </div>
-                <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-blue-700 transition-colors">Oportunidades filtradas</h3>
+                <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-blue-700 transition-colors">Detecta oportunidades reales</h3>
                 <p className="text-xl text-slate-600 leading-relaxed">
-                    Publico en el canal gratuito nuevas subastas ya seleccionadas. Sin ruido. Solo lo que tiene sentido económico.
+                    Selección de subastas donde precio, ubicación y margen tienen sentido económico.
                 </p>
             </div>
 
@@ -131,9 +138,9 @@ const Hero: React.FC = () => {
                     <div className="bg-emerald-50 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all">
                         <ShieldCheck size={40} />
                     </div>
-                    <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-emerald-700 transition-colors">Análisis profundo</h3>
+                    <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-emerald-700 transition-colors">Analiza datos clave</h3>
                     <p className="text-xl text-slate-600 leading-relaxed">
-                        Cargas ocultas, situación posesoria (ocupación) y números reales antes de que decidas pujar.
+                        Cargas, ocupación, valor estimado y números antes de decidir la puja.
                     </p>
                 </div>
             </div>
@@ -141,11 +148,11 @@ const Hero: React.FC = () => {
             {/* Card 3: Servicio personal (Naranja suave) */}
             <div className="bg-white p-10 md:p-12 rounded-3xl shadow-lg border-t-4 border-t-orange-400 border-x border-b border-slate-100 hover:border-orange-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
                 <div className="bg-orange-50 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 text-orange-600 group-hover:bg-orange-500 group-hover:text-white transition-all">
-                    <UserCheck size={40} />
+                    <Calculator size={40} />
                 </div>
-                <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-orange-700 transition-colors">Servicio personal</h3>
+                <h3 className="text-3xl font-bold text-slate-900 mb-6 leading-tight group-hover:text-orange-700 transition-colors">Decide tu puja máxima</h3>
                 <p className="text-xl text-slate-600 leading-relaxed">
-                   Analizo subastas públicas con datos verificados y criterio jurídico. Sin conflictos de interés.
+                   Calculadora y criterio técnico para invertir con mayor seguridad.
                 </p>
             </div>
         </div>

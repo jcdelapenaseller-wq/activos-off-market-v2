@@ -44,6 +44,8 @@ const RadarPremiumCTA: React.FC<RadarPremiumCTAProps> = ({
         <div className="flex flex-col items-center md:items-end gap-2 w-full md:w-auto">
           <Link 
             to={ROUTES.ALERTAS}
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={handleTrack}
             className="w-full md:w-auto whitespace-nowrap px-8 py-3 bg-brand-600 text-white font-bold rounded-xl text-base hover:bg-brand-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-600/10"
           >
@@ -71,6 +73,8 @@ const RadarPremiumCTA: React.FC<RadarPremiumCTAProps> = ({
           <div className="flex flex-col gap-3">
             <Link 
               to={ROUTES.ALERTAS}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={handleTrack}
               className="w-full py-3 bg-brand-600 text-white font-bold rounded-xl text-sm hover:bg-brand-700 transition-all flex items-center justify-center gap-2 shadow-md shadow-brand-600/10"
             >
@@ -78,6 +82,8 @@ const RadarPremiumCTA: React.FC<RadarPremiumCTAProps> = ({
             </Link>
             <Link 
               to={ROUTES.ALERTAS}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-center text-xs text-slate-400 hover:text-brand-600 underline underline-offset-4"
             >
               ¿cómo funciona?
@@ -115,6 +121,8 @@ const RadarPremiumCTA: React.FC<RadarPremiumCTAProps> = ({
           </div>
           <Link 
             to={ROUTES.ALERTAS}
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={handleTrack}
             className="w-full py-3 bg-brand-600 text-white font-bold rounded-xl text-sm hover:bg-brand-700 transition-all flex items-center justify-center gap-2"
           >
@@ -164,6 +172,8 @@ const RadarPremiumCTA: React.FC<RadarPremiumCTAProps> = ({
         <div className="flex-shrink-0 flex flex-col items-center gap-4">
           <Link 
             to={ROUTES.ALERTAS}
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={handleTrack}
             className="px-8 py-4 bg-brand-600 text-white font-bold rounded-2xl text-lg hover:bg-brand-700 transition-all flex items-center justify-center gap-3 shadow-lg shadow-brand-600/20"
           >

@@ -145,7 +145,12 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
       </div>
 
       <div className="p-5 flex-grow flex flex-col">
-        <Link to={`/subasta/${id}`} className="block mb-4">
+        <Link 
+          to={`/subasta/${id}`} 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block mb-4"
+        >
           <h2 className="text-lg font-bold text-slate-900 leading-tight hover:text-brand-600 transition-colors line-clamp-2">
             {normalizePropertyType(data.propertyType)} en {data.address?.split(',')[0] || normalizeLocationLabel(data).split(',')[0]}
           </h2>
@@ -189,6 +194,8 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
 
             <Link 
               to={`${ROUTES.CALCULATOR}?tasacion=${valorReferencia || 0}&precio=${cantidadReclamada || 0}&ccaa=${province}`}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={(e) => {
                 e.stopPropagation();
                 trackConversion(province, 'listing', 'calculator_from_card_click', { precio: cantidadReclamada || 0 });
@@ -209,6 +216,8 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
           )}
           <Link 
             to={`/subasta/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className={`w-full inline-flex items-center justify-center font-bold py-3.5 px-6 rounded-xl transition-all group ${isFinished ? 'bg-slate-100 text-slate-500 hover:bg-slate-200' : isSuspended ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
           >
             {isFinished ? 'Ver resultado' : isSuspended ? 'Ver detalles' : 'Ver oportunidad'}

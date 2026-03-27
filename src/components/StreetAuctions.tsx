@@ -96,13 +96,41 @@ const StreetAuctions: React.FC = () => {
       <div className="bg-white border-b border-slate-200 pt-8 pb-12">
         <div className="max-w-7xl mx-auto px-6">
           <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2">
-            <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
+            <Link 
+              to={ROUTES.HOME} 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-600 transition-colors"
+            >
+              Inicio
+            </Link>
             <ChevronRight size={14} />
-            <Link to={ROUTES.GUIDE_PILLAR} className="hover:text-brand-600 transition-colors">Guía Subastas</Link>
+            <Link 
+              to={ROUTES.GUIDE_PILLAR} 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-600 transition-colors"
+            >
+              Guía Subastas
+            </Link>
             <ChevronRight size={14} />
-            <Link to={`/subastas/${province}`} className="hover:text-brand-600 transition-colors">Subastas en {displayProvince}</Link>
+            <Link 
+              to={`/subastas/${province}`} 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-600 transition-colors"
+            >
+              Subastas en {displayProvince}
+            </Link>
             <ChevronRight size={14} />
-            <Link to={`/subastas/${province}/${zone}`} className="hover:text-brand-600 transition-colors">{displayZone}</Link>
+            <Link 
+              to={`/subastas/${province}/${zone}`} 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-600 transition-colors"
+            >
+              {displayZone}
+            </Link>
             <ChevronRight size={14} />
             <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md">{displayStreet}</span>
           </nav>
@@ -152,10 +180,20 @@ const StreetAuctions: React.FC = () => {
               Te recomendamos explorar otras zonas de {displayProvince} o utilizar nuestra calculadora para estar preparado.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to={`/subastas/${province}`} className="bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors">
+              <Link 
+                to={`/subastas/${province}`} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-brand-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-700 transition-colors"
+              >
                 Ver subastas en {displayProvince}
               </Link>
-              <Link to={ROUTES.CALCULATOR} className="bg-slate-100 text-slate-900 font-bold py-3 px-8 rounded-xl hover:bg-slate-200 transition-colors">
+              <Link 
+                to={ROUTES.CALCULATOR} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-100 text-slate-900 font-bold py-3 px-8 rounded-xl hover:bg-slate-200 transition-colors"
+              >
                 Calculadora de subastas
               </Link>
             </div>
@@ -193,6 +231,8 @@ const StreetAuctions: React.FC = () => {
                 <Link 
                   key={streetName}
                   to={`/subastas/${normalize(province || '')}/${normalize(zone || '')}/${normalize(streetName)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="bg-white border border-slate-200 rounded-xl p-3 text-sm text-brand-600 hover:text-brand-800 hover:border-brand-200 hover:shadow-sm transition-all flex items-center gap-2 font-medium"
                 >
                   <ChevronRight size={14} className="flex-shrink-0" />
@@ -211,6 +251,8 @@ const StreetAuctions: React.FC = () => {
             </p>
             <Link 
               to={ROUTES.CALCULATOR}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center bg-white text-brand-900 font-bold py-4 px-10 rounded-2xl hover:bg-brand-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               Calcular puja máxima ahora

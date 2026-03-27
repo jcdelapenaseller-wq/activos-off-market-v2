@@ -55,6 +55,8 @@ const RelatedAuctions: React.FC<RelatedAuctionsProps> = ({ currentAuctionSlug, c
           <Link 
             key={slug} 
             to={`/subasta/${slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className={`bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-brand-300 transition-all group relative ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}
           >
             <div className="flex justify-between items-start mb-3 gap-2">

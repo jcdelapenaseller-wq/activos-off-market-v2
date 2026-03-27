@@ -16,7 +16,7 @@ const DiscoverSingleAuctionArticle: React.FC<Props> = ({ auction, slug, article,
   const formattedDate = article.dateModified.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <Link to={`/noticias-subastas/analisis/${slug}`} className="block group h-full">
+    <Link to={`/noticias-subastas/analisis/${slug}`} target="_blank" rel="noopener noreferrer" className="block group h-full">
       <article className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 h-full flex flex-col group-hover:shadow-md transition-all">
         <div className="relative overflow-hidden rounded-2xl mb-6 shrink-0">
           <img 

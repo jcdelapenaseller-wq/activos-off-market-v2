@@ -323,7 +323,14 @@ const AuctionPage: React.FC = () => {
         description: (
           <>
             Esta subasta fue adjudicada el {formattedDate}. Oportunidades similares aparecen cada semana.{" "}
-            <Link to="/subastas-recientes" className="text-slate-900 font-bold hover:underline ml-1">→ Ver subastas activas</Link>
+            <Link 
+              to="/subastas-recientes" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-900 font-bold hover:underline ml-1"
+            >
+              → Ver subastas activas
+            </Link>
           </>
         ),
         icon: Clock,
@@ -664,9 +671,23 @@ const AuctionPage: React.FC = () => {
       <main className="max-w-4xl mx-auto px-4 md:px-6 pt-2 md:pt-4">
         {/* Breadcrumbs - TOP LEVEL */}
         <nav className="flex items-center text-[9px] md:text-[10px] text-slate-400 mb-3 md:mb-4 font-bold uppercase tracking-widest" aria-label="Breadcrumb">
-          <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
+          <Link 
+            to={ROUTES.HOME} 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-brand-600 transition-colors"
+          >
+            Inicio
+          </Link>
           <ChevronRight size={8} className="mx-1.5 md:mx-2" />
-          <Link to={`/subastas/${provinceName.toLowerCase()}`} className="hover:text-brand-600 transition-colors">Subastas en {provinceName}</Link>
+          <Link 
+            to={`/subastas/${provinceName.toLowerCase()}`} 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-brand-600 transition-colors"
+          >
+            Subastas en {provinceName}
+          </Link>
           <ChevronRight size={8} className="mx-1.5 md:mx-2" />
           <span className="text-slate-300">Ficha</span>
         </nav>
@@ -993,6 +1014,7 @@ const AuctionPage: React.FC = () => {
               <Link 
                 to="/calculadora-subastas"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="bg-white border border-slate-200 p-5 md:p-7 rounded-[20px] md:rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col h-full justify-between"
               >
                 <div>
@@ -1112,6 +1134,7 @@ const AuctionPage: React.FC = () => {
         <Link 
           to="/calculadora-subastas"
           target="_blank"
+          rel="noopener noreferrer"
           className="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold shadow-2xl flex items-center justify-center gap-3 transform active:scale-95"
         >
           <Calculator size={20} />

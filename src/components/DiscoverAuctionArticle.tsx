@@ -159,9 +159,9 @@ const DiscoverAuctionArticle: React.FC = () => {
       
       <div className="flex-grow max-w-3xl mx-auto px-6 py-12 w-full">
         <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
-          <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
+          <Link to={ROUTES.HOME} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600 transition-colors">Inicio</Link>
           <ChevronRight size={14} className="mx-2" />
-          <Link to={ROUTES.NOTICIAS_SUBASTAS_INDEX} className="hover:text-brand-600 transition-colors">Noticias</Link>
+          <Link to={ROUTES.NOTICIAS_SUBASTAS_INDEX} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600 transition-colors">Noticias</Link>
           <ChevronRight size={14} className="mx-2" />
           <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md">Análisis Editorial</span>
         </nav>
@@ -334,12 +334,16 @@ const DiscoverAuctionArticle: React.FC = () => {
             <div className="my-12 flex flex-col sm:flex-row gap-4 w-full border-t border-slate-200 pt-10">
               <Link 
                 to={`/subasta/${slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-600 text-white font-bold px-8 py-4 rounded-xl hover:bg-brand-700 transition-colors shadow-sm text-center"
               >
                 Ver análisis técnico <ArrowRight size={18} />
               </Link>
               <Link 
                 to={`/subastas/${normalizeProvince(auction.province || auction.city).toLowerCase().replace(/\s+/g, '-')}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-100 text-slate-700 font-bold px-8 py-4 rounded-xl hover:bg-slate-200 transition-colors text-center"
               >
                 Más subastas en {normalizeProvince(auction.province || auction.city)}

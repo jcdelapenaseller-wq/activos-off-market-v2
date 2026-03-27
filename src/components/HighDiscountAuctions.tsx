@@ -37,7 +37,14 @@ const HighDiscountAuctions: React.FC = () => {
       <header className="bg-white border-b border-slate-200 pt-12 pb-16">
         <div className="max-w-7xl mx-auto px-6">
           <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
-            <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
+            <Link 
+              to={ROUTES.HOME} 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-brand-600 transition-colors"
+            >
+              Inicio
+            </Link>
             <ChevronRight size={14} className="mx-2" />
             <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md" aria-current="page">Subastas con 50% de Descuento</span>
           </nav>
@@ -92,6 +99,8 @@ const HighDiscountAuctions: React.FC = () => {
             </p>
             <Link 
               to="/calculadora-subastas" 
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-3 bg-white text-brand-900 font-bold py-5 px-10 rounded-2xl hover:bg-brand-50 transition-all shadow-xl text-lg"
             >
               Calcular puja máxima <ArrowRight size={22} />

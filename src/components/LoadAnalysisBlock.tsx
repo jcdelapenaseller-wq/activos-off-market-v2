@@ -876,6 +876,8 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <a 
                       href="mailto:contacto@activosoffmarket.es" 
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-brand-600 transition-colors bg-slate-50 px-4 py-2 rounded-xl border border-slate-100"
                     >
                       <X size={14} className="rotate-45" /> contacto@activosoffmarket.es
