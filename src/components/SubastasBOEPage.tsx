@@ -88,7 +88,7 @@ const SubastasBOEPage: React.FC = () => {
       <header className="bg-white pb-12 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
-                <Link to={ROUTES.HOME} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600 transition-colors">Inicio</Link>
+                <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} className="mx-2" />
                 <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md" aria-current="page">Subastas BOE</span>
             </nav>
@@ -173,7 +173,7 @@ const SubastasBOEPage: React.FC = () => {
                         <p className="text-slate-600 text-sm mb-3">
                             Son las más comunes y derivan de ejecuciones hipotecarias o reclamaciones de cantidad en juzgados civiles. Se rigen por la Ley de Enjuiciamiento Civil (LEC).
                         </p>
-                        <Link to={ROUTES.GUIDE_PILLAR} target="_blank" rel="noopener noreferrer" className="text-brand-700 font-bold text-sm hover:underline flex items-center gap-1">
+                        <Link to={ROUTES.GUIDE_PILLAR} className="text-brand-700 font-bold text-sm hover:underline flex items-center gap-1">
                             Ver guía detallada de subastas judiciales <ArrowRight size={14}/>
                         </Link>
                     </div>
@@ -186,7 +186,7 @@ const SubastasBOEPage: React.FC = () => {
                         <p className="text-slate-600 text-sm mb-3">
                             Administrativas. Derivan de deudas tributarias. Tienen su propia normativa (Reglamento General de Recaudación) y particularidades en cuanto a la entrega de posesión.
                         </p>
-                        <Link to={ROUTES.COMPARISON} target="_blank" rel="noopener noreferrer" className="text-brand-700 font-bold text-sm hover:underline flex items-center gap-1">
+                        <Link to={ROUTES.COMPARISON} className="text-brand-700 font-bold text-sm hover:underline flex items-center gap-1">
                             Comparativa Judicial vs AEAT <ArrowRight size={14}/>
                         </Link>
                     </div>
@@ -215,7 +215,7 @@ const SubastasBOEPage: React.FC = () => {
                         <p className="text-slate-700 mb-6 leading-relaxed">
                             Es vital dominar su normativa específica (LEC) porque ofrece mayores garantías de "purga de cargas" que las subastas administrativas.
                         </p>
-                        <Link to={ROUTES.GUIDE_PILLAR} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-brand-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-800 transition-all shadow-md transform hover:-translate-y-1">
+                        <Link to={ROUTES.GUIDE_PILLAR} className="inline-flex items-center gap-2 bg-brand-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-800 transition-all shadow-md transform hover:-translate-y-1">
                             Guía Completa de Subastas Judiciales <ArrowRight size={18} />
                         </Link>
                     </div>
@@ -237,7 +237,7 @@ const SubastasBOEPage: React.FC = () => {
                         <strong>Dato Importante:</strong> El depósito se realiza telemáticamente a través de la pasarela de pagos de la AEAT conectada con tu banco. Si no ganas, te lo devuelven automáticamente.
                     </p>
                     <div className="mt-4">
-                        <Link to={ROUTES.DEPOSIT} target="_blank" rel="noopener noreferrer" className="text-brand-800 font-bold text-sm hover:underline">
+                        <Link to={ROUTES.DEPOSIT} className="text-brand-800 font-bold text-sm hover:underline">
                             Lee todo sobre el depósito del 5% y sus plazos →
                         </Link>
                     </div>
@@ -270,7 +270,7 @@ const SubastasBOEPage: React.FC = () => {
                         <div className="bg-red-100 p-2 rounded-lg h-fit text-red-700"><Scale size={20} /></div>
                         <div>
                             <strong className="block text-slate-900">Firmeza de la Adjudicación</strong>
-                            <span className="text-slate-600 text-sm">Si pujas poco, el banco o el deudor pueden mejorar tu oferta a posteriori. Esto depende de la <Link to={ROUTES.RULE_70} target="_blank" rel="noopener noreferrer" className="text-brand-700 underline font-bold">regla del 70%</Link>.</span>
+                            <span className="text-slate-600 text-sm">Si pujas poco, el banco o el deudor pueden mejorar tu oferta a posteriori. Esto depende de la <Link to={ROUTES.RULE_70} className="text-brand-700 underline font-bold">regla del 70%</Link>.</span>
                         </div>
                     </li>
                 </ul>
@@ -305,8 +305,6 @@ const SubastasBOEPage: React.FC = () => {
                 <div className="not-prose mt-8 mb-12">
                     <Link 
                         to={ROUTES.ANALYSIS} 
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="block bg-brand-50 border border-brand-200 rounded-xl p-6 hover:bg-brand-100 transition-colors group"
                     >
                         <h3 className="text-xl font-bold text-brand-900 mb-2 flex items-center gap-2">
@@ -361,19 +359,19 @@ const SubastasBOEPage: React.FC = () => {
                     Recursos Relacionados
                 </h4>
                 <nav className="space-y-4">
-                    <Link to={ROUTES.GUIDE_PILLAR} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.GUIDE_PILLAR} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Subastas Judiciales</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to={ROUTES.RULE_70} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.RULE_70} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Regla del 70%</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to={ROUTES.DEPOSIT} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.DEPOSIT} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Depósito del 5%</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>
-                    <Link to={ROUTES.ANALYSIS} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <Link to={ROUTES.ANALYSIS} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
                         <span className="text-slate-600 text-sm font-medium group-hover:text-brand-700">Análisis Paso a Paso</span>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-brand-500"/>
                     </Link>

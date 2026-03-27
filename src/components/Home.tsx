@@ -106,8 +106,6 @@ const Home: React.FC = () => {
           </p>
           <Link 
             to={ROUTES.EXAMPLES_INDEX} 
-            target="_blank"
-            rel="noopener noreferrer"
             onClick={() => trackConversion('general', 'home', 'listado')}
             className="inline-flex items-center gap-2 bg-brand-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
           >
@@ -122,8 +120,6 @@ const Home: React.FC = () => {
             <h2 className="text-2xl md:text-3xl font-serif font-bold mb-6">Herramienta gratuita: Calculadora de rentabilidad en subastas judiciales</h2>
             <Link 
               to={ROUTES.CALCULATOR} 
-              target="_blank"
-              rel="noopener noreferrer"
               onClick={() => trackConversion('general', 'home', 'premium')}
               className="inline-block bg-white text-brand-900 font-bold py-4 px-8 rounded-xl hover:bg-brand-50 transition-all"
             >

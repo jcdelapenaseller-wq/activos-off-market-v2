@@ -711,8 +711,6 @@ const AuctionCalculator: React.FC<AuctionCalculatorProps> = ({
                 {hasData && (roiStatus.label === 'Margen bajo' || roiStatus.label === 'Pérdida estimada') && (
                   <Link 
                     to={ROUTES.CONSULTORIA} 
-                    target="_blank"
-                    rel="noopener noreferrer"
                     onClick={() => trackConversion(comunidad, 'calculator', 'consultoria', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' })}
                     className="mt-4 inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 gap-2 w-full sm:w-auto"
                   >

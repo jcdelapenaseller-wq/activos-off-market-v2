@@ -162,8 +162,6 @@ const RecentAuctions: React.FC = () => {
           <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
             <Link 
               to={ROUTES.HOME} 
-              target="_blank"
-              rel="noopener noreferrer"
               className="hover:text-brand-600 transition-colors"
             >
               Inicio
@@ -248,8 +246,6 @@ const RecentAuctions: React.FC = () => {
             </p>
             <Link 
               to="/calculadora-subastas" 
-              target="_blank"
-              rel="noopener noreferrer"
               className="inline-flex items-center gap-3 bg-white text-brand-900 font-bold py-5 px-10 rounded-2xl hover:bg-brand-50 transition-all shadow-xl text-lg"
             >
               Ir a la Calculadora <Calculator size={22} />
@@ -269,8 +265,6 @@ const RecentAuctions: React.FC = () => {
           </div>
           <Link 
             to="/subastas-descuento-50" 
-            target="_blank"
-            rel="noopener noreferrer"
             className="bg-emerald-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-emerald-700 transition-all whitespace-nowrap"
           >
             Subastas con más del 50% de descuento
@@ -284,8 +278,6 @@ const RecentAuctions: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             <Link 
               to={ROUTES.NOTICIAS_SUBASTAS_INDEX} 
-              target="_blank"
-              rel="noopener noreferrer"
               className="flex items-center justify-between bg-white border border-slate-200 p-6 rounded-2xl hover:border-brand-500 hover:shadow-md transition-all group"
             >
               <div>
@@ -296,8 +288,6 @@ const RecentAuctions: React.FC = () => {
             </Link>
             <Link 
               to={ROUTES.HIGH_DISCOUNT} 
-              target="_blank"
-              rel="noopener noreferrer"
               className="flex items-center justify-between bg-white border border-slate-200 p-6 rounded-2xl hover:border-brand-500 hover:shadow-md transition-all group"
             >
               <div>
@@ -308,8 +298,6 @@ const RecentAuctions: React.FC = () => {
             </Link>
             <Link 
               to={ROUTES.GUIDE_PILLAR} 
-              target="_blank"
-              rel="noopener noreferrer"
               className="flex items-center justify-between bg-white border border-slate-200 p-6 rounded-2xl hover:border-brand-500 hover:shadow-md transition-all group"
             >
               <div>
@@ -324,32 +312,24 @@ const RecentAuctions: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link 
               to="/subastas-en/madrid" 
-              target="_blank"
-              rel="noopener noreferrer"
               className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm"
             >
               Madrid
             </Link>
             <Link 
               to="/subastas-en/barcelona" 
-              target="_blank"
-              rel="noopener noreferrer"
               className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm"
             >
               Barcelona
             </Link>
             <Link 
               to="/subastas-en/valencia" 
-              target="_blank"
-              rel="noopener noreferrer"
               className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm"
             >
               Valencia
             </Link>
             <Link 
               to="/subastas-en/sevilla" 
-              target="_blank"
-              rel="noopener noreferrer"
               className="bg-white border border-slate-200 p-4 rounded-xl text-center hover:border-brand-500 hover:text-brand-700 transition-all font-bold shadow-sm"
             >
               Sevilla

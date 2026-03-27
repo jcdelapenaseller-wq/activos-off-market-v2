@@ -44,8 +44,6 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link 
           to={ROUTES.HOME} 
-          target="_blank"
-          rel="noopener noreferrer"
           className="flex items-center gap-2 text-brand-900 group" 
           onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
         >
@@ -59,16 +57,12 @@ const Header: React.FC = () => {
         <nav className="hidden md:flex items-center gap-6 lg:gap-8">
           <Link 
             to={ROUTES.GUIDE_PILLAR} 
-            target="_blank"
-            rel="noopener noreferrer"
             className={`text-sm lg:text-base font-medium transition-colors ${location.pathname === ROUTES.GUIDE_PILLAR ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
           >
             Guía Subastas BOE
           </Link>
           <Link 
             to={ROUTES.RECENT_AUCTIONS} 
-            target="_blank"
-            rel="noopener noreferrer"
             className={`text-sm lg:text-base font-medium transition-colors ${location.pathname === ROUTES.RECENT_AUCTIONS ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
           >
             Subastas Recientes
@@ -82,22 +76,18 @@ const Header: React.FC = () => {
             <div className="absolute top-full left-0 w-64 bg-white shadow-xl rounded-xl border border-slate-100 py-3 hidden group-hover:block animate-in fade-in slide-in-from-top-2">
               <Link 
                 to={ROUTES.CALCULATOR}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors"
               >
                 <Calculator size={18} className="text-brand-600" />
                 <span>Calcular Puja Máxima</span>
               </Link>
-              <a 
-                href="https://www.activosoffmarket.es/subasta/subasta-sub-at-2026-25r2886001818"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link 
+                to="/subasta/subasta-sub-at-2026-25r2886001818"
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors"
               >
                 <FileText size={18} className="text-brand-600" />
                 <span>Análisis de Cargas</span>
-              </a>
+              </Link>
               <a 
                 href="https://calendly.com/activosoffmarket"
                 target="_blank"
@@ -134,8 +124,6 @@ const Header: React.FC = () => {
         <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-xl p-4 flex flex-col gap-2 animate-in slide-in-from-top-5 h-screen overflow-y-auto pb-20">
            <Link 
             to={ROUTES.GUIDE_PILLAR} 
-            target="_blank"
-            rel="noopener noreferrer"
             className="text-lg font-bold text-slate-900 py-3 border-b border-slate-100 px-2"
             onClick={() => {
               setIsMobileMenuOpen(false);
@@ -146,8 +134,6 @@ const Header: React.FC = () => {
           </Link>
           <Link 
             to={ROUTES.RECENT_AUCTIONS} 
-            target="_blank"
-            rel="noopener noreferrer"
             className="text-lg font-bold text-slate-900 py-3 border-b border-slate-100 px-2"
             onClick={() => {
               setIsMobileMenuOpen(false);
@@ -169,24 +155,20 @@ const Header: React.FC = () => {
               <div className="bg-slate-50 rounded-xl mb-3 overflow-hidden">
                 <Link 
                   to={ROUTES.CALCULATOR}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex items-center gap-3 px-4 py-3 text-slate-700 border-b border-slate-200/50"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Calculator size={18} className="text-brand-600" />
                   <span>Calcular Puja Máxima</span>
                 </Link>
-                <a 
-                  href="https://www.activosoffmarket.es/subasta/subasta-sub-at-2026-25r2886001818"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link 
+                  to="/subasta/subasta-sub-at-2026-25r2886001818"
                   className="flex items-center gap-3 px-4 py-3 text-slate-700 border-b border-slate-200/50"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FileText size={18} className="text-brand-600" />
                   <span>Análisis de Cargas</span>
-                </a>
+                </Link>
                 <a 
                   href="https://calendly.com/activosoffmarket"
                   target="_blank"

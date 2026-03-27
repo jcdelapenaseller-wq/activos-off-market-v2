@@ -140,9 +140,9 @@ const DiscoverReportArticle: React.FC = () => {
 
       <div className="max-w-3xl mx-auto px-6 py-12 w-full">
         <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
-          <Link to={ROUTES.HOME} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600 transition-colors">Inicio</Link>
+          <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
           <ChevronRight size={14} className="mx-2" />
-          <Link to={ROUTES.REPORTS_INDEX} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600 transition-colors">Reportajes</Link>
+          <Link to={ROUTES.REPORTS_INDEX} className="hover:text-brand-600 transition-colors">Reportajes</Link>
           <ChevronRight size={14} className="mx-2" />
           <span className="text-slate-900 truncate" aria-current="page">{report.title}</span>
         </nav>
@@ -453,8 +453,6 @@ const DiscoverReportArticle: React.FC = () => {
             </p>
             <Link 
               to={ROUTES.CALCULATOR}
-              target="_blank"
-              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-brand-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-700 transition-colors w-full sm:w-auto shadow-sm"
             >
               Calcular rentabilidad ahora

@@ -63,8 +63,6 @@ const Footer: React.FC = () => {
           <div className="lg:col-span-4 space-y-6">
             <Link 
               to="/" 
-              target="_blank"
-              rel="noopener noreferrer"
               className="flex items-center gap-3 text-white hover:opacity-80 transition-opacity w-fit"
             >
               <div className="bg-brand-600/20 p-2 rounded-lg">
@@ -83,8 +81,6 @@ const Footer: React.FC = () => {
             <div className="pt-2">
               <Link 
                 to={ROUTES.RECENT_AUCTIONS}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-brand-400 hover:text-brand-300 transition-colors group"
               >
                 Ver subastas activas
@@ -102,8 +98,6 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to={ROUTES.CALCULATOR} 
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex items-center gap-2 hover:text-white transition-colors group"
                 >
                   <Calculator size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
@@ -126,10 +120,10 @@ const Footer: React.FC = () => {
 
             <h4 className="text-slate-300 font-bold text-sm mb-4">Recursos</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link to={ROUTES.REPORTS_INDEX} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Reportajes y Análisis</Link></li>
-              <li><Link to={ROUTES.NOTICIAS_SUBASTAS_INDEX} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Noticias de subastas</Link></li>
-              <li><Link to={ROUTES.GLOSSARY} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Glosario de términos</Link></li>
-              <li><Link to={ROUTES.HISTORICAL_AUCTIONS} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Histórico de Subastas</Link></li>
+              <li><Link to={ROUTES.REPORTS_INDEX} className="hover:text-white transition-colors">Reportajes y Análisis</Link></li>
+              <li><Link to={ROUTES.NOTICIAS_SUBASTAS_INDEX} className="hover:text-white transition-colors">Noticias de subastas</Link></li>
+              <li><Link to={ROUTES.GLOSSARY} className="hover:text-white transition-colors">Glosario de términos</Link></li>
+              <li><Link to={ROUTES.HISTORICAL_AUCTIONS} className="hover:text-white transition-colors">Histórico de Subastas</Link></li>
             </ul>
           </div>
 
@@ -142,8 +136,6 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to={ROUTES.MADRID} 
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex items-center gap-2 hover:text-white transition-colors group"
                 >
                   <MapPin size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
@@ -153,8 +145,6 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to={ROUTES.BARCELONA} 
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex items-center gap-2 hover:text-white transition-colors group"
                 >
                   <MapPin size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
@@ -164,8 +154,6 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to={ROUTES.VALENCIA} 
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex items-center gap-2 hover:text-white transition-colors group"
                 >
                   <MapPin size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
@@ -175,8 +163,6 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to={ROUTES.SEVILLA} 
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex items-center gap-2 hover:text-white transition-colors group"
                 >
                   <MapPin size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
@@ -189,12 +175,12 @@ const Footer: React.FC = () => {
               <BookOpen size={14} className="text-slate-500" /> Guías
             </h4>
             <ul className="space-y-3 text-sm">
-              <li><Link to={ROUTES.GUIDE_PILLAR} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Subastas judiciales en España</Link></li>
-              <li><Link to={ROUTES.RULE_70} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Regla del 70%</Link></li>
-              <li><Link to={ROUTES.DEPOSIT} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Depósito del 5%</Link></li>
-              <li><Link to={ROUTES.ANALYSIS} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Cómo analizar una subasta</Link></li>
-              <li><Link to={ROUTES.CHARGES} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Cargas en subasta judicial</Link></li>
-              <li><Link to={ROUTES.OCCUPIED} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Vivienda ocupada en subasta</Link></li>
+              <li><Link to={ROUTES.GUIDE_PILLAR} className="hover:text-white transition-colors">Subastas judiciales en España</Link></li>
+              <li><Link to={ROUTES.RULE_70} className="hover:text-white transition-colors">Regla del 70%</Link></li>
+              <li><Link to={ROUTES.DEPOSIT} className="hover:text-white transition-colors">Depósito del 5%</Link></li>
+              <li><Link to={ROUTES.ANALYSIS} className="hover:text-white transition-colors">Cómo analizar una subasta</Link></li>
+              <li><Link to={ROUTES.CHARGES} className="hover:text-white transition-colors">Cargas en subasta judicial</Link></li>
+              <li><Link to={ROUTES.OCCUPIED} className="hover:text-white transition-colors">Vivienda ocupada en subasta</Link></li>
             </ul>
           </div>
 
@@ -207,8 +193,6 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to={ROUTES.CONSULTORIA} 
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex items-center gap-2 hover:text-white transition-colors group"
                 >
                   <Calendar size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
@@ -236,8 +220,6 @@ const Footer: React.FC = () => {
               <li>
                 <Link 
                   to={ROUTES.ABOUT} 
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="flex items-center gap-2 hover:text-white transition-colors group"
                 >
                   <User size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
@@ -256,8 +238,6 @@ const Footer: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6 text-xs font-medium">
             <Link 
               to={ROUTES.CALCULATOR}
-              target="_blank"
-              rel="noopener noreferrer"
               className="px-4 py-2 rounded-full bg-slate-900 border border-slate-800 hover:border-brand-500/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all flex items-center gap-2"
             >
               <Calculator size={14} className="text-brand-500" />
@@ -274,8 +254,6 @@ const Footer: React.FC = () => {
             </a>
             <Link 
               to={ROUTES.RECENT_AUCTIONS}
-              target="_blank"
-              rel="noopener noreferrer"
               className="px-4 py-2 rounded-full bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all flex items-center gap-2"
             >
               <Gavel size={14} className="text-emerald-500" />
@@ -288,10 +266,10 @@ const Footer: React.FC = () => {
             <p>© {new Date().getFullYear()} Activos Off-Market. Todos los derechos reservados.</p>
             
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-              <Link to={ROUTES.LEGAL} target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">Aviso Legal</Link>
-              <Link to={ROUTES.PRIVACY} target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">Privacidad</Link>
-              <Link to={ROUTES.COOKIES} target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">Cookies</Link>
-              <Link to={ROUTES.TERMS} target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">Términos</Link>
+              <Link to={ROUTES.LEGAL} className="hover:text-slate-400 transition-colors">Aviso Legal</Link>
+              <Link to={ROUTES.PRIVACY} className="hover:text-slate-400 transition-colors">Privacidad</Link>
+              <Link to={ROUTES.COOKIES} className="hover:text-slate-400 transition-colors">Cookies</Link>
+              <Link to={ROUTES.TERMS} className="hover:text-slate-400 transition-colors">Términos</Link>
               <a href="https://t.me/activosoffmarket" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors flex items-center gap-1.5 ml-2">
                 <Send size={12} /> Telegram
               </a>

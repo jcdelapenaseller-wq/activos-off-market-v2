@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, DollarSign, ChevronRight, Percent, Calculator } from 'lucide-react';
+import { MapPin, DollarSign, ChevronRight, Percent, Calculator, Building2 } from 'lucide-react';
 import { AuctionData } from '../data/auctions';
 import { isAuctionFinished, getComputedStatus, isCapital, calculateDiscount, isConflictZone } from '../utils/auctionHelpers';
 import { normalizeLocationLabel, normalizePropertyType, normalizeCity, normalizeProvince } from '../utils/auctionNormalizer';
@@ -77,78 +77,59 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
 
   return (
     <div 
-      onMouseEnter={() => prefetchAuction(slug)}
       className={`bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative group ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}
     >
-      {/* Image Container */}
-      <div className="relative h-48 overflow-hidden bg-slate-100">
-        <img 
-          src={imageUrl} 
-          alt={`${normalizePropertyType(data.propertyType)} en ${city}`}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-          decoding="async"
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
+      {/* Left: Commercial Badges (Max 2) */}
+      <div className="absolute top-4 left-4 z-10 flex flex-col items-start gap-1.5">
+        {oppBadge && (
+          <span className={`inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border shadow-sm ${oppBadge.color}`}>
+            {oppBadge.label}
+          </span>
+        )}
+        
+        {secondaryBadge && (
+          <span className={`inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border shadow-sm ${secondaryBadge.color}`}>
+            {secondaryBadge.label}
+          </span>
+        )}
       </div>
 
-      {/* Absolute Badges Container */}
-      <div className="absolute top-3 left-3 right-3 z-10 flex justify-between items-start gap-2">
-        {/* Left: Commercial Badges (Max 2) */}
-        <div className="flex flex-col items-start gap-1.5">
-          {oppBadge && (
-            <span className={`inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border shadow-sm ${oppBadge.color}`}>
-              {oppBadge.label}
+      {/* Right: Status + FOMO (Max 2) */}
+      <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-1.5">
+        {isClosingSoon && !isFinished ? (
+          <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-rose-700 bg-rose-50 border-rose-200 shadow-sm animate-pulse">
+            ⏳ Termina pronto
+          </span>
+        ) : isTopLocation ? (
+          <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-violet-700 bg-violet-50 border-violet-200 shadow-sm">
+            📍 Ubicación Top
+          </span>
+        ) : null}
+
+        <div className="flex flex-col items-end">
+          {isFinished ? (
+            <span className="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-slate-300 shadow-sm">
+              Finalizada
             </span>
-          )}
-          
-          {secondaryBadge && (
-            <span className={`inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border shadow-sm ${secondaryBadge.color}`}>
-              {secondaryBadge.label}
+          ) : isSuspended ? (
+            <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-amber-200 shadow-sm">
+              Pausada
+            </span>
+          ) : isUpcoming ? (
+            <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-blue-200 shadow-sm">
+              Próxima apertura
+            </span>
+          ) : (
+            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-200 shadow-sm">
+              En curso
             </span>
           )}
         </div>
-
-        {/* Right: Status + FOMO (Max 2) */}
-        <div className="flex flex-col items-end gap-1.5">
-          {isClosingSoon && !isFinished ? (
-            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-rose-700 bg-rose-50 border-rose-200 shadow-sm animate-pulse">
-              ⏳ Termina pronto
-            </span>
-          ) : isTopLocation ? (
-            <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-violet-700 bg-violet-50 border-violet-200 shadow-sm">
-              📍 Ubicación Top
-            </span>
-          ) : null}
-
-          <div className="flex flex-col items-end">
-            {isFinished ? (
-              <span className="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-slate-300 shadow-sm">
-                Finalizada
-              </span>
-            ) : isSuspended ? (
-              <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-amber-200 shadow-sm">
-                Pausada
-              </span>
-            ) : isUpcoming ? (
-              <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-blue-200 shadow-sm">
-                Próxima apertura
-              </span>
-            ) : (
-              <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border border-emerald-200 shadow-sm">
-                En curso
-              </span>
-            )}
-          </div>
-        </div>
       </div>
 
-      <div className="p-5 flex-grow flex flex-col">
+      <div className="p-5 pt-24 flex-grow flex flex-col">
         <Link 
           to={`/subasta/${id}`} 
-          target="_blank"
-          rel="noopener noreferrer"
           className="block mb-4"
         >
           <h2 className="text-lg font-bold text-slate-900 leading-tight hover:text-brand-600 transition-colors line-clamp-2">
@@ -194,8 +175,6 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
 
             <Link 
               to={`${ROUTES.CALCULATOR}?tasacion=${valorReferencia || 0}&precio=${cantidadReclamada || 0}&ccaa=${province}`}
-              target="_blank"
-              rel="noopener noreferrer"
               onClick={(e) => {
                 e.stopPropagation();
                 trackConversion(province, 'listing', 'calculator_from_card_click', { precio: cantidadReclamada || 0 });
@@ -216,8 +195,6 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
           )}
           <Link 
             to={`/subasta/${id}`}
-            target="_blank"
-            rel="noopener noreferrer"
             className={`w-full inline-flex items-center justify-center font-bold py-3.5 px-6 rounded-xl transition-all group ${isFinished ? 'bg-slate-100 text-slate-500 hover:bg-slate-200' : isSuspended ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
           >
             {isFinished ? 'Ver resultado' : isSuspended ? 'Ver detalles' : 'Ver oportunidad'}
