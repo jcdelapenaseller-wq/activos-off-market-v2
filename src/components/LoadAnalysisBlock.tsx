@@ -76,15 +76,22 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
       if (!blockRef.current) return;
       
       const rect = blockRef.current.getBoundingClientRect();
-      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      // Visible only when the block is NOT in the viewport
+      const isOutOfViewport = rect.bottom < 0 || rect.top > window.innerHeight;
+      const hasScrolled = window.scrollY > 50;
       
-      // Show sticky if block is visible and we are in mobile
-      setShowSticky(isVisible && window.innerWidth < 768 && step !== 'result' && step !== 'loading');
+      const shouldShow = isOutOfViewport && 
+                         hasScrolled && 
+                         window.innerWidth < 768 && 
+                         (step === 'locked' || step === 'upload') && 
+                         !showHowToModal;
+      
+      setShowSticky(shouldShow);
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [step]);
+  }, [step, showHowToModal]);
 
   const handleUnlock = () => {
     setStep('upload');
@@ -787,7 +794,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
                 else if (step === 'upload' && files.length > 0) handleAnalyze();
                 else if (step === 'upload' && files.length === 0) fileInputRef.current?.click();
               }}
-              className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3"
+              className="w-full bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3"
             >
               {step === 'locked' ? (
                 <>Analizar cargas · 2,99€ <ArrowRight size={18} /></>
@@ -796,36 +803,6 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
               ) : (
                 <>Subir documentos · 2,99€ <UploadCloud size={18} /></>
               )}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Sticky Mobile CTA */}
-      <AnimatePresence>
-        {(step === 'locked' || step === 'upload') && (
-          <motion.div 
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            exit={{ y: 100 }}
-            className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 md:hidden"
-          >
-            <button 
-              onClick={step === 'locked' ? handleUnlock : handleAnalyze}
-              disabled={step === 'upload' && files.length === 0}
-              className={`
-                w-full py-3.5 px-6 rounded-xl font-bold text-sm transition-all flex items-center justify-between shadow-xl
-                ${(step === 'locked' || (step === 'upload' && files.length > 0))
-                  ? 'bg-brand-600 text-white shadow-brand-100' 
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
-              `}
-            >
-              <span className="flex items-center gap-2">
-                {step === 'locked' ? 'Analizar cargas' : 'Analizar expediente'}
-                <span className="w-1 h-1 rounded-full bg-white/30" />
-                <span className="text-white/90">2,99€</span>
-              </span>
-              <ArrowRight size={18} />
             </button>
           </motion.div>
         )}

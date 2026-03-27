@@ -82,15 +82,81 @@ const AuctionPage: React.FC = () => {
         discountPart = ` con ${discount}% de descuento`;
       }
       
-      const title = `${propertyType} en subasta en ${cityName}${streetPart}${discountPart}`;
+      // Dynamic Title by Status
+      const isFinishedStatus = auction.status === 'closed' || isAuctionFinished(auction.auctionDate);
+      const isSuspendedStatus = auction.status === 'suspended';
       
-      document.title = title.length > 70 ? title.substring(0, 67) + '...' : title;
+      let title = '';
+      if (isFinishedStatus) {
+        const hasResult = !!(auction.auctionResultStatus || auction.finalPrice);
+        const suffix = hasResult ? 'Resultado subasta BOE' : 'Subasta BOE finalizada';
+        title = `${propertyType} subastado en ${cityName} | ${suffix}`;
+      } else if (isSuspendedStatus) {
+        title = `Subasta suspendida en ${cityName} | ${propertyType} en análisis BOE`;
+      } else {
+        // Active or Upcoming
+        title = `${propertyType} en subasta judicial en ${cityName} | Análisis BOE y cargas`;
+      }
+      
+      document.title = title;
 
+      // Meta Description - Dynamic by Status
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
-        const desc = `Subasta de ${propertyType} en ${cityName}${streetPart}. Valor de tasación: ${auction.appraisalValue?.toLocaleString('es-ES')}€. Consulta cargas, deudas y rentabilidad.`;
-        metaDesc.setAttribute('content', desc.length > 160 ? desc.substring(0, 157) + '...' : desc);
+        const isFinishedStatus = auction.status === 'closed' || isAuctionFinished(auction.auctionDate);
+        const isSuspendedStatus = auction.status === 'suspended';
+        
+        let desc = '';
+        const appraisalStr = auction.appraisalValue ? `${auction.appraisalValue.toLocaleString('es-ES')}€` : 'consultar';
+
+        if (isFinishedStatus) {
+          desc = `Subasta BOE finalizada en ${cityName}. ${propertyType} adjudicado. Consulta cargas, riesgos y resultado de esta subasta judicial.`;
+        } else if (isSuspendedStatus) {
+          desc = `Subasta judicial suspendida en ${cityName}. ${propertyType}. Analizamos cargas, riesgos legales y posibles escenarios del expediente.`;
+        } else {
+          // Active or Upcoming
+          desc = `Subasta judicial de ${propertyType} en ${cityName}. Tasación: ${appraisalStr}. Análisis técnico del expediente BOE: revisión de cargas, deudas y riesgos.`;
+        }
+        
+        metaDesc.setAttribute('content', desc);
       }
+
+      // Canonical Link
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+      }
+      canonical.setAttribute('href', `https://activosoffmarket.es/subasta/${cleanSlug}`);
+
+      // Social SEO - Open Graph
+      const ogTitle = `${propertyType} en subasta en ${cityName} | Análisis y cargas`;
+      const ogDesc = `Análisis técnico de subasta en ${cityName}. Tasación ${auction.appraisalValue?.toLocaleString('es-ES')}€. Deuda ${auction.claimedDebt?.toLocaleString('es-ES')}€. Riesgos y estrategia.`;
+      const ogImage = auction.imageUrl || 'https://activosoffmarket.es/og-image-subastas.jpg';
+      const ogUrl = `https://activosoffmarket.es/subasta/${cleanSlug}`;
+
+      const setMetaTag = (property: string, content: string, attr: 'property' | 'name' = 'property') => {
+        let tag = document.querySelector(`meta[${attr}="${property}"]`);
+        if (!tag) {
+          tag = document.createElement('meta');
+          tag.setAttribute(attr, property);
+          document.head.appendChild(tag);
+        }
+        tag.setAttribute('content', content);
+      };
+
+      setMetaTag('og:title', ogTitle);
+      setMetaTag('og:description', ogDesc);
+      setMetaTag('og:type', 'article');
+      setMetaTag('og:url', ogUrl);
+      setMetaTag('og:image', ogImage);
+
+      // Social SEO - Twitter
+      setMetaTag('twitter:card', 'summary_large_image', 'name');
+      setMetaTag('twitter:title', ogTitle, 'name');
+      setMetaTag('twitter:description', ogDesc, 'name');
+      setMetaTag('twitter:image', ogImage, 'name');
     }
   }, [cleanSlug, auction]);
 
@@ -244,6 +310,117 @@ const AuctionPage: React.FC = () => {
 
   const urgencyBadge = getUrgencyBadge(auction.auctionDate);
 
+  const statusMessage = useMemo(() => {
+    const now = new Date();
+    const auctionDate = auction.auctionDate ? new Date(auction.auctionDate) : null;
+    const diffTime = auctionDate ? auctionDate.getTime() - now.getTime() : null;
+    const diffDays = diffTime !== null ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : null;
+    const formattedDate = auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : '---';
+
+    if (isFinished) {
+      return {
+        title: "⏱️ Demasiado tarde",
+        description: (
+          <>
+            Esta subasta fue adjudicada el {formattedDate}. Oportunidades similares aparecen cada semana.{" "}
+            <Link to="/subastas-recientes" className="text-slate-900 font-bold hover:underline ml-1">→ Ver subastas activas</Link>
+          </>
+        ),
+        icon: Clock,
+        bgColor: "bg-slate-50",
+        borderColor: "border-slate-200",
+        iconBgColor: "bg-slate-100",
+        iconColor: "text-slate-400",
+        titleColor: "text-slate-600",
+        descColor: "text-slate-500",
+        opacity: "opacity-80"
+      };
+    }
+
+    if (isSuspended) {
+      return {
+        title: "⚠️ Procedimiento pausado",
+        description: "La subasta ha sido suspendida. Puede reactivarse en cualquier momento. Activa alertas para no perderla.",
+        icon: AlertCircle,
+        bgColor: "bg-amber-50/50",
+        borderColor: "border-amber-100",
+        iconBgColor: "bg-amber-100",
+        iconColor: "text-amber-600",
+        titleColor: "text-amber-900",
+        descColor: "text-amber-800/70"
+      };
+    }
+
+    if (diffDays !== null && diffDays >= 0 && diffDays <= 3) {
+      return {
+        title: "🔥 Cierre inminente",
+        description: "Últimas horas para participar. Revisa cargas y estrategia antes del cierre.",
+        icon: Clock,
+        bgColor: "bg-red-50/50",
+        borderColor: "border-red-100",
+        iconBgColor: "bg-red-100",
+        iconColor: "text-red-600",
+        titleColor: "text-red-900",
+        descColor: "text-red-800/70"
+      };
+    }
+
+    if (diffDays !== null && diffDays >= 0 && diffDays <= 7) {
+      return {
+        title: "⏳ Cierre próximo",
+        description: `Finaliza en pocos días. Asegura tu participación antes del ${formattedDate}.`,
+        icon: Clock,
+        bgColor: "bg-orange-50/50",
+        borderColor: "border-orange-100",
+        iconBgColor: "bg-orange-100",
+        iconColor: "text-orange-600",
+        titleColor: "text-orange-900",
+        descColor: "text-orange-800/70"
+      };
+    }
+
+    if (opportunityRatio && opportunityRatio > 0.35) {
+      return {
+        title: "💎 Subasta Muy interesante",
+        description: "Descuento significativo frente a tasación. Revisa cargas antes de pujar.",
+        icon: TrendingUp,
+        bgColor: "bg-brand-50/50",
+        borderColor: "border-brand-100",
+        iconBgColor: "bg-brand-100",
+        iconColor: "text-brand-600",
+        titleColor: "text-brand-900",
+        descColor: "text-brand-800/70"
+      };
+    }
+
+    if (isUpcoming) {
+      return {
+        title: "🕓 Apertura próxima",
+        description: "Las pujas aún no han comenzado. Tiempo ideal para analizar sin presión.",
+        icon: Calendar,
+        bgColor: "bg-blue-50/50",
+        borderColor: "border-blue-100",
+        iconBgColor: "bg-blue-100",
+        iconColor: "text-blue-600",
+        titleColor: "text-blue-900",
+        descColor: "text-blue-800/70"
+      };
+    }
+
+    // Default: ACTIVA
+    return {
+      title: "📊 Subasta en curso",
+      description: "Periodo de pujas abierto. Analiza bien antes de participar.",
+      icon: TrendingUp,
+      bgColor: "bg-emerald-50/50",
+      borderColor: "border-emerald-100",
+      iconBgColor: "bg-emerald-100",
+      iconColor: "text-emerald-600",
+      titleColor: "text-emerald-900",
+      descColor: "text-emerald-800/70"
+    };
+  }, [auction, isFinished, isSuspended, isUpcoming, opportunityRatio]);
+
   const jsonLd = useMemo(() => {
     if (!auction || !cleanSlug) return null;
 
@@ -280,6 +457,17 @@ const AuctionPage: React.FC = () => {
     let publishedDate = auction.publishedAt ? new Date(auction.publishedAt) : now;
     if (publishedDate > now) publishedDate = now;
 
+    // Calculate dateModified for SEO freshness
+    const dateCandidates = [
+      auction.lastCheckedAt,
+      auction.resultCheckedAt,
+      auction.publishedAt
+    ].filter(Boolean) as string[];
+
+    const dateModified = dateCandidates.length > 0 
+      ? new Date(Math.max(...dateCandidates.map(d => new Date(d).getTime()))).toISOString()
+      : publishedDate.toISOString();
+
     const availability = isFinished ? "https://schema.org/OutOfStock" : "https://schema.org/InStock";
 
     const realEstateListing: any = {
@@ -289,6 +477,7 @@ const AuctionPage: React.FC = () => {
       "description": description,
       "url": url,
       "datePosted": publishedDate.toISOString().split('T')[0],
+      "dateModified": dateModified,
       "category": propertyType,
       "address": {
         "@type": "PostalAddress",
@@ -311,6 +500,7 @@ const AuctionPage: React.FC = () => {
       "@type": "Product",
       "name": finalTitle,
       "description": description,
+      "dateModified": dateModified,
       "brand": {
         "@type": "Brand",
         "name": "Activos Off-Market"
@@ -338,84 +528,124 @@ const AuctionPage: React.FC = () => {
       "mainEntity": []
     };
 
-    // 1. ¿Cuánto podría costar esta subasta en {ciudad}?
-    const priceQuestions = [
-      `¿Cuál es el valor de referencia para esta subasta de ${propertyType.toLowerCase()} en ${cityName}?`,
-      `¿Cuánto es la tasación oficial de este activo en ${cityName}?`,
-      `¿Qué precio base tiene este ${propertyType.toLowerCase()} en subasta?`
-    ];
-    const q1Index = (auction.boeId?.length || 0) % priceQuestions.length;
-    faqPage.mainEntity.push({
-      "@type": "Question",
-      "name": priceQuestions[q1Index],
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": auction.appraisalValue 
-          ? `La tasación oficial en ${cityName} asciende a ${auction.appraisalValue.toLocaleString('es-ES')}€. Este valor sirve de base para el cálculo de depósitos y tramos de puja según la LEC.`
-          : `No se ha publicado una tasación oficial para este expediente en ${cityName}. En estos casos, el mercado local de ${provinceName} dicta el valor real de adjudicación.`
-      }
-    });
+    const isSuspended = auction.status === 'suspended';
 
-    // 2. ¿Está ocupada esta subasta?
-    const occupancyStatus = auction.occupancy || 'No consta información registral sobre la ocupación';
-    const occupancyQuestions = [
-      `¿Cuál es el estado de ocupación de este ${propertyType.toLowerCase()}?`,
-      `¿Se puede visitar la propiedad antes de la subasta?`,
-      `¿Hay inquilinos en este activo de ${cityName}?`
-    ];
-    const q2Index = (auction.boeId?.length || 0) % occupancyQuestions.length;
-    faqPage.mainEntity.push({
-      "@type": "Question",
-      "name": occupancyQuestions[q2Index],
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": `El expediente indica: ${occupancyStatus}. Generalmente, las subastas judiciales en ${cityName} no permiten visitas interiores, por lo que el riesgo posesorio debe ser evaluado por un profesional.`
-      }
-    });
+    if (isFinished) {
+      faqPage.mainEntity = [
+        {
+          "@type": "Question",
+          "name": "¿A qué precio se adjudicó esta subasta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Cuando el BOE publica el resultado mostramos la adjudicación real."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Se puede comprar después de una subasta finalizada?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "En algunos casos sí, mediante cesión de remate o negociación posterior."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Esta subasta ya no es una oportunidad?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Aunque finalizada, sirve como referencia real de mercado."
+          }
+        }
+      ];
+    } else if (isSuspended) {
+      faqPage.mainEntity = [
+        {
+          "@type": "Question",
+          "name": "¿Por qué se suspende una subasta judicial?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Puede deberse a pago de deuda, recurso o error procesal."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Puede reactivarse una subasta suspendida?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí, muchas subastas BOE se reactivan posteriormente."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué significa suspensión para el inversor?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Indica incertidumbre legal que requiere análisis del expediente."
+          }
+        }
+      ];
+    } else {
+      // Active or Upcoming
+      faqPage.mainEntity = [
+        {
+          "@type": "Question",
+          "name": "¿Esta subasta judicial tiene cargas?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Analizamos el expediente BOE para detectar cargas, deudas y riesgos antes de pujar."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Se puede visitar el inmueble antes de la subasta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Depende del procedimiento. Muchas subastas BOE no permiten visita previa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué riesgos tiene esta subasta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ocupación, cargas ocultas o deuda superior. El análisis revisa estos puntos."
+          }
+        }
+      ];
+    }
 
-    // 3. ¿Qué deudas puede tener esta subasta?
-    const debtQuestions = [
-      `¿Qué cargas anteriores tiene esta subasta en ${cityName}?`,
-      `¿De cuánto es la deuda reclamada en este expediente?`,
-      `¿Existen deudas de comunidad o IBI pendientes?`
-    ];
-    const q3Index = (auction.boeId?.length || 0) % debtQuestions.length;
-    faqPage.mainEntity.push({
-      "@type": "Question",
-      "name": debtQuestions[q3Index],
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": auction.claimedDebt !== undefined
-          ? `La deuda que motiva la ejecución es de ${auction.claimedDebt.toLocaleString('es-ES')}€. El adjudicatario en ${cityName} debe prever además el pago de IBI de los últimos años y cuotas de comunidad pendientes.`
-          : `La cantidad reclamada no es pública en este extracto. Es vital revisar la certificación de cargas en el Registro de la Propiedad de ${provinceName} para identificar deudas preferentes.`
-      }
-    });
+    const breadcrumbList: any = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Inicio",
+          "item": "https://activosoffmarket.es"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": `Subastas ${provinceName}`,
+          "item": `https://activosoffmarket.es/subastas/${provinceName.toLowerCase()}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": `Subastas ${cityName}`,
+          "item": `https://activosoffmarket.es/subastas/${cityName.toLowerCase()}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": `${propertyType} en ${cityName}`,
+          "item": url
+        }
+      ]
+    };
 
-    // 4. ¿Cuál es el depósito necesario?
-    faqPage.mainEntity.push({
-      "@type": "Question",
-      "name": `¿Cuál es el depósito necesario para participar?`,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": auction.deposito
-          ? `Para participar en esta subasta es necesario realizar un depósito previo de ${auction.deposito.toLocaleString('es-ES')}€ a través del Portal de Subastas del BOE.`
-          : `El importe del depósito no está especificado en los datos básicos. Generalmente corresponde al 5% del valor de tasación de la propiedad.`
-      }
-    });
-
-    // 5. ¿Es rentable esta subasta?
-    faqPage.mainEntity.push({
-      "@type": "Question",
-      "name": `¿Es rentable invertir en esta subasta en ${cityName}?`,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": discount > 0
-          ? `Esta subasta presenta un descuento teórico del ${discount}% respecto a su valor de tasación. La rentabilidad real dependerá de las cargas anteriores, el estado físico del inmueble, los costes de posesión y el precio final de adjudicación.`
-          : `Para determinar la rentabilidad de esta subasta en ${cityName} es necesario realizar un estudio de mercado local, descontar las cargas anteriores y estimar los costes de adecuación y posesión del inmueble.`
-      }
-    });
-
-    return [realEstateListing, product, faqPage];
+    return [realEstateListing, product, faqPage, breadcrumbList];
   }, [auction, slug, cityName, provinceName, isFinished, analysisInsights]);
 
   return (
@@ -616,64 +846,59 @@ const AuctionPage: React.FC = () => {
 
         {/* DYNAMIC AUCTION STATUS BLOCK */}
         <section className="mb-6 md:mb-8">
-          {isFinished ? (
-            <div className="bg-slate-50 border border-slate-200 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6 opacity-80">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
-                <Gavel size={24} className="md:hidden" />
-                <Gavel size={28} className="hidden md:block" />
-              </div>
-              <div className="flex flex-col justify-center">
-                <h3 className="text-lg md:text-xl font-serif font-bold text-slate-600 leading-tight">Subasta finalizada</h3>
-                <p className="text-slate-500 text-xs md:text-base leading-tight mt-1">
-                  El periodo de pujas ha concluido. El activo ya no está disponible para nuevas ofertas.
-                </p>
-              </div>
+          <div className={`${statusMessage.bgColor} border ${statusMessage.borderColor} rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6 ${statusMessage.opacity || ''}`}>
+            <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl ${statusMessage.iconBgColor} ${statusMessage.iconColor} flex items-center justify-center shrink-0`}>
+              <statusMessage.icon size={24} className="md:hidden" />
+              <statusMessage.icon size={28} className="hidden md:block" />
             </div>
-          ) : isSuspended ? (
-            <div className="bg-slate-100/50 border border-slate-200 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-slate-200 text-slate-500 flex items-center justify-center shrink-0">
-                <AlertCircle size={24} className="md:hidden" />
-                <AlertCircle size={28} className="hidden md:block" />
-              </div>
-              <div className="flex flex-col justify-center">
-                <h3 className="text-lg md:text-xl font-serif font-bold text-slate-700 leading-tight">Subasta pausada</h3>
-                <p className="text-slate-500 text-xs md:text-base leading-tight mt-1">
-                  Procedimiento suspendido temporalmente. Activa alertas para recibir notificaciones de reanudación.
-                </p>
-              </div>
+            <div className="flex flex-col justify-center">
+              <h3 className={`text-lg md:text-xl font-serif font-bold ${statusMessage.titleColor} leading-tight`}>
+                {statusMessage.title}
+              </h3>
+              <p className={`${statusMessage.descColor} text-xs md:text-base leading-tight mt-1`}>
+                {statusMessage.description}
+              </p>
             </div>
-          ) : urgencyBadge && urgencyBadge.text.includes('Cierre') ? (
-            <div className="bg-amber-50/50 border border-amber-100 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <Clock size={24} className="md:hidden" />
-                <Clock size={28} className="hidden md:block" />
-              </div>
-              <div className="flex flex-col justify-center">
-                <h3 className="text-lg md:text-xl font-serif font-bold text-amber-900 leading-tight">Cierre próximo</h3>
-                <p className="text-amber-800/70 text-xs md:text-base leading-tight mt-1">
-                  Finaliza en pocos días. Asegura tu participación antes del <strong className="text-amber-900">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}</strong>.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                <TrendingUp size={24} className="md:hidden" />
-                <TrendingUp size={28} className="hidden md:block" />
-              </div>
-              <div className="flex flex-col justify-center">
-                <h3 className="text-lg md:text-xl font-serif font-bold text-emerald-900 leading-tight">Subasta en curso</h3>
-                <p className="text-emerald-800/70 text-xs md:text-base leading-tight mt-1">
-                  Periodo de pujas activo. Fecha límite: <strong className="text-emerald-900">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}</strong>.
-                </p>
-              </div>
-            </div>
-          )}
+          </div>
         </section>
 
         {/* DARK VISUAL SUMMARY - COMPACT DYNAMIC BLOCK */}
-        <section className="bg-[#151921] rounded-2xl px-4 md:px-6 py-4 md:py-5 mb-6 md:mb-8 shadow-xl shadow-slate-200/40 border border-white/5 overflow-hidden">
-          <div className="flex flex-nowrap items-center justify-between gap-x-6 md:gap-x-8 whitespace-nowrap overflow-x-auto no-scrollbar pb-1 md:pb-0">
+        <section className="bg-[#151921] rounded-2xl px-4 md:px-6 py-3.5 md:py-5 mb-6 md:mb-8 shadow-xl shadow-slate-200/40 border border-white/5 overflow-hidden">
+          {/* Mobile View: High Conversion Compact Stack */}
+          <div className="flex md:hidden flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+                  <TrendingUp size={18} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Margen Estimado</span>
+                  <span className="text-white text-xs font-bold tracking-tight">{analysisInsights?.summaryLabels.margenLabel}</span>
+                </div>
+              </div>
+              <a 
+                href="#analisis-tecnico" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('analisis-tecnico')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="flex items-center gap-1 text-brand-400 text-[10px] font-bold uppercase tracking-wider"
+              >
+                Ver análisis <ArrowUpRight size={12} />
+              </a>
+            </div>
+            
+            <div className="flex items-center gap-2 px-2 py-1.5 bg-white/5 rounded-lg border border-white/5">
+              <AlertTriangle size={12} className="text-amber-400 shrink-0" />
+              <p className="text-[9px] text-white/70 font-medium leading-tight">
+                <span className="text-amber-400 font-bold uppercase mr-1">Atención:</span>
+                {analysisInsights?.summaryLabels.atencionLabel}
+              </p>
+            </div>
+          </div>
+
+          {/* Desktop View: Original Layout */}
+          <div className="hidden md:flex flex-nowrap items-center justify-between gap-x-6 md:gap-x-8 whitespace-nowrap overflow-x-auto no-scrollbar pb-1 md:pb-0">
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-500/20">
                 <TrendingUp size={18} className="md:hidden" />
