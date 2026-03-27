@@ -431,31 +431,31 @@ const AuctionPage: React.FC = () => {
       
       <Header />
 
-      <main className="max-w-4xl mx-auto px-6 pt-4">
+      <main className="max-w-4xl mx-auto px-4 md:px-6 pt-2 md:pt-4">
         {/* Breadcrumbs - TOP LEVEL */}
-        <nav className="flex items-center text-[10px] text-slate-400 mb-4 font-bold uppercase tracking-widest" aria-label="Breadcrumb">
+        <nav className="flex items-center text-[9px] md:text-[10px] text-slate-400 mb-3 md:mb-4 font-bold uppercase tracking-widest" aria-label="Breadcrumb">
           <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
-          <ChevronRight size={8} className="mx-2" />
+          <ChevronRight size={8} className="mx-1.5 md:mx-2" />
           <Link to={`/subastas/${provinceName.toLowerCase()}`} className="hover:text-brand-600 transition-colors">Subastas en {provinceName}</Link>
-          <ChevronRight size={8} className="mx-2" />
-          <span className="text-slate-300">Ficha de activo</span>
+          <ChevronRight size={8} className="mx-1.5 md:mx-2" />
+          <span className="text-slate-300">Ficha</span>
         </nav>
 
         {/* HEADER SECTION */}
-        <section className="mb-6">
-          <div className="flex flex-wrap gap-2.5 mb-3">
-            {isActive && <span className="px-3 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[9px] font-bold uppercase tracking-widest border border-emerald-200/60 hover:bg-emerald-100 transition-all cursor-default shadow-sm shadow-emerald-100/50">Activa</span>}
-            {urgencyBadge && urgencyBadge.text.includes('Cierre') && <span className="px-3 py-1 rounded-md bg-orange-50 text-orange-700 text-[9px] font-bold uppercase tracking-widest border border-orange-200/60 flex items-center gap-2 hover:bg-orange-100 transition-all cursor-default shadow-sm shadow-orange-100/50"><Clock size={10} /> {urgencyBadge.text}</span>}
-            {isFinished && <span className="px-3 py-1 rounded-md bg-slate-100 text-slate-600 text-[9px] font-bold uppercase tracking-widest border border-slate-200/60 hover:bg-slate-200 transition-all cursor-default shadow-sm shadow-slate-100/50">Finalizada</span>}
-            {opportunityRatio && opportunityRatio > 0.35 && <span className="px-3 py-1 rounded-md bg-brand-50 text-brand-700 text-[9px] font-bold uppercase tracking-widest border border-brand-200/60 hover:bg-brand-100 transition-all cursor-default shadow-sm shadow-brand-100/50">Alta oportunidad</span>}
+        <section className="mb-4 md:mb-6">
+          <div className="flex flex-wrap gap-2 mb-3">
+            {isActive && <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-emerald-200/60 hover:bg-emerald-100 transition-all cursor-default shadow-sm shadow-emerald-100/50">Activa</span>}
+            {urgencyBadge && urgencyBadge.text.includes('Cierre') && <span className="px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-orange-200/60 flex items-center gap-1.5 hover:bg-orange-100 transition-all cursor-default shadow-sm shadow-orange-100/50"><Clock size={10} /> {urgencyBadge.text}</span>}
+            {isFinished && <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-slate-200/60 hover:bg-slate-200 transition-all cursor-default shadow-sm shadow-slate-100/50">Finalizada</span>}
+            {opportunityRatio && opportunityRatio > 0.35 && <span className="px-2.5 py-1 rounded-md bg-brand-50 text-brand-700 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-brand-200/60 hover:bg-brand-100 transition-all cursor-default shadow-sm shadow-brand-100/50">Alta oportunidad</span>}
           </div>
 
-          <h1 className="text-[clamp(1rem,3.6vw,2.75rem)] font-serif font-bold text-slate-900 mb-8 tracking-tighter leading-tight whitespace-nowrap overflow-visible">
+          <h1 className="text-[clamp(1.25rem,5vw,2.75rem)] font-serif font-bold text-slate-900 mb-4 md:mb-8 tracking-tighter leading-tight">
             {propertyType} en subasta en {cityName}
           </h1>
 
           {/* Dynamic SEO Intro */}
-          <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-6 text-justify">
+          <p className="text-slate-600 text-xs md:text-base leading-relaxed mb-4 md:mb-6 text-justify">
             {opportunityRatio && opportunityRatio > 0.4 
               ? `Esta subasta en ${cityName} presenta un margen excepcional del ${Math.round(opportunityRatio * 100)}% frente a la tasación oficial. Una oportunidad estratégica tanto para inversores profesionales como para familias y pequeños ahorradores que buscan su primera vivienda con un ahorro sustancial.`
               : `Oportunidad de adquisición de ${propertyType.toLowerCase()} en ${cityName} mediante procedimiento ${getAuctionType(auction.boeId).toLowerCase()}. Un activo ideal para particulares que desean capitalizar su ahorro o inversores que buscan rentabilidad con garantías jurídicas.`}
@@ -463,30 +463,35 @@ const AuctionPage: React.FC = () => {
           </p>
           
           {/* Address and Share Row */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-6 border-b border-slate-100">
-            <div className="flex items-center gap-3 text-xl md:text-2xl text-slate-900 font-bold group cursor-default">
-              <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center shrink-0 group-hover:bg-brand-100 transition-colors">
-                <MapPin size={24} className="text-brand-600 group-hover:scale-110 transition-transform duration-300" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-10 pb-4 md:pb-6 border-b border-slate-100">
+            <div className="flex items-center gap-3 text-lg md:text-2xl text-slate-900 font-bold group cursor-default">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-50 flex items-center justify-center shrink-0 group-hover:bg-brand-100 transition-colors">
+                <MapPin size={20} className="text-brand-600 md:hidden" />
+                <MapPin size={24} className="text-brand-600 hidden md:block group-hover:scale-110 transition-transform duration-300" />
               </div>
               <span className="group-hover:text-brand-700 transition-colors leading-tight">
                 {formatAddress(auction.address) || locationLabel}
               </span>
             </div>
 
-            <div className="flex items-center gap-4 shrink-0">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Compartir:</span>
-              <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 md:gap-4 shrink-0">
+              <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Compartir:</span>
+              <div className="flex items-center gap-2.5 md:gap-3">
                 <a href={`https://wa.me/?text=${encodeURIComponent(document.title + ' ' + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#25D366] bg-[#25D366]/5 hover:bg-[#25D366]/10 transition-all hover:scale-110" title="WhatsApp">
-                  <MessageCircle size={18} />
+                  <MessageCircle size={16} className="md:hidden" />
+                  <MessageCircle size={18} className="hidden md:block" />
                 </a>
                 <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(document.title)}&url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#000000] bg-[#000000]/5 hover:bg-[#000000]/10 transition-all hover:scale-110" title="X (Twitter)">
-                  <Twitter size={18} />
+                  <Twitter size={16} className="md:hidden" />
+                  <Twitter size={18} className="hidden md:block" />
                 </a>
                 <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#0077B5] bg-[#0077B5]/5 hover:bg-[#0077B5]/10 transition-all hover:scale-110" title="LinkedIn">
-                  <Linkedin size={18} />
+                  <Linkedin size={16} className="md:hidden" />
+                  <Linkedin size={18} className="hidden md:block" />
                 </a>
                 <a href={`mailto:?subject=${encodeURIComponent(document.title)}&body=${encodeURIComponent(window.location.href)}`} className="p-1.5 rounded-full text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all hover:scale-110" title="Email">
-                  <Mail size={18} />
+                  <Mail size={16} className="md:hidden" />
+                  <Mail size={18} className="hidden md:block" />
                 </a>
               </div>
             </div>
@@ -497,82 +502,85 @@ const AuctionPage: React.FC = () => {
         <motion.section 
           whileHover={{ y: -2 }}
           transition={{ duration: 0.2 }}
-          className="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden mb-8 group"
+          className="bg-white rounded-[20px] md:rounded-[24px] border border-slate-200 shadow-sm overflow-hidden mb-6 md:mb-8 group"
         >
           {/* Dark Header */}
-          <div className="bg-[#151921] px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="bg-[#151921] px-4 md:px-6 py-3 md:py-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/40 group-hover:text-white/60 transition-colors">
-                <Scale size={16} />
+              <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/40 group-hover:text-white/60 transition-colors">
+                <Scale size={14} className="md:hidden" />
+                <Scale size={16} className="hidden md:block" />
               </div>
               <div>
-                <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Expediente</p>
+                <p className="text-[7px] md:text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Expediente</p>
                 <div className="flex items-center gap-3">
-                  <p className="text-xs font-bold text-white/90">{auction.boeId}</p>
+                  <p className="text-[10px] md:text-xs font-bold text-white/90">{auction.boeId}</p>
                   <div className="w-px h-3 bg-white/10" />
                   <a 
                     href={auction.boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${auction.boeId}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-[10px] text-brand-400 hover:text-brand-300 transition-colors flex items-center gap-1.5 font-bold group/link"
+                    className="text-[9px] md:text-[10px] text-brand-400 hover:text-brand-300 transition-colors flex items-center gap-1.5 font-bold group/link"
                   >
-                    Ver subasta en el BOE <ExternalLink size={10} className="group-hover/link:translate-x-0.5 transition-transform" />
+                    BOE <ExternalLink size={8} className="group-hover/link:translate-x-0.5 transition-transform" />
                   </a>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 md:gap-6">
               <div className="text-right">
-                <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Estado</p>
+                <p className="text-[7px] md:text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Estado</p>
                 <div className="flex items-center gap-1.5 justify-end">
                   <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : isSuspended ? 'bg-amber-500' : 'bg-slate-500'}`} />
-                  <p className="text-xs font-bold text-white/90">
+                  <p className="text-[10px] md:text-xs font-bold text-white/90">
                     {isSuspended ? 'Pausada' : isUpcoming ? 'Próxima' : isFinished ? 'Finalizada' : 'Activa'}
                   </p>
                 </div>
               </div>
-              <div className="text-right border-l border-white/10 pl-6">
-                <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Tipo</p>
-                <p className="text-xs font-bold text-white/90">{getAuctionType(auction.boeId)}</p>
+              <div className="text-right border-l border-white/10 pl-4 md:pl-6">
+                <p className="text-[7px] md:text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Tipo</p>
+                <p className="text-[10px] md:text-xs font-bold text-white/90">{getAuctionType(auction.boeId)}</p>
               </div>
             </div>
           </div>
 
           {/* White Lower Card */}
-          <div className="p-6 md:py-6 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            <div className="md:col-span-3 space-y-4">
+          <div className="p-5 md:py-6 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6 items-center">
+            <div className="md:col-span-3 space-y-3 md:space-y-4">
               <div className="space-y-1">
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Activo</p>
+                <p className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest">Activo</p>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
-                    <Home size={18} />
+                  <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                    <Home size={16} className="md:hidden" />
+                    <Home size={18} className="hidden md:block" />
                   </div>
-                  <p className="text-xl font-serif font-bold text-slate-900">{propertyType}</p>
+                  <p className="text-lg md:text-xl font-serif font-bold text-slate-900">{propertyType}</p>
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ubicación</p>
+                <p className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ubicación</p>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
-                    <MapPin size={18} />
+                  <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                    <MapPin size={16} className="md:hidden" />
+                    <MapPin size={18} className="hidden md:block" />
                   </div>
-                  <p className="text-base font-bold text-slate-700 leading-snug">{locationLabel}</p>
+                  <p className="text-sm md:text-base font-bold text-slate-700 leading-snug">{locationLabel}</p>
                 </div>
               </div>
             </div>
 
-            <div className="md:col-span-6 border-l border-slate-100 pl-8 flex items-center justify-between gap-4">
-              <div className="flex flex-col justify-center gap-y-4">
+            <div className="md:col-span-6 border-t md:border-t-0 md:border-l border-slate-100 pt-5 md:pt-0 md:pl-8 flex items-center justify-between gap-4">
+              <div className="flex flex-col justify-center gap-y-3 md:gap-y-4">
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Tasación</p>
-                  <p className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+                  <p className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest">Tasación</p>
+                  <p className="text-xl md:text-3xl font-bold text-slate-900 tracking-tight">
                     {auction.appraisalValue ? auction.appraisalValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
                   </p>
                 </div>
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Deuda</p>
-                  <p className="text-2xl md:text-3xl font-bold text-slate-600 tracking-tight">
+                  <p className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest">Deuda</p>
+                  <p className="text-xl md:text-3xl font-bold text-slate-600 tracking-tight">
                     {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}
                   </p>
                 </div>
@@ -580,25 +588,26 @@ const AuctionPage: React.FC = () => {
               
               {opportunityRatio !== null && (
                 <div className="flex flex-col items-end justify-center">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Margen Potencial</p>
-                  <p className="text-4xl md:text-5xl font-bold text-emerald-600 tracking-tighter leading-none">
+                  <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Margen</p>
+                  <p className="text-3xl md:text-5xl font-bold text-emerald-600 tracking-tighter leading-none">
                     {Math.round(opportunityRatio * 100)}%
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="md:col-span-3 bg-slate-50/80 rounded-2xl p-6 border border-slate-100 text-center space-y-3 group-hover:bg-white transition-colors">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Cierre</p>
+            <div className="md:col-span-3 bg-slate-50/80 rounded-2xl p-5 md:p-6 border border-slate-100 text-center space-y-2 md:space-y-3 group-hover:bg-white transition-colors">
+              <p className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest">Cierre</p>
               <div className="flex flex-col items-center gap-1.5">
-                <div className="w-11 h-11 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-brand-500 transition-colors">
-                  <Calendar size={22} />
+                <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-brand-500 transition-colors">
+                  <Calendar size={20} className="md:hidden" />
+                  <Calendar size={22} className="hidden md:block" />
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-slate-900">
+                  <p className="text-lg md:text-xl font-bold text-slate-900">
                     {auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}
                   </p>
-                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Fecha límite BOE</p>
+                  <p className="text-[7px] md:text-[8px] font-bold text-slate-400 uppercase tracking-widest">Fecha límite BOE</p>
                 </div>
               </div>
             </div>
@@ -606,51 +615,55 @@ const AuctionPage: React.FC = () => {
         </motion.section>
 
         {/* DYNAMIC AUCTION STATUS BLOCK */}
-        <section className="mb-8">
+        <section className="mb-6 md:mb-8">
           {isFinished ? (
-            <div className="bg-slate-50 border border-slate-200 rounded-[32px] p-6 flex items-center gap-6 opacity-80">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
-                <Gavel size={28} />
+            <div className="bg-slate-50 border border-slate-200 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6 opacity-80">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
+                <Gavel size={24} className="md:hidden" />
+                <Gavel size={28} className="hidden md:block" />
               </div>
               <div className="flex flex-col justify-center">
-                <h3 className="text-xl font-serif font-bold text-slate-600 leading-tight">Subasta finalizada</h3>
-                <p className="text-slate-500 text-base leading-tight mt-1">
+                <h3 className="text-lg md:text-xl font-serif font-bold text-slate-600 leading-tight">Subasta finalizada</h3>
+                <p className="text-slate-500 text-xs md:text-base leading-tight mt-1">
                   El periodo de pujas ha concluido. El activo ya no está disponible para nuevas ofertas.
                 </p>
               </div>
             </div>
           ) : isSuspended ? (
-            <div className="bg-slate-100/50 border border-slate-200 rounded-[32px] p-6 flex items-center gap-6">
-              <div className="w-14 h-14 rounded-2xl bg-slate-200 text-slate-500 flex items-center justify-center shrink-0">
-                <AlertCircle size={28} />
+            <div className="bg-slate-100/50 border border-slate-200 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-slate-200 text-slate-500 flex items-center justify-center shrink-0">
+                <AlertCircle size={24} className="md:hidden" />
+                <AlertCircle size={28} className="hidden md:block" />
               </div>
               <div className="flex flex-col justify-center">
-                <h3 className="text-xl font-serif font-bold text-slate-700 leading-tight">Subasta pausada</h3>
-                <p className="text-slate-500 text-base leading-tight mt-1">
+                <h3 className="text-lg md:text-xl font-serif font-bold text-slate-700 leading-tight">Subasta pausada</h3>
+                <p className="text-slate-500 text-xs md:text-base leading-tight mt-1">
                   Procedimiento suspendido temporalmente. Activa alertas para recibir notificaciones de reanudación.
                 </p>
               </div>
             </div>
           ) : urgencyBadge && urgencyBadge.text.includes('Cierre') ? (
-            <div className="bg-amber-50/50 border border-amber-100 rounded-[32px] p-6 flex items-center gap-6">
-              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <Clock size={28} />
+            <div className="bg-amber-50/50 border border-amber-100 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                <Clock size={24} className="md:hidden" />
+                <Clock size={28} className="hidden md:block" />
               </div>
               <div className="flex flex-col justify-center">
-                <h3 className="text-xl font-serif font-bold text-amber-900 leading-tight">Cierre próximo</h3>
-                <p className="text-amber-800/70 text-base leading-tight mt-1">
+                <h3 className="text-lg md:text-xl font-serif font-bold text-amber-900 leading-tight">Cierre próximo</h3>
+                <p className="text-amber-800/70 text-xs md:text-base leading-tight mt-1">
                   Finaliza en pocos días. Asegura tu participación antes del <strong className="text-amber-900">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}</strong>.
                 </p>
               </div>
             </div>
           ) : (
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-[32px] p-6 flex items-center gap-6">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                <TrendingUp size={28} />
+            <div className="bg-emerald-50/50 border border-emerald-100 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                <TrendingUp size={24} className="md:hidden" />
+                <TrendingUp size={28} className="hidden md:block" />
               </div>
               <div className="flex flex-col justify-center">
-                <h3 className="text-xl font-serif font-bold text-emerald-900 leading-tight">Subasta en curso</h3>
-                <p className="text-emerald-800/70 text-base leading-tight mt-1">
+                <h3 className="text-lg md:text-xl font-serif font-bold text-emerald-900 leading-tight">Subasta en curso</h3>
+                <p className="text-emerald-800/70 text-xs md:text-base leading-tight mt-1">
                   Periodo de pujas activo. Fecha límite: <strong className="text-emerald-900">{auction.auctionDate ? new Date(auction.auctionDate).toLocaleDateString('es-ES') : 'Pendiente'}</strong>.
                 </p>
               </div>
@@ -659,49 +672,53 @@ const AuctionPage: React.FC = () => {
         </section>
 
         {/* DARK VISUAL SUMMARY - COMPACT DYNAMIC BLOCK */}
-        <section className="bg-[#151921] rounded-2xl px-6 py-5 mb-8 shadow-xl shadow-slate-200/40 border border-white/5 overflow-hidden">
-          <div className="flex flex-nowrap items-center justify-between gap-x-8 whitespace-nowrap overflow-x-auto no-scrollbar">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-500/20">
-                <TrendingUp size={20} />
+        <section className="bg-[#151921] rounded-2xl px-4 md:px-6 py-4 md:py-5 mb-6 md:mb-8 shadow-xl shadow-slate-200/40 border border-white/5 overflow-hidden">
+          <div className="flex flex-nowrap items-center justify-between gap-x-6 md:gap-x-8 whitespace-nowrap overflow-x-auto no-scrollbar pb-1 md:pb-0">
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-500/20">
+                <TrendingUp size={18} className="md:hidden" />
+                <TrendingUp size={20} className="hidden md:block" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Margen estimado</span>
-                <span className="text-white text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.margenLabel}</span>
+                <span className="text-[8px] md:text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Margen</span>
+                <span className="text-white text-xs md:text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.margenLabel}</span>
               </div>
             </div>
             
-            <div className="w-px h-10 bg-white/10 shrink-0" />
+            <div className="w-px h-8 md:h-10 bg-white/10 shrink-0" />
 
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 shrink-0 border border-amber-500/20">
-                <AlertTriangle size={20} />
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 shrink-0 border border-amber-500/20">
+                <AlertTriangle size={18} className="md:hidden" />
+                <AlertTriangle size={20} className="hidden md:block" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Punto de atención</span>
-                <span className="text-white text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.atencionLabel}</span>
+                <span className="text-[8px] md:text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Atención</span>
+                <span className="text-white text-xs md:text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.atencionLabel}</span>
               </div>
             </div>
 
-            <div className="w-px h-10 bg-white/10 shrink-0" />
+            <div className="w-px h-8 md:h-10 bg-white/10 shrink-0" />
 
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0 border border-blue-500/20">
-                <Search size={20} />
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0 border border-blue-500/20">
+                <Search size={18} className="md:hidden" />
+                <Search size={20} className="hidden md:block" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Lectura general</span>
-                <span className="text-white text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.lecturaLabel}</span>
+                <span className="text-[8px] md:text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Lectura</span>
+                <span className="text-white text-xs md:text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.lecturaLabel}</span>
               </div>
             </div>
           </div>
         </section>
 
-        <div id="analisis-tecnico" className="space-y-12 mb-20">
+        <div id="analisis-tecnico" className="space-y-8 md:space-y-12 mb-12 md:mb-20">
           {/* MAIN ANALYSIS BLOCK */}
-          <section className="bg-slate-50 border-2 border-slate-200 rounded-[40px] p-10 shadow-sm hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
-              <Lock size={160} />
+          <section className="bg-slate-50 border-2 border-slate-200 rounded-[32px] md:rounded-[40px] p-6 md:p-10 shadow-sm hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 md:p-12 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
+              <Lock size={120} className="md:hidden" />
+              <Lock size={160} className="hidden md:block" />
             </div>
             
             <div className="relative z-10">
@@ -714,31 +731,33 @@ const AuctionPage: React.FC = () => {
           </section>
 
           {/* SECONDARY CTA ROW */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <motion.a 
               whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
               transition={{ duration: 0.2 }}
               href="https://calendly.com/activosoffmarket" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="bg-white border border-slate-200 p-7 rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col justify-between"
+              className="bg-white border border-slate-200 p-5 md:p-7 rounded-[20px] md:rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
-                    <Calendar size={24} />
+                <div className="flex items-center gap-4 mb-3 md:mb-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                    <Calendar size={20} className="md:hidden" />
+                    <Calendar size={24} className="hidden md:block" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 text-lg">Agendar Consulta</h4>
-                    <p className="text-[9px] font-bold text-brand-600 uppercase tracking-widest">Consultoría Premium</p>
+                    <h4 className="font-bold text-slate-900 text-base md:text-lg">Agendar Consulta</h4>
+                    <p className="text-[8px] md:text-[9px] font-bold text-brand-600 uppercase tracking-widest">Consultoría Premium</p>
                   </div>
                 </div>
-                <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                <p className="text-slate-500 text-xs md:text-sm leading-relaxed mb-4 md:mb-6">
                   ¿Dudas con el expediente? Analizamos nota simple, edicto y riesgos reales antes de pujar.
                 </p>
               </div>
-              <div className="flex items-center gap-2 text-slate-900 font-bold text-xs group-hover:translate-x-1 transition-transform">
-                Reservar sesión <ArrowRight size={16} />
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-[10px] md:text-xs group-hover:translate-x-1 transition-transform">
+                Reservar sesión <ArrowRight size={14} className="md:hidden" />
+                <ArrowRight size={16} className="hidden md:block" />
               </div>
             </motion.a>
 
@@ -749,24 +768,26 @@ const AuctionPage: React.FC = () => {
               <Link 
                 to="/calculadora-subastas"
                 target="_blank"
-                className="bg-white border border-slate-200 p-7 rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col h-full justify-between"
+                className="bg-white border border-slate-200 p-5 md:p-7 rounded-[20px] md:rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col h-full justify-between"
               >
                 <div>
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
-                      <Calculator size={24} />
+                  <div className="flex items-center gap-4 mb-3 md:mb-4">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                      <Calculator size={20} className="md:hidden" />
+                      <Calculator size={24} className="hidden md:block" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 text-lg">Calcular Puja Máxima</h4>
-                      <p className="text-[9px] font-bold text-brand-600 uppercase tracking-widest">Herramienta de Análisis</p>
+                      <h4 className="font-bold text-slate-900 text-base md:text-lg">Calcular Puja Máxima</h4>
+                      <p className="text-[8px] md:text-[9px] font-bold text-brand-600 uppercase tracking-widest">Herramienta de Análisis</p>
                     </div>
                   </div>
-                  <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                  <p className="text-slate-500 text-xs md:text-sm leading-relaxed mb-4 md:mb-6">
                     Ahorra tiempo y decide con ventaja calculando tu margen real de beneficio.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 text-slate-900 font-bold text-xs group-hover:translate-x-1 transition-transform">
-                  Ir a la calculadora <ArrowRight size={16} />
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-[10px] md:text-xs group-hover:translate-x-1 transition-transform">
+                  Ir a la calculadora <ArrowRight size={14} className="md:hidden" />
+                  <ArrowRight size={16} className="hidden md:block" />
                 </div>
               </Link>
             </motion.div>

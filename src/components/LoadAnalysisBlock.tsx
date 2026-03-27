@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ShieldAlert, UploadCloud, FileText, CheckCircle, AlertTriangle, Lock, Loader2, ArrowRight, ShieldCheck, FileWarning, Download, Info, Calculator, Calendar, Scale, ExternalLink, X, HelpCircle, FileSearch } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -68,6 +68,24 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
 
   const finalBoeUrl = boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${boeId}`;
 
+  const [showSticky, setShowSticky] = useState(false);
+  const blockRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!blockRef.current) return;
+      
+      const rect = blockRef.current.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      
+      // Show sticky if block is visible and we are in mobile
+      setShowSticky(isVisible && window.innerWidth < 768 && step !== 'result' && step !== 'loading');
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [step]);
+
   const handleUnlock = () => {
     setStep('upload');
   };
@@ -104,7 +122,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
   };
 
   return (
-    <div className={`${isIntegrated ? '' : 'my-12 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden'}`}>
+    <div ref={blockRef} className={`${isIntegrated ? '' : 'my-8 md:my-12 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden'}`}>
       {!isIntegrated && (
         <div className="bg-slate-900 px-8 py-5 text-white flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -119,30 +137,30 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
         </div>
       )}
 
-      <div className={`${isIntegrated ? 'p-0' : 'p-6 md:p-8'}`}>
+      <div className={`${isIntegrated ? 'p-0' : 'p-4 md:p-8'}`}>
         {step === 'locked' && (
           <div className="group/card cursor-pointer" onClick={handleUnlock}>
-            <div className="flex flex-col md:flex-row gap-8 items-center py-1">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center py-1">
               {/* Left Side (70%) */}
-              <div className="flex-[0.7] space-y-4">
-                <div className="flex items-start gap-5">
-                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 shrink-0 border border-slate-100 group-hover/card:border-brand-200 group-hover/card:text-brand-500 transition-all duration-500">
-                    <Scale size={26} strokeWidth={1.2} />
+              <div className="w-full md:flex-[0.7] space-y-3 md:space-y-4">
+                <div className="flex items-start gap-3 md:gap-5">
+                  <div className="w-9 h-9 md:w-12 md:h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 shrink-0 border border-slate-100 group-hover/card:border-brand-200 group-hover/card:text-brand-500 transition-all duration-500">
+                    <Scale size={20} className="md:hidden" strokeWidth={1.2} />
+                    <Scale size={26} className="hidden md:block" strokeWidth={1.2} />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-serif font-bold text-slate-900 mb-0.5 tracking-tight">Análisis de cargas registrales</h3>
-                    <p className="text-slate-500 text-sm font-medium leading-tight">Detecta hipotecas, embargos y riesgos ocultos antes de pujar</p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Análisis conforme a normativa registral española vigente</p>
+                  <div className="flex-1">
+                    <h3 className="text-sm md:text-lg font-serif font-bold text-slate-900 mb-0.5 tracking-tight">Análisis de cargas registrales</h3>
+                    <p className="text-slate-500 text-[10px] md:text-sm font-medium leading-tight">Detecta hipotecas, embargos y riesgos ocultos antes de pujar</p>
                     
-                    <div className="flex items-center gap-2 mt-4 flex-wrap md:flex-nowrap">
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50/50 border border-emerald-100/50 text-[10px] font-bold text-emerald-600 uppercase tracking-wider whitespace-nowrap">
-                        Nota simple <span className="opacity-60 font-medium text-[9px] lowercase italic ml-1">✓ recomendado</span>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-3 md:mt-4">
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50/50 border border-emerald-100/50 text-[8px] md:text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                        <span>Nota simple</span>
                       </div>
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50/50 border border-emerald-100/50 text-[10px] font-bold text-emerald-600 uppercase tracking-wider whitespace-nowrap">
-                        Certificación <span className="opacity-60 font-medium text-[9px] lowercase italic ml-1">✓ recomendado</span>
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50/50 border border-emerald-100/50 text-[8px] md:text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                        <span>Certificación</span>
                       </div>
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50/50 border border-slate-100/50 text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
-                        Edicto <span className="opacity-60 font-medium text-[9px] lowercase italic ml-1">opcional</span>
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50/50 border border-slate-100/50 text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <span>Edicto</span>
                       </div>
                     </div>
                   </div>
@@ -150,17 +168,17 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
               </div>
               
               {/* Right Side (30%) */}
-              <div className="flex-[0.3] w-full md:w-auto flex flex-col items-center md:items-end gap-2.5">
-                <div className="text-center md:text-right">
-                  <div className="flex items-baseline justify-center md:justify-end gap-1.5">
-                    <span className="text-xl font-bold text-slate-900 tracking-tight">2,99€</span>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">pago único</span>
+              <div className="w-full md:flex-[0.3] flex flex-col items-center md:items-end gap-2 md:gap-3">
+                <div className="text-center md:text-right border-t md:border-t-0 border-slate-100 pt-3 md:pt-0 w-full md:w-auto">
+                  <div className="flex items-baseline justify-center md:justify-end gap-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Por solo</span>
+                    <span className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">2,99€</span>
                   </div>
-                  <p className="text-[9px] text-slate-300 font-medium mt-0.5">Expediente {boeId}</p>
+                  <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Pago único por expediente</p>
                 </div>
                 <button 
                   onClick={handleUnlock}
-                  className="w-full bg-slate-900 text-white font-bold py-2 px-6 rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-200 group/btn text-sm whitespace-nowrap"
+                  className="w-full bg-brand-600 text-white font-bold py-3 md:py-2 px-6 rounded-xl hover:bg-brand-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-100 group/btn text-xs md:text-sm whitespace-nowrap"
                 >
                   Analizar cargas →
                 </button>
@@ -171,54 +189,55 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
 
         {step === 'upload' && (
           <div className="max-w-[980px] mx-auto">
-            <div className="text-center mb-10">
-              <h3 className="text-2xl font-serif font-bold text-slate-900 mb-1">Análisis de cargas registrales</h3>
-              <p className="text-slate-500 text-base max-w-2xl mx-auto leading-tight mb-3">
+            <div className="text-center mb-6 md:mb-10">
+              <h3 className="text-lg md:text-2xl font-serif font-bold text-slate-900 mb-1">Análisis de cargas registrales</h3>
+              <p className="text-slate-500 text-xs md:text-base max-w-2xl mx-auto leading-tight mb-4">
                 Detecta hipotecas, embargos y riesgos ocultos antes de pujar
               </p>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Basado en normativa registral española vigente</p>
               
-              <p className="text-xs text-slate-600 mt-6 max-w-2xl mx-auto leading-relaxed font-medium">
-                Recomendamos adjuntar Nota Simple o Certificación de cargas.<br />
+              <p className="text-[10px] md:text-xs text-slate-600 mt-4 md:mt-6 max-w-2xl mx-auto leading-relaxed font-medium px-4">
+                Recomendamos adjuntar Nota Simple o Certificación de cargas.<br className="hidden md:block" />
                 Opcionalmente puedes añadir el edicto para completar el análisis.<br />
-                <span className="text-[10px] text-slate-400 uppercase tracking-tight">Máximo 2 documentos.</span>
+                <span className="text-[8px] md:text-[10px] text-slate-400 uppercase tracking-tight">Máximo 2 documentos.</span>
               </p>
 
-              <div className="flex justify-center gap-10 mt-10">
-                <div className="flex flex-col items-center gap-2.5">
-                  <div className="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100/50">
-                    <FileText size={28} strokeWidth={1.5} />
+              <div className="flex justify-center gap-4 md:gap-10 mt-6 md:mt-10">
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100/50">
+                    <FileText size={20} className="md:hidden" strokeWidth={1.5} />
+                    <FileText size={28} className="hidden md:block" strokeWidth={1.5} />
                   </div>
                   <div className="text-center">
-                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">Nota simple</p>
-                    <p className="text-[10px] font-medium text-emerald-600 italic">Recomendado</p>
+                    <p className="text-[9px] md:text-[11px] font-bold text-slate-900 uppercase tracking-wider">Nota simple</p>
+                    <p className="text-[8px] md:text-[10px] font-medium text-emerald-600 italic">Recomendado</p>
                   </div>
                 </div>
-                <div className="flex flex-col items-center gap-2.5">
-                  <div className="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100/50">
-                    <Scale size={28} strokeWidth={1.5} />
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100/50">
+                    <Scale size={20} className="md:hidden" strokeWidth={1.5} />
+                    <Scale size={28} className="hidden md:block" strokeWidth={1.5} />
                   </div>
                   <div className="text-center">
-                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">Certificación</p>
-                    <p className="text-[10px] font-medium text-emerald-600 italic">Recomendado</p>
+                    <p className="text-[9px] md:text-[11px] font-bold text-slate-900 uppercase tracking-wider">Certificación</p>
+                    <p className="text-[8px] md:text-[10px] font-medium text-emerald-600 italic">Recomendado</p>
                   </div>
                 </div>
-                <div className="flex flex-col items-center gap-2.5">
-                  <div className="w-14 h-14 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                    <FileWarning size={28} strokeWidth={1.5} />
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                    <FileWarning size={20} className="md:hidden" strokeWidth={1.5} />
+                    <FileWarning size={28} className="hidden md:block" strokeWidth={1.5} />
                   </div>
                   <div className="text-center">
-                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">Edicto</p>
-                    <p className="text-[10px] font-medium text-slate-400 italic">Opcional</p>
+                    <p className="text-[9px] md:text-[11px] font-bold text-slate-900 uppercase tracking-wider">Edicto</p>
+                    <p className="text-[8px] md:text-[10px] font-medium text-slate-400 italic">Opcional</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="relative">
-              {/* Price Badge on Uploader - REMOVED FOR CLEANLINESS */}
+            <div className="relative px-2 md:px-0">
               <div 
-                className={`border-2 border-dashed rounded-[28px] p-10 transition-all duration-300 ${files.length > 0 ? 'border-brand-500 bg-brand-50/30' : 'border-slate-300 hover:border-brand-400 bg-white shadow-sm'}`}
+                className={`border-2 border-dashed rounded-[24px] md:rounded-[28px] p-6 md:p-10 transition-all duration-300 ${files.length > 0 ? 'border-brand-500 bg-brand-50/30' : 'border-slate-300 hover:border-brand-400 bg-white shadow-sm'}`}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleDrop}
               >
@@ -234,12 +253,13 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
                 {files.length > 0 ? (
                   <div className="flex flex-col items-center w-full">
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-2xl bg-brand-100 flex items-center justify-center text-brand-600">
-                        <FileText size={28} />
+                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-brand-100 flex items-center justify-center text-brand-600">
+                        <FileText size={24} className="md:hidden" />
+                        <FileText size={28} className="hidden md:block" />
                       </div>
                       <div className="text-left">
-                        <h4 className="text-lg font-bold text-slate-900">{files.length} documento(s) listos</h4>
-                        <p className="text-slate-500 text-xs">Preparados para el análisis jurídico</p>
+                        <h4 className="text-base md:text-lg font-bold text-slate-900">{files.length} documento(s) listos</h4>
+                        <p className="text-slate-500 text-[10px] md:text-xs">Preparados para el análisis jurídico</p>
                       </div>
                     </div>
                     
@@ -277,63 +297,65 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
                   </div>
                 ) : (
                   <div className="flex flex-col items-center cursor-pointer group" onClick={() => fileInputRef.current?.click()}>
-                    <div className="w-16 h-16 bg-slate-50 rounded-[24px] flex items-center justify-center mb-4 text-slate-300 group-hover:bg-brand-50 group-hover:text-brand-500 transition-all duration-500 group-hover:scale-110">
-                      <UploadCloud size={32} />
+                    <div className="w-14 h-14 md:w-16 md:h-16 bg-slate-50 rounded-[20px] md:rounded-[24px] flex items-center justify-center mb-4 text-slate-300 group-hover:bg-brand-50 group-hover:text-brand-500 transition-all duration-500 group-hover:scale-110">
+                      <UploadCloud size={28} className="md:hidden" />
+                      <UploadCloud size={32} className="hidden md:block" />
                     </div>
-                    <p className="text-lg font-bold text-slate-900 mb-1">Haz clic o arrastra tus PDFs aquí</p>
-                    <p className="text-xs text-slate-600 font-bold">Sube la Nota Simple, Certificación o Edicto</p>
+                    <p className="text-base md:text-lg font-bold text-slate-900 mb-1 text-center">Haz clic o arrastra tus PDFs aquí</p>
+                    <p className="text-[10px] md:text-xs text-slate-600 font-bold text-center">Sube la Nota Simple, Certificación o Edicto</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="mt-8 flex flex-col items-center gap-4">
+            <div className="mt-6 md:mt-8 flex flex-col items-center gap-3 md:gap-4 px-4">
               <div className="text-center">
-                <div className="flex items-baseline justify-center gap-1.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Por solo</span>
-                  <span className="text-3xl font-bold text-slate-900 tracking-tight">2,99€</span>
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Por solo</span>
+                  <span className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">2,99€</span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-bold mt-0.5 uppercase tracking-widest">Pago único por expediente</p>
+                <p className="text-[9px] md:text-[10px] text-slate-400 font-bold mt-0.5 uppercase tracking-widest">Pago único por expediente</p>
               </div>
 
               <button 
                 onClick={handleAnalyze}
                 disabled={files.length === 0}
                 className={`
-                  w-full max-w-lg py-4 px-12 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-4 shadow-xl
+                  w-full max-w-lg py-3.5 md:py-4 px-8 md:px-12 rounded-2xl font-bold text-sm md:text-lg transition-all flex items-center justify-center gap-3 shadow-xl
                   ${files.length > 0 
-                    ? 'bg-slate-900 text-white hover:bg-black shadow-slate-200 hover:-translate-y-0.5' 
-                    : 'bg-slate-200 text-slate-500 cursor-not-allowed'}
+                    ? 'bg-brand-600 text-white hover:bg-brand-700 shadow-brand-100 hover:-translate-y-0.5' 
+                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
                 `}
               >
-                Analizar cargas del inmueble <ArrowRight size={20} />
+                Analizar cargas del inmueble <ArrowRight size={18} className="md:hidden" /> <ArrowRight size={20} className="hidden md:block" />
               </button>
 
               {/* Help Block */}
-              <div className="w-full bg-slate-50 rounded-2xl p-6 border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="w-full bg-slate-50 rounded-2xl p-4 md:p-6 border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 mt-2 md:mt-4">
                 <div className="text-center md:text-left">
-                  <h4 className="font-bold text-slate-900 text-sm mb-1 flex items-center justify-center md:justify-start gap-2">
-                    <HelpCircle size={16} className="text-brand-600" />
-                    ¿No tienes la Nota Simple o Certificación?
+                  <h4 className="font-bold text-slate-900 text-xs md:text-sm mb-1 flex items-center justify-center md:justify-start gap-2">
+                    <HelpCircle size={14} className="md:hidden text-brand-600" />
+                    <HelpCircle size={16} className="hidden md:block text-brand-600" />
+                    ¿No tienes la Nota Simple?
                   </h4>
-                  <p className="text-slate-600 text-xs font-medium">
-                    Puedes descargarla desde la subasta del BOE con DNI o Cl@ve
+                  <p className="text-slate-600 text-[10px] md:text-xs font-medium">
+                    Descárgala desde el BOE con DNI o Cl@ve
                   </p>
                 </div>
-                <div className="flex flex-wrap justify-center gap-3 shrink-0">
+                <div className="flex flex-col sm:flex-row justify-center gap-2 md:gap-3 shrink-0 w-full md:w-auto">
                   <a 
                     href={finalBoeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs font-bold hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm"
+                    className="w-full sm:w-auto px-4 py-2.5 md:py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-[10px] md:text-xs font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
                   >
-                    Ver subasta en BOE <ExternalLink size={12} />
+                    Ver subasta en BOE <ExternalLink size={10} className="md:w-3 md:h-3" />
                   </a>
                   <button 
                     onClick={() => setShowHowToModal(true)}
-                    className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors flex items-center gap-2 shadow-md"
+                    className="w-full sm:w-auto px-4 py-2.5 md:py-2.5 rounded-xl bg-slate-900 text-white text-[10px] md:text-xs font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 shadow-md"
                   >
-                    Cómo obtenerla <FileSearch size={12} />
+                    Cómo obtenerla <FileSearch size={10} className="md:w-3 md:h-3" />
                   </button>
                 </div>
               </div>
@@ -750,6 +772,65 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
           </div>
         )}
       </div>
+      {/* Sticky Mobile CTA */}
+      <AnimatePresence>
+        {showSticky && (
+          <motion.div 
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 md:hidden"
+          >
+            <button 
+              onClick={() => {
+                if (step === 'locked') handleUnlock();
+                else if (step === 'upload' && files.length > 0) handleAnalyze();
+                else if (step === 'upload' && files.length === 0) fileInputRef.current?.click();
+              }}
+              className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3"
+            >
+              {step === 'locked' ? (
+                <>Analizar cargas · 2,99€ <ArrowRight size={18} /></>
+              ) : files.length > 0 ? (
+                <>Analizar {files.length} doc. · 2,99€ <ArrowRight size={18} /></>
+              ) : (
+                <>Subir documentos · 2,99€ <UploadCloud size={18} /></>
+              )}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Sticky Mobile CTA */}
+      <AnimatePresence>
+        {(step === 'locked' || step === 'upload') && (
+          <motion.div 
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 md:hidden"
+          >
+            <button 
+              onClick={step === 'locked' ? handleUnlock : handleAnalyze}
+              disabled={step === 'upload' && files.length === 0}
+              className={`
+                w-full py-3.5 px-6 rounded-xl font-bold text-sm transition-all flex items-center justify-between shadow-xl
+                ${(step === 'locked' || (step === 'upload' && files.length > 0))
+                  ? 'bg-brand-600 text-white shadow-brand-100' 
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
+              `}
+            >
+              <span className="flex items-center gap-2">
+                {step === 'locked' ? 'Analizar cargas' : 'Analizar expediente'}
+                <span className="w-1 h-1 rounded-full bg-white/30" />
+                <span className="text-white/90">2,99€</span>
+              </span>
+              <ArrowRight size={18} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* How to Obtain Modal */}
       <AnimatePresence>
         {showHowToModal && (
