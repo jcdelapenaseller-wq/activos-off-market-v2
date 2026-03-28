@@ -79,7 +79,10 @@ export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilt
       .map(c => c.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '))
       .sort((a, b) => a.localeCompare(b, 'es'));
   }, [auctions]);
-  const provinces = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => a.province).filter(Boolean))), [auctions]);
+  const provinces = useMemo(() => {
+    const uniqueProvinces = Array.from(new Set(Object.values(auctions).map(a => a.province).filter(Boolean))) as string[];
+    return uniqueProvinces.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+  }, [auctions]);
   const types = useMemo(() => Array.from(new Set(Object.values(auctions).map(a => getAuctionType(a.boeId)).filter(Boolean))), [auctions]);
 
   const selectBaseClass = "border border-slate-200 bg-white focus:ring-2 focus:ring-brand-500 outline-none transition-all w-full";
