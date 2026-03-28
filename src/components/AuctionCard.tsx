@@ -79,14 +79,8 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
     <div 
       className={`bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative group ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}
     >
-      <Link
-        to={`/subasta/${id}`}
-        className="absolute inset-0 z-0"
-        aria-label="Ver subasta"
-      />
-
       {/* Left: Commercial Badges (Max 2) */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col items-start gap-1.5 pointer-events-none">
+      <div className="absolute top-4 left-4 z-10 flex flex-col items-start gap-1.5">
         {oppBadge && (
           <span className={`inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border shadow-sm ${oppBadge.color}`}>
             {oppBadge.label}
@@ -101,7 +95,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
       </div>
 
       {/* Right: Status + FOMO (Max 2) */}
-      <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-1.5 pointer-events-none">
+      <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-1.5">
         {isClosingSoon && !isFinished ? (
           <span className="inline-flex items-center text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider border text-rose-700 bg-rose-50 border-rose-200 shadow-sm animate-pulse">
             ⏳ Termina pronto
@@ -133,7 +127,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
         </div>
       </div>
 
-      <div className="p-5 pt-24 flex-grow flex flex-col relative z-10">
+      <div className="p-5 pt-24 flex-grow flex flex-col relative">
         <Link 
           to={`/subasta/${id}`} 
           className="block mb-4"
@@ -181,8 +175,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
 
             <Link 
               to={`${ROUTES.CALCULATOR}?tasacion=${valorReferencia || 0}&precio=${cantidadReclamada || 0}&ccaa=${province}`}
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 trackConversion(province, 'listing', 'calculator_from_card_click', { precio: cantidadReclamada || 0 });
               }}
               className="mt-3 pt-3 border-t border-slate-200/60 flex items-center justify-center gap-1.5 text-[11px] font-bold text-brand-600 hover:text-brand-700 transition-colors group/calc"
@@ -201,7 +194,6 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
           )}
           <Link 
             to={`/subasta/${id}`}
-            onClick={(e) => e.stopPropagation()}
             className={`w-full inline-flex items-center justify-center font-bold py-3.5 px-6 rounded-xl transition-all group ${isFinished ? 'bg-slate-100 text-slate-500 hover:bg-slate-200' : isSuspended ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
           >
             {isFinished ? 'Ver resultado' : isSuspended ? 'Ver detalles' : 'Ver oportunidad'}
