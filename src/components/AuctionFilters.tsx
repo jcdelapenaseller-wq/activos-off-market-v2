@@ -24,9 +24,16 @@ export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilt
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const normalizeText = (str: string) =>
+    str
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase()
+      .trim();
+
   const filteredAuctions = useMemo(() => {
     return Object.entries(auctions).reduce((acc, [slug, data]) => {
-      if (city && data.city?.toLowerCase() !== city.toLowerCase()) return acc;
+      if (city && data.city && normalizeText(data.city) !== normalizeText(city)) return acc;
       if (province && data.province?.toLowerCase() !== province.toLowerCase()) return acc;
       if (status) {
         if (getComputedStatus(data) !== status) return acc;
