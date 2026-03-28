@@ -18,9 +18,11 @@ const RecentAuctions: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('recent');
   
   const currentPage = useMemo(() => {
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    return isNaN(page) || page < 1 ? 1 : page;
+    const pageParam = searchParams.get("page");
+    return pageParam ? Number(pageParam) : 1;
   }, [searchParams]);
+
+  console.log("currentPage", currentPage);
 
   const itemsPerPage = 12;
   
@@ -42,33 +44,37 @@ const RecentAuctions: React.FC = () => {
   
   // Pagination logic
   const totalPages = Math.ceil(auctionsWithBadges.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedAuctions = auctionsWithBadges.slice(startIndex, startIndex + itemsPerPage);
+  const safePage = Math.min(currentPage, totalPages || 1);
+  const paginatedAuctions = useMemo(() => {
+    const startIndex = (safePage - 1) * itemsPerPage;
+    return auctionsWithBadges.slice(startIndex, startIndex + itemsPerPage);
+  }, [auctionsWithBadges, safePage, itemsPerPage]);
 
   const handlePageChange = (page: number) => {
     setSearchParams(prev => {
+      const params = new URLSearchParams(prev);
       if (page === 1) {
-        prev.delete('page');
+        params.delete('page');
       } else {
-        prev.set('page', page.toString());
+        params.set('page', page.toString());
       }
-      return prev;
+      return params;
     }, { replace: false });
   };
 
   const handleFilterChange = useCallback((newFiltered: Record<string, AuctionData>) => {
     setFilteredAuctions(newFiltered);
     setSearchParams(prev => {
-      prev.delete('page');
-      return prev;
+      const params = new URLSearchParams(prev);
+      return params;
     }, { replace: false });
   }, [setSearchParams]);
 
   const handleSortChange = useCallback((newSort: string) => {
     setSortBy(newSort);
     setSearchParams(prev => {
-      prev.delete('page');
-      return prev;
+      const params = new URLSearchParams(prev);
+      return params;
     }, { replace: false });
   }, [setSearchParams]);
   
@@ -87,7 +93,7 @@ const RecentAuctions: React.FC = () => {
   const sortLabel = getSortLabel(sortBy);
 
   useEffect(() => {
-    if (currentPage > 1) {
+    if (safePage > 1) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       window.scrollTo(0, 0);
@@ -100,7 +106,7 @@ const RecentAuctions: React.FC = () => {
 
     // SEO Pagination: noindex,follow for page > 1
     let robotsMeta = document.querySelector('meta[name="robots"]');
-    if (currentPage > 1) {
+    if (safePage > 1) {
       if (!robotsMeta) {
         robotsMeta = document.createElement('meta');
         robotsMeta.setAttribute('name', 'robots');
@@ -119,7 +125,7 @@ const RecentAuctions: React.FC = () => {
       document.head.appendChild(canonicalLink);
     }
     canonicalLink.setAttribute('href', window.location.origin + window.location.pathname);
-  }, [currentPage]);
+  }, [safePage]);
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-600">
@@ -191,7 +197,7 @@ const RecentAuctions: React.FC = () => {
                 key={page}
                 onClick={() => handlePageChange(page)}
                 className={`w-10 h-10 rounded-lg font-bold transition-all ${
-                  currentPage === page
+                  safePage === page
                     ? 'bg-brand-600 text-white shadow-md shadow-brand-200'
                     : 'bg-white border border-slate-200 text-slate-600 hover:border-brand-500 hover:text-brand-600'
                 }`}
