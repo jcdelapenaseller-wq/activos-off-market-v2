@@ -182,13 +182,15 @@ const RecentAuctions: React.FC = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        <div className="sticky top-[72px] z-30 bg-slate-50/95 backdrop-blur-sm -mx-6 px-6 pt-4 pb-2 mb-6 border-b border-slate-200/50">
-          <RadarPremiumCTA 
-            location="España" 
-            variant="bar"
-            origin="listing"
-          />
-          <AuctionFilters auctions={AUCTIONS} onFilteredChange={handleFilterChange} onSortChange={handleSortChange} />
+        <div className="sticky top-[72px] z-10 pointer-events-none bg-slate-50/95 backdrop-blur-sm -mx-6 px-6 pt-4 pb-2 mb-6 border-b border-slate-200/50">
+          <div className="pointer-events-auto">
+            <RadarPremiumCTA 
+              location="España" 
+              variant="bar"
+              origin="listing"
+            />
+            <AuctionFilters auctions={AUCTIONS} onFilteredChange={handleFilterChange} onSortChange={handleSortChange} />
+          </div>
         </div>
         
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
