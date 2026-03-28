@@ -79,7 +79,7 @@ export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilt
   const selectSizeClass = isScrolled ? "p-1.5 text-xs rounded-lg" : "p-2.5 text-sm rounded-xl";
 
   return (
-    <div className={`sticky top-0 md:top-2 z-40 transition-all duration-300 mb-8 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-md md:rounded-2xl border-b md:border border-slate-200/50 p-2.5 md:p-3 -mx-6 px-6 md:mx-0 md:px-3' : 'bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm'}`}>
+    <div className={`sticky top-0 md:top-2 z-40 transition-all duration-300 mb-8 ${isScrolled ? 'bg-white/95 shadow-md md:rounded-2xl border-b md:border border-slate-200/50 p-2.5 md:p-3 -mx-6 px-6 md:mx-0 md:px-3' : 'bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm'}`}>
       <div className={`grid gap-2 md:gap-3 ${onSortChange ? 'grid-cols-2 md:grid-cols-6' : 'grid-cols-2 md:grid-cols-4'}`}>
         <div className="col-span-1">
           <select value={city} onChange={e => setCity(e.target.value)} className={`${selectBaseClass} ${selectSizeClass}`}>

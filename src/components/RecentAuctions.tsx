@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MapPin, DollarSign, TrendingUp, ChevronRight, Calculator, Calendar, ArrowRight, Percent } from 'lucide-react';
 import { AUCTIONS } from '../data/auctions';
@@ -56,21 +56,21 @@ const RecentAuctions: React.FC = () => {
     }, { replace: false });
   };
 
-  const handleFilterChange = (newFiltered: Record<string, AuctionData>) => {
+  const handleFilterChange = useCallback((newFiltered: Record<string, AuctionData>) => {
     setFilteredAuctions(newFiltered);
     setSearchParams(prev => {
       prev.delete('page');
       return prev;
     }, { replace: false });
-  };
+  }, [setSearchParams]);
 
-  const handleSortChange = (newSort: string) => {
+  const handleSortChange = useCallback((newSort: string) => {
     setSortBy(newSort);
     setSearchParams(prev => {
       prev.delete('page');
       return prev;
     }, { replace: false });
-  };
+  }, [setSearchParams]);
   
   const activeCount = Object.keys(filteredAuctions).length;
   const hasFilters = activeCount !== totalActiveAuctions;
@@ -149,7 +149,7 @@ const RecentAuctions: React.FC = () => {
 
       <div>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="bg-slate-50/95 backdrop-blur-sm -mx-6 px-6 pt-4 pb-2 mb-6 border-b border-slate-200/50">
+          <div className="bg-slate-50/95 -mx-6 px-6 pt-4 pb-2 mb-6 border-b border-slate-200/50">
             <RadarPremiumCTA 
               location="España" 
               variant="bar"

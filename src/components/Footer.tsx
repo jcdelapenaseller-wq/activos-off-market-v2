@@ -7,6 +7,7 @@ const Footer: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isChecklistModalOpen, setIsChecklistModalOpen] = useState(false);
+  console.log("checklist modal:", isChecklistModalOpen);
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -278,9 +279,11 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* Checklist Modal */}
-      {isChecklistModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+      {/* Checklist Modal
+      <div 
+        className={`fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-all duration-300 border-4 border-red-500
+        ${isChecklistModalOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
+      >
           <div className="bg-white rounded-2xl p-6 md:p-8 max-w-md w-full relative shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <button 
               onClick={() => setIsChecklistModalOpen(false)}
@@ -340,7 +343,7 @@ const Footer: React.FC = () => {
             )}
           </div>
         </div>
-      )}
+      */}
     </footer>
   );
 };
