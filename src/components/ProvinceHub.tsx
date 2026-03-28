@@ -160,52 +160,54 @@ const ProvinceHub: React.FC = () => {
 
       {/* Dynamic Auctions Section (Bottom) */}
       <section className="max-w-7xl mx-auto px-6 py-16 border-t border-slate-200">
-        <div className="sticky top-[72px] z-30 bg-slate-50/95 backdrop-blur-sm -mx-6 px-6 pt-4 pb-2 mb-12 border-b border-slate-200/50">
-          <RadarPremiumCTA 
-            location={province} 
-            variant="bar"
-            origin="listing"
-          />
-          
-          {/* Filters moved here for sticky behavior */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
-            {zones.length > 0 && (
-              <div>
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <MapPin size={12} /> Por zona
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {zones.slice(0, 8).map(zone => (
-                    <Link 
-                      key={zone}
-                      to={`/subastas/${normalizedProvinceParam}/${zone.toLowerCase().replace(/\s+/g, '-')}`}
-                      className="bg-white border border-slate-200 px-3 py-1 rounded-lg text-xs font-medium hover:border-brand-500 hover:text-brand-700 transition-all shadow-sm"
-                    >
-                      {zone}
-                    </Link>
-                  ))}
-                  {zones.length > 8 && <span className="text-[10px] text-slate-400 self-center ml-1">+{zones.length - 8} más</span>}
+        <div>
+          <div className="bg-slate-50/95 backdrop-blur-sm -mx-6 px-6 pt-4 pb-2 mb-12 border-b border-slate-200/50">
+            <RadarPremiumCTA 
+              location={province} 
+              variant="bar"
+              origin="listing"
+            />
+            
+            {/* Filters moved here for sticky behavior */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
+              {zones.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <MapPin size={12} /> Por zona
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {zones.slice(0, 8).map(zone => (
+                      <Link 
+                        key={zone}
+                        to={`/subastas/${normalizedProvinceParam}/${zone.toLowerCase().replace(/\s+/g, '-')}`}
+                        className="bg-white border border-slate-200 px-3 py-1 rounded-lg text-xs font-medium hover:border-brand-500 hover:text-brand-700 transition-all shadow-sm"
+                      >
+                        {zone}
+                      </Link>
+                    ))}
+                    {zones.length > 8 && <span className="text-[10px] text-slate-400 self-center ml-1">+{zones.length - 8} más</span>}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {propertyTypes.length > 0 && (
-              <div>
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                  <Filter size={12} /> Por tipo
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {propertyTypes.map(type => (
-                    <span 
-                      key={type}
-                      className="bg-white border border-slate-200 px-3 py-1 rounded-lg text-xs font-medium text-slate-600 capitalize shadow-sm"
-                    >
-                      {type}
-                    </span>
-                  ))}
+              {propertyTypes.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <Filter size={12} /> Por tipo
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {propertyTypes.map(type => (
+                      <span 
+                        key={type}
+                        className="bg-white border border-slate-200 px-3 py-1 rounded-lg text-xs font-medium text-slate-600 capitalize shadow-sm"
+                      >
+                        {type}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 

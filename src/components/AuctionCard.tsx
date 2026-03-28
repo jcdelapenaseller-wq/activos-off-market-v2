@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, DollarSign, ChevronRight, Percent, Calculator, Building2 } from 'lucide-react';
 import { AuctionData } from '../data/auctions';
 import { isAuctionFinished, getComputedStatus, isCapital, calculateDiscount, isConflictZone } from '../utils/auctionHelpers';
@@ -17,6 +17,7 @@ interface AuctionCardProps {
 }
 
 export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBadge }) => {
+  const navigate = useNavigate();
   const id = slug;
   const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue;
   const cantidadReclamada = data.claimedDebt;
@@ -128,9 +129,9 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
       </div>
 
       <div className="p-5 pt-24 flex-grow flex flex-col relative">
-        <Link 
-          to={`/subasta/${id}`} 
-          className="block mb-4"
+        <div 
+          onClick={() => navigate(`/subasta/${id}`)}
+          className="block mb-4 cursor-pointer"
         >
           <h2 className="text-lg font-bold text-slate-900 leading-tight hover:text-brand-600 transition-colors line-clamp-2">
             {normalizePropertyType(data.propertyType)} en {data.address?.split(',')[0] || normalizeLocationLabel(data).split(',')[0]}
@@ -141,7 +142,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
               Disponible próximamente
             </div>
           )}
-        </Link>
+        </div>
 
         <div className="space-y-2.5 mb-6 flex-grow">
           <div className="flex items-start gap-2 text-slate-600 text-sm">
@@ -173,16 +174,17 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
               </div>
             ) : null}
 
-            <Link 
-              to={`${ROUTES.CALCULATOR}?tasacion=${valorReferencia || 0}&precio=${cantidadReclamada || 0}&ccaa=${province}`}
-              onClick={() => {
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
                 trackConversion(province, 'listing', 'calculator_from_card_click', { precio: cantidadReclamada || 0 });
+                navigate(`${ROUTES.CALCULATOR}?tasacion=${valorReferencia || 0}&precio=${cantidadReclamada || 0}&ccaa=${province}`);
               }}
-              className="mt-3 pt-3 border-t border-slate-200/60 flex items-center justify-center gap-1.5 text-[11px] font-bold text-brand-600 hover:text-brand-700 transition-colors group/calc"
+              className="w-full mt-3 pt-3 border-t border-slate-200/60 flex items-center justify-center gap-1.5 text-[11px] font-bold text-brand-600 hover:text-brand-700 transition-colors group/calc"
             >
               <Calculator size={14} className="group-hover/calc:scale-110 transition-transform" />
               Calcular puja máxima
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -192,13 +194,13 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
               <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Disponible ahora</span>
             </div>
           )}
-          <Link 
-            to={`/subasta/${id}`}
+          <button 
+            onClick={() => navigate(`/subasta/${id}`)}
             className={`w-full inline-flex items-center justify-center font-bold py-3.5 px-6 rounded-xl transition-all group ${isFinished ? 'bg-slate-100 text-slate-500 hover:bg-slate-200' : isSuspended ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
           >
             {isFinished ? 'Ver resultado' : isSuspended ? 'Ver detalles' : 'Ver oportunidad'}
             <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
-          </Link>
+          </button>
         </div>
       </div>
     </div>

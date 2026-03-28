@@ -12,40 +12,6 @@ import { DiscoverReportsBlock } from './DiscoverReportsBlock';
 import RadarPremiumCTA from './RadarPremiumCTA';
 import { prefetchAuction } from '../utils/prefetch';
 
-const LazyAuctionCard: React.FC<{ slug: string; data: AuctionData; showNewBadge?: boolean }> = ({ slug, data, showNewBadge }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          prefetchAuction(slug);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '200px' }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => observer.disconnect();
-  }, [slug]);
-
-  return (
-    <div ref={ref} className="min-h-[500px]">
-      {isVisible ? (
-        <AuctionCard slug={slug} data={data} showNewBadge={showNewBadge} />
-      ) : (
-        <div className="w-full h-full bg-slate-100 animate-pulse rounded-2xl border border-slate-200" />
-      )}
-    </div>
-  );
-};
-
 const RecentAuctions: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(() => getFilteredAuctions(AUCTIONS));
@@ -181,9 +147,9 @@ const RecentAuctions: React.FC = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-12">
-        <div className="sticky top-[72px] z-10 pointer-events-none bg-slate-50/95 backdrop-blur-sm -mx-6 px-6 pt-4 pb-2 mb-6 border-b border-slate-200/50">
-          <div className="pointer-events-auto">
+      <div>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="bg-slate-50/95 backdrop-blur-sm -mx-6 px-6 pt-4 pb-2 mb-6 border-b border-slate-200/50">
             <RadarPremiumCTA 
               location="España" 
               variant="bar"
@@ -192,7 +158,9 @@ const RecentAuctions: React.FC = () => {
             <AuctionFilters auctions={AUCTIONS} onFilteredChange={handleFilterChange} onSortChange={handleSortChange} />
           </div>
         </div>
-        
+      </div>
+
+      <main className="max-w-7xl mx-auto px-6 py-12">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 font-bold px-4 py-2 rounded-lg shadow-sm w-fit">
             <span className="relative flex h-3 w-3">
@@ -212,7 +180,7 @@ const RecentAuctions: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {paginatedAuctions.map(({ slug, data, showNewBadge }) => (
-            <LazyAuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />
+            <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />
           ))}
         </div>
 
