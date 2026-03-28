@@ -149,7 +149,10 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
 
       <div className={`${isIntegrated ? 'p-0' : 'p-4 md:p-8'}`}>
         {step === 'locked' && (
-          <div className="group/card cursor-pointer" onClick={handleUnlock}>
+          <div 
+            className="group/card cursor-pointer bg-white border border-slate-100 rounded-2xl p-4 md:p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]" 
+            onClick={handleUnlock}
+          >
             <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center py-1">
               {/* Left Side (70%) */}
               <div className="w-full md:flex-[0.7] space-y-3 md:space-y-4">
@@ -180,15 +183,19 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
               {/* Right Side (30%) */}
               <div className="w-full md:flex-[0.3] flex flex-col items-center md:items-end gap-2 md:gap-3">
                 <div className="text-center md:text-right border-t md:border-t-0 border-slate-100 pt-3 md:pt-0 w-full md:w-auto">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] md:text-[10px] font-bold uppercase tracking-tight mb-1.5 border border-emerald-100/50 group-hover/card:bg-emerald-100/80 transition-colors">
+                    <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+                    Disponible para esta subasta
+                  </div>
                   <div className="flex items-baseline justify-center md:justify-end gap-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Por solo</span>
-                    <span className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">2,99€</span>
+                    <span className="text-lg md:text-xl font-bold text-emerald-600 tracking-tight">2,99€</span>
                   </div>
                   <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Pago único por expediente</p>
                 </div>
                 <button 
                   onClick={handleUnlock}
-                  className="w-full bg-brand-600 text-white font-bold py-3 md:py-2 px-6 rounded-xl hover:bg-brand-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-100 group/btn text-xs md:text-sm whitespace-nowrap"
+                  className="w-full bg-brand-600 text-white font-bold py-3 md:py-2 px-6 rounded-xl hover:bg-brand-800 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-brand-100 group/btn text-xs md:text-sm whitespace-nowrap"
                 >
                   Analizar cargas →
                 </button>
@@ -201,8 +208,8 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
           <div className="max-w-[980px] mx-auto">
             <div className="text-center mb-6 md:mb-10">
               <h3 className="text-lg md:text-2xl font-serif font-bold text-slate-900 mb-1">Análisis de cargas registrales</h3>
-              <p className="text-slate-500 text-xs md:text-base max-w-2xl mx-auto leading-tight mb-4">
-                Detecta hipotecas, embargos y riesgos ocultos antes de pujar
+              <p className="text-sm text-slate-500 mt-1 max-w-2xl mx-auto leading-tight">
+                Revisión experta + IA del expediente basado en ley hipotecaria y registral actualizada
               </p>
               
               <p className="text-[10px] md:text-xs text-slate-600 mt-4 md:mt-6 max-w-2xl mx-auto leading-relaxed font-medium px-4">
@@ -247,7 +254,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
 
             <div className="relative px-2 md:px-0">
               <div 
-                className={`border-2 border-dashed rounded-[24px] md:rounded-[28px] p-6 md:p-10 transition-all duration-300 ${files.length > 0 ? 'border-brand-500 bg-brand-50/30' : 'border-slate-300 hover:border-brand-400 bg-white shadow-sm'}`}
+                className={`border-2 border-dashed rounded-[24px] md:rounded-[28px] p-6 md:p-10 transition-all duration-300 ${files.length > 0 ? 'border-brand-500 bg-brand-50/30' : 'border-slate-300 hover:border-brand-300 hover:bg-brand-50/30 bg-white shadow-sm'}`}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleDrop}
               >
@@ -318,27 +325,29 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
               </div>
             </div>
 
-            <div className="mt-6 md:mt-8 flex flex-col items-center gap-3 md:gap-4 px-4">
-              <div className="text-center">
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Por solo</span>
-                  <span className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">2,99€</span>
-                </div>
-                <p className="text-[9px] md:text-[10px] text-slate-400 font-bold mt-0.5 uppercase tracking-widest">Pago único por expediente</p>
+            <div className="mt-6 md:mt-8 flex flex-col items-center px-4">
+              <div className="text-center mb-2">
+                <p className="text-xs text-slate-500 font-medium">
+                  Por solo <span className="text-slate-900 font-bold">2,99€</span> · Pago único
+                </p>
               </div>
 
               <button 
                 onClick={handleAnalyze}
                 disabled={files.length === 0}
                 className={`
-                  w-full max-w-lg py-3.5 md:py-4 px-8 md:px-12 rounded-2xl font-bold text-sm md:text-lg transition-all flex items-center justify-center gap-3 shadow-xl
+                  w-full max-w-lg py-3.5 md:py-4 px-8 md:px-12 rounded-2xl font-semibold text-sm md:text-lg transition-all flex items-center justify-center gap-3 shadow-sm
                   ${files.length > 0 
-                    ? 'bg-brand-600 text-white hover:bg-brand-700 shadow-brand-100 hover:-translate-y-0.5' 
+                    ? 'bg-brand-600 text-white hover:bg-brand-700 hover:-translate-y-0.5' 
                     : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
                 `}
               >
-                Analizar cargas del inmueble <ArrowRight size={18} className="md:hidden" /> <ArrowRight size={20} className="hidden md:block" />
+                ⚖️ Analizar cargas
               </button>
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] md:text-[10px] font-bold uppercase tracking-tight mt-1.5 border border-emerald-100/50">
+                <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+                Disponible para esta subasta
+              </div>
 
               {/* Help Block */}
               <div className="w-full bg-slate-50 rounded-2xl p-4 md:p-6 border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 mt-2 md:mt-4">
@@ -812,7 +821,10 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
                 <>Subir documentos <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-medium">2,99€</span></>
               )}
             </button>
-            <p className="text-xs text-slate-500 text-center mt-1.5 font-medium leading-none">Disponible para esta subasta</p>
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] font-bold uppercase tracking-tight mt-1.5 border border-emerald-100/50">
+              <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+              Disponible para esta subasta
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
