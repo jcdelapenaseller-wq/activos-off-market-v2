@@ -60,7 +60,7 @@ const DiscoverReportsIndex: React.FC = () => {
         {/* Featured Report (Hero) */}
         {featuredReport && (
           <section className="mb-16">
-            <Link to={ROUTES.DISCOVER_REPORT.replace(':slug', featuredReport.slug)} target="_blank" rel="noopener noreferrer" className="block group">
+            <Link to={ROUTES.DISCOVER_REPORT.replace(':slug', featuredReport.slug)} className="block group">
               <article className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden group-hover:shadow-xl transition-all duration-500 flex flex-col lg:flex-row relative">
                 <div className="lg:w-3/5 shrink-0 block relative overflow-hidden aspect-video lg:aspect-auto lg:h-[500px]">
                   <img 
@@ -110,7 +110,7 @@ const DiscoverReportsIndex: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {gridReports.map((report) => (
-              <Link to={ROUTES.DISCOVER_REPORT.replace(':slug', report.slug)} key={report.id} target="_blank" rel="noopener noreferrer" className="block group h-full">
+              <Link to={ROUTES.DISCOVER_REPORT.replace(':slug', report.slug)} key={report.id} className="block group h-full">
                 <article className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden group-hover:shadow-lg transition-all duration-300 flex flex-col h-full">
                   <div className="relative overflow-hidden aspect-[16/10]">
                     <img 

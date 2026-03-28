@@ -39,10 +39,7 @@ const Process: React.FC = () => {
              La improvisación sale cara en las subastas. Yo sigo siempre este protocolo estricto.
           </p>
           <Link 
-            to="/subastas-judiciales-espana" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-brand-700 font-medium hover:text-brand-900 hover:underline underline-offset-4"
+            to="/subastas-judiciales-espana" className="inline-flex items-center gap-2 text-brand-700 font-medium hover:text-brand-900 hover:underline underline-offset-4"
           >
              <BookOpen size={16} /> Lee la guía técnica completa sobre subastas
           </Link>

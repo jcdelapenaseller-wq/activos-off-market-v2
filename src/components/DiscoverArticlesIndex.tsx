@@ -168,7 +168,7 @@ const DiscoverArticlesIndex: React.FC = () => {
               );
             } else {
               return (
-                <Link to={article.url} key={article.id} target="_blank" rel="noopener noreferrer" className="block group">
+                <Link to={article.url} key={article.id} className="block group">
                   <article className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden group-hover:shadow-md transition-all flex flex-col md:flex-row relative">
                     <div className="md:w-2/5 shrink-0 block relative overflow-hidden">
                       <img 
@@ -229,10 +229,7 @@ const DiscoverArticlesIndex: React.FC = () => {
               </p>
             </div>
             <Link 
-              to={ROUTES.REPORTS_INDEX}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold px-5 py-2.5 rounded-xl transition-colors flex items-center gap-2"
+              to={ROUTES.REPORTS_INDEX} className="shrink-0 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold px-5 py-2.5 rounded-xl transition-colors flex items-center gap-2"
             >
               Ver todos los reportajes <ChevronRight size={18} />
             </Link>
@@ -240,7 +237,7 @@ const DiscoverArticlesIndex: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {Object.entries(DISCOVER_REPORTS).slice(0, 3).map(([slug, report]) => (
-              <Link to={ROUTES.DISCOVER_REPORT.replace(':slug', slug)} key={`crosslink-${report.id}`} target="_blank" rel="noopener noreferrer" className="block group">
+              <Link to={ROUTES.DISCOVER_REPORT.replace(':slug', slug)} key={`crosslink-${report.id}`} className="block group">
                 <article className="flex flex-col h-full">
                   <div className="relative overflow-hidden rounded-xl aspect-video mb-4">
                     <img 

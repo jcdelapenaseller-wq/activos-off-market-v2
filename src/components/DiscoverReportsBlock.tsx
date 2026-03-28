@@ -28,10 +28,7 @@ export const DiscoverReportsBlock: React.FC = () => {
           {reports.map(report => (
             <Link 
               key={report.id}
-              to={ROUTES.DISCOVER_REPORT.replace(':slug', report.id)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-col bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-200 hover:shadow-md transition-all"
+              to={ROUTES.DISCOVER_REPORT.replace(':slug', report.id)} className="group flex flex-col bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-200 hover:shadow-md transition-all"
             >
               <div className="relative h-48 overflow-hidden">
                 <img 

@@ -57,19 +57,13 @@ const Hero: React.FC = () => {
           <div className="flex flex-col items-center gap-6">
             <div className="flex flex-col sm:flex-row gap-5 justify-center items-center w-full">
                 <Link 
-                  to={ROUTES.RECENT_AUCTIONS}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-12 py-6 bg-brand-700 hover:bg-brand-800 text-white text-xl font-bold rounded-xl shadow-xl hover:shadow-brand-500/40 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
+                  to={ROUTES.RECENT_AUCTIONS} className="w-full sm:w-auto px-12 py-6 bg-brand-700 hover:bg-brand-800 text-white text-xl font-bold rounded-xl shadow-xl hover:shadow-brand-500/40 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
                 >
                   <Search size={24} />
                   Ver Oportunidades
                 </Link>
                 <Link 
-                  to={ROUTES.CALCULATOR}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-10 py-5 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200 text-lg font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-3 hover:border-brand-300"
+                  to={ROUTES.CALCULATOR} className="w-full sm:w-auto px-10 py-5 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200 text-lg font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-3 hover:border-brand-300"
                 >
                   <Calculator size={22} />
                   Calcular Puja Máxima

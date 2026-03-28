@@ -98,10 +98,7 @@ const CalculateBidGuide: React.FC = () => {
       
       <nav className="mt-12 border-t pt-8">
         <Link 
-          to={ROUTES.GUIDE_INDEX} 
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-brand-700"
+          to={ROUTES.GUIDE_INDEX} className="text-brand-700"
         >
           Volver al índice de guías
         </Link>

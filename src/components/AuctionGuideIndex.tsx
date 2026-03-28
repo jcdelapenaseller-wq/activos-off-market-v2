@@ -85,7 +85,7 @@ const AuctionGuideIndex: React.FC = () => {
       <header className="bg-white pb-12 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6">
             <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium flex-wrap gap-2" aria-label="Breadcrumb">
-                <Link to={ROUTES.HOME} target="_blank" rel="noopener noreferrer" className="hover:text-brand-600 transition-colors">Inicio</Link>
+                <Link to={ROUTES.HOME} className="hover:text-brand-600 transition-colors">Inicio</Link>
                 <ChevronRight size={14} />
                 <span className="text-brand-700 bg-brand-50 px-2 py-1 rounded-md" aria-current="page">Índice Guía</span>
             </nav>
@@ -142,20 +142,20 @@ const AuctionGuideIndex: React.FC = () => {
                 <div className="bg-white border border-slate-200 rounded-2xl p-8 mb-16 shadow-sm">
                     <h2 className="font-serif text-2xl font-bold text-slate-900 mb-6">Tabla de contenidos de la guía</h2>
                     <ul className="grid md:grid-cols-2 gap-x-8 gap-y-3 list-none pl-0">
-                        <li><Link to={ROUTES.ANALYSIS} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Cómo analizar una subasta</Link></li>
-                        <li><Link to={ROUTES.RULE_70} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Regla del 70%</Link></li>
-                        <li><Link to={ROUTES.DEPOSIT} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Depósito del 5%</Link></li>
-                        <li><Link to={ROUTES.OCCUPIED} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Vivienda ocupada</Link></li>
-                        <li><Link to={ROUTES.CHARGES} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Cargas registrales</Link></li>
-                        <li><Link to={ROUTES.VISIT} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Visitar inmueble</Link></li>
-                        <li><Link to={ROUTES.ERRORS} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Errores frecuentes</Link></li>
-                        <li><Link to={ROUTES.ASSIGNMENT} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Cesión de remate</Link></li>
-                        <li><Link to={ROUTES.EMPTY} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Subasta desierta</Link></li>
-                        <li><Link to={ROUTES.COMPARISON} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Judicial vs AEAT</Link></li>
-                        <li><Link to={ROUTES.GLOSSARY} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Glosario</Link></li>
-                        <li><Link to={ROUTES.PROFITABILITY_CALC_GUIDE} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Calculadora Rentabilidad</Link></li>
-                        <li><Link to={ROUTES.VALENCIA} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Subastas en Valencia</Link></li>
-                        <li><Link to={ROUTES.SEVILLA} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Subastas en Sevilla</Link></li>
+                        <li><Link to={ROUTES.ANALYSIS} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Cómo analizar una subasta</Link></li>
+                        <li><Link to={ROUTES.RULE_70} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Regla del 70%</Link></li>
+                        <li><Link to={ROUTES.DEPOSIT} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Depósito del 5%</Link></li>
+                        <li><Link to={ROUTES.OCCUPIED} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Vivienda ocupada</Link></li>
+                        <li><Link to={ROUTES.CHARGES} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Cargas registrales</Link></li>
+                        <li><Link to={ROUTES.VISIT} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Visitar inmueble</Link></li>
+                        <li><Link to={ROUTES.ERRORS} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Errores frecuentes</Link></li>
+                        <li><Link to={ROUTES.ASSIGNMENT} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Cesión de remate</Link></li>
+                        <li><Link to={ROUTES.EMPTY} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Subasta desierta</Link></li>
+                        <li><Link to={ROUTES.COMPARISON} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Judicial vs AEAT</Link></li>
+                        <li><Link to={ROUTES.GLOSSARY} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Glosario</Link></li>
+                        <li><Link to={ROUTES.PROFITABILITY_CALC_GUIDE} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Calculadora Rentabilidad</Link></li>
+                        <li><Link to={ROUTES.VALENCIA} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Subastas en Valencia</Link></li>
+                        <li><Link to={ROUTES.SEVILLA} className="text-brand-700 hover:text-brand-900 hover:underline font-medium flex items-center gap-2"><ChevronRight size={16}/> Subastas en Sevilla</Link></li>
                     </ul>
                 </div>
 
@@ -166,7 +166,7 @@ const AuctionGuideIndex: React.FC = () => {
                     </h2>
                     
                     <div className="grid gap-6">
-                        <Link to={ROUTES.GUIDE_PILLAR} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.GUIDE_PILLAR} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Subastas judiciales en España</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -176,7 +176,7 @@ const AuctionGuideIndex: React.FC = () => {
                             </p>
                         </Link>
 
-                        <Link to={ROUTES.SUBASTAS_BOE} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.SUBASTAS_BOE} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Subastas BOE</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -195,7 +195,7 @@ const AuctionGuideIndex: React.FC = () => {
                     </h2>
                     
                     <div className="grid gap-6">
-                        <Link to={ROUTES.ANALYSIS} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.ANALYSIS} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Cómo analizar una subasta</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -205,7 +205,7 @@ const AuctionGuideIndex: React.FC = () => {
                             </p>
                         </Link>
 
-                        <Link to={ROUTES.RULE_70} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.RULE_70} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Regla del 70%</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -215,7 +215,7 @@ const AuctionGuideIndex: React.FC = () => {
                             </p>
                         </Link>
 
-                        <Link to={ROUTES.DEPOSIT} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.DEPOSIT} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Depósito del 5%</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -234,7 +234,7 @@ const AuctionGuideIndex: React.FC = () => {
                     </h2>
                     
                     <div className="grid gap-6">
-                        <Link to={ROUTES.OCCUPIED} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.OCCUPIED} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Vivienda ocupada</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -244,7 +244,7 @@ const AuctionGuideIndex: React.FC = () => {
                             </p>
                         </Link>
 
-                        <Link to={ROUTES.VISIT} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.VISIT} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Visitar inmueble</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -254,7 +254,7 @@ const AuctionGuideIndex: React.FC = () => {
                             </p>
                         </Link>
 
-                        <Link to={ROUTES.EMPTY} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.EMPTY} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Subasta sin pujas</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -264,7 +264,7 @@ const AuctionGuideIndex: React.FC = () => {
                             </p>
                         </Link>
 
-                        <Link to={ROUTES.CHARGES} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.CHARGES} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Cargas registrales</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -283,7 +283,7 @@ const AuctionGuideIndex: React.FC = () => {
                     </h2>
                     
                     <div className="grid gap-6">
-                        <Link to={ROUTES.GLOSSARY} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                        <Link to={ROUTES.GLOSSARY} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Glosario y conceptos clave</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>
@@ -292,7 +292,7 @@ const AuctionGuideIndex: React.FC = () => {
                                 Diccionario técnico. Definiciones claras de términos como "Remate", "Lanzamiento", "Mandamiento de cancelación" y más.
                             </p>
                         </Link>
-                         <Link to={ROUTES.ASSIGNMENT} target="_blank" rel="noopener noreferrer" className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
+                         <Link to={ROUTES.ASSIGNMENT} className="group block bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-300 hover:shadow-md transition-all">
                             <div className="flex justify-between items-start mb-2">
                                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-700 m-0">Cesión de Remate</h3>
                                 <ArrowRight size={20} className="text-slate-300 group-hover:text-brand-500 transform group-hover:translate-x-1 transition-all"/>

@@ -85,10 +85,7 @@ const AuctionExamplesIndex: React.FC = () => {
                 </div>
 
                 <Link 
-                  to={`/subasta/${slug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center justify-center gap-2 w-full font-bold py-3 px-6 rounded-xl transition-all group-hover:translate-y-[-2px] ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
+                  to={`/subasta/${slug}`} className={`inline-flex items-center justify-center gap-2 w-full font-bold py-3 px-6 rounded-xl transition-all group-hover:translate-y-[-2px] ${isFinished ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-slate-900 text-white hover:bg-brand-600'}`}
                 >
                   Ver análisis completo <ChevronRight size={18} />
                 </Link>
@@ -104,10 +101,7 @@ const AuctionExamplesIndex: React.FC = () => {
             Nuestra guía completa te enseña paso a paso cómo revisar edictos, certificaciones de cargas y calcular pujas ganadoras.
           </p>
           <Link 
-            to="/como-analizar-subasta-judicial-paso-a-paso"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-white text-brand-900 font-bold py-4 px-8 rounded-xl hover:bg-brand-50 transition-all"
+            to="/como-analizar-subasta-judicial-paso-a-paso" className="inline-flex items-center gap-2 bg-white text-brand-900 font-bold py-4 px-8 rounded-xl hover:bg-brand-50 transition-all"
           >
             Ir a la guía de análisis <ChevronRight size={20} />
           </Link>

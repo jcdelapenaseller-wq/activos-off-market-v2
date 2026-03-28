@@ -30,10 +30,7 @@ const RecentAuctionsHome: React.FC = () => {
             </div>
           </div>
           <Link 
-            to="/subastas-recientes" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brand-700 font-bold hover:text-brand-800 flex items-center gap-1 transition-colors"
+            to="/subastas-recientes" className="text-brand-700 font-bold hover:text-brand-800 flex items-center gap-1 transition-colors"
           >
             Ver todas <ArrowRight size={18} />
           </Link>
@@ -140,10 +137,7 @@ const RecentAuctionsHome: React.FC = () => {
 
                 <div className="px-8 pb-8 mt-auto">
                   <Link 
-                    to={`/subasta/${slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-brand-600 transition-all shadow-lg"
+                    to={`/subasta/${slug}`} className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-2xl hover:bg-brand-600 transition-all shadow-lg"
                   >
                     Ver Ficha <ArrowRight size={18} />
                   </Link>
@@ -155,10 +149,7 @@ const RecentAuctionsHome: React.FC = () => {
         
         <div className="mt-12 text-center">
           <Link 
-            to={ROUTES.NOTICIAS_SUBASTAS_INDEX}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-white border-2 border-brand-600 text-brand-700 font-bold py-4 px-8 rounded-full hover:bg-brand-50 transition-all shadow-sm hover:shadow-md"
+            to={ROUTES.NOTICIAS_SUBASTAS_INDEX} className="inline-flex items-center justify-center gap-2 bg-white border-2 border-brand-600 text-brand-700 font-bold py-4 px-8 rounded-full hover:bg-brand-50 transition-all shadow-sm hover:shadow-md"
           >
             Ver Noticias de Subastas <ArrowRight size={20} />
           </Link>

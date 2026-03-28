@@ -26,10 +26,7 @@ const HistoricalAuctions: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
             <Link 
-              to={ROUTES.HOME} 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-brand-600 transition-colors"
+              to={ROUTES.HOME} className="hover:text-brand-600 transition-colors"
             >
               Inicio
             </Link>
@@ -87,10 +84,7 @@ const HistoricalAuctions: React.FC = () => {
               Consulta las últimas oportunidades detectadas que aún están en plazo para pujar.
             </p>
             <Link 
-              to={ROUTES.RECENT_AUCTIONS} 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-white text-brand-900 font-bold py-5 px-10 rounded-2xl hover:bg-brand-50 transition-all shadow-xl text-lg"
+              to={ROUTES.RECENT_AUCTIONS} className="inline-flex items-center gap-3 bg-white text-brand-900 font-bold py-5 px-10 rounded-2xl hover:bg-brand-50 transition-all shadow-xl text-lg"
             >
               Ver Subastas Activas <TrendingUp size={22} />
             </Link>

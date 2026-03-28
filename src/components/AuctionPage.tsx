@@ -324,10 +324,7 @@ const AuctionPage: React.FC = () => {
           <>
             Esta subasta fue adjudicada el {formattedDate}. Oportunidades similares aparecen cada semana.{" "}
             <Link 
-              to="/subastas-recientes" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-900 font-bold hover:underline ml-1"
+              to="/subastas-recientes" className="text-slate-900 font-bold hover:underline ml-1"
             >
               → Ver subastas activas
             </Link>
@@ -672,19 +669,13 @@ const AuctionPage: React.FC = () => {
         {/* Breadcrumbs - TOP LEVEL */}
         <nav className="flex items-center text-[9px] md:text-[10px] text-slate-400 mb-3 md:mb-4 font-bold uppercase tracking-widest" aria-label="Breadcrumb">
           <Link 
-            to={ROUTES.HOME} 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-brand-600 transition-colors"
+            to={ROUTES.HOME} className="hover:text-brand-600 transition-colors"
           >
             Inicio
           </Link>
           <ChevronRight size={8} className="mx-1.5 md:mx-2" />
           <Link 
-            to={`/subastas/${provinceName.toLowerCase()}`} 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-brand-600 transition-colors"
+            to={`/subastas/${provinceName.toLowerCase()}`} className="hover:text-brand-600 transition-colors"
           >
             Subastas en {provinceName}
           </Link>
@@ -1012,10 +1003,7 @@ const AuctionPage: React.FC = () => {
               transition={{ duration: 0.2 }}
             >
               <Link 
-                to="/calculadora-subastas"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white border border-slate-200 p-5 md:p-7 rounded-[20px] md:rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col h-full justify-between"
+                to="/calculadora-subastas" className="bg-white border border-slate-200 p-5 md:p-7 rounded-[20px] md:rounded-[24px] hover:border-brand-200 transition-all duration-300 group flex flex-col h-full justify-between"
               >
                 <div>
                   <div className="flex items-center gap-4 mb-3 md:mb-4">
@@ -1132,10 +1120,7 @@ const AuctionPage: React.FC = () => {
       {/* Mobile Sticky CTA */}
       <div className="lg:hidden fixed bottom-6 left-6 right-6 z-40">
         <Link 
-          to="/calculadora-subastas"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold shadow-2xl flex items-center justify-center gap-3 transform active:scale-95"
+          to="/calculadora-subastas" className="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold shadow-2xl flex items-center justify-center gap-3 transform active:scale-95"
         >
           <Calculator size={20} />
           Calcular Puja Máxima

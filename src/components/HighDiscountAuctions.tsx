@@ -38,10 +38,7 @@ const HighDiscountAuctions: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <nav className="flex items-center text-sm text-slate-500 mb-8 font-medium" aria-label="Breadcrumb">
             <Link 
-              to={ROUTES.HOME} 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-brand-600 transition-colors"
+              to={ROUTES.HOME} className="hover:text-brand-600 transition-colors"
             >
               Inicio
             </Link>
@@ -98,10 +95,7 @@ const HighDiscountAuctions: React.FC = () => {
               Incluso con grandes descuentos, es fundamental no sobrepujar. Utiliza nuestra herramienta profesional para determinar el límite exacto de tu inversión.
             </p>
             <Link 
-              to="/calculadora-subastas" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-white text-brand-900 font-bold py-5 px-10 rounded-2xl hover:bg-brand-50 transition-all shadow-xl text-lg"
+              to="/calculadora-subastas" className="inline-flex items-center gap-3 bg-white text-brand-900 font-bold py-5 px-10 rounded-2xl hover:bg-brand-50 transition-all shadow-xl text-lg"
             >
               Calcular puja máxima <ArrowRight size={22} />
             </Link>

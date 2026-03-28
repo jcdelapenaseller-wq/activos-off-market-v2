@@ -16,10 +16,7 @@ const MobileSticky: React.FC = () => {
             <Send size={18} className="text-brand-600" /> Canal Gratis
         </a>
         <Link 
-            to={ROUTES.ALERTAS}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackConversion('espana', 'footer', 'premium', { plan: 'radar_premium' })}
+            to={ROUTES.ALERTAS} onClick={() => trackConversion('espana', 'footer', 'premium', { plan: 'radar_premium' })}
             className="flex-1 bg-brand-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 text-sm active:bg-brand-800 shadow-md"
         >
             <Sparkles size={18} className="text-yellow-400" /> Premium
