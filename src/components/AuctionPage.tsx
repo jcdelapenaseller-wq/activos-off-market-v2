@@ -1116,16 +1116,6 @@ const AuctionPage: React.FC = () => {
       </main>
 
       <Footer />
-
-      {/* Mobile Sticky CTA */}
-      <div className="lg:hidden fixed bottom-6 left-6 right-6 z-40">
-        <Link 
-          to="/calculadora-subastas" className="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold shadow-2xl flex items-center justify-center gap-3 transform active:scale-95"
-        >
-          <Calculator size={20} />
-          Calcular Puja Máxima
-        </Link>
-      </div>
     </div>
   );
 };

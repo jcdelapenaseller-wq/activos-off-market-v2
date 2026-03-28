@@ -95,6 +95,9 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
 
   const handleUnlock = () => {
     setStep('upload');
+    setTimeout(() => {
+      blockRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -786,24 +789,30 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
             initial={{ y: 100 }}
             animate={{ y: 0 }}
             exit={{ y: 100 }}
-            className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 md:hidden"
+            className="fixed bottom-0 left-0 right-0 z-50 px-4 pt-3 pb-2 bg-white/80 backdrop-blur-md border-t border-slate-200 md:hidden flex flex-col items-center"
           >
             <button 
               onClick={() => {
                 if (step === 'locked') handleUnlock();
                 else if (step === 'upload' && files.length > 0) handleAnalyze();
-                else if (step === 'upload' && files.length === 0) fileInputRef.current?.click();
+                else if (step === 'upload' && files.length === 0) {
+                  blockRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  setTimeout(() => {
+                    fileInputRef.current?.click();
+                  }, 50);
+                }
               }}
-              className="w-full bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3"
+              className="w-full bg-brand-600 text-white font-bold py-3.5 rounded-2xl shadow-xl flex items-center justify-center gap-3"
             >
               {step === 'locked' ? (
-                <>Analizar cargas · 2,99€ <ArrowRight size={18} /></>
+                <>Analizar cargas <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-medium">2,99€</span></>
               ) : files.length > 0 ? (
-                <>Analizar {files.length} doc. · 2,99€ <ArrowRight size={18} /></>
+                <>Analizar {files.length} doc. <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-medium">2,99€</span></>
               ) : (
-                <>Subir documentos · 2,99€ <UploadCloud size={18} /></>
+                <>Subir documentos <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-medium">2,99€</span></>
               )}
             </button>
+            <p className="text-xs text-slate-500 text-center mt-1.5 font-medium leading-none">Disponible para esta subasta</p>
           </motion.div>
         )}
       </AnimatePresence>
