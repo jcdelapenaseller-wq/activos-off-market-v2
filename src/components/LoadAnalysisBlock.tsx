@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShieldAlert, UploadCloud, FileText, CheckCircle, AlertTriangle, Lock, Loader2, ArrowRight, ShieldCheck, FileWarning, Download, Info, Calculator, Calendar, Scale, ExternalLink, X, HelpCircle, FileSearch } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useUser } from '../contexts/UserContext';
 
 import { analyzeDocumentWithAI } from '../services/geminiService';
 
@@ -66,6 +68,13 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
   const [showHowToModal, setShowHowToModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { plan: currentPlan } = useUser();
+  const navigate = useNavigate();
+  
+  const [hasUsedFreeAnalysis, setHasUsedFreeAnalysis] = useState(() => {
+    return localStorage.getItem('free_analysis_used') === 'true';
+  });
+
   const finalBoeUrl = boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${boeId}`;
 
   const [showSticky, setShowSticky] = useState(false);
@@ -119,6 +128,52 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
 
   const handleAnalyze = () => {
     if (files.length === 0) return;
+    
+    if (currentPlan === 'free') {
+      if (hasUsedFreeAnalysis) {
+        navigate('/pro');
+        return;
+      } else {
+        localStorage.setItem('free_analysis_used', 'true');
+        setHasUsedFreeAnalysis(true);
+        setStep('loading');
+        
+        // Mock analysis for the free use
+        setTimeout(() => {
+          setResultData({
+            razonamiento_juridico: "Análisis de prueba para usuario FREE. Se han detectado cargas anteriores que deben ser canceladas.",
+            fuente_documento: "Nota Simple (Simulada)",
+            nivel_confianza_global: "MEDIA",
+            riesgo_global: "MEDIO",
+            cargas_detectadas: [
+              {
+                identificador_registral: "Finca 12345",
+                tipo: "Hipoteca",
+                fuente_textual: "Inscripción 4ª",
+                desglose: { principal: 50000, intereses: 5000, costas: 2000, total: 57000 },
+                titular: "Banco Santander",
+                rango: "Anterior",
+                resultado: "SUBSISTE",
+                estado_carga: "SUBSISTE",
+                vigente: true,
+                confianza: "ALTA"
+              }
+            ],
+            incoherencias_detectadas: [],
+            ocupacion_detectada: false,
+            nivel_riesgo_ocupacion: "BAJO",
+            peor_escenario: { principal: 50000, intereses: 5000, costas: 2000, total: 57000 },
+            impacto_economico: { coste_estimado: 57000, nivel: "MEDIO" },
+            alertas: ["Revisar estado de la deuda hipotecaria actual."],
+            recomendacion: "Se recomienda contactar con la entidad acreedora para conocer la deuda exacta a día de hoy."
+          });
+          setStep('result');
+        }, 2000);
+        return;
+      }
+    }
+
+    // For BASIC and PRO, redirect to Stripe for now (as per previous logic)
     window.location.href = 'https://buy.stripe.com/aFa14p7avcGl6dLa8MdjO04';
   };
 
@@ -332,19 +387,54 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
                 </p>
               </div>
 
-              <button 
-                onClick={handleAnalyze}
-                disabled={files.length === 0}
-                className={`
-                  w-full max-w-lg py-3.5 md:py-4 px-8 md:px-12 rounded-2xl font-semibold text-sm md:text-lg transition-all flex items-center justify-center gap-3 shadow-sm
-                  ${files.length > 0 
-                    ? 'bg-brand-600 text-white hover:bg-brand-700 hover:-translate-y-0.5' 
-                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
-                `}
-              >
-                ⚖️ Analizar cargas
-              </button>
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] md:text-[10px] font-bold uppercase tracking-tight mt-1.5 border border-emerald-100/50">
+              {currentPlan === 'free' && hasUsedFreeAnalysis ? (
+                <div className="w-full max-w-lg flex flex-col items-center gap-3">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 w-full text-center flex flex-col items-center gap-2">
+                    <Lock size={20} className="text-slate-400" />
+                    <p className="text-sm font-bold text-slate-700">Detecta cargas, deudas y riesgos antes de pujar</p>
+                    <button onClick={() => navigate('/pro')} className="text-xs text-brand-600 font-bold hover:underline">Ver ejemplo</button>
+                  </div>
+                  <button 
+                    onClick={() => navigate('/pro')}
+                    className="w-full py-3.5 md:py-4 px-8 md:px-12 rounded-2xl font-semibold text-sm md:text-lg transition-all flex flex-col items-center justify-center gap-1 shadow-sm bg-brand-600 text-white hover:bg-brand-700 hover:-translate-y-0.5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Lock size={20} />
+                      <span>Disponible con BASIC o PRO</span>
+                    </div>
+                    <span className="text-[10px] md:text-xs font-normal opacity-90">
+                      Desbloquea más análisis
+                    </span>
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={handleAnalyze}
+                  disabled={files.length === 0}
+                  className={`
+                    w-full max-w-lg py-3.5 md:py-4 px-8 md:px-12 rounded-2xl font-semibold text-sm md:text-lg transition-all flex flex-col items-center justify-center gap-1 shadow-sm
+                    ${files.length > 0 
+                      ? 'bg-brand-600 text-white hover:bg-brand-700 hover:-translate-y-0.5' 
+                      : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    <Scale size={20} />
+                    <span>Analizar cargas</span>
+                  </div>
+                  <span className="text-[10px] md:text-xs font-normal opacity-90">
+                    {currentPlan === 'pro' ? 'Análisis ilimitado' : currentPlan === 'basic' ? 'Te quedan 5 este mes' : '1 análisis gratis'}
+                  </span>
+                </button>
+              )}
+              
+              {currentPlan === 'free' && !hasUsedFreeAnalysis && (
+                <Link to="/pro" className="mt-3 text-[10px] md:text-xs text-brand-600 font-bold hover:text-brand-700 hover:underline flex items-center gap-1">
+                  Desbloquea 5 análisis al mes con BASIC <ArrowRight size={12} />
+                </Link>
+              )}
+
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] md:text-[10px] font-bold uppercase tracking-tight mt-2 border border-emerald-100/50">
                 <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
                 Disponible para esta subasta
               </div>

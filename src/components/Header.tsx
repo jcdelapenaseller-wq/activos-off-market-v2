@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Gavel, Sparkles, ChevronDown, Calculator, FileText, Calendar, ExternalLink } from 'lucide-react';
+import { Menu, X, Gavel, Sparkles, ChevronDown, Calculator, FileText, Calendar, ExternalLink, User, LogOut, Star } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
+import { useUser } from '../contexts/UserContext';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, isLogged, login, logout, isLoading, plan } = useUser();
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +20,16 @@ const Header: React.FC = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
@@ -108,15 +122,187 @@ const Header: React.FC = () => {
           >
             Canal Gratuito <ExternalLink size={14} />
           </a>
+
+          {/* Auth Section */}
+          <div className="flex items-center ml-2 border-l border-slate-200 pl-6 gap-3">
+            {!isLoading && isLogged && plan === 'free' && (
+              <Link 
+                to="/pro"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all group"
+              >
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Plan FREE</span>
+                <span className="text-[10px] font-bold text-brand-600 group-hover:text-brand-700">Mejorar a BASIC &rarr;</span>
+              </Link>
+            )}
+            {!isLoading && (
+              isLogged ? (
+                <div className="relative flex items-center gap-3" ref={userMenuRef}>
+                  {plan === 'basic' && (
+                    <span className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[10px] font-bold text-amber-700 tracking-wide">
+                      ✨ BASIC activo
+                    </span>
+                  )}
+                  {plan === 'pro' && (
+                    <span className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-200 text-[10px] font-bold text-brand-700 tracking-wide">
+                      🚀 PRO activo
+                    </span>
+                  )}
+                  <button 
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-brand-700 hover:bg-slate-200 transition-colors border border-slate-200"
+                  >
+                    <User size={20} />
+                  </button>
+                  
+                  {isUserMenuOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2">
+                      <div className="px-4 py-2 border-b border-slate-100 mb-1">
+                        <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
+                        <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                      </div>
+                      
+                      <div className="px-4 py-2 border-b border-slate-100 mb-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Mi plan</p>
+                        <div className="flex items-center justify-between">
+                          <span className={`text-xs font-bold ${plan === 'pro' ? 'text-brand-700' : plan === 'basic' ? 'text-amber-700' : 'text-slate-600'}`}>
+                            {plan === 'pro' ? '🚀 PRO activo' : plan === 'basic' ? '✨ BASIC activo' : 'FREE'}
+                          </span>
+                          <Link 
+                            to="/pro"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline"
+                          >
+                            Ver mi plan
+                          </Link>
+                        </div>
+                      </div>
+
+                      <Link 
+                        to="/mis-guardados"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left"
+                      >
+                        <Star size={16} />
+                        <span>Mis Guardados</span>
+                      </Link>
+                      <button 
+                        onClick={() => {
+                          logout();
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left"
+                      >
+                        <LogOut size={16} />
+                        <span>Cerrar sesión</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button 
+                  onClick={() => login()}
+                  className="text-sm lg:text-base font-medium text-slate-700 hover:text-brand-700 transition-colors"
+                >
+                  Acceder
+                </button>
+              )
+            )}
+          </div>
         </nav>
 
         {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden text-slate-700 p-2"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+        <div className="flex items-center gap-3 md:hidden">
+          {!isLoading && isLogged && plan === 'free' && (
+            <Link 
+              to="/pro"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all"
+            >
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider hidden sm:inline">Plan FREE</span>
+              <span className="text-[9px] font-bold text-brand-600">Mejorar a BASIC &rarr;</span>
+            </Link>
+          )}
+          {!isLoading && !isLogged && (
+            <button 
+              onClick={() => login()}
+              className="text-sm font-medium text-slate-700 hover:text-brand-700 transition-colors"
+            >
+              Acceder
+            </button>
+          )}
+          {!isLoading && isLogged && (
+             <div className="relative flex items-center gap-2" ref={userMenuRef}>
+               {plan === 'basic' && (
+                 <span className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[9px] font-bold text-amber-700 tracking-wide">
+                   ✨ BASIC
+                 </span>
+               )}
+               {plan === 'pro' && (
+                 <span className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-50 border border-brand-200 text-[9px] font-bold text-brand-700 tracking-wide">
+                   🚀 PRO
+                 </span>
+               )}
+               <button 
+                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                 className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-brand-700 hover:bg-slate-200 transition-colors border border-slate-200"
+               >
+                 <User size={16} />
+               </button>
+               
+               {isUserMenuOpen && (
+                 <div className="absolute top-full right-0 mt-2 w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2">
+                   <div className="px-4 py-2 border-b border-slate-100 mb-1">
+                     <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
+                     <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                   </div>
+
+                   <div className="px-4 py-2 border-b border-slate-100 mb-1">
+                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Mi plan</p>
+                     <div className="flex items-center justify-between">
+                       <span className={`text-xs font-bold ${plan === 'pro' ? 'text-brand-700' : plan === 'basic' ? 'text-amber-700' : 'text-slate-600'}`}>
+                         {plan === 'pro' ? '🚀 PRO activo' : plan === 'basic' ? '✨ BASIC activo' : 'FREE'}
+                       </span>
+                       <Link 
+                         to="/pro"
+                         onClick={() => setIsUserMenuOpen(false)}
+                         className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline"
+                       >
+                         Ver mi plan
+                       </Link>
+                     </div>
+                   </div>
+
+                   <Link 
+                     to="/mis-guardados"
+                     onClick={() => {
+                       setIsUserMenuOpen(false);
+                       setIsMobileMenuOpen(false);
+                     }}
+                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left"
+                   >
+                     <Star size={16} />
+                     <span>Mis Guardados</span>
+                   </Link>
+                   <button 
+                     onClick={() => {
+                       logout();
+                       setIsUserMenuOpen(false);
+                     }}
+                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left"
+                   >
+                     <LogOut size={16} />
+                     <span>Cerrar sesión</span>
+                   </button>
+                 </div>
+               )}
+             </div>
+          )}
+          <button 
+            className="text-slate-700 p-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Nav */}

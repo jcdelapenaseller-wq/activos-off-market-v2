@@ -298,6 +298,14 @@ const DiscoverProvinceArticle: React.FC = () => {
     const selectedMiddle = shuffleArray(middleBlocks, random).slice(0, 3);
     const selectedEdu = shuffleArray(educationalBlocks, random).slice(0, 1);
     
+    const intro = leadVariants[selectedTheme as keyof typeof leadVariants] || leadVariants['OPPORTUNITY'];
+    const imageTitle = pickRandom(imageTitleVariants, random);
+    const discountText = maxDesc > 0 ? `Hasta ${maxDesc}% dto.` : 'Oportunidades';
+    const selectedSources = [
+      { label: 'Portal de Subastas BOE', url: 'https://subastas.boe.es/' },
+      { label: `Juzgados de ${provinceName}`, url: '#' }
+    ];
+
     // Narrative order:
     // 1. Hook (Intro)
     // 2. Market Context (contextBlock)
@@ -325,6 +333,8 @@ const DiscoverProvinceArticle: React.FC = () => {
       `Finalizamos este análisis recordando que en ${provinceName} el conocimiento es poder. Cuanto más profundo sea tu análisis técnico de las cargas y la posesión, menor será tu riesgo y mayor tu beneficio potencial en el mercado de subastas.`,
       `El mercado de ${provinceName} no espera a nadie. Con una oferta de ${total} activos, la diversificación y el análisis comparativo de mercado son tus mejores aliados para identificar la verdadera oportunidad entre el ruido de los edictos judiciales.`
     ];
+
+    const conclusion = pickRandom(conclusionVariants, random);
 
     const title = `Subastas en ${provinceName}: oportunidades activas | BOE`;
     const meta = `Subastas activas en ${provinceName}. Viviendas y activos judiciales con descuento.`;

@@ -84,8 +84,24 @@ import AdminTracking from './components/AdminTracking';
 import ChecklistPage from './components/ChecklistPage';
 import AlertForm from './components/AlertForm';
 import AlertSuccessPage from './components/AlertSuccessPage';
+import SavedAuctionsPage from './components/SavedAuctionsPage';
+import ProPage from './components/ProPage';
+import SuccessPage from './components/SuccessPage';
+import CancelPage from './components/CancelPage';
 
 export const routes: RouteObject[] = [
+  {
+    path: ROUTES.SUCCESS,
+    element: createElement(SuccessPage),
+  },
+  {
+    path: ROUTES.CANCEL,
+    element: createElement(CancelPage),
+  },
+  {
+    path: ROUTES.PRO,
+    element: createElement(ProPage),
+  },
   {
     path: ROUTES.PROVINCE_HUB,
     element: createElement(ProvinceHub),
@@ -409,6 +425,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.ALERTA_CONFIRMADA,
     element: createElement(AlertSuccessPage),
+  },
+  {
+    path: ROUTES.MIS_GUARDADOS,
+    element: createElement(SavedAuctionsPage),
   },
   {
     path: '*',

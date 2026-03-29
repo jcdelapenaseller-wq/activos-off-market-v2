@@ -4,6 +4,8 @@ import { routes } from './routes';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import { UserProvider } from './contexts/UserContext';
+import { Toaster } from 'sonner';
 
 function AppRoutes() {
   const element = useRoutes(routes);
@@ -27,16 +29,19 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-brand-100 selection:text-brand-900">
-        <ScrollToTop />
-        <Header />
-        <main className="pt-24">
-          <AppRoutes />
-        </main>
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <UserProvider>
+      <BrowserRouter>
+        <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-brand-100 selection:text-brand-900">
+          <ScrollToTop />
+          <Header />
+          <main className="pt-24">
+            <AppRoutes />
+          </main>
+          <Footer />
+          <Toaster position="bottom-center" />
+        </div>
+      </BrowserRouter>
+    </UserProvider>
   );
 }
 

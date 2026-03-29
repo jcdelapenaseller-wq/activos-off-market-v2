@@ -289,7 +289,7 @@ async function runCrawler() {
         `) as any;
 
         if ((generalData.estadoSubasta as string).toLowerCase().includes('adjudicada')) {
-          console.log("ADJUDICATED TEST →", idSub, "pujasText:", generalData.pujasText);
+          console.log("ADJUDICATED TEST →", item.idSub, "pujasText:", generalData.pujasText);
         }
 
         // 2. Obtener autoridad gestora (ver=2)

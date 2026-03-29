@@ -67,4 +67,8 @@ export const ROUTES = {
   CONSULTORIA: '/consultoria',
   ALERTAS: '/alertas-subastas',
   ALERTA_CONFIRMADA: '/alerta-confirmada',
+  MIS_GUARDADOS: '/mis-guardados',
+  PRO: '/pro',
+  SUCCESS: '/success',
+  CANCEL: '/cancel',
 };

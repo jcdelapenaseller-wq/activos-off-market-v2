@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Calculator, TrendingUp, AlertTriangle, CheckCircle, Info, ArrowRight, BookOpen, Mail, Lock, ShieldCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
 import { trackConversion } from '../utils/tracking';
 import { subscribeToMailerLite } from '../utils/mailerlite';
+import { useUser } from '../contexts/UserContext';
 
 const ITP_RATES: Record<string, number> = {
   'Madrid': 0.06,
@@ -143,9 +144,11 @@ const AuctionCalculator: React.FC<AuctionCalculatorProps> = ({
   const [otrosGastos, setOtrosGastos] = useState<number>(0);
   const [ibi, setIbi] = useState<number>(0);
   const [deudaComunidad, setDeudaComunidad] = useState<number>(0);
-  const [isPro, setIsPro] = useState(false);
-  const [proType, setProType] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
+  const { plan: currentPlan, isBasicUser, isProUser } = useUser();
+  const navigate = useNavigate();
+  
+  const isPro = isBasicUser() || isProUser();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -157,10 +160,6 @@ const AuctionCalculator: React.FC<AuctionCalculatorProps> = ({
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [showProCheckout, setShowProCheckout] = useState(false);
-  const [proEmail, setProEmail] = useState('');
-  const [selectedStripeLink, setSelectedStripeLink] = useState('');
-  const [showPlanEmailCapture, setShowPlanEmailCapture] = useState(false);
 
   // Load from URL
   useEffect(() => {
@@ -179,72 +178,6 @@ const AuctionCalculator: React.FC<AuctionCalculatorProps> = ({
     else if (params.get('comunidad')) setComunidad(params.get('comunidad') || 'Madrid');
     if (params.get('deudas')) setDeudas(Number(params.get('deudas')));
     if (params.get('otros')) setOtrosGastos(Number(params.get('otros')));
-
-    // PRO Protection Logic
-    const PRO_STORAGE_KEY = 'aom_pro_access';
-    const EXPIRATION_MAP: Record<string, number | null> = {
-      '24h': 24 * 60 * 60 * 1000,
-      'monthly': 30 * 24 * 60 * 60 * 1000,
-      'lifetime': null,
-      'true': 24 * 60 * 60 * 1000 // legacy fallback
-    };
-
-    try {
-      const storedPro = localStorage.getItem(PRO_STORAGE_KEY);
-      if (storedPro) {
-        const { timestamp, type } = JSON.parse(storedPro);
-        const expiration = EXPIRATION_MAP[type] !== undefined ? EXPIRATION_MAP[type] : EXPIRATION_MAP['true'];
-        
-        if (expiration === null || Date.now() - timestamp < expiration) {
-          setIsPro(true);
-          setProType(type || 'true');
-        } else {
-          localStorage.removeItem(PRO_STORAGE_KEY);
-        }
-      }
-    } catch (e) {
-      console.error('Error reading pro status', e);
-    }
-
-    const proParam = params.get('pro');
-    if (proParam && EXPIRATION_MAP[proParam] !== undefined) {
-      setIsPro(true);
-      setProType(proParam);
-      try {
-        localStorage.setItem(PRO_STORAGE_KEY, JSON.stringify({ timestamp: Date.now(), type: proParam }));
-        
-        // Subscribe to MailerLite if email is saved
-        const savedEmail = localStorage.getItem('aom_user_email');
-        if (savedEmail) {
-          subscribeToMailerLite({
-            email: savedEmail,
-            source: 'calculadora',
-            fields: {
-              source: 'calculadora_pro',
-              plan: proParam,
-              timestamp: Date.now()
-            }
-          });
-        }
-
-        // Clean URL to prevent sharing the unlock link
-        const url = new URL(window.location.href);
-        url.searchParams.delete('pro');
-        window.history.replaceState({}, '', url.pathname + url.search);
-      } catch (e) {
-        console.error('Error saving pro status', e);
-      }
-      trackConversion(
-        params.get('city') || params.get('ccaa') || params.get('comunidad') || 'madrid', 
-        'calculator', 
-        'pro_unlock',
-        {
-          precio: Number(params.get('precio')) || 0,
-          tipo_subasta: 'Judicial',
-          plan: proParam
-        }
-      );
-    }
   }, []);
 
   const results = useMemo(() => {
@@ -288,12 +221,9 @@ const AuctionCalculator: React.FC<AuctionCalculatorProps> = ({
   };
 
   const getProBadgeText = () => {
-    switch (proType) {
-      case '24h': return 'Acceso PRO (24h)';
-      case 'monthly': return 'Acceso PRO (Mensual)';
-      case 'lifetime': return 'Acceso PRO (De por vida)';
-      default: return 'Acceso PRO activo (24h)';
-    }
+    if (currentPlan === 'pro') return 'Plan PRO activo';
+    if (currentPlan === 'basic') return 'Plan BASIC activo';
+    return '';
   };
 
   const roiStatus = getRoiStatus(results.roi, results.beneficio);
@@ -402,120 +332,27 @@ const AuctionCalculator: React.FC<AuctionCalculatorProps> = ({
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-center">Aquí ves si esta subasta tiene margen real</h3>
                 <p className="text-slate-300 text-lg mb-10 text-center">Tu resultado real depende de tu puja. Desbloquea el escenario completo.</p>
                 
-                {!showPlanEmailCapture ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-stretch">
-                    {/* 24h Plan */}
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSelectedStripeLink('https://buy.stripe.com/8x200lgL5cGleKh2GkdjO00');
-                        setShowPlanEmailCapture(true);
-                        setProEmail(email || localStorage.getItem('aom_user_email') || '');
-                        trackConversion(comunidad, 'calculator', 'pro_checkout_24h', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' });
-                      }}
-                      className="flex flex-col p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-left group w-full"
-                    >
-                      <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">Pase 24h</div>
-                      <div className="text-white font-bold text-3xl mb-2">5€</div>
-                      <p className="text-slate-400 text-sm mb-6 flex-grow">Para validar una oportunidad puntual.</p>
-                      <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
-                    </button>
-
-                    {/* Monthly Plan (Highlighted) */}
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSelectedStripeLink('https://buy.stripe.com/00w00l52neOteKh4OsdjO01');
-                        setShowPlanEmailCapture(true);
-                        setProEmail(email || localStorage.getItem('aom_user_email') || '');
-                        trackConversion(comunidad, 'calculator', 'pro_checkout_monthly', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' });
-                      }}
-                      className="flex flex-col p-6 rounded-2xl bg-brand-600 border border-brand-500 hover:bg-brand-500 transition-all transform md:-translate-y-2 shadow-xl shadow-brand-500/20 text-left relative group w-full"
-                    >
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-brand-900 text-[10px] font-bold uppercase tracking-widest py-1 px-3 rounded-full shadow-sm whitespace-nowrap">
-                        Más usado
-                      </div>
-                      <div className="text-brand-100 text-sm font-bold uppercase tracking-wider mb-1">Ilimitado</div>
-                      <div className="text-white font-bold text-3xl mb-2">19€<span className="text-lg font-normal text-brand-200">/mes</span></div>
-                      <p className="text-brand-100 text-sm mb-6 flex-grow">Para analizar varias subastas sin límite.</p>
-                      <div className="bg-white text-brand-900 text-sm font-bold py-3 px-4 rounded-xl text-center group-hover:bg-brand-50 transition-colors w-full">
-                        Ver mi análisis completo
-                      </div>
-                    </button>
-
-                    {/* Lifetime Plan */}
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSelectedStripeLink('https://buy.stripe.com/aFabJ31Qb6hX0Tr94IdjO02');
-                        setShowPlanEmailCapture(true);
-                        setProEmail(email || localStorage.getItem('aom_user_email') || '');
-                        trackConversion(comunidad, 'calculator', 'pro_checkout_lifetime', { roi: results.roi.toFixed(1), precio: adjudicacion, tipo_subasta: 'Judicial' });
-                      }}
-                      className="flex flex-col p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-left relative group w-full"
-                    >
-                      <div className="absolute top-5 right-5 bg-slate-800 text-slate-300 text-[10px] font-bold uppercase tracking-widest py-1 px-2 rounded-md">
-                        Pago único
-                      </div>
-                      <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">De por vida</div>
-                      <div className="text-white font-bold text-3xl mb-2">59€</div>
-                      <p className="text-slate-400 text-sm mb-6 flex-grow">Acceso completo permanente. Sin suscripciones.</p>
-                      <div className="text-brand-400 text-sm font-bold group-hover:translate-x-1 transition-transform">Desbloquear →</div>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="w-full max-w-md mx-auto bg-white/10 backdrop-blur-md border border-white/20 p-6 md:p-8 rounded-2xl animate-in fade-in zoom-in-95 duration-300">
-                    <form 
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (!proEmail) return;
-                        localStorage.setItem('aom_user_email', proEmail);
-                        if (!email) setEmail(proEmail);
-                        window.open(selectedStripeLink, '_blank');
-                      }}
-                      className="flex flex-col gap-4 text-left"
-                    >
-                      <div className="text-center mb-2">
-                        <div className="w-12 h-12 bg-brand-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <Lock className="text-brand-300" size={24} />
-                        </div>
-                        <h3 className="text-xl font-bold text-white mb-2">Activa tu acceso PRO</h3>
-                        <p className="text-sm text-slate-300 font-medium">
-                          Introduce tu email para guardar tus cálculos y acceder a la versión completa.
-                        </p>
-                      </div>
-                      <input 
-                        type="email" 
-                        required
-                        placeholder="Tu mejor email..."
-                        value={proEmail}
-                        onChange={(e) => setProEmail(e.target.value)}
-                        className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full"
-                      />
-                      <button 
-                        type="submit"
-                        className="bg-brand-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-brand-500 transition-all shadow-md flex items-center justify-center gap-2 w-full"
-                      >
-                        Continuar al pago
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={() => setShowPlanEmailCapture(false)}
-                        className="text-xs text-slate-400 hover:text-white font-medium text-center mt-2 transition-colors"
-                      >
-                        ← Volver a los planes
-                      </button>
-                    </form>
-                  </div>
-                )}
+                <button 
+                  onClick={() => navigate('/pro')}
+                  className="bg-brand-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-brand-500 transition-all shadow-xl shadow-brand-500/20 flex items-center justify-center gap-2 w-full max-w-md text-lg"
+                >
+                  <Lock size={20} />
+                  Desbloquear calculadora completa
+                </button>
                 
+                <div className="mt-6 flex flex-col items-center gap-3">
+                  <p className="text-slate-300 text-sm font-bold uppercase tracking-widest">Con BASIC verás:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <span className="bg-white/10 text-white text-xs px-3 py-1 rounded-full border border-white/20">ROI estimado</span>
+                    <span className="bg-white/10 text-white text-xs px-3 py-1 rounded-full border border-white/20">Margen de seguridad</span>
+                    <span className="bg-white/10 text-white text-xs px-3 py-1 rounded-full border border-white/20">Costes reales</span>
+                  </div>
+                </div>
+
                 <div className="mt-8 flex flex-col items-center gap-2">
                   <p className="text-slate-400 text-sm font-medium flex items-center gap-2">
                     <ShieldCheck size={16} className="text-emerald-500" />
                     Usado por inversores para evitar pagar de más en subastas
-                  </p>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-                    Acceso inmediato tras el pago
                   </p>
                 </div>
               </div>

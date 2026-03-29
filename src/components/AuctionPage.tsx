@@ -5,7 +5,7 @@ import {
   MapPin, Home, DollarSign, AlertTriangle, CheckCircle, 
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon,
   Clock, Calendar, User, Twitter, Linkedin, Mail, MessageCircle,
-  ExternalLink, AlertCircle, Lock, ArrowUpRight
+  ExternalLink, AlertCircle, Lock, ArrowUpRight, Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AUCTIONS } from '../data/auctions';
@@ -24,16 +24,112 @@ import LoadAnalysisBlock from './LoadAnalysisBlock';
 import Header from './Header';
 import Footer from './Footer';
 import AuctionCalculator from './AuctionCalculator';
+import { useUser } from '../contexts/UserContext';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getCountFromServer } from 'firebase/firestore';
 
 const AuctionPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const cleanSlug = slug ? decodeURIComponent(slug).replace(/\/$/, '').toLowerCase() : '';
   const auction = cleanSlug ? AUCTIONS[cleanSlug] : null;
+  const { user, isLogged, requireLogin, plan } = useUser();
 
   // Calculator State
   const [valorMercado, setValorMercado] = useState<number | ''>('');
   const [deudas, setDeudas] = useState<number | ''>('');
   const [showCalculator, setShowCalculator] = useState(false);
+  
+  // Favorites State
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteId, setFavoriteId] = useState<string | null>(null);
+  const [favoritesCount, setFavoritesCount] = useState<number>(0);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (!user || !cleanSlug || !db) {
+        setIsFavorite(false);
+        setFavoriteId(null);
+        setFavoritesCount(0);
+        return;
+      }
+
+      try {
+        const q = query(
+          collection(db, 'favorites'),
+          where('userId', '==', user.id),
+          where('auctionId', '==', cleanSlug)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          setIsFavorite(true);
+          setFavoriteId(querySnapshot.docs[0].id);
+        } else {
+          setIsFavorite(false);
+          setFavoriteId(null);
+        }
+
+        if (user.plan === 'free' || !user.plan) {
+          const countQuery = query(collection(db, 'favorites'), where('userId', '==', user.id));
+          const snapshot = await getCountFromServer(countQuery);
+          setFavoritesCount(snapshot.data().count);
+        }
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [user, cleanSlug]);
+
+  const handleToggleFavorite = async () => {
+    if (!isLogged) {
+      requireLogin();
+      return;
+    }
+
+    if (!user || !cleanSlug || isTogglingFavorite || !db) return;
+
+    setIsTogglingFavorite(true);
+
+    try {
+      if (isFavorite && favoriteId) {
+        // Remove from favorites
+        await deleteDoc(doc(db, 'favorites', favoriteId));
+        setIsFavorite(false);
+        setFavoriteId(null);
+        setFavoritesCount(prev => Math.max(0, prev - 1));
+      } else {
+        // Check limits for free users
+        if (user.plan === 'free' || !user.plan) {
+          const countQuery = query(collection(db, 'favorites'), where('userId', '==', user.id));
+          const snapshot = await getCountFromServer(countQuery);
+          if (snapshot.data().count >= 3) {
+            setShowPremiumModal(true);
+            setIsTogglingFavorite(false);
+            return;
+          }
+        }
+
+        // Add to favorites
+        const docRef = await addDoc(collection(db, 'favorites'), {
+          userId: user.id,
+          auctionId: cleanSlug,
+          createdAt: serverTimestamp()
+        });
+        setIsFavorite(true);
+        setFavoriteId(docRef.id);
+        setFavoritesCount(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      // Revert optimistic update if failed (though we didn't do optimistic here to be safe)
+    } finally {
+      setIsTogglingFavorite(false);
+    }
+  };
 
   if (!auction) return <Navigate to={ROUTES.HOME} replace />;
 
@@ -685,11 +781,24 @@ const AuctionPage: React.FC = () => {
 
         {/* HEADER SECTION */}
         <section className="mb-4 md:mb-6">
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="flex flex-wrap gap-2 mb-3 items-center">
             {isActive && <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-emerald-200/60 hover:bg-emerald-100 transition-all cursor-default shadow-sm shadow-emerald-100/50">Activa</span>}
             {urgencyBadge && urgencyBadge.text.includes('Cierre') && <span className="px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-orange-200/60 flex items-center gap-1.5 hover:bg-orange-100 transition-all cursor-default shadow-sm shadow-orange-100/50"><Clock size={10} /> {urgencyBadge.text}</span>}
             {isFinished && <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-slate-200/60 hover:bg-slate-200 transition-all cursor-default shadow-sm shadow-slate-100/50">Finalizada</span>}
             {opportunityRatio && opportunityRatio > 0.35 && <span className="px-2.5 py-1 rounded-md bg-brand-50 text-brand-700 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-brand-200/60 hover:bg-brand-100 transition-all cursor-default shadow-sm shadow-brand-100/50">Alta oportunidad</span>}
+            
+            {plan === 'pro' && (
+              <span className="ml-auto px-2.5 py-1 rounded-md bg-amber-100 text-amber-800 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-amber-200/60 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Plan PRO activo
+              </span>
+            )}
+            {plan === 'basic' && (
+              <span className="ml-auto px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-blue-200/60 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                Plan BASIC activo
+              </span>
+            )}
           </div>
 
           <h1 className="text-[clamp(1.25rem,5vw,2.75rem)] font-serif font-bold text-slate-900 mb-4 md:mb-8 tracking-tighter leading-tight">
@@ -717,7 +826,36 @@ const AuctionPage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3 md:gap-4 shrink-0">
-              <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Compartir:</span>
+              <div className="flex flex-col items-center gap-1">
+                <button 
+                  onClick={handleToggleFavorite}
+                  disabled={isTogglingFavorite}
+                  className={`flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border transition-all duration-300 ${
+                    isFavorite 
+                      ? 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100' 
+                      : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300'
+                  }`}
+                  title={isFavorite ? "Quitar de guardados" : "Guardar subasta"}
+                >
+                  <Star size={16} className={`md:hidden ${isFavorite ? 'fill-amber-500 text-amber-500' : ''}`} />
+                  <Star size={18} className={`hidden md:block ${isFavorite ? 'fill-amber-500 text-amber-500' : ''}`} />
+                  <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">
+                    {isFavorite ? 'Guardada' : 'Guardar'}
+                  </span>
+                </button>
+                <span className="text-[8px] md:text-[9px] text-slate-400 font-medium">
+                  {plan === 'free' ? 'Límite: 3' : 'Sin límite'}
+                </span>
+                {plan === 'free' && favoritesCount >= 1 && favoritesCount < 3 && !isFavorite && (
+                  <Link to="/pro" className="text-[8px] md:text-[9px] text-brand-600 hover:text-brand-700 hover:underline mt-0.5">
+                    Guardados ilimitados con BASIC
+                  </Link>
+                )}
+              </div>
+              
+              <div className="w-px h-6 bg-slate-200 hidden md:block"></div>
+
+              <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden md:inline">Compartir:</span>
               <div className="flex items-center gap-2.5 md:gap-3">
                 <a href={`https://wa.me/?text=${encodeURIComponent(document.title + ' ' + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#25D366] bg-[#25D366]/5 hover:bg-[#25D366]/10 transition-all hover:scale-110" title="WhatsApp">
                   <MessageCircle size={16} className="md:hidden" />
@@ -1113,6 +1251,54 @@ const AuctionPage: React.FC = () => {
             <RelatedAuctions currentAuctionSlug={cleanSlug} currentAuctionData={auction} />
           </div>
         )}
+
+        {/* PREMIUM MODAL */}
+        <AnimatePresence>
+          {showPremiumModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                onClick={() => setShowPremiumModal(false)}
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+              >
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-500">
+                    <Star size={32} className="fill-amber-500" />
+                  </div>
+                  <h3 className="text-2xl font-serif font-bold text-slate-900 mb-3">Has guardado 3 oportunidades</h3>
+                  <p className="text-slate-600 mb-8">
+                    Pasa a PRO para guardar oportunidades ilimitadas y activar alertas avanzadas.
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    <button 
+                      onClick={() => {
+                        setShowPremiumModal(false);
+                        window.location.href = ROUTES.PRO;
+                      }}
+                      className="w-full py-3.5 px-6 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors"
+                    >
+                      Ver PRO
+                    </button>
+                    <button 
+                      onClick={() => setShowPremiumModal(false)}
+                      className="w-full py-3.5 px-6 rounded-xl bg-slate-50 text-slate-600 font-bold hover:bg-slate-100 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
 
       <Footer />
