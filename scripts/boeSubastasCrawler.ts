@@ -282,10 +282,15 @@ async function runCrawler() {
             var fechaInicio = getVal('Fecha de inicio');
             var fechaFin = getVal('Fecha de conclusión') || getVal('Fecha de fin');
             var estadoSubasta = getVal('Estado') || 'Celebrándose';
+            var pujasText = getVal('Puja máxima de la subasta');
 
-            return { valorSubasta: valorSubasta, valorTasacion: valorTasacion, cantidadReclamada: cantidadReclamada, deposito: deposito, fechaInicio: fechaInicio, fechaFin: fechaFin, estadoSubasta: estadoSubasta };
+            return { valorSubasta: valorSubasta, valorTasacion: valorTasacion, cantidadReclamada: cantidadReclamada, deposito: deposito, fechaInicio: fechaInicio, fechaFin: fechaFin, estadoSubasta: estadoSubasta, pujasText: pujasText };
           })()
         `) as any;
+
+        if ((generalData.estadoSubasta as string).toLowerCase().includes('adjudicada')) {
+          console.log("ADJUDICATED TEST →", idSub, "pujasText:", generalData.pujasText);
+        }
 
         // 2. Obtener autoridad gestora (ver=2)
         const authUrl = generalUrl.replace('&ver=1', '&ver=2');

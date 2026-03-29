@@ -43,6 +43,7 @@ export const ROUTES = {
   NOTICIAS_SUBASTAS_INDEX: '/noticias-subastas',
   NOTICIAS_SUBASTAS_PROVINCE: '/noticias-subastas/provincia/:province',
   NOTICIAS_SUBASTAS_ANALYSIS: '/noticias-subastas/analisis/:slug',
+  NOTICIAS_SUBASTAS_RESULT: '/noticias-subastas/resultado/:slug',
   NOTICIAS_SUBASTAS: '/noticias-subastas/:slug',
   DISCOVER_REPORT: '/analisis/:slug',
   REPORTS_INDEX: '/reportajes-subastas',

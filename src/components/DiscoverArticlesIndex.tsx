@@ -13,6 +13,8 @@ import { DISCOVER_REPORTS } from '../data/discoverReports';
 import { ROUTES } from '../constants/routes';
 import { BookOpen } from 'lucide-react';
 
+import { getAllowedProvincesForToday } from '../utils/discoverLimits';
+
 const DiscoverArticlesIndex: React.FC = () => {
   useEffect(() => {
     document.title = "Últimas noticias y análisis de subastas en España | Activos Off-Market";
@@ -23,13 +25,19 @@ const DiscoverArticlesIndex: React.FC = () => {
   }, []);
 
   const { allArticles } = useMemo(() => {
-    // 1. Get unique provinces with active auctions
+    // 1. Get allowed provinces for today
+    const allowedProvinces = getAllowedProvincesForToday();
     const activeAuctions = Object.values(AUCTIONS).filter(a => !isAuctionFinished(a.auctionDate));
     const provincesMap = new Map<string, { count: number, maxDiscount: number, latestPublished: Date, latestChecked: Date }>();
     
     activeAuctions.forEach(a => {
       const p = normalizeProvince(a.province || a.city);
       if (!p) return;
+      
+      // Only process if it's one of the allowed provinces for today
+      if (!allowedProvinces.some(allowed => normalizeProvince(allowed).toLowerCase() === p.toLowerCase())) {
+        return;
+      }
       
       const now = new Date();
       let publishedAt = a.publishedAt ? new Date(a.publishedAt) : now;

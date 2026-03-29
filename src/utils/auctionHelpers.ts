@@ -123,6 +123,17 @@ export function calculateDiscount(valorTasacion?: number, valorSubasta?: number,
   return null;
 }
 
+export function extractFinalPrice(pujasText?: string): number | null {
+  if (!pujasText) return null;
+  const regex = /Puja máxima de la subasta\s*([\d.,]+)\s?€/i;
+  const match = pujasText.match(regex);
+  if (match) {
+    const val = parseFloat(match[1].replace(/\./g, '').replace(',', '.'));
+    return isNaN(val) || val <= 0 ? null : val;
+  }
+  return null;
+}
+
 export function isAuctionFinished(auctionDate?: string): boolean {
   if (!auctionDate) return false;
   

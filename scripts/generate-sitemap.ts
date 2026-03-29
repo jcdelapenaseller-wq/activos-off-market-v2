@@ -18,11 +18,14 @@ const staticPages = [
   '/subastas-descuento-50'
 ];
 
+import { getAllowedProvincesForToday } from '../src/utils/discoverLimits.ts';
+
 function generateSitemaps() {
   const publicDir = path.join(process.cwd(), 'public');
   if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir);
 
   const now = new Date().toISOString();
+  const allowedProvinces = getAllowedProvincesForToday();
 
   // 1. sitemap-auctions-active.xml
   const activeAuctions = Object.entries(AUCTIONS)
@@ -62,6 +65,15 @@ ${Object.entries(DISCOVER_REPORTS).map(([slug, data]) => `  <url>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>`).join('\n')}
+${allowedProvinces.map(province => {
+  const slug = province.toLowerCase().replace(/\s+/g, '-');
+  return `  <url>
+    <loc>${BASE_URL}/noticias-subastas/provincia/${slug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+}).join('\n')}
 </urlset>`;
   fs.writeFileSync(path.join(publicDir, 'sitemap-discover.xml'), discoverXml);
 

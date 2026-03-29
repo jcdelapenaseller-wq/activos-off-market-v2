@@ -1,71 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
-import { Link, useParams, Navigate } from 'react-router-dom';
+import { Link, useParams, Navigate, useLocation } from 'react-router-dom';
 import { AUCTIONS } from '../data/auctions';
-import { ChevronRight, ArrowRight, ShieldCheck, Zap, Building2, MapPin, Euro, AlertCircle, TrendingDown, Clock, ShieldAlert } from 'lucide-react';
+import { ChevronRight, ArrowRight, ShieldCheck, Zap, Building2, MapPin, Euro, AlertCircle, TrendingDown, Clock, ShieldAlert, Star, ExternalLink } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { getImageForPropertyType } from '../constants/auctionImages';
 import { generateEditorialArticle, shouldGenerateDiscoverArticle } from '../utils/editorialGenerator';
 import { normalizeProvince, normalizeCity, normalizePropertyType } from '../utils/auctionNormalizer';
 import { calculateDiscount } from '../utils/auctionHelpers';
-import Header from './Header';
-import Footer from './Footer';
-import ConversionBlock from './ConversionBlock';
-import RadarPremiumCTA from './RadarPremiumCTA';
 import { ShareButtons } from './ShareButtons';
-
-const renderParagraph = (text: string, idx: number, prefix: string) => {
-  if (text.startsWith('## ')) {
-    return (
-      <h2 key={`${prefix}-${idx}`} className="text-3xl font-serif font-bold text-slate-900 mt-16 mb-8">
-        {text.replace('## ', '')}
-      </h2>
-    );
-  }
-  if (text.startsWith('### ')) {
-    return (
-      <h3 key={`${prefix}-${idx}`} className="text-xl font-bold text-slate-900 mt-12 mb-6 flex items-center gap-2">
-        {text.replace('### ', '')}
-      </h3>
-    );
-  }
-  if (text.startsWith('CARD_OPPORTUNITY:')) {
-    return (
-      <div key={`${prefix}-${idx}`} className="bg-emerald-50 border border-emerald-100 rounded-xl p-6 my-8 shadow-sm">
-        <h4 className="text-emerald-800 font-bold mb-3 flex items-center gap-2">📈 Oportunidad</h4>
-        <p className="text-emerald-900 m-0 leading-relaxed">{text.replace('CARD_OPPORTUNITY:', '').trim()}</p>
-      </div>
-    );
-  }
-  if (text.startsWith('CARD_RISK:')) {
-    return (
-      <div key={`${prefix}-${idx}`} className="bg-amber-50 border border-amber-100 rounded-xl p-6 my-8 shadow-sm">
-        <h4 className="text-amber-800 font-bold mb-3 flex items-center gap-2">⚠️ Riesgos principales</h4>
-        <p className="text-amber-900 m-0 leading-relaxed">{text.replace('CARD_RISK:', '').trim()}</p>
-      </div>
-    );
-  }
-  if (text.startsWith('CARD_PROFILE:')) {
-    return (
-      <div key={`${prefix}-${idx}`} className="bg-indigo-50 border border-indigo-100 rounded-xl p-6 my-8 shadow-sm">
-        <h4 className="text-indigo-800 font-bold mb-3 flex items-center gap-2">🎯 Perfil inversor</h4>
-        <p className="text-indigo-900 m-0 leading-relaxed">{text.replace('CARD_PROFILE:', '').trim()}</p>
-      </div>
-    );
-  }
-  
-  // For normal paragraphs, parse bold text (e.g. **text**)
-  const parts = text.split(/(\*\*.*?\*\*)/g);
-  return (
-    <p key={`${prefix}-${idx}`} className="mb-8 leading-relaxed text-lg text-slate-700">
-      {parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={i} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>;
-        }
-        return part;
-      })}
-    </p>
-  );
-};
+import { AuctionCard } from './AuctionCard';
 
 const DiscoverAuctionArticle: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -79,6 +22,13 @@ const DiscoverAuctionArticle: React.FC = () => {
     if (!auction || !slug) return null;
     return generateEditorialArticle(slug, auction);
   }, [auction, slug]);
+
+  const articleData = (article as any)?.data;
+  const isAdjudicated = article?.phase === 'ADJUDICATED';
+  const currentPath = useLocation().pathname;
+  const analysisPath = ROUTES.NOTICIAS_SUBASTAS_ANALYSIS.replace(':slug', slug || '');
+  const canonicalUrl = `${window.location.origin}${analysisPath}`;
+  const isResultPage = currentPath.includes('/resultado/');
 
   const jsonLd = useMemo(() => {
     if (!auction || !article) return null;
@@ -135,6 +85,9 @@ const DiscoverAuctionArticle: React.FC = () => {
 
   if (!article) return <Navigate to={ROUTES.NOTICIAS_SUBASTAS_INDEX} replace />;
 
+  // Redirect if on wrong path for current phase
+  // Removed incorrect redirect logic
+
   const formattedDate = article.dateModified.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
   const diffMs = new Date().getTime() - article.dateModified.getTime();
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -146,10 +99,138 @@ const DiscoverAuctionArticle: React.FC = () => {
 
   const imageUrl = getImageForPropertyType(auction.propertyType, slug);
 
+  const layoutOrder = useMemo(() => {
+    if (!slug) return ['chips', 'card', 'graphic'];
+    // Simple hash to vary order based on slug
+    const hash = slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const layouts = [
+      ['chips', 'card', 'graphic'],
+      ['graphic', 'card', 'chips'],
+      ['chips', 'graphic', 'card'],
+      ['card', 'graphic', 'chips']
+    ];
+    return layouts[hash % layouts.length];
+  }, [slug]);
+
+  const hasGraphicData = useMemo(() => {
+    return auction && auction.claimedDebt && (auction.appraisalValue || auction.valorTasacion || auction.valorSubasta);
+  }, [auction]);
+
+  const renderSpecialBlock = (type: string) => {
+    if (type === 'chips' && articleData?.chips) {
+      return (
+        <div className="flex flex-nowrap items-center gap-1 mb-6 not-prose overflow-x-auto pb-1 scrollbar-hide max-h-[60px]">
+          <div className="bg-slate-100 border border-slate-200 px-2 py-1 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
+            <span className="text-[11px]">📍</span>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">{articleData.chips.city}</span>
+          </div>
+          <div className="bg-slate-100 border border-slate-200 px-2 py-1 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
+            <span className="text-[11px]">🏠</span>
+            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">{articleData.chips.type}</span>
+          </div>
+          <div className="bg-brand-50 border border-brand-100 px-2 py-1 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
+            <span className="text-[11px]">💰</span>
+            <span className="text-[11px] font-bold text-brand-700 uppercase tracking-tight">{articleData.chips.appraisal}</span>
+          </div>
+          <div className="bg-amber-50 border border-amber-100 px-2 py-1 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
+            <span className="text-[11px]">🏦</span>
+            <span className="text-[11px] font-bold text-amber-700 uppercase tracking-tight">{articleData.chips.debt}</span>
+          </div>
+          <div className="bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
+            <span className="text-[11px]">⏱</span>
+            <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-tight">{articleData.chips.closing}</span>
+          </div>
+          {articleData.chips.finalPrice && articleData.chips.finalPrice !== 'Dato no disponible' && (
+            <div className="bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
+              <span className="text-[11px]">🏆</span>
+              <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">{articleData.chips.finalPrice}</span>
+            </div>
+          )}
+          {articleData.chips.savings && articleData.chips.savings !== '0 €' && (
+            <div className="bg-brand-50 border border-brand-100 px-2 py-1 rounded-md flex items-center gap-1 whitespace-nowrap shrink-0">
+              <span className="text-[11px]">📉</span>
+              <span className="text-[11px] font-bold text-brand-700 uppercase tracking-tight">-{articleData.chips.savings}</span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (type === 'card' && auction) {
+      const cardTitles = [
+        "Detalles técnicos de este activo",
+        "Ficha de la subasta analizada",
+        "Información oficial del expediente",
+        "Datos clave del inmueble"
+      ];
+      const cardTitle = cardTitles[slug ? slug.length % cardTitles.length : 0];
+
+      return (
+        <div className="my-10 not-prose">
+          <p className="text-xs font-medium text-slate-500 mb-1 text-center">{cardTitle}</p>
+          <AuctionCard slug={slug || ''} data={auction} />
+        </div>
+      );
+    }
+
+    if (type === 'graphic') {
+      if (hasGraphicData) {
+        return (
+          <div className="my-10 p-5 bg-white border border-slate-200 rounded-2xl shadow-sm not-prose">
+            <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <TrendingDown size={18} className="text-brand-600" />
+              Viabilidad Económica
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-[10px] mb-1.5">
+                  <span className="font-medium text-slate-500 uppercase tracking-wider">Tasación</span>
+                  <span className="font-bold text-slate-900">{articleData?.appraisalValue.toLocaleString('es-ES')} €</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-1.5">
+                  <div className="bg-brand-600 h-1.5 rounded-full" style={{ width: '100%' }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-[10px] mb-1.5">
+                  <span className="font-medium text-slate-500 uppercase tracking-wider">Deuda</span>
+                  <span className="font-bold text-slate-900">
+                    {articleData?.debtValue > 0 ? `${articleData.debtValue.toLocaleString('es-ES')} €` : 'No publicada'}
+                  </span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                  <div 
+                    className={`${articleData?.debtValue > 0 ? 'bg-slate-400' : 'bg-slate-200'} h-1.5 rounded-full transition-all duration-1000`} 
+                    style={{ width: `${Math.min(100, (articleData?.debtValue / (articleData?.appraisalValue || 1)) * 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Margen Teórico</span>
+                <span className="text-xl font-serif font-bold text-brand-600">
+                  {calculateDiscount(articleData?.appraisalValue, auction.valorSubasta, articleData?.debtValue) || 0}%
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      } else {
+        return (
+          <div className="my-10 p-5 bg-slate-50 border border-slate-100 rounded-2xl italic text-slate-500 text-xs text-center">
+            <p>Análisis técnico de viabilidad en curso. Recomendamos verificar el edicto para confirmar cargas.</p>
+          </div>
+        );
+      }
+    }
+
+    return null;
+  };
+
   return (
     <>
       <link rel="preload" as="image" href={imageUrl} />
-      <link rel="canonical" href={`${window.location.origin}/noticias-subastas/analisis/${slug}`} />
+      <link rel="canonical" href={canonicalUrl} />
+      {isResultPage && <meta name="robots" content="noindex, follow" />}
       
       {jsonLd && (
         <script type="application/ld+json">
@@ -182,6 +263,12 @@ const DiscoverAuctionArticle: React.FC = () => {
               <div className={`flex items-center gap-1.5 text-white px-3 py-1 rounded-full font-bold ${article.tagColor}`}>
                 {article.tag}
               </div>
+              {article.phase === 'ADJUDICATED' && (
+                <div className="flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full font-bold border border-emerald-200 animate-pulse">
+                  <Star size={14} className="fill-emerald-500" />
+                  Resultado Confirmado
+                </div>
+              )}
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-slate-900 mb-8 leading-tight">
@@ -233,28 +320,55 @@ const DiscoverAuctionArticle: React.FC = () => {
               {article.excerpt}
             </p>
             
-            {/* Mini Resumen */}
-            <div className="bg-slate-100 border-l-4 border-brand-500 p-6 rounded-r-xl mb-12">
-              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Resumen rápido</h3>
-              <ul className="space-y-3 text-slate-800 font-medium">
-                <li className="flex items-center gap-2">
-                  <span className="text-brand-600">📉</span> <strong>Descuento:</strong> {calculateDiscount(auction.appraisalValue || auction.valorTasacion || auction.valorSubasta || 0, auction.valorSubasta, auction.claimedDebt) || 0}%
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-brand-600">📍</span> <strong>Ciudad:</strong> {normalizeCity(auction) || auction.province}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-brand-600">🏢</span> <strong>Tipo:</strong> {normalizePropertyType(auction.propertyType)}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-brand-600">🎯</span> <strong>Perfil inversor:</strong> {(auction.claimedDebt || auction.valorSubasta || 0) < 50000 ? 'Minorista / Principiante' : 'Experimentado / Institucional'}
-                </li>
-              </ul>
-            </div>
+            <div className="border-t border-slate-100 my-3" />
             
-            <div className="text-slate-600 mb-12 leading-9">
-              {article.content.slice(0, 8).map((paragraph, idx) => renderParagraph(paragraph, idx, 'p1'))}
+            {/* Bloque 1 del layout */}
+            {renderSpecialBlock(layoutOrder[0])}
+            
+            <div className="text-slate-600 mb-12">
+              {articleData?.sections && articleData.sections.map((section: any, idx: number) => (
+                <React.Fragment key={idx}>
+                  <div className="border-t border-slate-100 my-3" />
+                  
+                  <h2 className="text-3xl font-serif font-bold text-slate-900 mt-12 mb-8">
+                    {section.title}
+                  </h2>
+                  <div className="space-y-6">
+                    {Array.isArray(section.content) ? (
+                      <ul className="list-disc pl-6 space-y-4 mb-8 text-lg text-slate-700">
+                        {section.content.map((item: string, i: number) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="text-lg text-slate-700 leading-relaxed space-y-4">
+                        {section.content.split('\n\n').map((para: string, pIdx: number) => (
+                          <p key={pIdx} className="mb-4">{para}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bloque 2 del layout tras el primer bloque de texto */}
+                  {idx === 0 && (
+                    <>
+                      <div className="border-t border-slate-100 my-3" />
+                      {renderSpecialBlock(layoutOrder[1])}
+                    </>
+                  )}
+
+                  {/* Bloque 3 del layout tras el segundo bloque de texto */}
+                  {idx === 1 && (
+                    <>
+                      <div className="border-t border-slate-100 my-3" />
+                      {renderSpecialBlock(layoutOrder[2])}
+                    </>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
+
+            <div className="border-t border-slate-100 my-3" />
 
             {/* Bloque Datos Subasta */}
             <div className="my-12 bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
@@ -283,7 +397,7 @@ const DiscoverAuctionArticle: React.FC = () => {
                     <AlertCircle className="text-slate-400 mt-1 shrink-0" size={18} />
                     <div>
                       <p className="text-sm text-slate-500 font-medium">Deuda Reclamada</p>
-                      <p className="font-bold text-slate-900">{auction.claimedDebt ? `${auction.claimedDebt.toLocaleString('es-ES')} €` : 'No consta'}</p>
+                      <p className="font-bold text-slate-900">{auction.claimedDebt ? `${auction.claimedDebt.toLocaleString('es-ES')} €` : 'Dato no publicado'}</p>
                     </div>
                   </div>
                 </div>
@@ -292,7 +406,7 @@ const DiscoverAuctionArticle: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <TrendingDown className="text-brand-600 mt-1 shrink-0" size={18} />
                     <div>
-                      <p className="text-sm text-slate-500 font-medium">Descuento Teórico</p>
+                      <p className="text-sm text-slate-500 font-medium">Margen Potencial</p>
                       <p className="font-bold text-brand-700 text-lg">{calculateDiscount(auction.appraisalValue || auction.valorTasacion || auction.valorSubasta || 0, auction.valorSubasta, auction.claimedDebt) || 0}%</p>
                     </div>
                   </div>
@@ -307,7 +421,9 @@ const DiscoverAuctionArticle: React.FC = () => {
                     <Clock className="text-slate-400 mt-1 shrink-0" size={18} />
                     <div>
                       <p className="text-sm text-slate-500 font-medium">Estado Posesorio</p>
-                      <p className="font-bold text-slate-900">{auction.occupancy || 'No consta'}</p>
+                      <p className="font-bold text-slate-900">
+                        {auction.occupancy === 'No consta' ? 'Pendiente de análisis' : (auction.occupancy || 'Pendiente de análisis')}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -315,20 +431,62 @@ const DiscoverAuctionArticle: React.FC = () => {
             </div>
 
             <div className="text-slate-600 mb-12 leading-9">
-              {article.content.slice(8, 16).map((paragraph, idx) => renderParagraph(paragraph, idx, 'p2'))}
+              {/* Contenido renderizado arriba */}
             </div>
-
-            <ConversionBlock />
 
             <div className="text-slate-600 mb-12 leading-9 mt-12">
-              {article.content.slice(16).map((paragraph, idx) => renderParagraph(paragraph, idx, 'p3'))}
+              {/* Contenido renderizado arriba */}
             </div>
 
-            <div className="my-16">
-              <RadarPremiumCTA 
-                location={auction.province || auction.city} 
-                origin="discover-auction"
-              />
+            <div className="my-12">
+              <h2 className="text-2xl font-serif font-bold text-slate-900 mb-6">Fuentes y Referencias</h2>
+              <ul className="space-y-3">
+                {articleData?.sources?.map((source: any, idx: number) => (
+                  <li key={idx} className="flex items-center gap-2 text-slate-700 text-sm">
+                    <ExternalLink size={14} className="text-slate-400" />
+                    <a href={source.url} target="_blank" rel="nofollow" className="text-brand-600 hover:underline font-medium">
+                      {source.name}
+                    </a>
+                  </li>
+                ))}
+                <li className="flex items-center gap-2 text-slate-700 text-sm">
+                  <ExternalLink size={14} className="text-slate-400" />
+                  <a href={articleData?.boeUrl} target="_blank" rel="nofollow" className="text-brand-600 hover:underline font-medium">
+                    Expediente oficial en BOE
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div className="my-8 not-prose">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-brand-50 rounded-full -mr-10 -mt-10 opacity-40"></div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Star size={10} className="text-brand-600 fill-brand-600" />
+                      <span className="text-[9px] font-bold text-brand-600 uppercase tracking-widest">Alertas Premium</span>
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 mb-1">
+                      ¿Quieres recibir alertas similares?
+                    </h3>
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      Te avisamos por WhatsApp cuando detectamos oportunidades en {auction.city || auction.province}.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-center md:items-end gap-1">
+                    <Link 
+                      to={ROUTES.ALERTAS}
+                      className="bg-slate-900 text-white font-bold px-6 py-2.5 rounded-lg hover:bg-slate-800 transition-all text-xs whitespace-nowrap"
+                    >
+                      PROBAR 7 DÍAS GRATIS
+                    </Link>
+                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Después 5€/mes · Cancela en 1 clic</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="my-12 flex flex-col sm:flex-row gap-4 w-full border-t border-slate-200 pt-10">

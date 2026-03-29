@@ -39,6 +39,7 @@ export interface AuctionData {
   opportunityScore?: number;
   opportunityRatio?: number;
   currentBid?: number;
+  pujasText?: string;
 }
 
 export const AUCTIONS: Record<string, AuctionData> = {
