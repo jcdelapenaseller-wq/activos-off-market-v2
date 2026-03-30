@@ -4,12 +4,21 @@ import { useUser } from '../contexts/UserContext';
 import { ROUTES } from '../constants/routes';
 import { Gavel, ArrowLeft, Loader2, CheckCircle, Shield, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
+import { auth } from '../lib/firebase';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+
+declare global {
+  interface Window {
+    google: any;
+  }
+}
 
 const LoginPage: React.FC = () => {
   const { login, isLogged, isLoading } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   // Redirection logic: if already logged in, go to dashboard
   useEffect(() => {
@@ -18,8 +27,53 @@ const LoginPage: React.FC = () => {
     }
   }, [isLogged, isLoading, navigate]);
 
+  // Load Google One Tap
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      if (window.google && import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: handleCredentialResponse,
+        });
+        window.google.accounts.id.prompt();
+      }
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleCredentialResponse = async (response: any) => {
+    setIsAuthenticating(true);
+    const credential = response.credential;
+    const googleCredential = GoogleAuthProvider.credential(credential);
+    try {
+      await signInWithCredential(auth, googleCredential);
+      // Determine redirection path
+      const searchParams = new URLSearchParams(location.search);
+      const redirectQuery = searchParams.get('redirect');
+      const fromQuery = searchParams.get('from');
+      const fromState = (location.state as any)?.from?.pathname;
+      
+      // Prioritize: redirect > from > state > dashboard
+      const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || ROUTES.HOME));
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error('Error logging in with One Tap:', error);
+      setIsAuthenticating(false);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     setIsAuthenticating(true);
+    setIsBlocked(false);
     try {
       await login();
       
@@ -32,9 +86,12 @@ const LoginPage: React.FC = () => {
       // Prioritize: redirect > from > state > dashboard
       const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || ROUTES.HOME));
       navigate(from, { replace: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error logging in:', error);
       setIsAuthenticating(false);
+      if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+        setIsBlocked(true);
+      }
     }
   };
 
@@ -112,7 +169,7 @@ const LoginPage: React.FC = () => {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Continuar con Google
+                  {isBlocked ? 'Reintentar con Google' : 'Continuar con Google'}
                 </>
               )}
             </button>
