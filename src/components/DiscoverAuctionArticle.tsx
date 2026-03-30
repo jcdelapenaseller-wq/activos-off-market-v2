@@ -275,7 +275,12 @@ const DiscoverAuctionArticle: React.FC = () => {
               {article.title}
             </h1>
 
-            <ShareButtons title={article.title} className="mb-8 -mt-2" />
+            <ShareButtons 
+              title={article.title} 
+              className="mb-8 -mt-2" 
+              province={auction.city || auction.province || 'España'}
+              origin="discover-auction"
+            />
 
             <figure className="mb-10 -mx-6 md:-mx-10 relative group">
               <img 

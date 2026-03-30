@@ -523,7 +523,12 @@ const DiscoverProvinceArticle: React.FC = () => {
               {content.title}
             </h1>
 
-            <ShareButtons title={content.title} className="mb-8 -mt-2" />
+            <ShareButtons 
+              title={content.title} 
+              className="mb-8 -mt-2" 
+              province={provinceName}
+              origin="discover"
+            />
 
             {/* Imagen principal grande para Discover */}
             <figure className="mb-10 -mx-6 md:-mx-10 relative group">

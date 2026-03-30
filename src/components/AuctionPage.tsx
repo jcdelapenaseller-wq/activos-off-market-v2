@@ -1,11 +1,13 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import React, { useEffect, useState, useMemo, useContext } from 'react';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { 
   Calculator, Gavel, TrendingUp, Search, ChevronRight, 
   MapPin, Home, DollarSign, AlertTriangle, CheckCircle, 
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon,
   Clock, Calendar, User, Twitter, Linkedin, Mail, MessageCircle,
-  ExternalLink, AlertCircle, Lock, ArrowUpRight, Star
+  ExternalLink, AlertCircle, Lock, ArrowUpRight, Heart, Share2,
+  Bell, StickyNote, X, Car, Train, Navigation
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AUCTIONS } from '../data/auctions';
@@ -14,6 +16,7 @@ import { getFilteredAuctions, isAuctionFinished, getAuctionType, getProcedureTyp
 import { ROUTES } from '../constants/routes';
 import { normalizePropertyType, normalizeCity, normalizeLocationLabel, normalizeProvince, formatAddress } from '../utils/auctionNormalizer';
 import { trackConversion } from '../utils/tracking';
+import { subscribeToMailerLite, sendAlertConfirmationEmail } from '../utils/mailerlite';
 import FinishedAuctionBanner from './FinishedAuctionBanner';
 import { ShareButtons } from './ShareButtons';
 import ConversionBlock from './ConversionBlock';
@@ -21,18 +24,173 @@ import ConsultingCTA from './ConsultingCTA';
 import RadarPremiumCTA from './RadarPremiumCTA';
 import RelatedAuctions from './RelatedAuctions';
 import LoadAnalysisBlock from './LoadAnalysisBlock';
+import FullAnalysisModal from './FullAnalysisModal';
+import SoftGateModal from './SoftGateModal';
 import Header from './Header';
 import Footer from './Footer';
 import AuctionCalculator from './AuctionCalculator';
-import { useUser } from '../contexts/UserContext';
+import { useUser, UserContext } from '../contexts/UserContext';
 import { db } from '../lib/firebase';
-import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getCountFromServer } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, getDoc, setDoc, serverTimestamp, getCountFromServer } from 'firebase/firestore';
+import { getAuctionValuation, ValuationResult } from '../services/valuationService';
+
+const PaymentModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  type: 'analysis' | 'cargas';
+  auctionId: string;
+}> = ({ isOpen, onClose, type, auctionId }) => {
+  const { plan } = useUser();
+  if (!isOpen) return null;
+
+  const getPriceData = () => {
+    if (type === 'cargas') {
+      return {
+        price: '2,99€',
+        url: `https://buy.stripe.com/test_cargas?client_reference_id=${auctionId}&redirect_url=${encodeURIComponent(window.location.href.split('?')[0] + '?cargas=paid')}`
+      };
+    }
+
+    // Dynamic pricing for analysis based on plan
+    switch (plan) {
+      case 'pro':
+        return {
+          price: '0,99€',
+          url: `https://buy.stripe.com/test_analysis_pro?client_reference_id=${auctionId}&redirect_url=${encodeURIComponent(window.location.href.split('?')[0] + '?analysis=paid')}`
+        };
+      case 'basic':
+        return {
+          price: '2,99€',
+          url: `https://buy.stripe.com/test_analysis_basic?client_reference_id=${auctionId}&redirect_url=${encodeURIComponent(window.location.href.split('?')[0] + '?analysis=paid')}`
+        };
+      default:
+        return {
+          price: '4,99€',
+          url: `https://buy.stripe.com/test_analysis_free?client_reference_id=${auctionId}&redirect_url=${encodeURIComponent(window.location.href.split('?')[0] + '?analysis=paid')}`
+        };
+    }
+  };
+
+  const priceData = getPriceData();
+
+  const handlePay = () => {
+    window.location.href = priceData.url;
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col p-6 md:p-8 text-center">
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors z-10">
+          <X size={20} />
+        </button>
+        <div className="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-brand-100">
+          <FileText size={32} />
+        </div>
+        <h2 className="text-2xl font-serif font-bold text-slate-900 mb-2">
+          {type === 'analysis' ? 'Análisis completo de inversión' : 'Análisis de cargas registrales'}
+        </h2>
+        <p className="text-slate-500 text-sm mb-8">
+          {type === 'analysis' ? 'Desbloquea el informe detallado con valor de mercado, ROI y puja máxima.' : 'Desbloquea el análisis detallado de las cargas registrales de esta subasta.'}
+        </p>
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 w-full mb-8">
+          <div className="flex items-baseline justify-center gap-1 mb-1">
+            <span className="text-4xl font-bold text-slate-900 tracking-tight">{priceData.price}</span>
+          </div>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Pago único</p>
+        </div>
+        <button onClick={handlePay} className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          Pagar y desbloquear <TrendingUp size={18} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+interface LockedFeatureBlockProps {
+  title?: string;
+  description?: string;
+  ctaText?: string;
+  subtext?: string;
+  onAction: () => void;
+}
+
+const LockedFeatureBlock: React.FC<LockedFeatureBlockProps> = ({
+  title = "Contenido avanzado bloqueado",
+  description = "Este análisis está disponible en planes BASIC y PRO",
+  ctaText,
+  subtext,
+  onAction
+}) => {
+  const { isLogged, plan } = useUser();
+  
+  const finalCtaText = ctaText || (isLogged ? "Desbloquear con BASIC" : "Crear cuenta gratis");
+  const finalSubtext = subtext || (isLogged ? "Disponible en BASIC y PRO" : "Accede a datos avanzados del activo");
+
+  return (
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center bg-white/60 backdrop-blur-md rounded-xl border border-slate-200/50 shadow-sm">
+      <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4 shadow-sm border border-white">
+        <Lock className="w-5 h-5 text-slate-400" />
+      </div>
+      <h3 className="text-lg font-semibold text-slate-900 mb-2">
+        {title}
+      </h3>
+      <p className="text-sm text-slate-500 mb-6 max-w-[240px]">
+        {description}
+      </p>
+      <button
+        onClick={onAction}
+        className="w-full max-w-[220px] py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2"
+      >
+        {finalCtaText}
+        <ArrowRight className="w-4 h-4" />
+      </button>
+      <p className="mt-3 text-xs text-slate-400 font-medium uppercase tracking-wider">
+        {finalSubtext}
+      </p>
+    </div>
+  );
+};
 
 const AuctionPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const cleanSlug = slug ? decodeURIComponent(slug).replace(/\/$/, '').toLowerCase() : '';
   const auction = cleanSlug ? AUCTIONS[cleanSlug] : null;
-  const { user, isLogged, requireLogin, plan } = useUser();
+  const { user, isLogged, requireLogin, plan, trackAuctionView } = useUser();
+  const hasAccess = isLogged && (plan === 'basic' || plan === 'pro');
+  const userContext = useContext(UserContext);
+
+  // Payment State
+  const auctionId = auction?.boeId || auction?.slug || '';
+  const [analysisPaid, setAnalysisPaid] = useState<boolean>(() => {
+    if (!auctionId) return false;
+    const paid = sessionStorage.getItem(`analysisPaid_${auctionId}`);
+    const timestamp = sessionStorage.getItem(`analysisPaid_${auctionId}_time`);
+    if (paid === 'true' && timestamp) {
+      const hours = (Date.now() - parseInt(timestamp)) / (1000 * 60 * 60);
+      if (hours < 24) return true;
+      // Expired
+      sessionStorage.removeItem(`analysisPaid_${auctionId}`);
+      sessionStorage.removeItem(`analysisPaid_${auctionId}_time`);
+    }
+    return false;
+  });
+  const [cargasPaid, setCargasPaid] = useState<boolean>(() => {
+    if (!auctionId) return false;
+    const paid = sessionStorage.getItem(`cargasPaid_${auctionId}`);
+    const timestamp = sessionStorage.getItem(`cargasPaid_${auctionId}_time`);
+    if (paid === 'true' && timestamp) {
+      const hours = (Date.now() - parseInt(timestamp)) / (1000 * 60 * 60);
+      if (hours < 24) return true;
+      // Expired
+      sessionStorage.removeItem(`cargasPaid_${auctionId}`);
+      sessionStorage.removeItem(`cargasPaid_${auctionId}_time`);
+    }
+    return false;
+  });
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentType, setPaymentType] = useState<'analysis' | 'cargas'>('analysis');
 
   // Calculator State
   const [valorMercado, setValorMercado] = useState<number | ''>('');
@@ -45,6 +203,304 @@ const AuctionPage: React.FC = () => {
   const [favoritesCount, setFavoritesCount] = useState<number>(0);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showFullAnalysisModal, setShowFullAnalysisModal] = useState(false);
+  const [softGateOrigin, setSoftGateOrigin] = useState<'favorite' | 'alert' | 'note' | 'limit_favorite' | 'limit_alert' | 'valuation' | 'boe' | 'save' | 'limit_analysis' | 'streetview' | 'catastro' | null>(null);
+  const [showStreetView, setShowStreetView] = useState(false);
+  const [hasActiveAlert, setHasActiveAlert] = useState(false);
+  const [activeAlertId, setActiveAlertId] = useState<string | null>(null);
+  const [alertsCount, setAlertsCount] = useState(0);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
+  
+  // Notes State
+  const [note, setNote] = useState('');
+  const [isSavingNote, setIsSavingNote] = useState(false);
+
+  useEffect(() => {
+    if (!auctionId) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const analysisParam = params.get('analysis');
+    const cargasParam = params.get('cargas');
+
+    let shouldScrollToAnalysis = false;
+    let shouldScrollToCargas = false;
+
+    if (analysisParam === 'paid') {
+      sessionStorage.setItem(`analysisPaid_${auctionId}`, 'true');
+      sessionStorage.setItem(`analysisPaid_${auctionId}_time`, Date.now().toString());
+      setAnalysisPaid(true);
+      shouldScrollToAnalysis = true;
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    if (cargasParam === 'paid') {
+      sessionStorage.setItem(`cargasPaid_${auctionId}`, 'true');
+      sessionStorage.setItem(`cargasPaid_${auctionId}_time`, Date.now().toString());
+      setCargasPaid(true);
+      shouldScrollToCargas = true;
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    if (shouldScrollToAnalysis || analysisPaid) {
+      setTimeout(() => {
+        const element = document.getElementById('analisis-completo');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+        if (shouldScrollToAnalysis || analysisPaid) {
+          setShowFullAnalysisModal(true);
+        }
+      }, 500);
+    } else if (shouldScrollToCargas || cargasPaid) {
+      setTimeout(() => {
+        const element = document.getElementById('analisis-tecnico');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500);
+    }
+  }, [auctionId, analysisPaid, cargasPaid]);
+
+  const approximateCoords = useMemo(() => {
+    if (!auction?.lat || !auction?.lng) return null;
+    if (plan !== 'free') return { lat: auction.lat, lng: auction.lng };
+    
+    // Fixed offset based on boeId to be stable
+    const seed = auction.boeId?.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) || 0;
+    const offsetLat = (Math.sin(seed) * 0.005);
+    const offsetLng = (Math.cos(seed) * 0.005);
+    
+    return {
+      lat: auction.lat + offsetLat,
+      lng: auction.lng + offsetLng
+    };
+  }, [auction?.lat, auction?.lng, auction?.boeId, plan]);
+
+  const keyDistances = useMemo(() => {
+    if (!auction?.boeId) return null;
+    
+    // Stable pseudo-random distances based on boeId
+    const seed = auction.boeId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const getDist = (offset: number) => {
+      const val = ((seed * offset) % 15) + 2; // 2 to 17 mins
+      return Math.floor(val);
+    };
+
+    return [
+      { label: 'Centro ciudad', time: getDist(1.5), icon: Navigation },
+      { label: 'Estación tren/bus', time: getDist(2.3), icon: Train },
+      { label: 'Zona comercial', time: getDist(3.7), icon: Home }
+    ];
+  }, [auction?.boeId]);
+
+  // Valuation State
+  const [valuationResult, setValuationResult] = useState<ValuationResult | null>(null);
+
+  // Market Comparator State
+  const [purchasePriceSlider, setPurchasePriceSlider] = useState<number>(0);
+  const [isComparatorExpanded, setIsComparatorExpanded] = useState(false);
+  const [marketScenario, setMarketScenario] = useState<'conservador' | 'medio' | 'optimista'>('medio');
+
+  useEffect(() => {
+    if (auction?.appraisalValue) {
+      setPurchasePriceSlider(auction.appraisalValue * 0.7);
+    } else if (valuationResult?.marketValue) {
+      setPurchasePriceSlider(valuationResult.marketValue * 0.7);
+    }
+  }, [auction?.appraisalValue, valuationResult?.marketValue]);
+
+  // Comparator calculations
+  const compAppraisalValue = auction?.appraisalValue || 0;
+  
+  const baseMarketValue = valuationResult?.marketValue || 0;
+  let compMarketValue = baseMarketValue;
+  if (marketScenario === 'conservador') compMarketValue = baseMarketValue * 0.9;
+  if (marketScenario === 'optimista') compMarketValue = baseMarketValue * 1.1;
+
+  const compSurface = valuationResult?.calculations?.surface || auction?.surface || 0;
+  const compMarketPricePerSqm = compSurface > 0 ? compMarketValue / compSurface : 0;
+  
+  const compSavings = compMarketValue - purchasePriceSlider;
+  const isOverpriced = compSavings < 0;
+  const compDiscountVsMarket = compMarketValue > 0 ? ((compMarketValue - purchasePriceSlider) / compMarketValue) * 100 : 0;
+  const compOverpricePercent = compMarketValue > 0 ? ((purchasePriceSlider - compMarketValue) / compMarketValue) * 100 : 0;
+  const compPricePerSqm = compSurface > 0 ? purchasePriceSlider / compSurface : 0;
+  const compPercentOfAppraisal = compAppraisalValue > 0 ? (purchasePriceSlider / compAppraisalValue) * 100 : 0;
+
+  const getCompBadgeData = (discount: number, isOverpriced: boolean) => {
+    if (isOverpriced) return { text: 'Sobreprecio', color: 'text-red-700 bg-red-50 border-red-200' };
+    if (discount >= 35) return { text: 'Alta oportunidad', color: 'text-emerald-700 bg-emerald-100 border-emerald-200' };
+    if (discount >= 20) return { text: 'Buena oportunidad', color: 'text-blue-700 bg-blue-100 border-blue-200' };
+    if (discount >= 10) return { text: 'Margen ajustado', color: 'text-amber-700 bg-amber-100 border-amber-200' };
+    return { text: 'Descuento limitado', color: 'text-slate-600 bg-slate-100 border-slate-200' };
+  };
+
+  const compBadge = getCompBadgeData(compDiscountVsMarket, isOverpriced);
+  const compBaseValueForSlider = compAppraisalValue > 0 ? compAppraisalValue : compMarketValue;
+  const compSliderMin = compBaseValueForSlider * 0.1;
+  const compSliderMax = compBaseValueForSlider * 1.5;
+
+  // Automatically load or calculate valuation on page open
+  useEffect(() => {
+    const loadValuation = async () => {
+      if (!auction?.boeId) return;
+      try {
+        // The API automatically checks the cache first.
+        // If not cached, it runs the surface pipeline, saves it, and returns it.
+        const result = await getAuctionValuation(auction);
+        setValuationResult(result);
+      } catch (e) {
+        console.error('Error loading valuation:', e);
+      }
+    };
+    loadValuation();
+  }, [auction?.boeId]);
+
+  // Handle noindex for valuation results from local fallbacks
+  useEffect(() => {
+    if (valuationResult && valuationResult.metadata.source === 'local_fallback') {
+      const meta = document.createElement('meta');
+      meta.name = 'robots';
+      meta.content = 'noindex, nofollow';
+      document.head.appendChild(meta);
+      return () => {
+        document.head.removeChild(meta);
+      };
+    }
+  }, [valuationResult]);
+
+  const calculatePotencial = () => {
+    if (!valuationResult || !auction || !auction.appraisalValue) return 0;
+    return ((valuationResult.marketValue - auction.appraisalValue) / auction.appraisalValue) * 100;
+  };
+
+  const getPotencialData = (potencial: number) => {
+    if (potencial <= 5) return { text: `Potencial +${potencial.toFixed(0)}%`, color: 'text-slate-600', bg: 'bg-slate-100', border: 'border-slate-200' };
+    
+    let color = '';
+    let bg = '';
+    let border = '';
+    
+    if (potencial <= 15) { color = 'text-blue-600'; bg = 'bg-blue-50'; border = 'border-blue-100'; }
+    else if (potencial <= 25) { color = 'text-emerald-600'; bg = 'bg-emerald-50'; border = 'border-emerald-100'; }
+    else if (potencial <= 40) { color = 'text-emerald-700'; bg = 'bg-emerald-100'; border = 'border-emerald-200'; }
+    else if (potencial <= 60) { color = 'text-amber-600'; bg = 'bg-amber-50'; border = 'border-amber-100'; }
+    else { color = 'text-purple-600'; bg = 'bg-purple-50'; border = 'border-purple-100'; }
+    
+    return { text: `Potencial +${potencial.toFixed(0)}%`, color, bg, border };
+  };
+
+  const potencial = calculatePotencial();
+  const potencialData = getPotencialData(potencial);
+
+  const handleUnlockAnalysis = () => {
+    setSoftGateOrigin('valuation');
+  };
+
+  const handleDownloadPDF = () => {
+    toast.info('Generando PDF del informe...');
+    window.print();
+  };
+
+  // Track view
+  useEffect(() => {
+    if (isLogged && auction && cleanSlug) {
+      const propertyType = normalizePropertyType(auction.propertyType) || 'Propiedad';
+      const cityName = normalizeCity(auction) || 'España';
+      const title = `${propertyType} en ${cityName}`;
+      trackAuctionView(cleanSlug, title);
+    }
+  }, [isLogged, auction, cleanSlug, trackAuctionView]);
+
+  // Load note and check alerts from Firestore/localStorage
+  useEffect(() => {
+    const loadData = async () => {
+      if (isLogged && user && db && cleanSlug) {
+        try {
+          // Load note
+          const noteRef = doc(db, 'users', user.id, 'notes', cleanSlug);
+          const noteSnap = await getDoc(noteRef);
+          if (noteSnap.exists()) {
+            setNote(noteSnap.data().content);
+          }
+
+          // Load alerts count from Firestore
+          const alertsRef = collection(db, 'users', user.id, 'alerts');
+          const snapshot = await getCountFromServer(query(alertsRef));
+          setAlertsCount(snapshot.data().count);
+
+          // Check if alert already exists for this city/type
+          if (auction) {
+            const city = normalizeCity(auction) || '';
+            const type = normalizePropertyType(auction.propertyType) || 'Vivienda';
+            const q = query(alertsRef, where('city', '==', city), where('propertyType', '==', type));
+            const alertSnap = await getDocs(q);
+            if (!alertSnap.empty) {
+              setHasActiveAlert(true);
+              setActiveAlertId(alertSnap.docs[0].id);
+            } else {
+              setHasActiveAlert(false);
+              setActiveAlertId(null);
+            }
+          }
+        } catch (error) {
+          console.error("Error loading user data:", error);
+        }
+      } else if (cleanSlug) {
+        // Legacy/Guest behavior using localStorage
+        const savedNote = localStorage.getItem(`note_${cleanSlug}`);
+        if (savedNote) setNote(savedNote);
+
+        if (auction) {
+          const alertsUsage = JSON.parse(localStorage.getItem('alerts_usage') || '[]');
+          setAlertsCount(alertsUsage.length);
+
+          const city = normalizeCity(auction) || '';
+          const type = normalizePropertyType(auction.propertyType) || 'Vivienda';
+          const exists = alertsUsage.some((a: any) => a.city === city && a.type === type);
+          setHasActiveAlert(exists);
+        }
+      }
+    };
+
+    loadData();
+  }, [cleanSlug, isLogged, user, auction]);
+
+  // Autosave note
+  useEffect(() => {
+    if (!cleanSlug || !isLogged) return;
+    
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem(`note_${cleanSlug}`, note);
+      setIsSavingNote(false);
+      if (note.trim().length > 0) {
+        toast.success('Nota guardada', { duration: 2000 });
+      }
+    }, 1500);
+
+    setIsSavingNote(true);
+    return () => clearTimeout(timeoutId);
+  }, [note, cleanSlug, isLogged]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    const footer = document.getElementById('main-footer');
+    if (footer) {
+      observer.observe(footer);
+    }
+
+    return () => {
+      if (footer) {
+        observer.unobserve(footer);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -71,7 +527,7 @@ const AuctionPage: React.FC = () => {
           setFavoriteId(null);
         }
 
-        if (user.plan === 'free' || !user.plan) {
+        if (plan === 'free') {
           const countQuery = query(collection(db, 'favorites'), where('userId', '==', user.id));
           const snapshot = await getCountFromServer(countQuery);
           setFavoritesCount(snapshot.data().count);
@@ -84,13 +540,29 @@ const AuctionPage: React.FC = () => {
     checkFavoriteStatus();
   }, [user, cleanSlug]);
 
+  const scrollToNotes = () => {
+    if (!isLogged) {
+      setSoftGateOrigin('note');
+      return;
+    }
+    const notesElement = document.getElementById('user-notes');
+    if (notesElement) {
+      notesElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const handleToggleFavorite = async () => {
     if (!isLogged) {
-      requireLogin();
+      setSoftGateOrigin('save');
       return;
     }
 
-    if (!user || !cleanSlug || isTogglingFavorite || !db) return;
+    if (plan === 'free' && !isFavorite) {
+      setSoftGateOrigin('save');
+      return;
+    }
+
+    if (!user || !cleanSlug || isTogglingFavorite || !db || !auction) return;
 
     setIsTogglingFavorite(true);
 
@@ -103,7 +575,7 @@ const AuctionPage: React.FC = () => {
         setFavoritesCount(prev => Math.max(0, prev - 1));
       } else {
         // Check limits for free users
-        if (user.plan === 'free' || !user.plan) {
+        if (plan === 'free') {
           const countQuery = query(collection(db, 'favorites'), where('userId', '==', user.id));
           const snapshot = await getCountFromServer(countQuery);
           if (snapshot.data().count >= 3) {
@@ -122,12 +594,84 @@ const AuctionPage: React.FC = () => {
         setIsFavorite(true);
         setFavoriteId(docRef.id);
         setFavoritesCount(prev => prev + 1);
+        toast.success('Guardado en favoritos', { duration: 2000 });
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
       // Revert optimistic update if failed (though we didn't do optimistic here to be safe)
     } finally {
       setIsTogglingFavorite(false);
+    }
+  };
+
+  const handleDeleteAlert = async () => {
+    if (!user || !db || !activeAlertId) return;
+    
+    try {
+      await deleteDoc(doc(db, 'users', user.id, 'alerts', activeAlertId));
+      setHasActiveAlert(false);
+      setActiveAlertId(null);
+      setAlertsCount(prev => Math.max(0, prev - 1));
+      toast.success("Alerta eliminada correctamente");
+    } catch (error) {
+      console.error("Error deleting alert:", error);
+      toast.error("Error al eliminar la alerta");
+    }
+  };
+
+  const handleCreateAlert = async () => {
+    if (!isLogged) {
+      setSoftGateOrigin('alert');
+      return;
+    }
+
+    // Check limits
+    const isLimitReached = (plan === 'free' && alertsCount >= 1) || (plan === 'basic' && alertsCount >= 3);
+    
+    if (isLimitReached) {
+      setSoftGateOrigin('limit_alert');
+      return;
+    }
+
+    if (!auction || !user || !db) return;
+
+    const city = normalizeCity(auction) || '';
+    const type = normalizePropertyType(auction.propertyType) || 'Vivienda';
+
+    try {
+      // 1. Save to Firestore
+      const alertsRef = collection(db, 'users', user.id, 'alerts');
+      const docRef = await addDoc(alertsRef, {
+        city,
+        zone: '',
+        propertyType: type,
+        minPrice: 0,
+        maxPrice: 10000000,
+        createdAt: serverTimestamp(),
+        active: true
+      });
+
+      // 2. Sync with MailerLite (Legacy/Sync)
+      await subscribeToMailerLite({
+        email: user.email,
+        source: 'alertas_ficha',
+        fields: {
+          alerta_provincia: city,
+          alerta_tipo: type,
+          plan_status: plan === 'free' ? 'free' : 'pro'
+        }
+      });
+
+      // 3. Send confirmation email (Transactional)
+      sendAlertConfirmationEmail(user.email, city);
+
+      setAlertsCount(prev => prev + 1);
+      setHasActiveAlert(true);
+      setActiveAlertId(docRef.id);
+      toast.success(`Alerta creada para ${type} en ${city}`);
+    } catch (error) {
+      console.error("Error creating alert:", error);
+      toast.error("Error al crear la alerta");
     }
   };
 
@@ -801,9 +1345,17 @@ const AuctionPage: React.FC = () => {
             )}
           </div>
 
-          <h1 className="text-[clamp(1.25rem,5vw,2.75rem)] font-serif font-bold text-slate-900 mb-4 md:mb-8 tracking-tighter leading-tight">
-            {propertyType} en subasta en {cityName}
-          </h1>
+          <div className="flex flex-col gap-2 mb-4 md:mb-8">
+            <h1 className="text-[clamp(1.25rem,5vw,2.75rem)] font-serif font-bold text-slate-900 tracking-tighter leading-tight">
+              {propertyType} en subasta en {cityName}
+            </h1>
+            {hasActiveAlert && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 text-[10px] font-bold uppercase tracking-wider border border-brand-200 w-fit">
+                <Bell size={10} className="fill-brand-700" />
+                Alerta activa para esta zona
+              </div>
+            )}
+          </div>
 
           {/* Dynamic SEO Intro */}
           <p className="text-slate-600 text-xs md:text-base leading-relaxed mb-4 md:mb-6 text-justify">
@@ -825,55 +1377,111 @@ const AuctionPage: React.FC = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-3 md:gap-4 shrink-0">
-              <div className="flex flex-col items-center gap-1">
-                <button 
-                  onClick={handleToggleFavorite}
-                  disabled={isTogglingFavorite}
-                  className={`flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border transition-all duration-300 ${
-                    isFavorite 
-                      ? 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100' 
-                      : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300'
-                  }`}
-                  title={isFavorite ? "Quitar de guardados" : "Guardar subasta"}
-                >
-                  <Star size={16} className={`md:hidden ${isFavorite ? 'fill-amber-500 text-amber-500' : ''}`} />
-                  <Star size={18} className={`hidden md:block ${isFavorite ? 'fill-amber-500 text-amber-500' : ''}`} />
-                  <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">
-                    {isFavorite ? 'Guardada' : 'Guardar'}
-                  </span>
-                </button>
-                <span className="text-[8px] md:text-[9px] text-slate-400 font-medium">
-                  {plan === 'free' ? 'Límite: 3' : 'Sin límite'}
-                </span>
-                {plan === 'free' && favoritesCount >= 1 && favoritesCount < 3 && !isFavorite && (
-                  <Link to="/pro" className="text-[8px] md:text-[9px] text-brand-600 hover:text-brand-700 hover:underline mt-0.5">
-                    Guardados ilimitados con BASIC
-                  </Link>
-                )}
-              </div>
-              
-              <div className="w-px h-6 bg-slate-200 hidden md:block"></div>
+            <div className="flex items-center gap-1 md:gap-2 shrink-0">
+              {(() => {
+                const isBlocked = !isLogged || (plan === 'free' && !isFavorite);
+                return (
+                  <button 
+                    onClick={handleToggleFavorite}
+                    disabled={isTogglingFavorite}
+                    className={`p-2 rounded-full transition-all duration-300 flex items-center gap-1.5 ${
+                      isFavorite 
+                        ? 'text-red-500 bg-red-50 hover:bg-red-100' 
+                        : isBlocked
+                          ? 'text-slate-400 bg-slate-50 hover:bg-slate-100'
+                          : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                    }`}
+                    title={isFavorite ? "Quitar de guardados" : isBlocked ? "Mejora tu plan para guardar" : "Guardar subasta"}
+                  >
+                    <div className="relative">
+                      <Heart size={20} className={isFavorite ? 'fill-red-500' : ''} />
+                      {isBlocked && !isFavorite && (
+                        <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+                          <Lock size={8} className="text-slate-400" />
+                        </div>
+                      )}
+                    </div>
+                    {isLogged && plan === 'free' && (
+                      <span className={`text-[10px] font-bold tabular-nums opacity-60`}>
+                        {favoritesCount}/3
+                      </span>
+                    )}
+                  </button>
+                );
+              })()}
 
-              <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden md:inline">Compartir:</span>
-              <div className="flex items-center gap-2.5 md:gap-3">
-                <a href={`https://wa.me/?text=${encodeURIComponent(document.title + ' ' + window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#25D366] bg-[#25D366]/5 hover:bg-[#25D366]/10 transition-all hover:scale-110" title="WhatsApp">
-                  <MessageCircle size={16} className="md:hidden" />
-                  <MessageCircle size={18} className="hidden md:block" />
-                </a>
-                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(document.title)}&url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#000000] bg-[#000000]/5 hover:bg-[#000000]/10 transition-all hover:scale-110" title="X (Twitter)">
-                  <Twitter size={16} className="md:hidden" />
-                  <Twitter size={18} className="hidden md:block" />
-                </a>
-                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-full text-[#0077B5] bg-[#0077B5]/5 hover:bg-[#0077B5]/10 transition-all hover:scale-110" title="LinkedIn">
-                  <Linkedin size={16} className="md:hidden" />
-                  <Linkedin size={18} className="hidden md:block" />
-                </a>
-                <a href={`mailto:?subject=${encodeURIComponent(document.title)}&body=${encodeURIComponent(window.location.href)}`} className="p-1.5 rounded-full text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all hover:scale-110" title="Email">
-                  <Mail size={16} className="md:hidden" />
-                  <Mail size={18} className="hidden md:block" />
-                </a>
-              </div>
+              {/* Alert Toggle */}
+              {(() => {
+                const isLimitReached = (plan === 'free' && alertsCount >= 1) || (plan === 'basic' && alertsCount >= 3);
+                const limit = plan === 'free' ? 1 : plan === 'basic' ? 3 : null;
+                
+                return (
+                  <button 
+                    onClick={hasActiveAlert ? handleDeleteAlert : handleCreateAlert}
+                    className={`p-2 rounded-full transition-all relative flex items-center gap-1.5 ${
+                      hasActiveAlert 
+                        ? 'text-brand-600 bg-brand-50 hover:bg-brand-100' 
+                        : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                    }`}
+                    title={hasActiveAlert ? "Eliminar alerta" : isLimitReached ? "Límite alcanzado" : "Crear alerta de esta zona"}
+                  >
+                    <div className="relative">
+                      <Bell size={20} className={hasActiveAlert ? 'fill-brand-600' : ''} />
+                      {!hasActiveAlert && isLimitReached && (
+                        <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+                          <Lock size={8} className="text-slate-400" />
+                        </div>
+                      )}
+                    </div>
+                    {isLogged && limit && (
+                      <span className={`text-[10px] font-bold tabular-nums ${isLimitReached && !hasActiveAlert ? 'text-amber-600' : 'opacity-60'}`}>
+                        {alertsCount}/{limit}
+                      </span>
+                    )}
+                  </button>
+                );
+              })()}
+
+              <button 
+                onClick={scrollToNotes}
+                className={`p-2 rounded-full transition-all relative ${
+                  note.trim().length > 0 
+                    ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50' 
+                    : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                }`}
+                title={note.trim().length > 0 ? "Ver tu nota privada" : "Añadir nota privada"}
+              >
+                <StickyNote size={20} />
+                {note.trim().length > 0 && (
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-amber-500 border-2 border-white rounded-full" />
+                )}
+              </button>
+              
+              <ShareButtons 
+                title={document.title} 
+                variant="minimal"
+                province={cityName}
+                origin="ficha"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* DYNAMIC AUCTION STATUS BLOCK - TOP PRIORITY */}
+        <section className="mb-3 md:mb-5">
+          <div className="bg-amber-50 border border-amber-100 rounded-xl p-2 md:p-3 flex items-center gap-3 shadow-sm">
+            <div className="w-7 h-7 md:w-9 md:h-9 rounded-lg bg-white text-amber-600 flex items-center justify-center shrink-0 shadow-sm border border-amber-100">
+              <statusMessage.icon size={16} className="md:hidden" />
+              <statusMessage.icon size={20} className="hidden md:block" />
+            </div>
+            <div className="flex items-center gap-2 md:gap-3 overflow-hidden">
+              <h3 className="text-xs md:text-sm font-bold text-slate-900 whitespace-nowrap">
+                {statusMessage.title}
+              </h3>
+              <div className="w-1 h-1 rounded-full bg-slate-300 shrink-0" />
+              <p className="text-slate-600 text-[10px] md:text-xs truncate">
+                {statusMessage.description}
+              </p>
             </div>
           </div>
         </section>
@@ -897,18 +1505,43 @@ const AuctionPage: React.FC = () => {
                   <p className="text-[10px] md:text-xs font-bold text-white/90">{auction.boeId}</p>
                   <div className="w-px h-3 bg-white/10" />
                   <a 
-                    href={auction.boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${auction.boeId}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-[9px] md:text-[10px] text-brand-400 hover:text-brand-300 transition-colors flex items-center gap-1.5 font-bold group/link"
+                    href={(!user || plan === 'free') ? '#' : (auction.boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${auction.boeId}`)} 
+                    target={(!user || plan === 'free') ? undefined : "_blank"} 
+                    rel={(!user || plan === 'free') ? undefined : "noopener noreferrer"}
+                    onClick={(e) => {
+                      if (!user || plan === 'free') {
+                        e.preventDefault();
+                        setSoftGateOrigin('boe');
+                      }
+                    }}
+                    className={`text-[9px] md:text-[10px] transition-colors flex items-center gap-1.5 font-bold group/link ${(!user || plan === 'free') ? 'text-slate-400 cursor-pointer hover:text-brand-400' : 'text-brand-400 hover:text-brand-300'}`}
                   >
-                    BOE <ExternalLink size={8} className="group-hover/link:translate-x-0.5 transition-transform" />
+                    BOE {(!user || plan === 'free') ? <Lock size={8} /> : <ExternalLink size={8} className="group-hover/link:translate-x-0.5 transition-transform" />}
                   </a>
                 </div>
               </div>
             </div>
             
             <div className="flex items-center gap-4 md:gap-6">
+              <button 
+                onClick={handleToggleFavorite}
+                disabled={isTogglingFavorite}
+                className={`flex items-center gap-1.5 transition-colors ${
+                  isFavorite ? 'text-red-400' : 'text-white/30 hover:text-white/60'
+                }`}
+              >
+                <div className="relative">
+                  <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
+                  {(!isLogged || (plan === 'free' && !isFavorite)) && (
+                    <div className="absolute -top-1 -right-1 bg-slate-900 rounded-full p-0.5">
+                      <Lock size={6} className="text-white/60" />
+                    </div>
+                  )}
+                </div>
+                <span className="text-[8px] font-bold uppercase tracking-widest">
+                  {isFavorite ? 'Guardada' : 'Guardar'}
+                </span>
+              </button>
               <div className="text-right">
                 <p className="text-[7px] md:text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Estado</p>
                 <div className="flex items-center gap-1.5 justify-end">
@@ -968,7 +1601,7 @@ const AuctionPage: React.FC = () => {
               
               {opportunityRatio !== null && (
                 <div className="flex flex-col items-end justify-center">
-                  <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Margen</p>
+                  <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Margen Teórico</p>
                   <p className="text-3xl md:text-5xl font-bold text-emerald-600 tracking-tighter leading-none">
                     {Math.round(opportunityRatio * 100)}%
                   </p>
@@ -994,116 +1627,671 @@ const AuctionPage: React.FC = () => {
           </div>
         </motion.section>
 
-        {/* DYNAMIC AUCTION STATUS BLOCK */}
-        <section className="mb-6 md:mb-8">
-          <div className={`${statusMessage.bgColor} border ${statusMessage.borderColor} rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex items-center gap-4 md:gap-6 ${statusMessage.opacity || ''}`}>
-            <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl ${statusMessage.iconBgColor} ${statusMessage.iconColor} flex items-center justify-center shrink-0`}>
-              <statusMessage.icon size={24} className="md:hidden" />
-              <statusMessage.icon size={28} className="hidden md:block" />
-            </div>
-            <div className="flex flex-col justify-center">
-              <h3 className={`text-lg md:text-xl font-serif font-bold ${statusMessage.titleColor} leading-tight`}>
-                {statusMessage.title}
-              </h3>
-              <p className={`${statusMessage.descColor} text-xs md:text-base leading-tight mt-1`}>
-                {statusMessage.description}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* DARK VISUAL SUMMARY - COMPACT DYNAMIC BLOCK */}
-        <section className="bg-[#151921] rounded-2xl px-4 md:px-6 py-3.5 md:py-5 mb-6 md:mb-8 shadow-xl shadow-slate-200/40 border border-white/5 overflow-hidden">
-          {/* Mobile View: High Conversion Compact Stack */}
-          <div className="flex md:hidden flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
-                  <TrendingUp size={18} />
+        {/* VISUAL SUMMARY - COMPACT DYNAMIC BLOCK */}
+        <section className="bg-slate-50 rounded-xl px-3 md:px-6 py-2.5 md:py-4 mb-4 md:mb-6 shadow-sm border border-slate-200 overflow-hidden">
+          {/* Mobile View: High Conversion Compact Row */}
+          <div className="flex md:hidden items-center justify-between gap-2">
+            <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-1">
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
+                  <TrendingUp size={14} />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Margen Estimado</span>
-                  <span className="text-white text-xs font-bold tracking-tight">{analysisInsights?.summaryLabels.margenLabel}</span>
-                </div>
+                <span className="text-[10px] font-bold text-slate-700 whitespace-nowrap">{analysisInsights?.summaryLabels.margenLabel}</span>
               </div>
-              <a 
-                href="#analisis-tecnico" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('analisis-tecnico')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="flex items-center gap-1 text-brand-400 text-[10px] font-bold uppercase tracking-wider"
-              >
-                Ver análisis <ArrowUpRight size={12} />
-              </a>
+              <div className="w-px h-4 bg-slate-200 shrink-0" />
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="w-6 h-6 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 border border-amber-100">
+                  <AlertTriangle size={14} />
+                </div>
+                <span className="text-[10px] font-bold text-slate-700 whitespace-nowrap">{analysisInsights?.summaryLabels.atencionLabel}</span>
+              </div>
+              <div className="w-px h-4 bg-slate-200 shrink-0" />
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                  <Search size={14} />
+                </div>
+                <span className="text-[10px] font-bold text-slate-700 whitespace-nowrap">{analysisInsights?.summaryLabels.lecturaLabel}</span>
+              </div>
             </div>
-            
-            <div className="flex items-center gap-2 px-2 py-1.5 bg-white/5 rounded-lg border border-white/5">
-              <AlertTriangle size={12} className="text-amber-400 shrink-0" />
-              <p className="text-[9px] text-white/70 font-medium leading-tight">
-                <span className="text-amber-400 font-bold uppercase mr-1">Atención:</span>
-                {analysisInsights?.summaryLabels.atencionLabel}
-              </p>
-            </div>
+            <a 
+              href="#analisis-tecnico" 
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('analisis-tecnico')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-brand-600 shrink-0 shadow-sm"
+            >
+              <ArrowUpRight size={14} />
+            </a>
           </div>
 
           {/* Desktop View: Original Layout */}
           <div className="hidden md:flex flex-nowrap items-center justify-between gap-x-6 md:gap-x-8 whitespace-nowrap overflow-x-auto no-scrollbar pb-1 md:pb-0">
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 border border-emerald-500/20">
-                <TrendingUp size={18} className="md:hidden" />
-                <TrendingUp size={20} className="hidden md:block" />
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0 border border-emerald-100">
+                <TrendingUp size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[8px] md:text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Margen</span>
-                <span className="text-white text-xs md:text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.margenLabel}</span>
+                <span className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Margen Teórico</span>
+                <span className="text-slate-900 text-xs md:text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.margenLabel}</span>
               </div>
             </div>
             
-            <div className="w-px h-8 md:h-10 bg-white/10 shrink-0" />
+            <div className="w-px h-8 md:h-10 bg-slate-200 shrink-0" />
 
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 shrink-0 border border-amber-500/20">
-                <AlertTriangle size={18} className="md:hidden" />
-                <AlertTriangle size={20} className="hidden md:block" />
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500 shrink-0 border border-amber-100">
+                <AlertTriangle size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[8px] md:text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Atención</span>
-                <span className="text-white text-xs md:text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.atencionLabel}</span>
+                <span className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Atención</span>
+                <span className="text-slate-900 text-xs md:text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.atencionLabel}</span>
               </div>
             </div>
 
-            <div className="w-px h-8 md:h-10 bg-white/10 shrink-0" />
+            <div className="w-px h-8 md:h-10 bg-slate-200 shrink-0" />
 
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0 border border-blue-500/20">
-                <Search size={18} className="md:hidden" />
-                <Search size={20} className="hidden md:block" />
+              <div className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0 border border-blue-100">
+                <Search size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[8px] md:text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Lectura</span>
-                <span className="text-white text-xs md:text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.lecturaLabel}</span>
+                <span className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Lectura</span>
+                <span className="text-slate-900 text-xs md:text-[14px] font-bold tracking-tight">{analysisInsights?.summaryLabels.lecturaLabel}</span>
               </div>
             </div>
           </div>
         </section>
 
-        <div id="analisis-tecnico" className="space-y-8 md:space-y-12 mb-12 md:mb-20">
-          {/* MAIN ANALYSIS BLOCK */}
-          <section className="bg-slate-50 border-2 border-slate-200 rounded-[32px] md:rounded-[40px] p-6 md:p-10 shadow-sm hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 md:p-12 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
-              <Lock size={120} className="md:hidden" />
-              <Lock size={160} className="hidden md:block" />
+        {/* DATOS CATASTRALES BLOCK - COMPACT */}
+        <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-3 md:p-5 mb-4 md:mb-6">
+          <div className="flex items-center justify-between gap-3 mb-3 md:mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
+                <Search size={13} />
+              </div>
+              <h3 className="font-bold text-slate-900 text-xs md:text-base">Datos catastrales</h3>
+            </div>
+            <p className="text-[9px] md:text-[10px] text-slate-400 font-medium hidden sm:block">Información técnica de la Sede Electrónica del Catastro</p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+            <div className="space-y-1">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Superficie estimada</p>
+              <p className={`text-sm font-bold text-slate-900 ${plan === 'free' ? 'blur-[4px] select-none' : ''}`}>
+                {auction.surface ? `${auction.surface} m²` : (
+                  <span className="flex items-center gap-1 text-slate-400 font-medium italic">
+                    <Info size={10} /> Pendiente
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Año construcción</p>
+              <p className={`text-sm font-bold text-slate-900 ${plan === 'free' ? 'blur-[4px] select-none' : ''}`}>
+                {auction.yearBuilt || '1995'}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Referencia catastral</p>
+              <p className={`text-sm font-mono font-bold text-slate-900 ${plan === 'free' ? 'blur-[6px] select-none' : ''}`}>
+                {auction.refCat || (
+                  <span className="flex items-center gap-1 text-slate-400 font-medium italic">
+                    <Info size={10} /> Consultar BOE
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Confianza datos</p>
+              <div className="flex items-center gap-1.5">
+                <div className={`w-2 h-2 rounded-full ${plan === 'free' ? 'bg-slate-300' : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]'}`} />
+                <p className={`text-sm font-bold text-slate-900 ${plan === 'free' ? 'blur-[4px] select-none' : ''}`}>
+                  {auction.cadastreConfidence || 'ALTA'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        {/* Entorno del inmueble BLOCK */}
+        <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-4 md:mb-6">
+          <div className="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                <MapPin size={16} />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm md:text-base">Entorno del inmueble</h3>
+                <p className="text-[10px] text-slate-500 font-medium">Ubicación aproximada y entorno del activo</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative min-h-[140px] md:min-h-[200px] h-[200px] md:h-[280px] group">
+            {/* Status Badge */}
+            <div className="absolute top-2 right-2 z-30 px-2.5 py-1 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-full flex items-center gap-1.5 shadow-sm">
+              <div className={`w-1.5 h-1.5 rounded-full ${plan === 'free' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></div>
+              <span className="text-[9px] md:text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                {plan === 'free' ? 'Vista real bloqueada' : 'Vista real disponible'}
+              </span>
+            </div>
+
+            {/* Street View Preview - Using a street view embed with fallback logic */}
+            <div className="absolute inset-0 bg-slate-100">
+              <iframe
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(
+                  approximateCoords 
+                    ? `${approximateCoords.lat},${approximateCoords.lng}` 
+                    : (auction?.address ? `${auction.address}, ${auction.city}` : (auction?.city || 'España'))
+                )}&layer=c${approximateCoords ? `&cbll=${approximateCoords.lat},${approximateCoords.lng}` : ''}&output=embed`}
+                className={`w-full h-full ${plan === 'free' ? 'blur-md grayscale opacity-50' : ''}`}
+                allowFullScreen
+              ></iframe>
+            </div>
+
+            {/* Overlay for FREE users */}
+            {plan === 'free' && (
+              <LockedFeatureBlock 
+                title="Ver entorno real del inmueble"
+                description="Disponible en BASIC y PRO"
+                onAction={() => setSoftGateOrigin('streetview')}
+              />
+            )}
+
+            {/* Street View Button - Visible for all but different action */}
+            <div className="absolute bottom-4 right-4 z-20 flex flex-col items-end gap-1.5">
+              <button
+                onClick={() => plan === 'free' ? setSoftGateOrigin('streetview') : setShowStreetView(true)}
+                className="bg-white hover:bg-slate-50 text-slate-900 font-bold py-2 px-4 rounded-xl transition-all shadow-xl border border-slate-200 flex items-center gap-2 text-xs md:text-sm group/map"
+              >
+                <div className="w-6 h-6 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 group-hover/map:bg-brand-500 group-hover/map:text-white transition-colors">
+                  {plan === 'free' ? <Lock size={14} /> : (
+                    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 opacity-80" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                    </svg>
+                  )}
+                </div>
+                Ver Street View
+              </button>
+              <p className="text-[9px] md:text-[10px] text-slate-500 font-medium bg-white/60 backdrop-blur-sm px-2 py-0.5 rounded-md border border-slate-100/50">
+                {auction.lat && auction.lng 
+                  ? "Ubicación exacta disponible" 
+                  : (auction.address ? "Ubicación aproximada basada en BOE" : "Vista general de la ciudad")}
+              </p>
+            </div>
+          </div>
+
+          {/* Location Precision & External Link - COMPACT ROW */}
+          <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-[11px] md:text-xs text-slate-500 font-medium overflow-hidden">
+              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
+                auction.lat && auction.lng ? 'bg-emerald-100 text-emerald-600' : 
+                auction.address && auction.city ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-500'
+              }`}>
+                {auction.lat && auction.lng ? <CheckCircle size={10} /> : <Info size={10} />}
+              </div>
+              <span className="truncate">
+                {auction.city} · {provinceName} · {auction.lat && auction.lng ? 'Ubicación exacta' : 'Referencia aproximada'}
+              </span>
             </div>
             
-            <div className="relative z-10">
-              <LoadAnalysisBlock 
-                boeId={auction.boeId || ''} 
-                boeUrl={auction.boeUrl}
-                isIntegrated={true} 
-              />
+            <a 
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                approximateCoords 
+                  ? `${approximateCoords.lat},${approximateCoords.lng}` 
+                  : (auction?.address ? `${auction.address}, ${auction.city}` : (auction?.city || 'España'))
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 py-1.5 px-3 bg-white border border-slate-200 rounded-lg text-slate-700 text-[10px] md:text-[11px] font-bold hover:bg-slate-50 transition-colors shadow-sm shrink-0"
+            >
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 opacity-80 text-brand-600" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+              </svg>
+              Google Maps
+            </a>
+          </div>
+
+          {/* FREE USER HELP TEXT */}
+          {plan === 'free' && (
+            <div className="p-5 md:p-6 bg-slate-50/50 border-t border-slate-100">
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <div className="w-1 h-3 bg-brand-500 rounded-full"></div>
+                Qué puedes comprobar
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Estado fachada', icon: Home },
+                  { label: 'Tipo edificio', icon: CheckCircle },
+                  { label: 'Entorno zona', icon: MapPin },
+                  { label: 'Accesos', icon: ArrowRight }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-slate-600">
+                    <item.icon size={14} className="text-slate-400" />
+                    <span className="text-xs font-medium">{item.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </section>
+          )}
+        </section>
+
+        {/* KEY DISTANCES BLOCK */}
+        <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-6 md:mb-8">
+          <div className="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-100">
+                <Car size={16} />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm md:text-base">Distancias clave</h3>
+                <p className="text-[10px] text-slate-500 font-medium">Tiempo estimado de trayecto en coche</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className={`p-4 md:p-5 ${plan === 'free' ? 'blur-md grayscale opacity-40 select-none pointer-events-none' : ''}`}>
+              <div className="flex flex-row flex-wrap items-center gap-4 md:gap-8 overflow-x-auto no-scrollbar">
+                {keyDistances?.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-3 h-10 shrink-0">
+                    <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
+                      <item.icon size={14} />
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-1">{item.label}</span>
+                      <div className="flex items-baseline gap-1 leading-none">
+                        <span className="text-sm font-black text-slate-900">{item.time} min</span>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">aprox.</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Overlay for FREE users */}
+            {plan === 'free' && (
+              <LockedFeatureBlock 
+                title="Análisis de distancias bloqueado"
+                description="Los planes BASIC y PRO incluyen el cálculo de distancias a puntos de interés."
+                onAction={() => setSoftGateOrigin('streetview')}
+              />
+            )}
+          </div>
+        </section>
+
+        {/* INTERACTIVE MARKET COMPARATOR BLOCK */}
+        <section className="mb-6 md:mb-10">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 md:p-8 shadow-sm relative overflow-hidden">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center shadow-sm border border-violet-200">
+                  <TrendingUp size={16} />
+                </div>
+                <h3 className="text-lg md:text-xl font-serif font-bold text-slate-900">Comparativa de mercado</h3>
+              </div>
+              <div className={`self-start md:self-auto px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                compDiscountVsMarket >= 30 ? 'bg-emerald-100 text-emerald-700' :
+                compDiscountVsMarket >= 15 ? 'bg-green-100 text-green-700' :
+                compDiscountVsMarket >= 0 ? 'bg-amber-100 text-amber-700' :
+                'bg-red-100 text-red-700'
+              }`}>
+                {compDiscountVsMarket >= 30 ? 'Alta oportunidad' :
+                 compDiscountVsMarket >= 15 ? 'Buena oportunidad' :
+                 compDiscountVsMarket >= 0 ? 'Margen ajustado' :
+                 'Sobreprecio'}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-1 relative">
+                <span className="text-[10px] md:text-xs uppercase tracking-widest text-slate-400 font-bold block mb-1">Precio mercado actual</span>
+                
+                <div 
+                  className={`flex flex-col ${plan === 'free' ? 'cursor-pointer' : ''}`}
+                  onClick={() => {
+                    if (plan === 'free') setSoftGateOrigin('catastro');
+                  }}
+                >
+                  <p className={`text-xl md:text-2xl font-bold text-slate-900 leading-none transition-all duration-300 ${plan === 'free' ? 'blur-[4px] opacity-40 select-none' : ''}`}>
+                    {compMarketValue > 0 ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(compMarketValue) : '---'}
+                  </p>
+                  {compMarketPricePerSqm > 0 && (
+                    <span className={`text-base font-semibold text-slate-900 mt-0.5 transition-all duration-300 ${plan === 'free' ? 'blur-[3px] opacity-50 select-none' : ''}`}>
+                      {new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(compMarketPricePerSqm)} €/m²
+                    </span>
+                  )}
+                </div>
+
+                <div className="pt-3 overflow-x-auto no-scrollbar">
+                  <span className="text-[10px] text-slate-500 font-medium block mb-1.5">Escenario mercado</span>
+                  <div className="inline-flex bg-slate-100 rounded p-0.5 shadow-inner">
+                    <button
+                      onClick={() => setMarketScenario('conservador')}
+                      className={`px-2 py-1 text-[10px] font-semibold rounded-sm transition-colors whitespace-nowrap ${marketScenario === 'conservador' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      Conservador
+                    </button>
+                    <button
+                      onClick={() => setMarketScenario('medio')}
+                      className={`px-2 py-1 text-[10px] font-semibold rounded-sm transition-colors whitespace-nowrap ${marketScenario === 'medio' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      Medio
+                    </button>
+                    <button
+                      onClick={() => setMarketScenario('optimista')}
+                      className={`px-2 py-1 text-[10px] font-semibold rounded-sm transition-colors whitespace-nowrap ${marketScenario === 'optimista' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      Optimista
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] md:text-xs uppercase tracking-widest text-slate-400 font-bold">Valor tasación BOE</span>
+                <p className="text-xl md:text-2xl font-bold text-slate-600">
+                  {compAppraisalValue > 0 ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(compAppraisalValue) : '---'}
+                </p>
+              </div>
+            </div>
+
+            {/* Slider Section */}
+            <div className="mb-6">
+              <div className="flex justify-between items-end mb-3">
+                <label className="text-xs md:text-sm font-bold text-slate-700">Precio estimado de compra</label>
+                <div className="text-right">
+                  <span className="text-xl md:text-2xl font-bold text-brand-600 block leading-none">
+                    {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(purchasePriceSlider)}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    {compPercentOfAppraisal.toFixed(1)}% sobre tasación
+                  </span>
+                </div>
+              </div>
+              
+              <input 
+                type="range" 
+                min={compSliderMin} 
+                max={compSliderMax} 
+                step={1000}
+                value={purchasePriceSlider}
+                onChange={(e) => setPurchasePriceSlider(Number(e.target.value))}
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-600"
+              />
+              <p className="text-xs text-slate-400 text-center mt-3">
+                Simula tu puja y descubre el ahorro potencial
+              </p>
+            </div>
+
+            {/* Expandable Section */}
+            <AnimatePresence>
+              {!isComparatorExpanded ? (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-6"
+                >
+                  <div className="flex justify-center relative z-20">
+                    <button 
+                      onClick={() => {
+                        if (plan === 'free') {
+                          setSoftGateOrigin('catastro');
+                        } else {
+                          setIsComparatorExpanded(true);
+                        }
+                      }}
+                      className="w-full md:w-auto px-6 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <Search size={16} className="text-brand-600" />
+                      Verificar m² con Catastro
+                    </button>
+                  </div>
+
+                  {plan === 'free' && (
+                    <div 
+                      className="mt-8 pt-8 border-t border-slate-200 overflow-hidden relative cursor-pointer group"
+                      onClick={() => setSoftGateOrigin('catastro')}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/80 to-slate-50 z-10 flex items-end justify-center pb-6">
+                        <div className="flex flex-col items-center bg-white/90 px-6 py-4 rounded-2xl shadow-sm backdrop-blur-sm border border-slate-100 transition-transform group-hover:scale-105">
+                          <span className="text-base font-bold text-slate-900 mb-1">Desbloquea análisis completo</span>
+                          <span className="text-xs font-medium text-slate-500">Disponible en BASIC y PRO</span>
+                        </div>
+                      </div>
+                      <div className="blur-[1.5px] opacity-60 select-none pointer-events-none">
+                        <div className="flex flex-col items-center text-center mb-8">
+                          <span className="text-xs uppercase tracking-wide text-slate-500 mb-2">Ahorro vs mercado</span>
+                          <span className="text-5xl md:text-6xl font-bold tracking-tighter leading-none mb-3 text-emerald-600">+25.000 €</span>
+                          <span className="text-sm md:text-base font-medium text-slate-600 mb-4"><strong className="font-bold text-emerald-600">15.5%</strong> por debajo del valor de mercado</span>
+                        </div>
+                        <div className="mb-8">
+                          <div className="relative h-3 bg-slate-200 rounded-full overflow-hidden flex">
+                            <div className="h-full bg-brand-500 w-[80%]" />
+                            <div className="h-full bg-emerald-400 w-[20%]" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-8 pt-8 border-t border-slate-200 overflow-hidden"
+                >
+                  <div className="flex flex-col items-center text-center mb-8">
+                    <span className="text-xs uppercase tracking-wide text-slate-500 mb-2">
+                      {isOverpriced ? 'Sobreprecio vs mercado' : 'Ahorro vs mercado'}
+                    </span>
+                    <span className={`text-5xl md:text-6xl font-bold tracking-tighter leading-none mb-3 ${compSavings > 0 ? 'text-emerald-600' : compSavings < 0 ? 'text-red-600' : 'text-amber-500'}`}>
+                      {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0, signDisplay: 'always' }).format(isOverpriced ? Math.abs(compSavings) : compSavings)}
+                    </span>
+                    <span className="text-sm md:text-base font-medium text-slate-600 mb-4">
+                      <strong className={`font-bold ${compSavings > 0 ? 'text-emerald-600' : compSavings < 0 ? 'text-red-600' : 'text-amber-500'}`}>
+                        {isOverpriced ? compOverpricePercent.toFixed(1) : compDiscountVsMarket.toFixed(1)}%
+                      </strong> {isOverpriced ? 'por encima del valor de mercado' : 'por debajo del valor de mercado'}
+                    </span>
+                    <div className={`px-3 py-1 rounded-full border text-xs font-bold ${compBadge.color}`}>
+                      {compBadge.text}
+                    </div>
+                  </div>
+
+                  {/* Visual Bar */}
+                  <div className="mb-8">
+                    <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                      <span>{isOverpriced ? 'Valor Mercado' : 'Tu compra'}</span>
+                      <span>{isOverpriced ? 'Tu compra' : 'Valor Mercado'}</span>
+                    </div>
+                    <div className="relative h-3 bg-slate-200 rounded-full overflow-hidden flex">
+                      {isOverpriced ? (
+                        <>
+                          <div 
+                            className="h-full bg-slate-400 transition-all duration-300" 
+                            style={{ width: `${(compMarketValue / purchasePriceSlider) * 100}%` }}
+                          />
+                          <div 
+                            className="h-full bg-red-400 transition-all duration-300" 
+                            style={{ width: `${((purchasePriceSlider - compMarketValue) / purchasePriceSlider) * 100}%` }}
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <div 
+                            className="h-full bg-brand-500 transition-all duration-300" 
+                            style={{ width: `${(purchasePriceSlider / compMarketValue) * 100}%` }}
+                          />
+                          <div 
+                            className="h-full bg-emerald-400 transition-all duration-300" 
+                            style={{ width: `${((compMarketValue - purchasePriceSlider) / compMarketValue) * 100}%` }}
+                          />
+                        </>
+                      )}
+                      {/* Marker for "Tu compra" */}
+                      <div 
+                        className="absolute top-0 bottom-0 w-1 bg-slate-800 rounded-full shadow-sm transition-all duration-300 z-10"
+                        style={{ 
+                          left: isOverpriced ? '100%' : `${(purchasePriceSlider / compMarketValue) * 100}%`,
+                          transform: 'translateX(-50%)'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-slate-100">
+                    <div>
+                      <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold block mb-1">Superficie verificada</span>
+                      <span className="text-sm font-bold text-slate-900">{compSurface} m²</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold block mb-1">Precio estimado</span>
+                      <span className="text-sm font-bold text-slate-900">{new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(compPricePerSqm)}/m²</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col items-center justify-center gap-2">
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      Fuente: Ministerio de Vivienda · {auction?.city || 'Localidad'} · Datos basados en Idealista
+                    </span>
+                    <span className="text-xs text-slate-400 text-center mt-2">
+                      Ahorro teórico sin impuestos ni posibles otros gastos. Usa la <a href="#calculadora" className="text-brand-600 hover:underline">Calculadora PRO</a> para precisión absoluta.
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </section>
+
+        <div id="servicios-analisis" className="mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card 1: Análisis de cargas */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow">
+              <div className="mb-6">
+                <h3 className="text-xl font-serif font-bold text-slate-900 mb-1">Análisis de cargas</h3>
+                <p className="text-slate-500 text-sm">Detecta riesgos antes de pujar</p>
+              </div>
+              
+              <div className="flex-1">
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[9px] font-bold rounded uppercase tracking-wider border border-slate-200">Nota simple</span>
+                  <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[9px] font-bold rounded uppercase tracking-wider border border-slate-200">Certificación cargas</span>
+                </div>
+                
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-slate-900">
+                      {plan === 'free' ? '2,99€' : 'Incluido'}
+                    </span>
+                    {plan !== 'free' && (
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">/ Crédito</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="relative z-10">
+                  {userContext && cargasPaid ? (
+                    <UserContext.Provider value={{ ...userContext, plan: 'pro', user: userContext.user ? { ...userContext.user, analysisUsed: 0 } : null }}>
+                      <LoadAnalysisBlock 
+                        boeId={auction.boeId || ''} 
+                        boeUrl={auction.boeUrl}
+                        isIntegrated={true} 
+                        onShowSoftGate={() => {}}
+                      />
+                    </UserContext.Provider>
+                  ) : (
+                    <LoadAnalysisBlock 
+                      boeId={auction.boeId || ''} 
+                      boeUrl={auction.boeUrl}
+                      isIntegrated={true} 
+                      onShowSoftGate={() => {
+                        setPaymentType('cargas');
+                        setShowPaymentModal(true);
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Análisis completo */}
+            <div id="analisis-completo" className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col h-full relative hover:shadow-md transition-shadow">
+              <div className="absolute top-4 right-4 px-2 py-1 bg-brand-50 text-brand-600 text-[9px] font-bold rounded uppercase tracking-wider border border-brand-100">
+                Recomendado
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-serif font-bold text-slate-900 mb-1">Análisis completo</h3>
+                <p className="text-slate-500 text-sm">Decisión rápida de inversión</p>
+              </div>
+
+              <div className="flex-1 flex flex-col">
+                <div className="mb-8">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-slate-900">
+                      {plan === 'pro' ? '0,99€' : plan === 'basic' ? '2,99€' : '4,99€'}
+                    </span>
+                  </div>
+                  {plan !== 'pro' && (
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Precio PRO: 0,99€</p>
+                  )}
+                </div>
+
+                <div className="mt-auto space-y-4">
+                  <button 
+                    onClick={() => {
+                      if (analysisPaid) {
+                        setShowFullAnalysisModal(true);
+                      } else {
+                        setPaymentType('analysis');
+                        setShowPaymentModal(true);
+                      }
+                    }}
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 group/btn text-sm shadow-sm hover:shadow-md"
+                  >
+                    {analysisPaid ? 'Ver informe generado' : 'Generar informe →'}
+                  </button>
+                  <p className="text-[10px] text-slate-400 text-center font-medium">Informe PDF con ROI y puja máxima</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* User Notes Block */}
+          {isLogged && (
+            <div id="user-notes" className="mb-12 bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                    <StickyNote size={20} />
+                  </div>
+                  <h3 className="font-serif text-xl font-bold text-slate-900">Tu nota privada</h3>
+                </div>
+                {isSavingNote && (
+                  <span className="text-xs text-slate-400 animate-pulse">Guardando...</span>
+                )}
+              </div>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Escribe aquí tus notas sobre esta subasta (solo tú puedes verlas)..."
+                className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 transition-all resize-none text-slate-700"
+              />
+              <p className="mt-2 text-xs text-slate-500">
+                Las notas se guardan automáticamente en tu navegador.
+              </p>
+            </div>
+          )}
 
           {/* SECONDARY CTA ROW */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -1165,11 +2353,10 @@ const AuctionPage: React.FC = () => {
               </Link>
             </motion.div>
           </div>
-        </div>
 
-        <div className="space-y-8">
+          <div className="space-y-8">
           {/* LONG-TAIL SEO CONTENT */}
-          <section className="space-y-16 pb-20">
+          <section className="space-y-16 pb-20 mt-32 md:mt-48 border-t border-slate-100 pt-16">
             <div className="prose prose-slate max-w-none">
               <h2 className="text-4xl font-serif font-bold text-slate-900 mb-8">Análisis del Activo</h2>
               
@@ -1270,8 +2457,8 @@ const AuctionPage: React.FC = () => {
                 className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
               >
                 <div className="p-8 text-center">
-                  <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-500">
-                    <Star size={32} className="fill-amber-500" />
+                  <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
+                    <Heart size={32} className="fill-red-500" />
                   </div>
                   <h3 className="text-2xl font-serif font-bold text-slate-900 mb-3">Has guardado 3 oportunidades</h3>
                   <p className="text-slate-600 mb-8">
@@ -1297,6 +2484,114 @@ const AuctionPage: React.FC = () => {
                 </div>
               </motion.div>
             </div>
+          )}
+        </AnimatePresence>
+
+        {/* SOFT GATE MODAL */}
+        <SoftGateModal 
+          isOpen={!!softGateOrigin} 
+          onClose={() => setSoftGateOrigin(null)} 
+          origin={softGateOrigin || undefined}
+        />
+
+        {/* FULL ANALYSIS MODAL */}
+        <FullAnalysisModal
+          isOpen={showFullAnalysisModal}
+          onClose={() => setShowFullAnalysisModal(false)}
+          auction={auction}
+          marketValue={compMarketValue}
+          savings={compSavings}
+          discount={compDiscountVsMarket}
+        />
+
+        {/* PAYMENT MODAL */}
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          type={paymentType}
+          auctionId={auction.boeId || auction.slug || ''}
+        />
+
+        {/* STREET VIEW MODAL */}
+        <AnimatePresence>
+          {showStreetView && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowStreetView(false)}
+                className="absolute inset-0 bg-slate-900/90 backdrop-blur-md"
+              />
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-6xl h-[80vh] bg-white rounded-[32px] shadow-2xl overflow-hidden border border-white/20"
+              >
+                <div className="absolute top-4 right-4 z-10 flex gap-2">
+                  <button
+                    onClick={() => setShowStreetView(false)}
+                    className="p-3 bg-white/90 backdrop-blur-md text-slate-900 hover:bg-white rounded-2xl transition-all shadow-xl border border-slate-200"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="absolute top-4 left-4 z-10">
+                  <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl border border-slate-200 shadow-xl flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600">
+                      <MapPin size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Street View</p>
+                      <p className="text-xs font-bold text-slate-900 leading-none">{auction.address}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <iframe
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(
+                    auction.lat && auction.lng 
+                      ? `${auction.lat},${auction.lng}` 
+                      : (auction.address ? `${auction.address}, ${auction.city}` : (auction.city || 'España'))
+                  )}&layer=c${auction.lat && auction.lng ? `&cbll=${auction.lat},${auction.lng}` : ''}&output=embed`}
+                  allowFullScreen
+                ></iframe>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* MOBILE STICKY CTA */}
+        <AnimatePresence>
+          {!analysisPaid && !showFullAnalysisModal && !showPaymentModal && !showPremiumModal && !softGateOrigin && !showStreetView && !isFooterVisible && (
+            <motion.div 
+              initial={{ y: 100 }}
+              animate={{ y: 0 }}
+              exit={{ y: 100 }}
+              className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-3 md:hidden z-[60] flex items-center justify-between shadow-[0_-4px_10px_rgba(0,0,0,0.05)]"
+            >
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Análisis completo</span>
+                <span className="text-lg font-bold text-slate-900 leading-none">
+                  {plan === 'pro' ? '0,99€' : plan === 'basic' ? '2,99€' : '4,99€'}
+                </span>
+              </div>
+              <button 
+                onClick={() => {
+                  setPaymentType('analysis');
+                  setShowPaymentModal(true);
+                }}
+                className="bg-slate-900 text-white font-bold py-3 px-6 rounded-xl text-sm shadow-sm active:scale-[0.98] transition-all flex items-center gap-2"
+              >
+                Generar informe →
+              </button>
+            </motion.div>
           )}
         </AnimatePresence>
       </main>

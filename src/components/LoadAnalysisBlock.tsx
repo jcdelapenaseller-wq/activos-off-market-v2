@@ -59,21 +59,125 @@ interface LoadAnalysisBlockProps {
   boeId: string;
   boeUrl?: string;
   isIntegrated?: boolean;
+  onShowSoftGate?: () => void;
 }
 
-const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, isIntegrated = false }) => {
+const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ 
+  boeId, 
+  boeUrl, 
+  isIntegrated = false,
+  onShowSoftGate
+}) => {
   const [step, setStep] = useState<'locked' | 'upload' | 'loading' | 'result'>('locked');
   const [files, setFiles] = useState<File[]>([]);
   const [resultData, setResultData] = useState<AnalysisResult | null>(null);
   const [showHowToModal, setShowHowToModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { plan: currentPlan } = useUser();
+  const { user, plan: currentPlan, incrementAnalysisCount } = useUser();
   const navigate = useNavigate();
   
-  const [hasUsedFreeAnalysis, setHasUsedFreeAnalysis] = useState(() => {
-    return localStorage.getItem('free_analysis_used') === 'true';
-  });
+  const usage = user?.analysisUsed || 0;
+
+  const planLimit = currentPlan === 'free' ? 1 : currentPlan === 'basic' ? 3 : 10;
+
+  const isBlocked = usage >= planLimit;
+
+  const getCounterText = () => {
+    if (currentPlan === 'free') {
+      return usage >= 1 ? 'Sin análisis disponibles' : '1 análisis gratis disponible';
+    }
+    if (currentPlan === 'basic') {
+      const remaining = Math.max(0, 3 - usage);
+      return remaining === 0 ? 'Sin análisis disponibles' : `${remaining} de 3 restantes`;
+    }
+    const remaining = Math.max(0, 10 - usage);
+    return remaining === 0 ? 'Sin análisis disponibles' : `${remaining} de 10 restantes`;
+  };
+
+  const getCounterVisuals = (): {
+    text: string;
+    subtext?: string;
+    action?: { text: string; to: string };
+    bgClass: string;
+    textClass: string;
+    borderClass: string;
+    icon: JSX.Element;
+  } => {
+    if (currentPlan === 'pro') {
+      const remaining = Math.max(0, 10 - usage);
+      if (remaining === 0) {
+        return {
+          text: 'Sin análisis disponibles',
+          subtext: 'Has agotado tus 10 análisis de este mes',
+          bgClass: 'bg-red-50',
+          textClass: 'text-red-700',
+          borderClass: 'border-red-200',
+          icon: <AlertTriangle size={14} className="text-red-600" />
+        };
+      }
+      return {
+        text: `Plan PRO — ${remaining} análisis restantes`,
+        bgClass: 'bg-slate-50',
+        textClass: 'text-slate-700',
+        borderClass: 'border-slate-200',
+        icon: <CheckCircle size={14} className="text-emerald-500" />
+      };
+    }
+    
+    if (currentPlan === 'basic') {
+      const remaining = Math.max(0, 3 - usage);
+      if (remaining === 0) {
+        return {
+          text: 'Sin análisis disponibles',
+          subtext: 'Upgrade para continuar',
+          action: { text: 'Ver planes', to: '/pro' },
+          bgClass: 'bg-red-50',
+          textClass: 'text-red-700',
+          borderClass: 'border-red-200',
+          icon: <AlertTriangle size={14} className="text-red-600" />
+        };
+      }
+      if (remaining === 1) {
+        return {
+          text: 'Te queda 1 análisis este mes',
+          subtext: 'Ideal para esta subasta',
+          bgClass: 'bg-amber-50',
+          textClass: 'text-amber-700',
+          borderClass: 'border-amber-200',
+          icon: <AlertTriangle size={14} className="text-amber-600" />
+        };
+      }
+      return {
+        text: `${usage} de 3 análisis usados este mes`,
+        bgClass: 'bg-slate-50',
+        textClass: 'text-slate-700',
+        borderClass: 'border-slate-200',
+        icon: <Info size={14} className="text-slate-500" />
+      };
+    }
+    
+    // FREE
+    if (usage >= 1) {
+      return {
+        text: 'Sin análisis disponibles',
+        subtext: 'Upgrade para continuar',
+        action: { text: 'Ver planes', to: '/pro' },
+        bgClass: 'bg-red-50',
+        textClass: 'text-red-700',
+        borderClass: 'border-red-200',
+        icon: <Lock size={14} className="text-red-600" />
+      };
+    }
+    return {
+      text: 'Te queda 1 análisis gratis',
+      subtext: 'Ideal para esta subasta',
+      bgClass: 'bg-amber-50',
+      textClass: 'text-amber-700',
+      borderClass: 'border-amber-200',
+      icon: <Info size={14} className="text-amber-600" />
+    };
+  };
 
   const finalBoeUrl = boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${boeId}`;
 
@@ -126,55 +230,60 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
     setFiles(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (files.length === 0) return;
     
-    if (currentPlan === 'free') {
-      if (hasUsedFreeAnalysis) {
-        navigate('/pro');
-        return;
+    if (isBlocked) {
+      if (onShowSoftGate) {
+        onShowSoftGate();
       } else {
-        localStorage.setItem('free_analysis_used', 'true');
-        setHasUsedFreeAnalysis(true);
-        setStep('loading');
-        
-        // Mock analysis for the free use
-        setTimeout(() => {
-          setResultData({
-            razonamiento_juridico: "Análisis de prueba para usuario FREE. Se han detectado cargas anteriores que deben ser canceladas.",
-            fuente_documento: "Nota Simple (Simulada)",
-            nivel_confianza_global: "MEDIA",
-            riesgo_global: "MEDIO",
-            cargas_detectadas: [
-              {
-                identificador_registral: "Finca 12345",
-                tipo: "Hipoteca",
-                fuente_textual: "Inscripción 4ª",
-                desglose: { principal: 50000, intereses: 5000, costas: 2000, total: 57000 },
-                titular: "Banco Santander",
-                rango: "Anterior",
-                resultado: "SUBSISTE",
-                estado_carga: "SUBSISTE",
-                vigente: true,
-                confianza: "ALTA"
-              }
-            ],
-            incoherencias_detectadas: [],
-            ocupacion_detectada: false,
-            nivel_riesgo_ocupacion: "BAJO",
-            peor_escenario: { principal: 50000, intereses: 5000, costas: 2000, total: 57000 },
-            impacto_economico: { coste_estimado: 57000, nivel: "MEDIO" },
-            alertas: ["Revisar estado de la deuda hipotecaria actual."],
-            recomendacion: "Se recomienda contactar con la entidad acreedora para conocer la deuda exacta a día de hoy."
-          });
-          setStep('result');
-        }, 2000);
-        return;
+        navigate('/pro');
       }
+      return;
     }
 
-    // For BASIC and PRO, redirect to Stripe for now (as per previous logic)
-    window.location.href = 'https://buy.stripe.com/aFa14p7avcGl6dLa8MdjO04';
+    setStep('loading');
+    
+    // Mock analysis for all plans
+    setTimeout(async () => {
+      // Incrementar contador solo cuando análisis se ejecuta correctamente
+      const success = await incrementAnalysisCount();
+      if (!success && currentPlan !== 'pro') {
+        setStep('upload');
+        if (onShowSoftGate) onShowSoftGate();
+        return;
+      }
+
+      setResultData({
+        razonamiento_juridico: "Análisis de prueba. Se han detectado cargas anteriores que deben ser canceladas.",
+        fuente_documento: "Nota Simple (Simulada)",
+        nivel_confianza_global: "MEDIA",
+        riesgo_global: "MEDIO",
+        cargas_detectadas: [
+          {
+            identificador_registral: "Finca 12345",
+            tipo: "Hipoteca",
+            fuente_textual: "Inscripción 4ª",
+            desglose: { principal: 50000, intereses: 5000, costas: 2000, total: 57000 },
+            titular: "Banco Santander",
+            rango: "Anterior",
+            resultado: "SUBSISTE",
+            estado_carga: "SUBSISTE",
+            vigente: true,
+            confianza: "ALTA"
+          }
+        ],
+        incoherencias_detectadas: [],
+        ocupacion_detectada: false,
+        nivel_riesgo_ocupacion: "BAJO",
+        peor_escenario: { principal: 50000, intereses: 5000, costas: 2000, total: 57000 },
+        impacto_economico: { coste_estimado: 57000, nivel: "MEDIO" },
+        alertas: ["Revisar estado de la deuda hipotecaria actual."],
+        recomendacion: "Se recomienda contactar con la entidad acreedora para conocer la deuda exacta a día de hoy."
+      });
+      
+      setStep('result');
+    }, 2000);
   };
 
   const getConfianzaExplanation = (nivel: string) => {
@@ -187,7 +296,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
   };
 
   return (
-    <div ref={blockRef} className={`${isIntegrated ? '' : 'my-8 md:my-12 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden'}`}>
+    <div ref={blockRef} className={`${isIntegrated ? 'w-full' : 'my-8 md:my-12 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden'}`}>
       {!isIntegrated && (
         <div className="bg-slate-900 px-8 py-5 text-white flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -205,10 +314,10 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
       <div className={`${isIntegrated ? 'p-0' : 'p-4 md:p-8'}`}>
         {step === 'locked' && (
           <div 
-            className="group/card cursor-pointer bg-white border border-slate-100 rounded-2xl p-4 md:p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]" 
-            onClick={handleUnlock}
+            className={`${isIntegrated ? '' : 'group/card cursor-pointer bg-white border border-slate-100 rounded-2xl p-4 md:p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]'}`}
+            onClick={isBlocked ? undefined : handleUnlock}
           >
-            <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center py-1">
+            <div className={`flex flex-col md:flex-row gap-4 md:gap-8 items-center py-1 ${isBlocked ? 'opacity-75 grayscale-[0.5]' : ''}`}>
               {/* Left Side (70%) */}
               <div className="w-full md:flex-[0.7] space-y-3 md:space-y-4">
                 <div className="flex items-start gap-3 md:gap-5">
@@ -217,6 +326,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
                     <Scale size={26} className="hidden md:block" strokeWidth={1.2} />
                   </div>
                   <div className="flex-1">
+                    <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Riesgo legal</span>
                     <h3 className="text-sm md:text-lg font-serif font-bold text-slate-900 mb-0.5 tracking-tight">Análisis de cargas registrales</h3>
                     <p className="text-slate-500 text-[10px] md:text-sm font-medium leading-tight">Detecta hipotecas, embargos y riesgos ocultos antes de pujar</p>
                     
@@ -250,10 +360,20 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
                 </div>
                 <button 
                   onClick={handleUnlock}
-                  className="w-full bg-brand-600 text-white font-bold py-3 md:py-2 px-6 rounded-xl hover:bg-brand-800 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-brand-100 group/btn text-xs md:text-sm whitespace-nowrap"
+                  disabled={isBlocked}
+                  className={`w-full font-bold py-3 md:py-2 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg text-xs md:text-sm whitespace-nowrap ${
+                    isBlocked 
+                      ? 'bg-slate-200 text-slate-500 cursor-not-allowed shadow-none' 
+                      : 'bg-brand-600 text-white hover:bg-brand-800 shadow-brand-100 group/btn'
+                  }`}
                 >
-                  Analizar cargas →
+                  {isBlocked ? 'Sin análisis disponibles' : 'Analizar cargas →'}
                 </button>
+                {isBlocked && (
+                  <p className="text-[10px] text-red-500 font-bold mt-2 text-center md:text-right">
+                    Upgrade para continuar
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -381,56 +501,46 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
             </div>
 
             <div className="mt-6 md:mt-8 flex flex-col items-center px-4">
-              <div className="text-center mb-2">
-                <p className="text-xs text-slate-500 font-medium">
-                  Por solo <span className="text-slate-900 font-bold">2,99€</span> · Pago único
-                </p>
-              </div>
-
-              {currentPlan === 'free' && hasUsedFreeAnalysis ? (
-                <div className="w-full max-w-lg flex flex-col items-center gap-3">
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 w-full text-center flex flex-col items-center gap-2">
-                    <Lock size={20} className="text-slate-400" />
-                    <p className="text-sm font-bold text-slate-700">Detecta cargas, deudas y riesgos antes de pujar</p>
-                    <button onClick={() => navigate('/pro')} className="text-xs text-brand-600 font-bold hover:underline">Ver ejemplo</button>
-                  </div>
-                  <button 
-                    onClick={() => navigate('/pro')}
-                    className="w-full py-3.5 md:py-4 px-8 md:px-12 rounded-2xl font-semibold text-sm md:text-lg transition-all flex flex-col items-center justify-center gap-1 shadow-sm bg-brand-600 text-white hover:bg-brand-700 hover:-translate-y-0.5"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Lock size={20} />
-                      <span>Disponible con BASIC o PRO</span>
+              {(() => {
+                const visuals = getCounterVisuals();
+                return (
+                  <div className={`mb-3 flex items-start gap-2 px-3 py-2 rounded-lg border ${visuals.bgClass} ${visuals.borderClass} ${visuals.textClass}`}>
+                    <div className="mt-0.5 shrink-0">{visuals.icon}</div>
+                    <div className="flex flex-col text-left">
+                      <span className="text-xs font-semibold">{visuals.text}</span>
+                      {visuals.subtext && <span className="text-[10px] opacity-80 leading-tight mt-0.5">{visuals.subtext}</span>}
+                      {visuals.action && (
+                        <Link to={visuals.action.to} className="text-xs underline text-red-700 hover:text-red-800 mt-1 font-bold">
+                          {visuals.action.text}
+                        </Link>
+                      )}
                     </div>
-                    <span className="text-[10px] md:text-xs font-normal opacity-90">
-                      Desbloquea más análisis
-                    </span>
-                  </button>
-                </div>
-              ) : (
-                <button 
-                  onClick={handleAnalyze}
-                  disabled={files.length === 0}
-                  className={`
-                    w-full max-w-lg py-3.5 md:py-4 px-8 md:px-12 rounded-2xl font-semibold text-sm md:text-lg transition-all flex flex-col items-center justify-center gap-1 shadow-sm
-                    ${files.length > 0 
-                      ? 'bg-brand-600 text-white hover:bg-brand-700 hover:-translate-y-0.5' 
-                      : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
-                  `}
-                >
-                  <div className="flex items-center gap-3">
-                    <Scale size={20} />
-                    <span>Analizar cargas</span>
                   </div>
-                  <span className="text-[10px] md:text-xs font-normal opacity-90">
-                    {currentPlan === 'pro' ? 'Análisis ilimitado' : currentPlan === 'basic' ? 'Te quedan 5 este mes' : '1 análisis gratis'}
-                  </span>
-                </button>
-              )}
+                );
+              })()}
+
+              <button 
+                onClick={handleAnalyze}
+                disabled={files.length === 0}
+                className={`
+                  w-full max-w-lg py-3.5 md:py-4 px-8 md:px-12 rounded-2xl font-semibold text-sm md:text-lg transition-all flex items-center justify-center gap-3 shadow-sm
+                  ${(files.length > 0) 
+                    ? 'bg-brand-600 text-white hover:bg-brand-700 hover:-translate-y-0.5' 
+                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'}
+                `}
+              >
+                <Scale size={20} />
+                <span>Analizar cargas</span>
+              </button>
               
-              {currentPlan === 'free' && !hasUsedFreeAnalysis && (
+              <div className="mt-2 text-[10px] md:text-xs font-medium text-slate-500 flex items-center gap-1.5">
+                <div className={`w-1.5 h-1.5 rounded-full ${isBlocked ? 'bg-amber-400' : 'bg-emerald-400'}`}></div>
+                {getCounterText()}
+              </div>
+              
+              {currentPlan !== 'pro' && !isBlocked && (
                 <Link to="/pro" className="mt-3 text-[10px] md:text-xs text-brand-600 font-bold hover:text-brand-700 hover:underline flex items-center gap-1">
-                  Desbloquea 5 análisis al mes con BASIC <ArrowRight size={12} />
+                  Desbloquea 3 análisis al mes con BASIC <ArrowRight size={12} />
                 </Link>
               )}
 
@@ -453,12 +563,20 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ boeId, boeUrl, is
                 </div>
                 <div className="flex flex-col sm:flex-row justify-center gap-2 md:gap-3 shrink-0 w-full md:w-auto">
                   <a 
-                    href={finalBoeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-4 py-2.5 md:py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-[10px] md:text-xs font-bold hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                    href={(!user || currentPlan === 'free') ? '#' : finalBoeUrl}
+                    target={(!user || currentPlan === 'free') ? undefined : "_blank"}
+                    rel={(!user || currentPlan === 'free') ? undefined : "noopener noreferrer"}
+                    onClick={(e) => {
+                      if (!user || currentPlan === 'free') {
+                        e.preventDefault();
+                        if (onShowSoftGate) {
+                          onShowSoftGate();
+                        }
+                      }
+                    }}
+                    className={`w-full sm:w-auto px-4 py-2.5 md:py-2.5 rounded-xl bg-white border border-slate-300 text-[10px] md:text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm ${(!user || currentPlan === 'free') ? 'text-slate-400 cursor-pointer hover:text-brand-600' : 'text-slate-900 hover:bg-slate-50'}`}
                   >
-                    Ver subasta en BOE <ExternalLink size={10} className="md:w-3 md:h-3" />
+                    Ver subasta en BOE {(!user || currentPlan === 'free') ? <Lock size={10} className="md:w-3 md:h-3" /> : <ExternalLink size={10} className="md:w-3 md:h-3" />}
                   </a>
                   <button 
                     onClick={() => setShowHowToModal(true)}

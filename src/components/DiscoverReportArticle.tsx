@@ -194,6 +194,8 @@ const DiscoverReportArticle: React.FC = () => {
               <ShareButtons 
                 title={report.title} 
                 label="Compartir:" 
+                province="España"
+                origin="discover"
               />
             </div>
 

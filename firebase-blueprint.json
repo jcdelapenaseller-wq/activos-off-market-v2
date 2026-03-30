@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user plan and usage data.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "plan": { "type": "string", "enum": ["free", "basic", "pro"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "analysisUsed": { "type": "integer" },
+        "lastAnalysisReset": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email", "plan"]
+    },
+    "Alert": {
+      "title": "User Alert",
+      "description": "Stores a search alert for a user.",
+      "type": "object",
+      "properties": {
+        "city": { "type": "string" },
+        "zone": { "type": "string" },
+        "propertyType": { "type": "string" },
+        "minPrice": { "type": "number" },
+        "maxPrice": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["city", "propertyType", "createdAt", "active"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profile document."
+    },
+    "/users/{uid}/alerts/{alertId}": {
+      "schema": "Alert",
+      "description": "User specific search alerts."
+    }
+  }
+}

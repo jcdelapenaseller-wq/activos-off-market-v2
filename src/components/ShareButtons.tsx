@@ -1,76 +1,200 @@
-import React, { useState, useEffect } from 'react';
-import { Mail } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Share2, MessageCircle, Twitter, Linkedin, Mail, Copy, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
+import { trackConversion, TrackingOrigin } from '../utils/tracking';
 
 interface ShareButtonsProps {
   url?: string;
   title: string;
+  text?: string;
   className?: string;
   label?: string;
+  variant?: 'minimal' | 'outline' | 'ghost';
+  province?: string;
+  origin?: TrackingOrigin;
 }
 
-export const ShareButtons: React.FC<ShareButtonsProps> = ({ url, title, className = '', label = 'Compartir esta oportunidad:' }) => {
-  const [currentUrl, setCurrentUrl] = useState('');
+export const ShareButtons: React.FC<ShareButtonsProps> = ({ 
+  url, 
+  title, 
+  text,
+  className = '',
+  label = 'Compartir:',
+  variant = 'minimal',
+  province = 'España',
+  origin = 'ficha'
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const currentUrl = url || window.location.href;
+  const fullUrl = currentUrl.startsWith('http') ? currentUrl : `${window.location.origin}${currentUrl}`;
+  const shareText = text || title;
 
   useEffect(() => {
-    setCurrentUrl(url || window.location.href);
-  }, [url]);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
 
-  if (!currentUrl) return null;
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
 
-  const encodedUrl = encodeURIComponent(currentUrl);
-  const encodedTitle = encodeURIComponent(title);
+  const handleShare = async () => {
+    // Track open
+    if (!isOpen) {
+      trackConversion(province, origin, 'share_open');
+    }
+
+    // Try Web Share API first on mobile
+    if (navigator.share && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      try {
+        await navigator.share({
+          title,
+          text: shareText,
+          url: fullUrl,
+        });
+        return;
+      } catch (err) {
+        console.log('Web Share failed or cancelled', err);
+        // Fallback to dropdown if not cancelled by user
+        if ((err as Error).name !== 'AbortError') {
+          setIsOpen(!isOpen);
+        }
+      }
+    } else {
+      setIsOpen(!isOpen);
+    }
+  };
+
+  const copyToClipboard = () => {
+    trackConversion(province, origin, 'share_copy');
+    navigator.clipboard.writeText(fullUrl);
+    setCopied(true);
+    toast.success('Enlace copiado al portapapeles');
+    setTimeout(() => {
+      setCopied(false);
+      setIsOpen(false);
+    }, 2000);
+  };
+
+  const shareLinks = [
+    {
+      name: 'WhatsApp',
+      icon: <MessageCircle size={16} />,
+      href: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${fullUrl}`)}`,
+      color: 'hover:text-green-600',
+      track: 'share_whatsapp' as const
+    },
+    {
+      name: 'X (Twitter)',
+      icon: <Twitter size={16} />,
+      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(fullUrl)}`,
+      color: 'hover:text-black',
+      track: 'share_x' as const
+    },
+    {
+      name: 'LinkedIn',
+      icon: <Linkedin size={16} />,
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(fullUrl)}`,
+      color: 'hover:text-blue-700',
+      track: 'share_linkedin' as const
+    },
+    {
+      name: 'Email',
+      icon: <Mail size={16} />,
+      href: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${shareText}\n\n${fullUrl}`)}`,
+      color: 'hover:text-red-500',
+      track: 'share_email' as const
+    }
+  ];
+
+  const buttonStyles = {
+    minimal: "text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-full hover:bg-slate-100",
+    outline: "flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-full text-[10px] md:text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors uppercase tracking-wider",
+    ghost: "flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors uppercase tracking-wider"
+  };
 
   return (
-    <div className={`flex flex-wrap items-center gap-3 text-sm text-slate-500 ${className}`}>
-      <span className="font-medium">{label}</span>
-      <div className="flex items-center gap-1">
-        {/* WhatsApp */}
-        <a 
-          href={`https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-2 rounded-full hover:bg-green-50 hover:text-green-600 transition-colors"
-          aria-label="Compartir en WhatsApp"
+    <div className={`relative inline-block ${className}`} ref={dropdownRef}>
+      <div className="flex items-center gap-2">
+        {label && <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hidden md:inline">{label}</span>}
+        <button
+          onClick={handleShare}
+          className={buttonStyles[variant]}
+          title="Compartir"
         >
-          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-          </svg>
-        </a>
-        {/* X / Twitter */}
-        <a 
-          href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-2 rounded-full hover:bg-slate-100 hover:text-slate-900 transition-colors"
-          aria-label="Compartir en X (Twitter)"
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 4l11.733 16h4.267l-11.733 -16z"/>
-            <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"/>
-          </svg>
-        </a>
-        {/* Telegram */}
-        <a 
-          href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-2 rounded-full hover:bg-blue-50 hover:text-blue-500 transition-colors"
-          aria-label="Compartir en Telegram"
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-        </a>
-        {/* Email */}
-        <a 
-          href={`mailto:?subject=${encodedTitle}&body=${encodedUrl}`}
-          className="p-2 rounded-full hover:bg-slate-100 hover:text-slate-700 transition-colors"
-          aria-label="Compartir por Email"
-        >
-          <Mail size={18} />
-        </a>
+          <Share2 size={16} className="md:hidden" />
+          <Share2 size={18} className="hidden md:block" />
+          {variant !== 'minimal' && <span>Compartir</span>}
+        </button>
       </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50 overflow-hidden"
+          >
+            <div className="px-3 py-1.5 mb-1 border-bottom border-slate-50">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Compartir en</span>
+            </div>
+            
+            {/* 1. WhatsApp */}
+            <a
+              href={shareLinks[0].href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors ${shareLinks[0].color}`}
+              onClick={() => {
+                trackConversion(province, origin, shareLinks[0].track);
+                setIsOpen(false);
+              }}
+            >
+              {shareLinks[0].icon}
+              <span>{shareLinks[0].name}</span>
+            </a>
+
+            {/* 2. Copiar enlace */}
+            <button
+              onClick={copyToClipboard}
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+              <span>{copied ? 'Copiado' : 'Copiar enlace'}</span>
+            </button>
+
+            <div className="h-px bg-slate-50 my-1" />
+
+            {/* 3, 4, 5. X, LinkedIn, Email */}
+            {shareLinks.slice(1).map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors ${link.color}`}
+                onClick={() => {
+                  trackConversion(province, origin, link.track);
+                  setIsOpen(false);
+                }}
+              >
+                {link.icon}
+                <span>{link.name}</span>
+              </a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -85,6 +85,7 @@ import ChecklistPage from './components/ChecklistPage';
 import AlertForm from './components/AlertForm';
 import AlertSuccessPage from './components/AlertSuccessPage';
 import SavedAuctionsPage from './components/SavedAuctionsPage';
+import AccountPage from './components/AccountPage';
 import ProPage from './components/ProPage';
 import SuccessPage from './components/SuccessPage';
 import CancelPage from './components/CancelPage';
@@ -429,6 +430,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.MIS_GUARDADOS,
     element: createElement(SavedAuctionsPage),
+  },
+  {
+    path: ROUTES.MI_CUENTA,
+    element: createElement(AccountPage),
   },
   {
     path: '*',

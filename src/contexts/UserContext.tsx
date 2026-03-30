@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db, loginWithGoogle, logout, updateUserPlan, UserProfile } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 interface UserContextType {
   user: UserProfile | null;
@@ -14,13 +14,30 @@ interface UserContextType {
   isProUser: () => boolean;
   updatePlan: (newPlan: 'free' | 'basic' | 'pro', targetUserId?: string) => Promise<void>;
   requireLogin: () => void;
+  incrementAnalysisCount: () => Promise<boolean>;
+  trackAuctionView: (auctionId: string, auctionTitle: string) => Promise<void>;
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const checkMonthlyReset = async (userData: UserProfile) => {
+    if (!db || userData.plan !== 'basic') return userData;
+    
+    const lastReset = userData.lastAnalysisReset?.toDate ? userData.lastAnalysisReset.toDate() : new Date(userData.lastAnalysisReset);
+    const now = new Date();
+    
+    // If more than 30 days or different month
+    if (now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear()) {
+      const userRef = doc(db, 'users', userData.id);
+      await setDoc(userRef, { analysisUsed: 0, lastAnalysisReset: serverTimestamp() }, { merge: true });
+      return { ...userData, analysisUsed: 0, lastAnalysisReset: now };
+    }
+    return userData;
+  };
 
   useEffect(() => {
     if (!auth) {
@@ -34,7 +51,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userRef = doc(db, 'users', firebaseUser.uid);
           const userSnap = await getDoc(userRef);
           if (userSnap.exists()) {
-            setUser(userSnap.data() as UserProfile);
+            let userData = userSnap.data() as UserProfile;
+            userData = await checkMonthlyReset(userData);
+            setUser(userData);
           } else {
             // Fallback if document doesn't exist yet but auth does
             setUser({
@@ -42,7 +61,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
               email: firebaseUser.email || '',
               name: firebaseUser.displayName || '',
               plan: 'free',
-              createdAt: new Date()
+              createdAt: new Date(),
+              analysisUsed: 0
             });
           }
         } catch (error) {
@@ -60,12 +80,53 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleLogin = async (): Promise<UserProfile> => {
     try {
-      const profile = await loginWithGoogle();
+      let profile = await loginWithGoogle();
+      profile = await checkMonthlyReset(profile);
       setUser(profile);
       return profile;
     } catch (error) {
       console.error("Error logging in:", error);
       throw error;
+    }
+  };
+
+  const incrementAnalysisCount = async (): Promise<boolean> => {
+    if (!user || !db) return false;
+    
+    const currentPlan = user.plan.toLowerCase() as 'free' | 'basic' | 'pro';
+    const used = user.analysisUsed || 0;
+    
+    // Check limits
+    if (currentPlan === 'free' && used >= 1) return false;
+    if (currentPlan === 'basic' && used >= 5) return false;
+    if (currentPlan === 'pro') {
+      // Pro is unlimited, but we still track for analytics if needed
+    }
+
+    try {
+      const userRef = doc(db, 'users', user.id);
+      const newCount = used + 1;
+      await setDoc(userRef, { analysisUsed: newCount }, { merge: true });
+      setUser(prev => prev ? { ...prev, analysisUsed: newCount } : null);
+      return true;
+    } catch (error) {
+      console.error("Error incrementing analysis count:", error);
+      return false;
+    }
+  };
+
+  const trackAuctionView = async (auctionId: string, auctionTitle: string) => {
+    if (!user || !db) return;
+
+    try {
+      const historyRef = doc(db, 'users', user.id, 'viewHistory', auctionId);
+      await setDoc(historyRef, {
+        auctionId,
+        title: auctionTitle,
+        viewedAt: serverTimestamp()
+      }, { merge: true });
+    } catch (error) {
+      console.error("Error tracking auction view:", error);
     }
   };
 
@@ -79,11 +140,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const isBasicUser = () => {
-    return user?.plan === 'basic' || user?.plan === 'pro';
+    const currentPlan = user?.plan?.toLowerCase();
+    return currentPlan === 'basic' || currentPlan === 'pro';
   };
 
   const isProUser = () => {
-    return user?.plan === 'pro';
+    return user?.plan?.toLowerCase() === 'pro';
   };
 
   const updatePlan = async (newPlan: 'free' | 'basic' | 'pro', targetUserId?: string) => {
@@ -107,14 +169,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = {
     user,
     isLogged: !!user,
-    plan: user?.plan || 'free',
+    plan: (user?.plan?.toLowerCase() as 'free' | 'basic' | 'pro') || 'free',
     isLoading,
     login: handleLogin,
     logout: handleLogout,
     isBasicUser,
     isProUser,
     updatePlan,
-    requireLogin
+    requireLogin,
+    incrementAnalysisCount,
+    trackAuctionView
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

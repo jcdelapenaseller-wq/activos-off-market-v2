@@ -59,3 +59,23 @@ export const subscribeToMailerLite = async (subscriber: MailerLiteSubscriber): P
     return { success: false, error: error instanceof Error ? error.message : 'Error de red' };
   }
 };
+
+/**
+ * Envía un email de confirmación de alerta creada.
+ */
+export const sendAlertConfirmationEmail = async (email: string, city: string): Promise<void> => {
+  console.log('📧 [MAILERLITE API] Enviando confirmación de alerta:', email, city);
+  
+  try {
+    // No esperamos el resultado para no bloquear la UI
+    fetch('/api/send-confirmation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, city }),
+    }).catch(err => console.error('❌ [MAILERLITE API ERROR] Error enviando confirmación:', err));
+  } catch (error) {
+    console.error('❌ [MAILERLITE API ERROR] Error en sendAlertConfirmationEmail:', error);
+  }
+};

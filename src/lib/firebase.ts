@@ -24,6 +24,8 @@ export interface UserProfile {
   name: string;
   plan: 'free' | 'basic' | 'pro';
   createdAt: any;
+  analysisUsed?: number;
+  lastAnalysisReset?: any;
 }
 
 export const loginWithGoogle = async (): Promise<UserProfile> => {
@@ -41,13 +43,22 @@ export const loginWithGoogle = async (): Promise<UserProfile> => {
       email: user.email || '',
       name: user.displayName || '',
       plan: 'free',
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
+      analysisUsed: 0,
+      lastAnalysisReset: serverTimestamp()
     };
     await setDoc(userRef, newUser);
     return newUser;
   }
   
-  return userSnap.data() as UserProfile;
+  const data = userSnap.data() as UserProfile;
+  // Initialize fields if they don't exist for old users
+  if (data.analysisUsed === undefined) {
+    await setDoc(userRef, { analysisUsed: 0, lastAnalysisReset: serverTimestamp() }, { merge: true });
+    return { ...data, analysisUsed: 0, lastAnalysisReset: new Date() };
+  }
+  
+  return data;
 };
 
 export const logout = async () => {

@@ -68,6 +68,7 @@ export const ROUTES = {
   ALERTAS: '/alertas-subastas',
   ALERTA_CONFIRMADA: '/alerta-confirmada',
   MIS_GUARDADOS: '/mis-guardados',
+  MI_CUENTA: '/mi-cuenta',
   PRO: '/pro',
   SUCCESS: '/success',
   CANCEL: '/cancel',

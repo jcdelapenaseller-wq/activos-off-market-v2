@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
-import { Mail, MapPin, Home, Bell, ArrowRight, ShieldCheck } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Mail, MapPin, Home, Bell, ArrowRight, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
-import { subscribeToMailerLite } from '../utils/mailerlite';
+import { subscribeToMailerLite, sendAlertConfirmationEmail } from '../utils/mailerlite';
 import { trackConversion } from '../utils/tracking';
+import { useUser } from '../contexts/UserContext';
+import { db } from '../lib/firebase';
+import { collection, addDoc, serverTimestamp, getCountFromServer, query } from 'firebase/firestore';
+import { toast } from 'sonner';
 
 const PROVINCIAS = [
   "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Baleares", "Barcelona", "Burgos", 
@@ -19,45 +23,141 @@ const TIPOS = [
 
 const AlertForm: React.FC = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const { user, plan, isLogged, login } = useUser();
+  const [email, setEmail] = useState(user?.email || '');
   const [province, setProvince] = useState('');
   const [municipality, setMunicipality] = useState('');
   const [propertyType, setPropertyType] = useState('Todos');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'limit_reached'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [alertsCount, setAlertsCount] = useState<number | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     trackConversion('espana', 'alert_creation', 'email_submit', { step: 'arrival' });
-  }, []);
+    
+    // Check current alerts count if logged in
+    const checkAlertsLimit = async () => {
+      if (isLogged && user && db) {
+        try {
+          const alertsRef = collection(db, 'users', user.id, 'alerts');
+          const snapshot = await getCountFromServer(query(alertsRef));
+          const count = snapshot.data().count;
+          setAlertsCount(count);
+          
+          // Check if limit already reached
+          if (plan === 'free' && count >= 1) {
+            setStatus('limit_reached');
+          } else if (plan === 'basic' && count >= 3) {
+            setStatus('limit_reached');
+          }
+        } catch (error) {
+          console.error("Error checking alerts limit:", error);
+        }
+      }
+    };
+    
+    checkAlertsLimit();
+  }, [isLogged, user, plan]);
+
+  useEffect(() => {
+    if (user?.email && !email) {
+      setEmail(user.email);
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !province) return;
 
+    // If not logged in, we allow 1 alert (legacy behavior)
+    // If logged in, we check the count we fetched in useEffect
+    if (isLogged && alertsCount !== null) {
+      if (plan === 'free' && alertsCount >= 1) {
+        setStatus('limit_reached');
+        return;
+      }
+      if (plan === 'basic' && alertsCount >= 3) {
+        setStatus('limit_reached');
+        return;
+      }
+    }
+
     setStatus('loading');
     setErrorMessage(null);
     
-    const result = await subscribeToMailerLite({
-      email,
-      source: 'alertas',
-      fields: {
-        alerta_provincia: province,
-        alerta_municipio: municipality,
-        alerta_tipo: propertyType,
-        plan_status: 'free'
+    try {
+      // 1. Save to Firestore if logged in
+      if (isLogged && user && db) {
+        const alertsRef = collection(db, 'users', user.id, 'alerts');
+        await addDoc(alertsRef, {
+          city: province,
+          zone: municipality,
+          propertyType: propertyType,
+          minPrice: 0,
+          maxPrice: 10000000,
+          createdAt: serverTimestamp(),
+          active: true
+        });
       }
-    });
 
-    if (result.success) {
-      trackConversion(province.toLowerCase(), 'alert_creation', 'listado');
-      setStatus('success');
-      // Redirigir a la página de éxito con el email como parámetro para pre-rellenar Stripe
-      navigate(`${ROUTES.ALERTA_CONFIRMADA}?email=${encodeURIComponent(email)}`);
-    } else {
+      // 2. Keep MailerLite subscription (Legacy/Sync)
+      const result = await subscribeToMailerLite({
+        email,
+        source: 'alertas',
+        fields: {
+          alerta_provincia: province,
+          alerta_municipio: municipality,
+          alerta_tipo: propertyType,
+          plan_status: plan === 'free' ? 'free' : 'pro'
+        }
+      });
+
+      if (result.success) {
+        // 3. Send confirmation email (Transactional)
+        sendAlertConfirmationEmail(email, province);
+        
+        trackConversion(province.toLowerCase(), 'alert_creation', 'listado');
+        setStatus('success');
+        navigate(`${ROUTES.ALERTA_CONFIRMADA}?email=${encodeURIComponent(email)}`);
+      } else {
+        setStatus('error');
+        setErrorMessage(result.error || 'Hubo un error al crear la alerta.');
+      }
+    } catch (error) {
+      console.error("Error creating alert:", error);
       setStatus('error');
-      setErrorMessage(result.error || 'Hubo un error al crear la alerta.');
+      setErrorMessage('Error al guardar la alerta en el sistema.');
     }
   };
+
+  if (status === 'limit_reached') {
+    return (
+      <div className="bg-white border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm max-w-2xl mx-auto text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-50 rounded-full text-amber-600 mb-6">
+          <AlertCircle size={32} />
+        </div>
+        <h2 className="font-serif text-3xl font-bold text-slate-900 mb-4">Has alcanzado tu límite de alertas</h2>
+        <p className="text-slate-600 text-lg mb-8">
+          Tu plan actual ({plan.toUpperCase()}) permite hasta {plan === 'free' ? '1 alerta' : '3 alertas'}. 
+          Mejora tu plan para crear alertas ilimitadas y personalizadas.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            to={ROUTES.PRO}
+            className="bg-brand-600 text-white font-bold py-4 px-8 rounded-xl text-lg hover:bg-brand-700 transition-all flex items-center justify-center gap-2 shadow-md"
+          >
+            <Sparkles size={20} /> Mejorar plan
+          </Link>
+          <button
+            onClick={() => setStatus('idle')}
+            className="bg-slate-100 text-slate-600 font-bold py-4 px-8 rounded-xl text-lg hover:bg-slate-200 transition-all"
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm max-w-2xl mx-auto">

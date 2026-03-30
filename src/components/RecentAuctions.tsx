@@ -149,7 +149,12 @@ const RecentAuctions: React.FC = () => {
             Filtra por provincia, tipo de inmueble o estado para encontrar oportunidades más rápido.
           </p>
 
-          <ShareButtons title="Últimas subastas inmobiliarias detectadas en España" className="-mt-2" />
+          <ShareButtons 
+            title="Últimas subastas inmobiliarias detectadas en España" 
+            className="-mt-2" 
+            province="España"
+            origin="listing"
+          />
         </div>
       </header>
 

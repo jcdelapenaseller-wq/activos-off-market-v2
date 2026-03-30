@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-slate-950 text-slate-400 pt-20 pb-10 md:pt-24 md:pb-12 mb-16 md:mb-0 border-t border-slate-900 font-sans relative">
+    <footer id="main-footer" className="bg-slate-950 text-slate-400 pt-20 pb-10 md:pt-24 md:pb-12 mb-16 md:mb-0 border-t border-slate-900 font-sans relative">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
           

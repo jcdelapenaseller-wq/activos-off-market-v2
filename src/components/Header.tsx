@@ -168,11 +168,11 @@ const Header: React.FC = () => {
                             {plan === 'pro' ? '🚀 PRO activo' : plan === 'basic' ? '✨ BASIC activo' : 'FREE'}
                           </span>
                           <Link 
-                            to="/pro"
+                            to={ROUTES.MI_CUENTA}
                             onClick={() => setIsUserMenuOpen(false)}
                             className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline"
                           >
-                            Ver mi plan
+                            Mi cuenta
                           </Link>
                         </div>
                       </div>
@@ -262,11 +262,11 @@ const Header: React.FC = () => {
                          {plan === 'pro' ? '🚀 PRO activo' : plan === 'basic' ? '✨ BASIC activo' : 'FREE'}
                        </span>
                        <Link 
-                         to="/pro"
+                         to={ROUTES.MI_CUENTA}
                          onClick={() => setIsUserMenuOpen(false)}
                          className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline"
                        >
-                         Ver mi plan
+                         Mi cuenta
                        </Link>
                      </div>
                    </div>
