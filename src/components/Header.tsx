@@ -193,7 +193,7 @@ const Header: React.FC = () => {
                           <Link 
                             to={ROUTES.MI_CUENTA}
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline"
+                            className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline cursor-pointer transition-colors active:bg-slate-100 px-2 py-1 rounded"
                           >
                             Mi cuenta
                           </Link>
@@ -212,9 +212,9 @@ const Header: React.FC = () => {
                       )}
 
                       <Link 
-                        to="/mis-guardados"
+                        to={ROUTES.MIS_GUARDADOS}
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
                       >
                         <Star size={16} />
                         <span>Mis Guardados</span>
@@ -223,8 +223,9 @@ const Header: React.FC = () => {
                         onClick={() => {
                           logout();
                           setIsUserMenuOpen(false);
+                          navigate('/');
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left cursor-pointer active:bg-slate-100"
                       >
                         <LogOut size={16} />
                         <span>Cerrar sesión</span>
@@ -307,8 +308,11 @@ const Header: React.FC = () => {
                        </span>
                        <Link 
                          to={ROUTES.MI_CUENTA}
-                         onClick={() => setIsUserMenuOpen(false)}
-                         className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline"
+                         onClick={() => {
+                           setIsUserMenuOpen(false);
+                           setIsMobileMenuOpen(false);
+                         }}
+                         className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline cursor-pointer transition-colors active:bg-slate-100 px-2 py-1 rounded"
                        >
                          Mi cuenta
                        </Link>
@@ -327,12 +331,12 @@ const Header: React.FC = () => {
                    )}
 
                    <Link 
-                     to="/mis-guardados"
+                     to={ROUTES.MIS_GUARDADOS}
                      onClick={() => {
                        setIsUserMenuOpen(false);
                        setIsMobileMenuOpen(false);
                      }}
-                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left"
+                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
                    >
                      <Star size={16} />
                      <span>Mis Guardados</span>
@@ -341,8 +345,10 @@ const Header: React.FC = () => {
                      onClick={() => {
                        logout();
                        setIsUserMenuOpen(false);
+                       setIsMobileMenuOpen(false);
+                       navigate('/');
                      }}
-                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left"
+                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left cursor-pointer active:bg-slate-100"
                    >
                      <LogOut size={16} />
                      <span>Cerrar sesión</span>
