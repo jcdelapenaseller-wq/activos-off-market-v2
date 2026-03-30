@@ -22,8 +22,12 @@ const AnalizarSubastaHub: React.FC = () => {
     }
   };
 
+  const setExample = (val: string) => {
+    setInputValue(val);
+  };
+
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 md:py-20">
+    <div className="max-w-5xl mx-auto px-4 py-10 md:py-14">
       <div className="text-center mb-16">
         <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-6">
           Analiza cualquier subasta antes de pujar
@@ -32,21 +36,64 @@ const AnalizarSubastaHub: React.FC = () => {
           Pega el enlace de la subasta y elige el nivel de profundidad que necesitas para tomar tu decisión de inversión.
         </p>
         
-        <div className="max-w-2xl mx-auto bg-white p-2 rounded-2xl shadow-lg border border-slate-200 flex flex-col sm:flex-row gap-2">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+        <div className="max-w-2xl mx-auto relative group">
+          <div className="relative flex items-center">
+            <Search className="absolute left-5 text-slate-400 w-5 h-5 group-focus-within:text-brand-500 transition-colors" />
             <input
               type="text"
-              placeholder="Enlace BOE, Idealista o ID de subasta..."
+              placeholder="Pega enlace del BOE, Idealista o ID de subasta…"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-xl border-none focus:ring-2 focus:ring-brand-500 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+              className="w-full h-16 pl-14 pr-36 rounded-2xl border-2 border-slate-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 bg-white text-base md:text-lg shadow-sm transition-all placeholder:text-slate-400"
             />
+            <button
+              onClick={() => handleAction('inversion')}
+              disabled={!inputValue.trim()}
+              className="absolute right-2 h-12 px-6 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-sm"
+            >
+              Analizar
+            </button>
+          </div>
+
+          {/* Micro confianza */}
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 text-[11px] md:text-xs font-medium text-slate-500">
+            <span className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Compatible con BOE
+            </span>
+            <span className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Idealista
+            </span>
+            <span className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Enlaces judiciales
+            </span>
+          </div>
+
+          {/* Ejemplos */}
+          <div className="mt-8 flex flex-wrap justify-center items-center gap-3">
+            <span className="text-sm text-slate-400">Ejemplos:</span>
+            <button 
+              onClick={() => setExample('https://subastas.boe.es/detalle_subasta.php?idSub=SUB-JA-2024-12345')}
+              className="text-xs px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-600 rounded-full transition-colors border border-slate-200 shadow-sm"
+            >
+              BOE
+            </button>
+            <button 
+              onClick={() => setExample('https://www.idealista.com/inmueble/12345678/')}
+              className="text-xs px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-600 rounded-full transition-colors border border-slate-200 shadow-sm"
+            >
+              Idealista
+            </button>
+            <button 
+              onClick={() => setExample('SUB-JA-2024-12345')}
+              className="text-xs px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-600 rounded-full transition-colors border border-slate-200 shadow-sm"
+            >
+              ID: SUB-JA-2024-12345
+            </button>
           </div>
         </div>
-        <p className="text-sm text-slate-500 mt-4">
-          Ejemplo: https://subastas.boe.es/detalle_subasta.php?idSub=SUB-JA-2024-123456
-        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">

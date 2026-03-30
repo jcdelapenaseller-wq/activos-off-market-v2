@@ -24,6 +24,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const isDev = import.meta.env.DEV || (typeof process !== 'undefined' && process.env.NODE_ENV === 'development');
+
   const checkMonthlyReset = async (userData: UserProfile) => {
     if (!db || userData.plan !== 'basic') return userData;
     
@@ -41,12 +43,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (!auth) {
-      const storedMock = localStorage.getItem('mockUser');
-      if (storedMock) {
-        try {
-          setUser(JSON.parse(storedMock));
-        } catch (e) {
-          console.error("Error parsing mock user", e);
+      if (isDev) {
+        const storedMock = localStorage.getItem('mockUser');
+        if (storedMock) {
+          try {
+            setUser(JSON.parse(storedMock));
+          } catch (e) {
+            console.error("Error parsing mock user", e);
+          }
         }
       }
       setIsLoading(false);
@@ -88,17 +92,22 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleLogin = async (): Promise<UserProfile> => {
     if (!auth) {
-      const mockUser: UserProfile = {
-        id: "mock-user",
-        email: "demo@activosoffmarket.es",
-        name: "Usuario demo",
-        plan: "free",
-        createdAt: new Date(),
-        analysisUsed: 0
-      };
-      localStorage.setItem("mockUser", JSON.stringify(mockUser));
-      setUser(mockUser);
-      return mockUser;
+      if (isDev) {
+        const mockUser: UserProfile = {
+          id: "mock-user",
+          email: "demo@activosoffmarket.es",
+          name: "Usuario demo",
+          plan: "free",
+          createdAt: new Date(),
+          analysisUsed: 0
+        };
+        localStorage.setItem("mockUser", JSON.stringify(mockUser));
+        setUser(mockUser);
+        return mockUser;
+      } else {
+        // En producción, si no hay Firebase, intentamos login real (que fallará con error descriptivo)
+        return await loginWithGoogle();
+      }
     }
 
     try {
