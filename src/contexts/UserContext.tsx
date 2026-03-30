@@ -1,7 +1,58 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db, loginWithGoogle, logout, updateUserPlan, UserProfile } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, getDocFromServer } from 'firebase/firestore';
+
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId: string | undefined;
+    email: string | null | undefined;
+    emailVerified: boolean | undefined;
+    isAnonymous: boolean | undefined;
+    tenantId: string | null | undefined;
+    providerInfo: {
+      providerId: string;
+      displayName: string | null;
+      email: string | null;
+      photoUrl: string | null;
+    }[];
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth?.currentUser?.uid,
+      email: auth?.currentUser?.email,
+      emailVerified: auth?.currentUser?.emailVerified,
+      isAnonymous: auth?.currentUser?.isAnonymous,
+      tenantId: auth?.currentUser?.tenantId,
+      providerInfo: auth?.currentUser?.providerData.map(provider => ({
+        providerId: provider.providerId,
+        displayName: provider.displayName,
+        email: provider.email,
+        photoUrl: provider.photoURL
+      })) || []
+    },
+    operationType,
+    path
+  }
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
 
 interface UserContextType {
   user: UserProfile | null;
@@ -42,6 +93,19 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    // Validate connection to Firestore
+    const testConnection = async () => {
+      if (!db) return;
+      try {
+        await getDocFromServer(doc(db, 'test', 'connection'));
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('the client is offline')) {
+          console.error("Please check your Firebase configuration. ");
+        }
+      }
+    };
+    testConnection();
+
     if (!auth) {
       if (isDev) {
         const storedMock = localStorage.getItem('mockUser');
@@ -78,8 +142,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
           }
         } catch (error) {
-          console.error("Error fetching user data:", error);
-          setUser(null);
+          handleFirestoreError(error, OperationType.GET, `users/${firebaseUser.uid}`);
         }
       } else {
         setUser(null);
@@ -152,7 +215,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(prev => prev ? { ...prev, analysisUsed: newCount } : null);
       return true;
     } catch (error) {
-      console.error("Error incrementing analysis count:", error);
+      handleFirestoreError(error, OperationType.WRITE, `users/${user.id}`);
       return false;
     }
   };
@@ -172,7 +235,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         viewedAt: serverTimestamp()
       }, { merge: true });
     } catch (error) {
-      console.error("Error tracking auction view:", error);
+      handleFirestoreError(error, OperationType.WRITE, `users/${user.id}/viewHistory/${auctionId}`);
     }
   };
 

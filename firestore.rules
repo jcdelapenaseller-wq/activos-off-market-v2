@@ -1,0 +1,115 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId} (Firebase Auth UID)
+    // Fields:
+    //   - id: string (required) - Firebase Auth UID
+    //   - email: string (required, email format) - User's email
+    //   - name: string (required, max 100 chars) - User's display name
+    //   - plan: string (required, enum: ['free', 'basic', 'pro']) - Subscription plan
+    //   - createdAt: timestamp (required) - Account creation date
+    //   - analysisUsed: int (optional, default 0) - Number of analyses used
+    //   - lastAnalysisReset: timestamp (optional) - Last time analysis count was reset
+    //
+    // Subcollection: users/{userId}/viewHistory
+    // Document ID: {auctionId}
+    // Fields:
+    //   - auctionId: string (required) - ID of the auction
+    //   - title: string (required, max 200 chars) - Title of the auction
+    //   - viewedAt: timestamp (required) - Date and time of the view
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "josecpmx@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidPlan(plan) {
+      return plan in ['free', 'basic', 'pro'];
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'email', 'name', 'plan', 'createdAt']) &&
+             data.keys().hasOnly(['id', 'email', 'name', 'plan', 'createdAt', 'analysisUsed', 'lastAnalysisReset', 'role']) &&
+             data.id == request.auth.uid &&
+             data.email is string && isValidEmail(data.email) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             isValidPlan(data.plan) &&
+             data.createdAt is timestamp &&
+             (!('analysisUsed' in data) || data.analysisUsed is int) &&
+             (!('lastAnalysisReset' in data) || data.lastAnalysisReset is timestamp);
+    }
+
+    function isValidViewHistory(data) {
+      return data.keys().hasAll(['auctionId', 'title', 'viewedAt']) &&
+             data.keys().hasOnly(['auctionId', 'title', 'viewedAt']) &&
+             data.auctionId is string && data.auctionId.size() > 0 &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.viewedAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /users/{userId} {
+      // Users can only read their own profile (contains PII like email)
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can create their own profile with 'free' plan
+      allow create: if isOwner(userId) && 
+                      isValidUser(request.resource.data) && 
+                      request.resource.data.plan == 'free' &&
+                      !('role' in request.resource.data);
+      
+      // Users can update their own profile, but cannot change their plan or role (unless admin)
+      allow update: if isAuthenticated() && 
+                      isValidUser(request.resource.data) && 
+                      (
+                        (isOwner(userId) && 
+                         request.resource.data.plan == resource.data.plan && 
+                         (!('role' in request.resource.data) || request.resource.data.role == resource.data.role) &&
+                         request.resource.data.createdAt == resource.data.createdAt) || 
+                        isAdmin()
+                      );
+
+      match /viewHistory/{auctionId} {
+        // Only owner can read/write their history
+        allow read, write: if isOwner(userId) && isValidViewHistory(request.resource.data);
+      }
+    }
+  }
+}
