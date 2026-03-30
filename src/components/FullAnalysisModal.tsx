@@ -10,6 +10,7 @@ interface FullAnalysisModalProps {
   savings: number;
   discount: number;
   plan: 'free' | 'basic' | 'pro';
+  autoStart?: boolean;
 }
 
 const FullAnalysisModal: React.FC<FullAnalysisModalProps> = ({
@@ -19,7 +20,8 @@ const FullAnalysisModal: React.FC<FullAnalysisModalProps> = ({
   marketValue,
   savings,
   discount,
-  plan
+  plan,
+  autoStart = false
 }) => {
   const [step, setStep] = useState<'intro' | 'loading' | 'ready' | 'report'>('intro');
   const [loadingStep, setLoadingStep] = useState(0);
@@ -33,10 +35,10 @@ const FullAnalysisModal: React.FC<FullAnalysisModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setStep('intro');
+      setStep(autoStart ? 'loading' : 'intro');
       setLoadingStep(0);
     }
-  }, [isOpen]);
+  }, [isOpen, autoStart]);
 
   useEffect(() => {
     if (step === 'loading') {

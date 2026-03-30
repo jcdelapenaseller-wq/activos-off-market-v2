@@ -98,6 +98,15 @@ const Footer: React.FC = () => {
             <ul className="space-y-4 text-sm mb-8">
               <li>
                 <Link 
+                  to={ROUTES.ANALIZAR_SUBASTA} 
+                  className="flex items-center gap-2 hover:text-white transition-colors group"
+                >
+                  <Search size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
+                  <span className="font-medium">Analizar Subasta</span>
+                </Link>
+              </li>
+              <li>
+                <Link 
                   to={ROUTES.CALCULATOR} 
                   className="flex items-center gap-2 hover:text-white transition-colors group"
                 >

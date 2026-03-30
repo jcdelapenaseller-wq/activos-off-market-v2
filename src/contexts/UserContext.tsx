@@ -41,6 +41,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (!auth) {
+      const storedMock = localStorage.getItem('mockUser');
+      if (storedMock) {
+        try {
+          setUser(JSON.parse(storedMock));
+        } catch (e) {
+          console.error("Error parsing mock user", e);
+        }
+      }
       setIsLoading(false);
       return;
     }
@@ -79,6 +87,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const handleLogin = async (): Promise<UserProfile> => {
+    if (!auth) {
+      const mockUser: UserProfile = {
+        id: "mock-user",
+        email: "demo@activosoffmarket.es",
+        name: "Usuario demo",
+        plan: "free",
+        createdAt: new Date(),
+        analysisUsed: 0
+      };
+      localStorage.setItem("mockUser", JSON.stringify(mockUser));
+      setUser(mockUser);
+      return mockUser;
+    }
+
     try {
       let profile = await loginWithGoogle();
       profile = await checkMonthlyReset(profile);
@@ -91,7 +113,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const incrementAnalysisCount = async (): Promise<boolean> => {
-    if (!user || !db) return false;
+    if (!user) return false;
     
     const currentPlan = user.plan.toLowerCase() as 'free' | 'basic' | 'pro';
     const used = user.analysisUsed || 0;
@@ -103,9 +125,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Pro is unlimited, but we still track for analytics if needed
     }
 
+    const newCount = used + 1;
+
+    if (!auth || !db) {
+      if (user.id === 'mock-user') {
+        const updatedUser = { ...user, analysisUsed: newCount };
+        localStorage.setItem('mockUser', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        return true;
+      }
+      return false;
+    }
+
     try {
       const userRef = doc(db, 'users', user.id);
-      const newCount = used + 1;
       await setDoc(userRef, { analysisUsed: newCount }, { merge: true });
       setUser(prev => prev ? { ...prev, analysisUsed: newCount } : null);
       return true;
@@ -116,7 +149,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const trackAuctionView = async (auctionId: string, auctionTitle: string) => {
-    if (!user || !db) return;
+    if (!user) return;
+    if (!auth || !db) {
+      console.log("Mock tracking view:", auctionId, auctionTitle);
+      return;
+    }
 
     try {
       const historyRef = doc(db, 'users', user.id, 'viewHistory', auctionId);
@@ -131,6 +168,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const handleLogout = async () => {
+    if (!auth) {
+      localStorage.removeItem("mockUser");
+      setUser(null);
+      return;
+    }
+
     try {
       await logout();
       setUser(null);
@@ -151,6 +194,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updatePlan = async (newPlan: 'free' | 'basic' | 'pro', targetUserId?: string) => {
     const idToUpdate = targetUserId || user?.id;
     if (!idToUpdate) return;
+
+    if (!auth) {
+      if (user && user.id === 'mock-user') {
+        const updatedUser = { ...user, plan: newPlan };
+        localStorage.setItem('mockUser', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+      }
+      return;
+    }
+
     try {
       await updateUserPlan(idToUpdate, newPlan);
       setUser(prev => prev ? { ...prev, plan: newPlan } : null);

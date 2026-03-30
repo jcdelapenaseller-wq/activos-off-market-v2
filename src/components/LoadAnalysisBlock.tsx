@@ -61,6 +61,7 @@ interface LoadAnalysisBlockProps {
   isIntegrated?: boolean;
   onShowSoftGate?: () => void;
   initialStep?: 'locked' | 'upload' | 'loading' | 'result';
+  isPaid?: boolean;
 }
 
 const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ 
@@ -68,7 +69,8 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
   boeUrl, 
   isIntegrated = false,
   onShowSoftGate,
-  initialStep = 'locked'
+  initialStep = 'locked',
+  isPaid = false
 }) => {
   const [step, setStep] = useState<'locked' | 'upload' | 'loading' | 'result'>(initialStep);
   const [files, setFiles] = useState<File[]>([]);
@@ -83,9 +85,10 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
 
   const planLimit = currentPlan === 'free' ? 1 : currentPlan === 'basic' ? 3 : 10;
 
-  const isBlocked = usage >= planLimit;
+  const isBlocked = !isPaid && usage >= planLimit;
 
   const getCounterText = () => {
+    if (isPaid) return 'Análisis pagado';
     if (currentPlan === 'free') {
       return usage >= 1 ? 'Sin análisis disponibles' : '1 análisis gratis disponible';
     }
@@ -106,6 +109,17 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
     borderClass: string;
     icon: JSX.Element;
   } => {
+    if (isPaid) {
+      return {
+        text: 'Análisis desbloqueado',
+        subtext: 'Pago confirmado',
+        bgClass: 'bg-emerald-50',
+        textClass: 'text-emerald-700',
+        borderClass: 'border-emerald-200',
+        icon: <CheckCircle size={14} className="text-emerald-600" />
+      };
+    }
+
     if (currentPlan === 'pro') {
       const remaining = Math.max(0, 10 - usage);
       if (remaining === 0) {
@@ -249,7 +263,10 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
     // Mock analysis for all plans
     setTimeout(async () => {
       // Incrementar contador solo cuando análisis se ejecuta correctamente
-      const success = await incrementAnalysisCount();
+      let success = true;
+      if (!isPaid) {
+        success = await incrementAnalysisCount();
+      }
       if (!success && currentPlan !== 'pro') {
         setStep('upload');
         if (onShowSoftGate) onShowSoftGate();

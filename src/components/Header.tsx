@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Gavel, Sparkles, ChevronDown, Calculator, FileText, Calendar, ExternalLink, User, LogOut, Star } from 'lucide-react';
+import { Menu, X, Gavel, Sparkles, ChevronDown, Calculator, FileText, Calendar, ExternalLink, User, LogOut, Star, Search } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { useUser } from '../contexts/UserContext';
 
@@ -11,7 +11,7 @@ const Header: React.FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isLogged, login, logout, isLoading, plan } = useUser();
+  const { user, isLogged, login, logout, isLoading, plan, updatePlan } = useUser();
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,31 +55,31 @@ const Header: React.FC = () => {
         isScrolled ? 'bg-white/95 shadow-md py-3' : 'bg-white/80 py-4 md:py-5'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center whitespace-nowrap min-w-0">
         <Link 
           to={ROUTES.HOME} 
-          className="flex items-center gap-2 text-brand-900 group" 
+          className="flex items-center gap-2 text-brand-900 group whitespace-nowrap flex-shrink-0 mr-4" 
           onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
         >
-          <div className="bg-brand-700 text-white p-2 rounded-lg group-hover:bg-brand-800 transition-colors shadow-sm">
+          <div className="bg-brand-700 text-white p-2 rounded-lg group-hover:bg-brand-800 transition-colors shadow-sm flex-shrink-0">
             <Gavel size={22} />
           </div>
           <span className="font-serif font-bold text-xl md:text-2xl tracking-tight">Activos Off-Market</span>
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+        <nav className="hidden md:flex items-center gap-4 lg:gap-6 whitespace-nowrap">
           <Link 
             to={ROUTES.GUIDE_PILLAR} 
             className={`text-sm lg:text-base font-medium transition-colors ${location.pathname === ROUTES.GUIDE_PILLAR ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
           >
-            Guía Subastas BOE
+            Guía BOE
           </Link>
           <Link 
             to={ROUTES.RECENT_AUCTIONS} 
             className={`text-sm lg:text-base font-medium transition-colors ${location.pathname === ROUTES.RECENT_AUCTIONS ? 'text-brand-700 font-bold' : 'text-slate-600 hover:text-brand-700'}`}
           >
-            Subastas Recientes
+            Recientes
           </Link>
 
           {/* Tools Dropdown */}
@@ -96,11 +96,11 @@ const Header: React.FC = () => {
                 <span>Calcular Puja Máxima</span>
               </Link>
               <Link 
-                to="/subasta/subasta-sub-at-2026-25r2886001818"
+                to={ROUTES.ANALIZAR_SUBASTA}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors"
               >
                 <FileText size={18} className="text-brand-600" />
-                <span>Análisis de Cargas</span>
+                <span>Analizar Subasta</span>
               </Link>
               <a 
                 href="https://calendly.com/activosoffmarket"
@@ -111,54 +111,77 @@ const Header: React.FC = () => {
                 <Calendar size={18} className="text-brand-600" />
                 <span>Consultoría</span>
               </a>
+              <a 
+                href="https://t.me/activosOffmarket"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors"
+              >
+                <ExternalLink size={18} className="text-brand-600" />
+                <span>Canal Telegram gratuito</span>
+              </a>
             </div>
           </div>
           
-          <a 
-            href="https://t.me/activosOffmarket" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 text-brand-700 hover:bg-brand-100 text-sm lg:text-base font-bold transition-all border border-brand-100"
+          <Link 
+            to={ROUTES.ANALIZAR_SUBASTA} 
+            className="flex items-center gap-2 px-2 py-1 rounded-md text-slate-800 hover:text-brand-700 hover:bg-brand-50 text-sm lg:text-base font-medium transition-all whitespace-nowrap"
           >
-            Canal Gratuito <ExternalLink size={14} />
-          </a>
+            <Search size={18} className="text-brand-600" />
+            Analizar
+          </Link>
 
           {/* Auth Section */}
-          <div className="flex items-center ml-2 border-l border-slate-200 pl-6 gap-3">
-            {!isLoading && isLogged && plan === 'free' && (
-              <Link 
-                to="/pro"
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all group"
-              >
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Plan FREE</span>
-                <span className="text-[10px] font-bold text-brand-600 group-hover:text-brand-700">Mejorar a BASIC &rarr;</span>
-              </Link>
+          <div className="flex items-center ml-2 border-l border-slate-200 pl-6 gap-2 whitespace-nowrap flex-shrink-0">
+            {!isLoading && isLogged && (
+              plan === 'pro' ? (
+                <div className="hidden lg:flex flex-col items-start leading-tight px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 whitespace-nowrap">
+                  <span className="text-xs font-medium text-slate-500">PLAN PRO</span>
+                  <span className="text-sm font-semibold text-emerald-700">Activo</span>
+                </div>
+              ) : (
+                <Link 
+                  to="/pro"
+                  aria-label="Ver planes"
+                  className="hidden lg:flex flex-col items-start leading-tight px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-brand-50 transition-all cursor-pointer group whitespace-nowrap"
+                >
+                  <span className="text-xs font-medium text-slate-500">PLAN {plan.toUpperCase()}</span>
+                  <span className="text-sm font-semibold text-brand-600 group-hover:text-brand-700">Mejorar a {plan === 'free' ? 'BASIC' : 'PRO'} &rarr;</span>
+                </Link>
+              )
             )}
             {!isLoading && (
               isLogged ? (
                 <div className="relative flex items-center gap-3" ref={userMenuRef}>
-                  {plan === 'basic' && (
-                    <span className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[10px] font-bold text-amber-700 tracking-wide">
-                      ✨ BASIC activo
-                    </span>
-                  )}
-                  {plan === 'pro' && (
-                    <span className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-200 text-[10px] font-bold text-brand-700 tracking-wide">
-                      🚀 PRO activo
-                    </span>
-                  )}
                   <button 
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-brand-700 hover:bg-slate-200 transition-colors border border-slate-200"
+                    className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
                   >
-                    <User size={20} />
+                    {user?.id === 'mock-user' && (
+                      <span className="hidden lg:block text-sm font-medium text-slate-600 whitespace-nowrap">
+                        👤 Usuario demo
+                      </span>
+                    )}
+                    <div className="relative flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 text-brand-700 border border-slate-200 flex-shrink-0">
+                      <User size={18} />
+                      {user?.id === 'mock-user' && (
+                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-slate-400 rounded-full border-2 border-white"></span>
+                      )}
+                    </div>
                   </button>
                   
                   {isUserMenuOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2">
+                    <div className="absolute top-full right-0 mt-2 w-56 bg-white shadow-xl rounded-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2">
                       <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                        <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
-                        <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
+                          {user?.id === 'mock-user' && (
+                            <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded uppercase tracking-wider">Modo demo</span>
+                          )}
+                        </div>
+                        {user?.id !== 'mock-user' && (
+                          <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                        )}
                       </div>
                       
                       <div className="px-4 py-2 border-b border-slate-100 mb-1">
@@ -176,6 +199,17 @@ const Header: React.FC = () => {
                           </Link>
                         </div>
                       </div>
+
+                      {user?.id === 'mock-user' && (
+                        <div className="px-4 py-2 border-b border-slate-100 mb-1 bg-slate-50">
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Simular planes (Demo)</p>
+                          <div className="flex gap-1">
+                            <button onClick={() => updatePlan('free')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'free' ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}>FREE</button>
+                            <button onClick={() => updatePlan('basic')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'basic' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}>BASIC</button>
+                            <button onClick={() => updatePlan('pro')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'pro' ? 'bg-brand-600 text-white' : 'bg-brand-100 text-brand-700 hover:bg-brand-200'}`}>PRO</button>
+                          </div>
+                        </div>
+                      )}
 
                       <Link 
                         to="/mis-guardados"
@@ -211,15 +245,23 @@ const Header: React.FC = () => {
         </nav>
 
         {/* Mobile Menu Button */}
-        <div className="flex items-center gap-3 md:hidden">
-          {!isLoading && isLogged && plan === 'free' && (
-            <Link 
-              to="/pro"
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all"
-            >
-              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider hidden sm:inline">Plan FREE</span>
-              <span className="text-[9px] font-bold text-brand-600">Mejorar a BASIC &rarr;</span>
-            </Link>
+        <div className="flex items-center gap-3 md:hidden whitespace-nowrap flex-shrink-0">
+          {!isLoading && isLogged && (
+            plan === 'pro' ? (
+              <div className="flex flex-col items-start leading-tight px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 whitespace-nowrap">
+                <span className="text-[10px] font-medium text-slate-500">PLAN PRO</span>
+                <span className="text-xs font-semibold text-emerald-700">Activo</span>
+              </div>
+            ) : (
+              <Link 
+                to="/pro"
+                aria-label="Ver planes"
+                className="flex flex-col items-start leading-tight px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-brand-50 transition-all cursor-pointer group whitespace-nowrap"
+              >
+                <span className="text-[10px] font-medium text-slate-500">PLAN {plan.toUpperCase()}</span>
+                <span className="text-xs font-semibold text-brand-600 group-hover:text-brand-700">Mejorar a {plan === 'free' ? 'BASIC' : 'PRO'} &rarr;</span>
+              </Link>
+            )
           )}
           {!isLoading && !isLogged && (
             <button 
@@ -231,28 +273,30 @@ const Header: React.FC = () => {
           )}
           {!isLoading && isLogged && (
              <div className="relative flex items-center gap-2" ref={userMenuRef}>
-               {plan === 'basic' && (
-                 <span className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[9px] font-bold text-amber-700 tracking-wide">
-                   ✨ BASIC
-                 </span>
-               )}
-               {plan === 'pro' && (
-                 <span className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-50 border border-brand-200 text-[9px] font-bold text-brand-700 tracking-wide">
-                   🚀 PRO
-                 </span>
-               )}
                <button 
                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                 className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-brand-700 hover:bg-slate-200 transition-colors border border-slate-200"
+                 className="flex items-center p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
                >
-                 <User size={16} />
+                 <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-brand-700 border border-slate-200">
+                   <User size={16} />
+                   {user?.id === 'mock-user' && (
+                     <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-slate-400 rounded-full border-2 border-white"></span>
+                   )}
+                 </div>
                </button>
                
                {isUserMenuOpen && (
-                 <div className="absolute top-full right-0 mt-2 w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2">
+                 <div className="absolute top-full right-0 mt-2 w-56 bg-white shadow-xl rounded-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2">
                    <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                     <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
-                     <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                     <div className="flex items-center gap-2 mb-0.5">
+                       <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
+                       {user?.id === 'mock-user' && (
+                         <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded uppercase tracking-wider">Modo demo</span>
+                       )}
+                     </div>
+                     {user?.id !== 'mock-user' && (
+                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                     )}
                    </div>
 
                    <div className="px-4 py-2 border-b border-slate-100 mb-1">
@@ -270,6 +314,17 @@ const Header: React.FC = () => {
                        </Link>
                      </div>
                    </div>
+
+                   {user?.id === 'mock-user' && (
+                     <div className="px-4 py-2 border-b border-slate-100 mb-1 bg-slate-50">
+                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Simular planes (Demo)</p>
+                       <div className="flex gap-1">
+                         <button onClick={() => updatePlan('free')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'free' ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}>FREE</button>
+                         <button onClick={() => updatePlan('basic')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'basic' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}>BASIC</button>
+                         <button onClick={() => updatePlan('pro')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'pro' ? 'bg-brand-600 text-white' : 'bg-brand-100 text-brand-700 hover:bg-brand-200'}`}>PRO</button>
+                       </div>
+                     </div>
+                   )}
 
                    <Link 
                      to="/mis-guardados"
@@ -348,37 +403,48 @@ const Header: React.FC = () => {
                   <span>Calcular Puja Máxima</span>
                 </Link>
                 <Link 
-                  to="/subasta/subasta-sub-at-2026-25r2886001818"
+                  to={ROUTES.ANALIZAR_SUBASTA}
                   className="flex items-center gap-3 px-4 py-3 text-slate-700 border-b border-slate-200/50"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FileText size={18} className="text-brand-600" />
-                  <span>Análisis de Cargas</span>
+                  <span>Analizar Subasta</span>
                 </Link>
                 <a 
                   href="https://calendly.com/activosoffmarket"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-4 py-3 text-slate-700"
+                  className="flex items-center gap-3 px-4 py-3 text-slate-700 border-b border-slate-200/50"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Calendar size={18} className="text-brand-600" />
                   <span>Consultoría</span>
                 </a>
+                <a 
+                  href="https://t.me/activosOffmarket"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-3 text-slate-700"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <ExternalLink size={18} className="text-brand-600" />
+                  <span>Canal Telegram gratuito</span>
+                </a>
               </div>
             )}
           </div>
           
-          <a 
-            href="https://t.me/activosOffmarket"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link 
+            to={ROUTES.ANALIZAR_SUBASTA}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="mt-2 text-lg font-bold text-brand-700 py-4 px-4 bg-brand-50 rounded-xl flex items-center justify-between border border-brand-100"
+            className="mt-2 text-lg font-bold text-slate-700 py-4 px-4 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-between border border-slate-200 transition-colors"
           >
-            Canal Gratuito
-            <ExternalLink size={20} />
-          </a>
+            <div className="flex items-center gap-3">
+              <Search size={20} className="text-slate-500" />
+              Analizar Subasta
+            </div>
+            <Search size={20} className="text-slate-400 opacity-50" />
+          </Link>
         </div>
       )}
     </header>

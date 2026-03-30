@@ -52,30 +52,19 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-6">
-              Analiza una subasta antes de pujar
+              Analiza cualquier subasta antes de pujar
             </h2>
             <p className="text-lg text-slate-600 leading-relaxed">
-              Elige el tipo de análisis que necesitas para tomar una decisión informada.
+              Pega el enlace de la subasta y elige el nivel de profundidad que necesitas para tomar tu decisión de inversión.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch max-w-3xl mx-auto">
+          <div className="flex justify-center">
             <Link 
-              to={ROUTES.ANALISIS_CARGAS}
-              className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all text-center flex flex-col items-center gap-4"
+              to={ROUTES.ANALIZAR_SUBASTA}
+              className="inline-flex items-center gap-2 bg-slate-900 text-white font-bold py-4 px-8 rounded-xl hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
-              <h3 className="text-xl font-bold text-slate-900">Análisis de cargas</h3>
-              <p className="text-slate-600 text-sm">Revisión documental experta basada en BOE y Registro.</p>
-              <span className="text-brand-600 font-bold flex items-center gap-2">Analizar cargas <ArrowRight size={16} /></span>
-            </Link>
-
-            <Link 
-              to={ROUTES.ANALISIS_INVERSION}
-              className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all text-center flex flex-col items-center gap-4"
-            >
-              <h3 className="text-xl font-bold text-slate-900">Análisis inversión</h3>
-              <p className="text-slate-600 text-sm">Análisis inversión completo con estrategia de puja.</p>
-              <span className="text-brand-600 font-bold flex items-center gap-2">Generar informe <ArrowRight size={16} /></span>
+              Analizar una subasta <ArrowRight size={20} />
             </Link>
           </div>
         </div>

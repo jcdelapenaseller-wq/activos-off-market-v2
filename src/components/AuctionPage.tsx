@@ -33,86 +33,7 @@ import { useUser, UserContext } from '../contexts/UserContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, getDoc, setDoc, serverTimestamp, getCountFromServer } from 'firebase/firestore';
 import { getAuctionValuation, ValuationResult } from '../services/valuationService';
-
-const PaymentModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  type: 'analysis' | 'cargas';
-  auctionId: string;
-}> = ({ isOpen, onClose, type, auctionId }) => {
-  const { plan } = useUser();
-  if (!isOpen) return null;
-
-  const getPriceData = () => {
-    if (type === 'cargas') {
-      return {
-        price: '2,99€',
-        url: `https://buy.stripe.com/test_cargas?client_reference_id=${auctionId}&redirect_url=${encodeURIComponent(window.location.href.split('?')[0] + '?cargas=paid')}`
-      };
-    }
-
-    // Dynamic pricing for analysis based on plan
-    switch (plan) {
-      case 'pro':
-        return {
-          price: '0,99€',
-          url: `https://buy.stripe.com/test_analysis_pro?client_reference_id=${auctionId}&redirect_url=${encodeURIComponent(window.location.href.split('?')[0] + '?analysis=paid')}`
-        };
-      case 'basic':
-        return {
-          price: '2,99€',
-          url: `https://buy.stripe.com/test_analysis_basic?client_reference_id=${auctionId}&redirect_url=${encodeURIComponent(window.location.href.split('?')[0] + '?analysis=paid')}`
-        };
-      default:
-        return {
-          price: '4,99€',
-          url: `https://buy.stripe.com/test_analysis_free?client_reference_id=${auctionId}&redirect_url=${encodeURIComponent(window.location.href.split('?')[0] + '?analysis=paid')}`
-        };
-    }
-  };
-
-  const priceData = getPriceData();
-
-  const handlePay = () => {
-    window.location.href = priceData.url;
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col p-6 md:p-8 text-center">
-        <button onClick={onClose} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors z-10">
-          <X size={20} />
-        </button>
-        <div className="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-brand-100">
-          <FileText size={32} />
-        </div>
-        <h2 className="text-2xl font-serif font-bold text-slate-900 mb-2">
-          {type === 'analysis' ? 'Análisis completo de inversión' : 'Análisis de cargas registrales'}
-        </h2>
-        <p className="text-slate-500 text-sm mb-8">
-          {type === 'analysis' ? 'Desbloquea el informe detallado con valor de mercado, ROI y puja máxima.' : 'Desbloquea el análisis detallado de las cargas registrales de esta subasta.'}
-        </p>
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 w-full mb-8">
-          <div className="flex flex-col items-center mb-1">
-            {type === 'analysis' && (
-              <span className="text-sm text-slate-400 line-through font-medium mb-0.5">
-                Valor estimado {plan === 'pro' ? '9,99€' : plan === 'basic' ? '19€' : '29€'}
-              </span>
-            )}
-            <div className="flex items-baseline justify-center gap-1">
-              <span className="text-4xl font-bold text-slate-900 tracking-tight">{priceData.price}</span>
-            </div>
-          </div>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Pago único</p>
-        </div>
-        <button onClick={handlePay} className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-          Pagar y desbloquear <TrendingUp size={18} />
-        </button>
-      </div>
-    </div>
-  );
-};
+import PaymentModal from './PaymentModal';
 
 interface LockedFeatureBlockProps {
   title?: string;
@@ -2269,20 +2190,13 @@ const AuctionPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-4">
-                      <button 
-                        onClick={() => {
-                          if (cargasPaid) {
-                            setShowCargasUpload(true);
-                          } else {
-                            setPaymentType('cargas');
-                            setShowPaymentModal(true);
-                          }
-                        }}
+                      <Link 
+                        to={`/analisis-cargas?id=${auction.boeId || auction.slug}`}
                         className="w-full py-5 px-6 bg-slate-900 hover:bg-brand-700 text-white rounded-2xl font-semibold text-lg transition-all flex items-center justify-center gap-3 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                       >
                         Analizar cargas
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                      </button>
+                      </Link>
                       <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-500 font-medium text-center">
                         <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Entrega inmediata</div>
                         <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Sin suscripción</div>
@@ -2364,25 +2278,12 @@ const AuctionPage: React.FC = () => {
                 </div>
 
                 <div className="mt-auto space-y-4">
-                  <button 
-                    onClick={() => {
-                      if (analysisPaid) {
-                        setShowFullAnalysisModal(true);
-                      } else {
-                        setPaymentType('analysis');
-                        setShowPaymentModal(true);
-                      }
-                    }}
+                  <Link 
+                    to={`/analisis-inversion?id=${auction.boeId || auction.slug}`}
                     className="w-full bg-slate-900 hover:bg-brand-700 text-white font-bold py-5 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group/btn text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                   >
-                    {analysisPaid ? 'Ver informe generado' : 'Generar informe completo'}
+                    Generar informe completo
                     <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
-                  </button>
-                  <Link 
-                    to={ROUTES.ANALISIS_INVERSION}
-                    className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 text-lg"
-                  >
-                    Ver análisis completo
                   </Link>
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-500 font-medium text-center">
                     <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Entrega inmediata</div>
