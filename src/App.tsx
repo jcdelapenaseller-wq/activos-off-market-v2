@@ -29,8 +29,8 @@ function AppRoutes() {
 
 function App() {
   return (
-    <UserProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <UserProvider>
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-brand-100 selection:text-brand-900">
           <ScrollToTop />
           <Header />
@@ -40,8 +40,8 @@ function App() {
           <Footer />
           <Toaster position="bottom-center" />
         </div>
-      </BrowserRouter>
-    </UserProvider>
+      </UserProvider>
+    </BrowserRouter>
   );
 }
 

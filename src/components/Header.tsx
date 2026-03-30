@@ -233,12 +233,13 @@ const Header: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <button 
-                  onClick={() => login()}
+                <Link 
+                  to={ROUTES.LOGIN}
+                  state={{ from: location }}
                   className="text-sm lg:text-base font-medium text-slate-700 hover:text-brand-700 transition-colors"
                 >
                   Acceder
-                </button>
+                </Link>
               )
             )}
           </div>
@@ -264,12 +265,13 @@ const Header: React.FC = () => {
             )
           )}
           {!isLoading && !isLogged && (
-            <button 
-              onClick={() => login()}
+            <Link 
+              to={ROUTES.LOGIN}
+              state={{ from: location }}
               className="text-sm font-medium text-slate-700 hover:text-brand-700 transition-colors"
             >
               Acceder
-            </button>
+            </Link>
           )}
           {!isLoading && isLogged && (
              <div className="relative flex items-center gap-2" ref={userMenuRef}>

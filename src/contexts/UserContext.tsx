@@ -2,6 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db, loginWithGoogle, logout, updateUserPlan, UserProfile } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, getDocFromServer } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../constants/routes';
 
 enum OperationType {
   CREATE = 'create',
@@ -74,6 +76,7 @@ export const UserContext = createContext<UserContextType | undefined>(undefined)
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const isDev = import.meta.env.DEV || (typeof process !== 'undefined' && process.env.NODE_ENV === 'development');
 
@@ -286,9 +289,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const requireLogin = () => {
-    // Placeholder for future route protection
-    // e.g. navigate('/login')
-    console.log("requireLogin: User must be logged in to access this feature.");
+    if (!user) {
+      navigate(ROUTES.LOGIN);
+    }
   };
 
   const value = {

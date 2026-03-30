@@ -2,6 +2,8 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Lock, ShieldCheck, Bell, Heart } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ROUTES } from '../constants/routes';
 
 interface SoftGateModalProps {
   isOpen: boolean;
@@ -10,13 +12,15 @@ interface SoftGateModalProps {
 }
 
 const SoftGateModal: React.FC<SoftGateModalProps> = ({ isOpen, onClose, origin }) => {
-  const { login, isLogged, plan } = useUser();
+  const { isLogged, plan } = useUser();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleAuthAction = () => {
     if (isLogged) {
-      window.location.href = '/pro';
+      navigate(ROUTES.PRO);
     } else {
-      login();
+      navigate(ROUTES.LOGIN, { state: { from: location } });
     }
     onClose();
   };

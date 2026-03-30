@@ -89,6 +89,7 @@ import AccountPage from './components/AccountPage';
 import ProPage from './components/ProPage';
 import SuccessPage from './components/SuccessPage';
 import CancelPage from './components/CancelPage';
+import LoginPage from './components/LoginPage';
 const AnalisisCargasPage = React.lazy(() => import('./components/AnalisisCargasPage'));
 const AnalisisInversionPage = React.lazy(() => import('./components/AnalisisInversionPage'));
 const AnalizarSubastaHub = React.lazy(() => import('./components/AnalizarSubastaHub'));
@@ -113,6 +114,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.ANALIZAR_SUBASTA,
     element: createElement(AnalizarSubastaHub),
+  },
+  {
+    path: ROUTES.LOGIN,
+    element: createElement(LoginPage),
   },
   {
     path: ROUTES.PRO,

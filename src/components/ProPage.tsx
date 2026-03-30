@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Star, CheckCircle, ArrowRight, FileText, Search, Home } from 'lucide-react';
 import { trackConversion } from '../utils/tracking';
 import { motion } from 'motion/react';
 import { useUser } from '../contexts/UserContext';
 import { toast } from 'sonner';
 import { startCheckout, BillingCycle as StripeBillingCycle } from '../lib/billing';
+import { ROUTES } from '../constants/routes';
 
 type BillingCycle = 'mensual' | 'trimestral' | 'anual';
 
 const ProPage: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('anual');
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro'>('basic');
-  const { isLogged, login, updatePlan, plan: currentPlan } = useUser();
+  const { isLogged, updatePlan, plan: currentPlan } = useUser();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -22,11 +26,8 @@ const ProPage: React.FC = () => {
     if (currentPlan === planToActivate) return;
 
     if (!isLogged) {
-      try {
-        await login();
-      } catch (error) {
-        return; // Login cancelled or failed
-      }
+      navigate(ROUTES.LOGIN, { state: { from: location } });
+      return;
     }
 
     try {
