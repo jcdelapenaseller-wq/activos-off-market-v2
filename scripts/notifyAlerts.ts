@@ -37,6 +37,7 @@ interface FirestoreAlert {
   minPrice: number;
   maxPrice: number;
   active: boolean;
+  plan: 'free' | 'basic' | 'pro';
 }
 
 async function fetchFirestoreAlerts(): Promise<FirestoreAlert[]> {
@@ -56,9 +57,9 @@ async function fetchFirestoreAlerts(): Promise<FirestoreAlert[]> {
 
     console.log(`✅ [NOTIFY] Encontradas ${alertsSnapshot.size} alertas potenciales.`);
 
-    // Para cada alerta, necesitamos el email del usuario
+    // Para cada alerta, necesitamos el email y el plan del usuario
     // El email está en el documento del usuario: users/{uid}
-    const userCache: Record<string, string> = {};
+    const userCache: Record<string, { email: string, plan: 'free' | 'basic' | 'pro' }> = {};
 
     for (const doc of alertsSnapshot.docs) {
       const alertData = doc.data();
@@ -66,20 +67,26 @@ async function fetchFirestoreAlerts(): Promise<FirestoreAlert[]> {
 
       if (!uid) continue;
 
-      let email = userCache[uid];
-      if (!email) {
+      let userData = userCache[uid];
+      if (!userData) {
         const userDoc = await db.collection('users').doc(uid).get();
         if (userDoc.exists) {
-          email = userDoc.data()?.email;
-          if (email) userCache[uid] = email;
+          const data = userDoc.data();
+          const email = data?.email;
+          const plan = (data?.plan?.toLowerCase() as 'free' | 'basic' | 'pro') || 'free';
+          if (email) {
+            userData = { email, plan };
+            userCache[uid] = userData;
+          }
         }
       }
 
-      if (email) {
+      if (userData) {
         allAlerts.push({
           id: doc.id,
           uid,
-          email,
+          email: userData.email,
+          plan: userData.plan,
           city: alertData.city || '',
           zone: alertData.zone || '',
           propertyType: alertData.propertyType || 'Todos',
@@ -109,8 +116,28 @@ function saveSentAlerts(data: SentAlertsData) {
   fs.writeFileSync(SENT_ALERTS_FILE, JSON.stringify(data, null, 2));
 }
 
-async function sendAlertEmail(email: string, auction: any) {
-  console.log(`📧 [NOTIFY] Preparando envío MailerLite para: ${email}`);
+async function sendAlertEmail(email: string, auction: any, plan: string = 'free') {
+  console.log(`📧 [NOTIFY] Preparando envío MailerLite para: ${email} (Plan: ${plan})`);
+
+  const isPro = plan.toLowerCase() === 'pro';
+  const proBadge = isPro ? `
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+      <p style="margin: 0; color: #166534; font-size: 13px; font-weight: bold;">⚡ Alerta prioritaria PRO</p>
+      <p style="margin: 5px 0 0 0; color: #15803d; font-size: 11px;">Has recibido esta oportunidad antes que otros usuarios</p>
+      <p style="margin: 2px 0 0 0; color: #166534; font-size: 10px; font-style: italic;">Gracias a tu acceso prioritario PRO</p>
+    </div>
+  ` : '';
+
+  const upgradeCTA = !isPro ? `
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+      <p style="margin: 0; color: #475569; font-size: 13px;">¿Quieres recibir estas oportunidades antes?</p>
+      <p style="margin: 5px 0 15px 0; color: #1e293b; font-size: 14px; font-weight: bold;">Activa PRO y recibe alertas prioritarias</p>
+      <a href="https://activosoffmarket.es/pro" 
+         style="display: inline-block; background: #f8fafc; color: #1d4ed8; padding: 8px 20px; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: bold; border: 1px solid #e2e8f0;">
+         Ver planes
+      </a>
+    </div>
+  ` : '';
 
   try {
     const response = await fetch('https://connect.mailerlite.com/api/emails/transactional', {
@@ -127,6 +154,7 @@ async function sendAlertEmail(email: string, auction: any) {
         to: email,
         content: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            ${proBadge}
             <h2 style="color: #0f172a;">Nueva oportunidad detectada</h2>
             <p>Hola,</p>
             <p>Hemos encontrado una nueva subasta que coincide con tus filtros de búsqueda:</p>
@@ -142,6 +170,7 @@ async function sendAlertEmail(email: string, auction: any) {
             <p style="margin-top: 30px; font-size: 12px; color: #64748b;">
               Recibes este email porque tienes activo el Radar de Alertas en Activos Off-Market.
             </p>
+            ${upgradeCTA}
           </div>
         `
       }),
@@ -169,6 +198,11 @@ async function main() {
   }
 
   const alerts = await fetchFirestoreAlerts();
+  
+  // Ordenar alertas por plan: PRO primero, luego BASIC, luego FREE
+  const planOrder = { pro: 0, basic: 1, free: 2 };
+  alerts.sort((a, b) => planOrder[a.plan] - planOrder[b.plan]);
+
   const sentData = loadSentAlerts();
   const auctions = Object.values(AUCTIONS);
   
@@ -210,7 +244,7 @@ async function main() {
       const matchPrecio = auctionPrice >= alert.minPrice && auctionPrice <= alert.maxPrice;
 
       if (matchProvincia && matchTipo && matchMunicipio && matchPrecio) {
-        const success = await sendAlertEmail(userEmail, auction);
+        const success = await sendAlertEmail(userEmail, auction, alert.plan);
         if (success) {
           userSentList.push(boeId);
           sentCount++;

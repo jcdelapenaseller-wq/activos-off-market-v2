@@ -60,15 +60,17 @@ interface LoadAnalysisBlockProps {
   boeUrl?: string;
   isIntegrated?: boolean;
   onShowSoftGate?: () => void;
+  initialStep?: 'locked' | 'upload' | 'loading' | 'result';
 }
 
 const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ 
   boeId, 
   boeUrl, 
   isIntegrated = false,
-  onShowSoftGate
+  onShowSoftGate,
+  initialStep = 'locked'
 }) => {
-  const [step, setStep] = useState<'locked' | 'upload' | 'loading' | 'result'>('locked');
+  const [step, setStep] = useState<'locked' | 'upload' | 'loading' | 'result'>(initialStep);
   const [files, setFiles] = useState<File[]>([]);
   const [resultData, setResultData] = useState<AnalysisResult | null>(null);
   const [showHowToModal, setShowHowToModal] = useState(false);

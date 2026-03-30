@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Gavel, Send, Calculator, CheckSquare, Crown, MapPin, Briefcase, Tag, Target, User, ArrowRight, BookOpen, X, CheckCircle, Calendar } from 'lucide-react';
+import { Gavel, Send, Calculator, CheckSquare, Crown, MapPin, Briefcase, Tag, Target, User, ArrowRight, BookOpen, X, CheckCircle, Calendar, Search, TrendingUp } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 
 const Footer: React.FC = () => {
@@ -191,6 +191,24 @@ const Footer: React.FC = () => {
                 Servicios
             </h4>
             <ul className="space-y-4 text-sm">
+              <li>
+                <Link 
+                  to={ROUTES.ANALISIS_CARGAS} 
+                  className="flex items-center gap-2 hover:text-white transition-colors group"
+                >
+                  <Search size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
+                  <span>Análisis de cargas</span>
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to={ROUTES.ANALISIS_INVERSION} 
+                  className="flex items-center gap-2 hover:text-white transition-colors group"
+                >
+                  <TrendingUp size={16} className="text-slate-600 group-hover:text-brand-400 transition-colors" />
+                  <span>Análisis inversión</span>
+                </Link>
+              </li>
               <li>
                 <Link 
                   to={ROUTES.CONSULTORIA} 

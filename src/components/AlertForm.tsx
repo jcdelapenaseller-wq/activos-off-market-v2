@@ -136,17 +136,17 @@ const AlertForm: React.FC = () => {
         <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-50 rounded-full text-amber-600 mb-6">
           <AlertCircle size={32} />
         </div>
-        <h2 className="font-serif text-3xl font-bold text-slate-900 mb-4">Has alcanzado tu límite de alertas</h2>
-        <p className="text-slate-600 text-lg mb-8">
+        <h2 className="font-serif text-2xl md:text-3xl font-bold text-slate-900 mb-4">Has alcanzado tu límite de alertas</h2>
+        <p className="text-slate-600 text-base md:text-lg mb-8">
           Tu plan actual ({plan.toUpperCase()}) permite hasta {plan === 'free' ? '1 alerta' : '3 alertas'}. 
-          Mejora tu plan para crear alertas ilimitadas y personalizadas.
+          Actualiza a PRO para alertas ilimitadas y personalizadas.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to={ROUTES.PRO}
             className="bg-brand-600 text-white font-bold py-4 px-8 rounded-xl text-lg hover:bg-brand-700 transition-all flex items-center justify-center gap-2 shadow-md"
           >
-            <Sparkles size={20} /> Mejorar plan
+            <Sparkles size={20} /> Ver planes
           </Link>
           <button
             onClick={() => setStatus('idle')}
@@ -242,6 +242,20 @@ const AlertForm: React.FC = () => {
             <>Activar Alerta Gratuita <ArrowRight size={20} /></>
           )}
         </button>
+
+        <div className="text-center mt-1">
+          {plan === 'free' && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">1 alerta disponible</p>}
+          {plan === 'basic' && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">3 alertas simultáneas</p>}
+          {plan === 'pro' && (
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center justify-center gap-1.5">
+                <span className="px-1.5 py-0.5 rounded bg-brand-50 text-brand-600 text-[8px] font-bold uppercase tracking-wider border border-brand-100">PRO activo</span>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Alertas ilimitadas</p>
+              </div>
+              <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">Alertas prioritarias activas</p>
+            </div>
+          )}
+        </div>
 
         <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
           <ShieldCheck size={20} className="text-emerald-600 flex-shrink-0 mt-0.5" />

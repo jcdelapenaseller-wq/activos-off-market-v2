@@ -9,6 +9,7 @@ interface FullAnalysisModalProps {
   marketValue: number;
   savings: number;
   discount: number;
+  plan: 'free' | 'basic' | 'pro';
 }
 
 const FullAnalysisModal: React.FC<FullAnalysisModalProps> = ({
@@ -17,7 +18,8 @@ const FullAnalysisModal: React.FC<FullAnalysisModalProps> = ({
   auction,
   marketValue,
   savings,
-  discount
+  discount,
+  plan
 }) => {
   const [step, setStep] = useState<'intro' | 'loading' | 'ready' | 'report'>('intro');
   const [loadingStep, setLoadingStep] = useState(0);
@@ -109,22 +111,66 @@ const FullAnalysisModal: React.FC<FullAnalysisModalProps> = ({
                 <div className="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-brand-100">
                   <FileText size={32} />
                 </div>
-                <h2 className="text-2xl font-serif font-bold text-slate-900 mb-2">Informe completo de inversión</h2>
-                <p className="text-slate-500 text-sm mb-8">Análisis visual rápido basado en datos de mercado y subasta.</p>
+                <h2 className="text-2xl font-serif font-bold text-slate-900 mb-2">Análisis completo de inversión</h2>
+                <p className="text-slate-500 text-sm mb-6">La decisión inteligente de inversión</p>
                 
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 w-full mb-8">
-                  <div className="flex items-baseline justify-center gap-1 mb-1">
-                    <span className="text-4xl font-bold text-slate-900 tracking-tight">4,99€</span>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 w-full mb-6">
+                  <div className="flex flex-col items-center mb-1">
+                    <span className="text-sm text-slate-400 line-through font-medium mb-0.5">
+                      Valor estimado {plan === 'pro' ? '9,99€' : plan === 'basic' ? '19€' : '29€'}
+                    </span>
+                    <span className="text-4xl font-bold text-slate-900 tracking-tight">
+                      {plan === 'pro' ? '0,99€' : plan === 'basic' ? '2,99€' : '4,99€'}
+                    </span>
                   </div>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Pago único</p>
                 </div>
 
-                <button 
-                  onClick={handleGenerate}
-                  className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-                >
-                  Generar informe <TrendingUp size={18} />
-                </button>
+                <div className="w-full space-y-3 mb-8 text-left">
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Rentabilidad estimada de inversión</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Riesgos legales detectados</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Estrategia de puja recomendada</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Comparables de mercado</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Informe profesional en PDF</span>
+                  </div>
+                </div>
+
+                <div className="w-full space-y-4">
+                  <button 
+                    onClick={handleGenerate}
+                    className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                  >
+                    Generar informe <TrendingUp size={18} />
+                  </button>
+                  <div className="text-center space-y-1">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Informe profesional de inversión</p>
+                    <p className="text-[10px] text-slate-400 text-center font-bold uppercase tracking-widest">Entrega inmediata en PDF</p>
+                  </div>
+                </div>
               </motion.div>
             )}
 

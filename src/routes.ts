@@ -89,6 +89,8 @@ import AccountPage from './components/AccountPage';
 import ProPage from './components/ProPage';
 import SuccessPage from './components/SuccessPage';
 import CancelPage from './components/CancelPage';
+const AnalisisCargasPage = React.lazy(() => import('./components/AnalisisCargasPage'));
+const AnalisisInversionPage = React.lazy(() => import('./components/AnalisisInversionPage'));
 
 export const routes: RouteObject[] = [
   {
@@ -98,6 +100,14 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.CANCEL,
     element: createElement(CancelPage),
+  },
+  {
+    path: ROUTES.ANALISIS_CARGAS,
+    element: createElement(AnalisisCargasPage),
+  },
+  {
+    path: ROUTES.ANALISIS_INVERSION,
+    element: createElement(AnalisisInversionPage),
   },
   {
     path: ROUTES.PRO,

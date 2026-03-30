@@ -52,46 +52,31 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-6">
-              Análisis profesional de subastas
+              Analiza una subasta antes de pujar
             </h2>
             <p className="text-lg text-slate-600 leading-relaxed">
-              Antes de pujar muchos inversores prefieren revisar el expediente completo de la subasta.
+              Elige el tipo de análisis que necesitas para tomar una decisión informada.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-              <h3 className="text-xl font-bold text-slate-900 mb-6">En una revisión profesional se analiza:</h3>
-              <ul className="space-y-4 mb-8 flex-grow">
-                {['cargas registrales', 'situación posesoria', 'expediente judicial', 'estrategia de puja', 'estimación del valor real del activo'].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-slate-700">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-600" />
-                    <span className="capitalize">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-auto pt-6 border-t border-slate-100">
-                <p className="text-slate-900 font-medium italic">
-                  "Un pequeño detalle en el expediente puede cambiar completamente la rentabilidad real de una subasta."
-                </p>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch max-w-3xl mx-auto">
+            <Link 
+              to={ROUTES.ANALISIS_CARGAS}
+              className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all text-center flex flex-col items-center gap-4"
+            >
+              <h3 className="text-xl font-bold text-slate-900">Análisis de cargas</h3>
+              <p className="text-slate-600 text-sm">Revisión documental experta basada en BOE y Registro.</p>
+              <span className="text-brand-600 font-bold flex items-center gap-2">Analizar cargas <ArrowRight size={16} /></span>
+            </Link>
 
-            <div className="bg-brand-900 text-white p-8 rounded-2xl flex flex-col justify-center items-center text-center">
-              <h3 className="text-2xl font-serif font-bold mb-6">¿Quieres ir con seguridad a tu próxima subasta?</h3>
-              <p className="text-brand-100 mb-8 max-w-sm">
-                Evita errores costosos o sorpresas jurídicas después de la adjudicación con un análisis técnico completo.
-              </p>
-              <a 
-                href="https://calendly.com/activosoffmarket" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={() => trackConversion('general', 'home', 'consultoria')}
-                className="w-full sm:w-auto bg-white text-brand-900 font-bold py-4 px-10 rounded-xl hover:bg-brand-50 transition-all shadow-lg"
-              >
-                Solicitar análisis de subasta
-              </a>
-            </div>
+            <Link 
+              to={ROUTES.ANALISIS_INVERSION}
+              className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all text-center flex flex-col items-center gap-4"
+            >
+              <h3 className="text-xl font-bold text-slate-900">Análisis inversión</h3>
+              <p className="text-slate-600 text-sm">Análisis inversión completo con estrategia de puja.</p>
+              <span className="text-brand-600 font-bold flex items-center gap-2">Generar informe <ArrowRight size={16} /></span>
+            </Link>
           </div>
         </div>
       </section>

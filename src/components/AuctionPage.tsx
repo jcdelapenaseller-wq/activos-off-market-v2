@@ -7,7 +7,7 @@ import {
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon,
   Clock, Calendar, User, Twitter, Linkedin, Mail, MessageCircle,
   ExternalLink, AlertCircle, Lock, ArrowUpRight, Heart, Share2,
-  Bell, StickyNote, X, Car, Train, Navigation
+  Bell, StickyNote, X, Car, Train, Navigation, Shield, LineChart, Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AUCTIONS } from '../data/auctions';
@@ -94,8 +94,15 @@ const PaymentModal: React.FC<{
           {type === 'analysis' ? 'Desbloquea el informe detallado con valor de mercado, ROI y puja máxima.' : 'Desbloquea el análisis detallado de las cargas registrales de esta subasta.'}
         </p>
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 w-full mb-8">
-          <div className="flex items-baseline justify-center gap-1 mb-1">
-            <span className="text-4xl font-bold text-slate-900 tracking-tight">{priceData.price}</span>
+          <div className="flex flex-col items-center mb-1">
+            {type === 'analysis' && (
+              <span className="text-sm text-slate-400 line-through font-medium mb-0.5">
+                Valor estimado {plan === 'pro' ? '9,99€' : plan === 'basic' ? '19€' : '29€'}
+              </span>
+            )}
+            <div className="flex items-baseline justify-center gap-1">
+              <span className="text-4xl font-bold text-slate-900 tracking-tight">{priceData.price}</span>
+            </div>
           </div>
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Pago único</p>
         </div>
@@ -206,6 +213,7 @@ const AuctionPage: React.FC = () => {
   const [showFullAnalysisModal, setShowFullAnalysisModal] = useState(false);
   const [softGateOrigin, setSoftGateOrigin] = useState<'favorite' | 'alert' | 'note' | 'limit_favorite' | 'limit_alert' | 'valuation' | 'boe' | 'save' | 'limit_analysis' | 'streetview' | 'catastro' | null>(null);
   const [showStreetView, setShowStreetView] = useState(false);
+  const [showCargasUpload, setShowCargasUpload] = useState(false);
   const [hasActiveAlert, setHasActiveAlert] = useState(false);
   const [activeAlertId, setActiveAlertId] = useState<string | null>(null);
   const [alertsCount, setAlertsCount] = useState(0);
@@ -1416,29 +1424,45 @@ const AuctionPage: React.FC = () => {
                 const limit = plan === 'free' ? 1 : plan === 'basic' ? 3 : null;
                 
                 return (
-                  <button 
-                    onClick={hasActiveAlert ? handleDeleteAlert : handleCreateAlert}
-                    className={`p-2 rounded-full transition-all relative flex items-center gap-1.5 ${
-                      hasActiveAlert 
-                        ? 'text-brand-600 bg-brand-50 hover:bg-brand-100' 
-                        : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
-                    }`}
-                    title={hasActiveAlert ? "Eliminar alerta" : isLimitReached ? "Límite alcanzado" : "Crear alerta de esta zona"}
-                  >
-                    <div className="relative">
-                      <Bell size={20} className={hasActiveAlert ? 'fill-brand-600' : ''} />
-                      {!hasActiveAlert && isLimitReached && (
-                        <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
-                          <Lock size={8} className="text-slate-400" />
-                        </div>
+                  <div className="flex flex-col items-center">
+                    <button 
+                      onClick={hasActiveAlert ? handleDeleteAlert : handleCreateAlert}
+                      className={`p-2 rounded-full transition-all relative flex items-center gap-1.5 ${
+                        hasActiveAlert 
+                          ? 'text-brand-600 bg-brand-50 hover:bg-brand-100' 
+                          : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                      }`}
+                      title={hasActiveAlert ? "Eliminar alerta" : isLimitReached ? "Límite alcanzado" : "Crear alerta de esta zona"}
+                    >
+                      <div className="relative">
+                        <Bell size={20} className={hasActiveAlert ? 'fill-brand-600' : ''} />
+                        {!hasActiveAlert && isLimitReached && (
+                          <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+                            <Lock size={8} className="text-slate-400" />
+                          </div>
+                        )}
+                      </div>
+                      {isLogged && limit && (
+                        <span className={`text-[10px] font-bold tabular-nums ${isLimitReached && !hasActiveAlert ? 'text-amber-600' : 'opacity-60'}`}>
+                          {alertsCount}/{limit}
+                        </span>
                       )}
-                    </div>
-                    {isLogged && limit && (
-                      <span className={`text-[10px] font-bold tabular-nums ${isLimitReached && !hasActiveAlert ? 'text-amber-600' : 'opacity-60'}`}>
-                        {alertsCount}/{limit}
-                      </span>
+                    </button>
+                    
+                    {isLogged && (
+                      <div className="mt-1 flex flex-col items-center">
+                        {plan === 'free' && <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter whitespace-nowrap">1 alerta disp.</span>}
+                        {plan === 'basic' && <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter whitespace-nowrap">3 alertas sim.</span>}
+                        {plan === 'pro' && (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <span className="px-1 py-0 rounded bg-brand-50 text-brand-600 text-[6px] font-bold uppercase tracking-tighter border border-brand-100">PRO activo</span>
+                            <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter whitespace-nowrap">Ilimitadas</span>
+                            <span className="text-[6px] font-bold text-emerald-600 uppercase tracking-tighter whitespace-nowrap">Prioritarias</span>
+                          </div>
+                        )}
+                      </div>
                     )}
-                  </button>
+                  </div>
                 );
               })()}
 
@@ -2173,77 +2197,170 @@ const AuctionPage: React.FC = () => {
         </section>
 
         <div id="servicios-analisis" className="mb-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
             {/* Card 1: Análisis de cargas */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col h-full hover:shadow-md transition-shadow">
-              <div className="mb-6">
-                <h3 className="text-xl font-serif font-bold text-slate-900 mb-1">Análisis de cargas</h3>
-                <p className="text-slate-500 text-sm">Detecta riesgos antes de pujar</p>
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex flex-wrap gap-2 mb-6">
-                  <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[9px] font-bold rounded uppercase tracking-wider border border-slate-200">Nota simple</span>
-                  <span className="px-2 py-1 bg-slate-100 text-slate-600 text-[9px] font-bold rounded uppercase tracking-wider border border-slate-200">Certificación cargas</span>
-                </div>
-                
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-slate-900">
-                      {plan === 'free' ? '2,99€' : 'Incluido'}
-                    </span>
-                    {plan !== 'free' && (
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">/ Crédito</span>
-                    )}
+            <div className="bg-white border-2 border-slate-900/20 rounded-3xl p-6 md:p-8 shadow-md flex flex-col h-full hover:shadow-lg transition-all order-last md:order-none relative z-10">
+              {showCargasUpload && cargasPaid ? (
+                <div className="flex-1 flex flex-col">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-serif font-bold text-slate-900">Análisis de cargas</h3>
+                    <button 
+                      onClick={() => setShowCargasUpload(false)}
+                      className="text-xs text-slate-400 hover:text-slate-600 font-medium"
+                    >
+                      Volver
+                    </button>
                   </div>
-                </div>
-
-                <div className="relative z-10">
-                  {userContext && cargasPaid ? (
-                    <UserContext.Provider value={{ ...userContext, plan: 'pro', user: userContext.user ? { ...userContext.user, analysisUsed: 0 } : null }}>
+                  <div className="flex-1">
+                    <UserContext.Provider value={userContext ? { ...userContext, plan: 'pro', user: userContext.user ? { ...userContext.user, analysisUsed: 0 } : null } : undefined}>
                       <LoadAnalysisBlock 
                         boeId={auction.boeId || ''} 
                         boeUrl={auction.boeUrl}
                         isIntegrated={true} 
+                        initialStep="upload"
                         onShowSoftGate={() => {}}
                       />
                     </UserContext.Provider>
-                  ) : (
-                    <LoadAnalysisBlock 
-                      boeId={auction.boeId || ''} 
-                      boeUrl={auction.boeUrl}
-                      isIntegrated={true} 
-                      onShowSoftGate={() => {
-                        setPaymentType('cargas');
-                        setShowPaymentModal(true);
-                      }}
-                    />
-                  )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="mb-6 mt-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Shield className="w-4 h-4 text-slate-400" />
+                      <h3 className="text-2xl font-serif font-bold text-slate-900">Análisis de cargas</h3>
+                    </div>
+                    <p className="text-slate-600 text-sm font-medium">La revisión legal antes de pujar</p>
+                  </div>
+                  
+                  <div className="flex-1 flex flex-col">
+                    <div className="mb-6">
+                      <div className="inline-block px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded uppercase tracking-wider mb-2">
+                        REVISIÓN LEGAL
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-bold text-slate-900">
+                          {plan === 'free' ? '2,99€' : 'Incluido'}
+                        </span>
+                        {plan !== 'free' && (
+                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">/ Crédito</span>
+                        )}
+                      </div>
+                      <div className="mt-2 space-y-0.5">
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Análisis documental con criterio jurídico</p>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Basado en Ley Hipotecaria y Registral actual</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 mb-8 flex-1">
+                      {[
+                        'Hipotecas',
+                        'Embargos',
+                        'Cargas ocultas',
+                        'Ocupantes'
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3 text-slate-700">
+                          <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          </div>
+                          <span className="text-sm font-medium">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-4">
+                      <button 
+                        onClick={() => {
+                          if (cargasPaid) {
+                            setShowCargasUpload(true);
+                          } else {
+                            setPaymentType('cargas');
+                            setShowPaymentModal(true);
+                          }
+                        }}
+                        className="w-full py-5 px-6 bg-slate-900 hover:bg-brand-700 text-white rounded-2xl font-semibold text-lg transition-all flex items-center justify-center gap-3 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                      >
+                        Analizar cargas
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </button>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-500 font-medium text-center">
+                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Entrega inmediata</div>
+                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Sin suscripción</div>
+                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Pago único</div>
+                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Informe descargable</div>
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">Revisión documental experta basada en BOE y Registro</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Card 2: Análisis completo */}
-            <div id="analisis-completo" className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col h-full relative hover:shadow-md transition-shadow">
-              <div className="absolute top-4 right-4 px-2 py-1 bg-brand-50 text-brand-600 text-[9px] font-bold rounded uppercase tracking-wider border border-brand-100">
-                Recomendado
+            <div id="analisis-completo" className="bg-slate-50/50 border-2 border-slate-900 rounded-3xl p-6 md:p-8 shadow-md flex flex-col h-full relative hover:shadow-lg transition-all order-first md:order-none z-10">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-slate-900 text-white text-[10px] font-bold rounded-full uppercase tracking-widest shadow-lg border border-slate-800">
+                RECOMENDADO
               </div>
 
-              <div className="mb-6">
-                <h3 className="text-xl font-serif font-bold text-slate-900 mb-1">Análisis completo</h3>
-                <p className="text-slate-500 text-sm">Decisión rápida de inversión</p>
+              <div className="mb-6 mt-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <LineChart className="w-4 h-4 text-brand-500" />
+                  <h3 className="text-2xl font-serif font-bold text-slate-900">Análisis completo</h3>
+                </div>
+                <p className="text-slate-600 text-sm font-medium">La decisión inteligente de inversión</p>
               </div>
 
               <div className="flex-1 flex flex-col">
                 <div className="mb-8">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-slate-900">
-                      {plan === 'pro' ? '0,99€' : plan === 'basic' ? '2,99€' : '4,99€'}
+                  <div className="flex flex-col">
+                    <span className="text-sm text-slate-400 line-through font-medium mb-0.5">
+                      Valor estimado {plan === 'pro' ? '9,99€' : plan === 'basic' ? '19€' : '29€'}
                     </span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-bold text-slate-900">
+                        {plan === 'pro' ? '0,99€' : plan === 'basic' ? '2,99€' : '4,99€'}
+                      </span>
+                    </div>
                   </div>
                   {plan !== 'pro' && (
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Precio PRO: 0,99€</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="px-2 py-0.5 bg-brand-100 text-brand-700 text-[9px] font-bold rounded uppercase tracking-wider">Ahorro PRO</span>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Precio PRO: 0,99€</p>
+                    </div>
                   )}
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Rentabilidad estimada de inversión</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Riesgos legales detectados</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Estrategia de puja recomendada</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Comparables de mercado</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-700">
+                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span className="text-sm font-medium">Informe profesional en PDF</span>
+                  </div>
                 </div>
 
                 <div className="mt-auto space-y-4">
@@ -2256,14 +2373,32 @@ const AuctionPage: React.FC = () => {
                         setShowPaymentModal(true);
                       }
                     }}
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 group/btn text-sm shadow-sm hover:shadow-md"
+                    className="w-full bg-slate-900 hover:bg-brand-700 text-white font-bold py-5 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group/btn text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                   >
-                    {analysisPaid ? 'Ver informe generado' : 'Generar informe →'}
+                    {analysisPaid ? 'Ver informe generado' : 'Generar informe completo'}
+                    <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
                   </button>
-                  <p className="text-[10px] text-slate-400 text-center font-medium">Informe PDF con ROI y puja máxima</p>
+                  <Link 
+                    to={ROUTES.ANALISIS_INVERSION}
+                    className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 text-lg"
+                  >
+                    Ver análisis completo
+                  </Link>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-500 font-medium text-center">
+                    <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Entrega inmediata</div>
+                    <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Sin suscripción</div>
+                    <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Pago único</div>
+                    <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Informe descargable</div>
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">Análisis inversión completo con estrategia de puja</p>
                 </div>
               </div>
             </div>
+          </div>
+          <div className="mt-8 text-center text-slate-400 text-xs">
+            <p className="font-medium">
+              Compra segura • Pago único sin suscripción • Acceso inmediato al informe • Servicio independiente • No necesitas crear cuenta
+            </p>
           </div>
         </div>
 
@@ -2502,6 +2637,7 @@ const AuctionPage: React.FC = () => {
           marketValue={compMarketValue}
           savings={compSavings}
           discount={compDiscountVsMarket}
+          plan={plan}
         />
 
         {/* PAYMENT MODAL */}

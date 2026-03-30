@@ -10,7 +10,7 @@ interface SoftGateModalProps {
 }
 
 const SoftGateModal: React.FC<SoftGateModalProps> = ({ isOpen, onClose, origin }) => {
-  const { login, isLogged } = useUser();
+  const { login, isLogged, plan } = useUser();
 
   const handleAuthAction = () => {
     if (isLogged) {
@@ -47,10 +47,10 @@ const SoftGateModal: React.FC<SoftGateModalProps> = ({ isOpen, onClose, origin }
         };
       case 'limit_alert':
         return {
-          title: 'Límite de alertas alcanzado',
-          text: 'Ya tienes una alerta activa. Los planes superiores te permiten monitorizar múltiples zonas.',
-          hint: 'Plan actual: FREE',
-          upgradeHint: 'BASIC: 5 alertas · PRO: ilimitadas'
+          title: 'Has alcanzado tu límite de alertas',
+          text: 'Actualiza a PRO para alertas ilimitadas y monitorizar todas las zonas que te interesen.',
+          hint: `Plan actual: ${plan.toUpperCase()}`,
+          upgradeHint: 'PRO: Alertas ilimitadas y personalizadas'
         };
       case 'limit_analysis':
         return {

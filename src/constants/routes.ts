@@ -72,4 +72,6 @@ export const ROUTES = {
   PRO: '/pro',
   SUCCESS: '/success',
   CANCEL: '/cancel',
+  ANALISIS_CARGAS: '/analisis-cargas',
+  ANALISIS_INVERSION: '/analisis-inversion',
 };
