@@ -20,7 +20,7 @@ const SoftGateModal: React.FC<SoftGateModalProps> = ({ isOpen, onClose, origin }
     if (isLogged) {
       navigate(ROUTES.PRO);
     } else {
-      navigate(ROUTES.LOGIN, { state: { from: location } });
+      navigate(`${ROUTES.LOGIN}?from=feature&redirect=${window.location.pathname}`);
     }
     onClose();
   };

@@ -25,14 +25,28 @@ const LoginPage: React.FC = () => {
       
       // Determine redirection path
       const searchParams = new URLSearchParams(location.search);
+      const redirectQuery = searchParams.get('redirect');
       const fromQuery = searchParams.get('from');
       const fromState = (location.state as any)?.from?.pathname;
       
-      const from = fromState || (fromQuery ? `/${fromQuery}` : ROUTES.HOME);
+      // Prioritize: redirect > from > state > dashboard
+      const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || ROUTES.HOME));
       navigate(from, { replace: true });
     } catch (error) {
       console.error('Error logging in:', error);
       setIsAuthenticating(false);
+    }
+  };
+
+  const getMessage = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const from = searchParams.get('from');
+    switch (from) {
+      case 'charges': return "Accede al análisis jurídico completo de la subasta";
+      case 'rentabilidad': return "Calcula la rentabilidad real antes de pujar";
+      case 'favoritos': return "Guarda subastas y crea tu lista de oportunidades";
+      case 'pro': return "Accede a herramientas avanzadas para inversores";
+      default: return "Accede a tu cuenta para continuar";
     }
   };
 
@@ -63,7 +77,7 @@ const LoginPage: React.FC = () => {
               Iniciar sesión
             </h1>
             <p className="text-slate-500 text-sm leading-relaxed">
-              Accede a tu cuenta para guardar análisis, alertas y tu plan
+              {getMessage()}
             </p>
           </div>
 
@@ -103,9 +117,9 @@ const LoginPage: React.FC = () => {
               )}
             </button>
 
-            <div className="text-center">
+            <div className="text-center space-y-1">
               <p className="text-[11px] text-slate-400">
-                Acceso seguro con tu cuenta Google · Sin contraseña
+                Acceso inmediato · Sin compromiso · 1 análisis gratuito incluido
               </p>
             </div>
 
@@ -120,6 +134,13 @@ const LoginPage: React.FC = () => {
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <Shield size={14} className="text-brand-600" /> Acceso a herramientas PRO
               </div>
+            </div>
+            
+            {/* Social Proof */}
+            <div className="text-center pt-4">
+               <p className="text-[10px] text-slate-400 italic">
+                 Más de 5.000 inversores ya usan Activos Off-Market
+               </p>
             </div>
           </div>
         </div>

@@ -26,7 +26,7 @@ const ProPage: React.FC = () => {
     if (currentPlan === planToActivate) return;
 
     if (!isLogged) {
-      navigate(ROUTES.LOGIN, { state: { from: location } });
+      navigate(`${ROUTES.LOGIN}?from=feature&redirect=${window.location.pathname}`);
       return;
     }
 

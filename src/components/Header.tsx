@@ -234,8 +234,7 @@ const Header: React.FC = () => {
                 </div>
               ) : (
                 <Link 
-                  to={ROUTES.LOGIN}
-                  state={{ from: location }}
+                  to={`${ROUTES.LOGIN}?from=header&redirect=${window.location.pathname}`}
                   className="text-sm lg:text-base font-medium text-slate-700 hover:text-brand-700 transition-colors"
                 >
                   Acceder
@@ -266,8 +265,7 @@ const Header: React.FC = () => {
           )}
           {!isLoading && !isLogged && (
             <Link 
-              to={ROUTES.LOGIN}
-              state={{ from: location }}
+              to={`${ROUTES.LOGIN}?from=header&redirect=${window.location.pathname}`}
               className="text-sm font-medium text-slate-700 hover:text-brand-700 transition-colors"
             >
               Acceder
