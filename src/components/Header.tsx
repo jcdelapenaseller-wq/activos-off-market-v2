@@ -184,20 +184,36 @@ const Header: React.FC = () => {
                         )}
                       </div>
                       
-                      <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Mi plan</p>
-                        <div className="flex items-center justify-between">
-                          <span className={`text-xs font-bold ${plan === 'pro' ? 'text-brand-700' : plan === 'basic' ? 'text-amber-700' : 'text-slate-600'}`}>
-                            {plan === 'pro' ? '🚀 PRO activo' : plan === 'basic' ? '✨ BASIC activo' : 'FREE'}
-                          </span>
-                          <Link 
-                            to={ROUTES.MI_CUENTA}
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline cursor-pointer transition-colors active:bg-slate-100 px-2 py-1 rounded"
-                          >
-                            Mi cuenta
-                          </Link>
-                        </div>
+                      <div className="px-4 py-3 border-y border-slate-100 bg-slate-50/50 my-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Mi plan</p>
+                        
+                        <Link to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA} onClick={() => setIsUserMenuOpen(false)} className="block mb-2">
+                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            plan === 'pro' ? 'bg-violet-100 text-violet-700' : 
+                            plan === 'basic' ? 'bg-blue-100 text-blue-700' : 
+                            'bg-slate-100 text-slate-600'
+                          }`}>
+                            {plan === 'pro' ? '👑 PRO' : plan === 'basic' ? '⭐ BASIC' : '○ FREE'}
+                          </div>
+                          <p className="text-[10px] text-slate-500 mt-1">
+                            {plan === 'free' ? 'Funciones limitadas' : 'Acceso completo'}
+                          </p>
+                          {plan === 'free' && (
+                            <p className="text-[10px] text-brand-600 font-medium mt-0.5">Desbloquea análisis completos</p>
+                          )}
+                        </Link>
+
+                        <Link 
+                          to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA}
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className={`w-full flex items-center justify-center gap-2 px-3 py-1.5 text-[11px] font-semibold rounded-lg transition-all shadow-sm border ${
+                            plan === 'free' ? 'bg-white text-brand-700 border-brand-100 hover:border-brand-200 hover:shadow' : 
+                            'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:shadow'
+                          }`}
+                        >
+                          {plan === 'free' ? 'Mejorar a BASIC' : 'Gestionar plan'}
+                          {plan === 'free' && <span className="text-[9px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full">Recomendado</span>}
+                        </Link>
                       </div>
 
                       {user?.id === 'mock-user' && (
@@ -218,6 +234,14 @@ const Header: React.FC = () => {
                       >
                         <Star size={16} />
                         <span>Mis Guardados</span>
+                      </Link>
+                      <Link 
+                        to={ROUTES.MI_CUENTA}
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
+                      >
+                        <User size={16} />
+                        <span>Mi cuenta</span>
                       </Link>
                       <button 
                         onClick={() => {
@@ -302,21 +326,19 @@ const Header: React.FC = () => {
 
                    <div className="px-4 py-2 border-b border-slate-100 mb-1">
                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Mi plan</p>
-                     <div className="flex items-center justify-between">
+                     <Link to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA} onClick={() => { setIsUserMenuOpen(false); setIsMobileMenuOpen(false); }} className="block mb-2">
                        <span className={`text-xs font-bold ${plan === 'pro' ? 'text-brand-700' : plan === 'basic' ? 'text-amber-700' : 'text-slate-600'}`}>
                          {plan === 'pro' ? '🚀 PRO activo' : plan === 'basic' ? '✨ BASIC activo' : 'FREE'}
                        </span>
-                       <Link 
-                         to={ROUTES.MI_CUENTA}
-                         onClick={() => {
-                           setIsUserMenuOpen(false);
-                           setIsMobileMenuOpen(false);
-                         }}
-                         className="text-[10px] font-medium text-brand-600 hover:text-brand-700 hover:underline cursor-pointer transition-colors active:bg-slate-100 px-2 py-1 rounded"
-                       >
-                         Mi cuenta
-                       </Link>
-                     </div>
+                     </Link>
+                     <Link 
+                       to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA}
+                       onClick={() => { setIsUserMenuOpen(false); setIsMobileMenuOpen(false); }}
+                       className={`w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-colors ${plan === 'free' ? 'bg-brand-50 text-brand-700 hover:bg-brand-100' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+                     >
+                       {plan === 'free' ? 'Mejorar a BASIC' : 'Gestionar plan'}
+                       {plan === 'free' && <span className="text-[9px] bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded">Recomendado</span>}
+                     </Link>
                    </div>
 
                    {user?.id === 'mock-user' && (
@@ -340,6 +362,17 @@ const Header: React.FC = () => {
                    >
                      <Star size={16} />
                      <span>Mis Guardados</span>
+                   </Link>
+                   <Link 
+                     to={ROUTES.MI_CUENTA}
+                     onClick={() => {
+                       setIsUserMenuOpen(false);
+                       setIsMobileMenuOpen(false);
+                     }}
+                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
+                   >
+                     <User size={16} />
+                     <span>Mi cuenta</span>
                    </Link>
                    <button 
                      onClick={() => {
