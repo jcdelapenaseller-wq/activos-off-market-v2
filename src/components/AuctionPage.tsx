@@ -7,7 +7,7 @@ import {
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon,
   Clock, Calendar, User, Twitter, Linkedin, Mail, MessageCircle,
   ExternalLink, AlertCircle, Lock, ArrowUpRight, Heart, Share2,
-  Bell, StickyNote, X, Car, Train, Navigation, Shield, LineChart, Check
+  Bell, StickyNote, X, Car, Train, Navigation, Shield, LineChart, Check, Zap, HelpCircle, ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AUCTIONS } from '../data/auctions';
@@ -613,7 +613,7 @@ const AuctionPage: React.FC = () => {
 
   const cityName = normalizeCity(auction) || 'España';
   const provinceName = normalizeProvince(auction.province || cityName);
-  const propertyType = normalizePropertyType(auction.propertyType);
+  const propertyType = normalizePropertyType(auction.propertyType) || 'Propiedad';
   const locationLabel = normalizeLocationLabel(auction);
 
   const opportunityRatio = useMemo(() => {
@@ -853,6 +853,131 @@ const AuctionPage: React.FC = () => {
     return { marketContext, investorProfile, interpretation, proceduralContext, fomo, summaryLabels };
   }, [auction, opportunityRatio, cityName, provinceName, propertyType]);
 
+  // Deterministic index for text rotation
+  const getDeterministicIndex = (id: string, length: number) => {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash) % length;
+  };
+
+  // Dynamic FAQ Generation
+  const dynamicFaqs = useMemo(() => {
+    const faqs = [];
+    const auctionId = auction?.boeId || auction?.slug || 'default';
+    const seed = getDeterministicIndex(auctionId, 100);
+    
+    // Pool of questions
+    const pool = {
+      vivienda: [
+        { q: "¿Se puede visitar la vivienda?", a: "En la mayoría de subastas judiciales no es posible visitar el interior del inmueble, ya que el juzgado no dispone de las llaves. Se recomienda investigar el estado exterior y consultar con vecinos si es posible." },
+        { q: "¿Qué pasa si hay okupas?", a: "Si el inmueble está ocupado sin título legal, el adjudicatario debe solicitar el Lanzamiento al juzgado tras la adjudicación. Es un proceso legal reglado que suele resolverse en unos meses." },
+        { q: "¿Puedo pedir hipoteca para esta subasta?", a: "Es complejo pero posible. Algunos bancos ofrecen 'hipoteca para subasta', pero requieren que tengas el capital para el depósito y que la adjudicación sea firme. Consulta con un experto financiero." }
+      ],
+      inversion: [
+        { q: "¿Por qué el descuento es tan alto?", a: "El valor de subasta suele ser inferior al de mercado para incentivar la participación. Además, las cargas previas (si las hay) pueden influir en el precio final de adjudicación." },
+        { q: "¿Es buen momento para invertir en esta zona?", a: `La zona de ${cityName} y la provincia de ${auction.province} presentan una demanda estable. Comprar con el descuento que ofrece esta subasta permite un margen de seguridad importante.` },
+        { q: "¿Qué rentabilidad puedo esperar?", a: `Dada la tipología de ${propertyType.toLowerCase()}, la rentabilidad bruta por alquiler en ${cityName} suele oscilar entre el 5% y el 8%, dependiendo del estado final del activo.` }
+      ],
+      procedimiento: [
+        { q: "¿Cuánto debo depositar?", a: `El depósito (consignación) es el 5% del valor de tasación. Para esta subasta en concreto, el importe es de ${((auction.appraisalValue || 0) * 0.05).toLocaleString('es-ES', {style: 'currency', currency: 'EUR'})}.` },
+        { q: "¿Cómo se decide el ganador?", a: "Gana la puja más alta. Si supera el 70% del valor de tasación, la adjudicación es directa. Si es inferior, el ejecutado tiene 10 días para presentar a un tercero que mejore la postura." },
+        { q: "¿Qué significa que no tenga cargas?", a: "Significa que, según el edicto, no constan deudas preferentes que el adjudicatario deba asumir. No obstante, siempre recomendamos verificar la Nota Simple actualizada." }
+      ]
+    };
+
+    // Logic to pick from pool
+    const isVivienda = propertyType.toLowerCase().includes('vivienda') || propertyType.toLowerCase().includes('piso');
+    const isHighDiscount = compDiscountVsMarket > 25;
+
+    // Add 2 from procedure (always relevant)
+    faqs.push(pool.procedimiento[seed % pool.procedimiento.length]);
+    faqs.push(pool.procedimiento[(seed + 1) % pool.procedimiento.length]);
+
+    // Add 2 from category
+    if (isVivienda) {
+      faqs.push(pool.vivienda[seed % pool.vivienda.length]);
+      faqs.push(pool.vivienda[(seed + 1) % pool.vivienda.length]);
+    } else {
+      faqs.push(pool.inversion[seed % pool.inversion.length]);
+      faqs.push(pool.inversion[(seed + 1) % pool.inversion.length]);
+    }
+
+    // Add 1 more based on discount
+    if (isHighDiscount) {
+      faqs.push(pool.inversion[2]); // Rentabilidad/Inversión
+    } else {
+      faqs.push(pool.procedimiento[2]); // Cargas
+    }
+
+    // Filter unique questions
+    const uniqueFaqs: {q: string, a: string}[] = [];
+    const seenQs = new Set<string>();
+    faqs.forEach(f => {
+      if (!seenQs.has(f.q)) {
+        uniqueFaqs.push(f);
+        seenQs.add(f.q);
+      }
+    });
+
+    return uniqueFaqs;
+  }, [propertyType, cityName, auction.appraisalValue, auction.claimedDebt, compDiscountVsMarket, auction.province, auction.boeId, auction.slug]);
+
+  const marketAnalysis = useMemo(() => {
+    const auctionId = auction?.boeId || auction?.slug || 'default';
+    const idx1 = getDeterministicIndex(auctionId + "m1", 3);
+    const idx2 = getDeterministicIndex(auctionId + "m2", 3);
+
+    const phrases = [
+      <>El mercado inmobiliario en <strong className="text-slate-900 font-bold">{cityName}</strong> muestra una dinámica sólida para este tipo de activos.</>,
+      <>La zona de <strong className="text-slate-900 font-bold">{cityName}</strong> se ha consolidado como un punto de interés para inversores que buscan activos con alta liquidez.</>,
+      <>Analizando los datos de la provincia de <strong className="text-slate-900 font-bold">{auction.province}</strong>, este activo en <strong className="text-slate-900 font-bold">{cityName}</strong> destaca por su ubicación estratégica.</>
+    ];
+
+    const marketPhrases = [
+      <> Con un valor de mercado estimado de <strong className="text-slate-900 font-bold">{compMarketValue.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0})}</strong>, esta subasta ofrece un margen de seguridad del <strong className="text-slate-900 font-bold">{Math.abs(compDiscountVsMarket).toFixed(1)}%</strong> respecto a los precios de venta convencionales en la zona.</>,
+      <> El precio por metro cuadrado en esta operación se sitúa significativamente por debajo de la media de <strong className="text-slate-900 font-bold">{cityName}</strong>, lo que representa una oportunidad de entrada con descuento real.</>,
+      <> La comparativa con activos similares vendidos recientemente en <strong className="text-slate-900 font-bold">{cityName}</strong> confirma que el valor de tasación es conservador, ampliando el potencial de beneficio.</>
+    ];
+
+    return <>{phrases[idx1]}{marketPhrases[idx2]}</>;
+  }, [cityName, auction.province, compMarketValue, compDiscountVsMarket, auction.boeId, auction.slug]);
+
+  const investmentStrategy = useMemo(() => {
+    const auctionId = auction?.boeId || auction?.slug || 'default';
+    const idx1 = getDeterministicIndex(auctionId + "s1", 3);
+    const idx2 = getDeterministicIndex(auctionId + "s2", 3);
+
+    const phrases = [
+      <>Adquirir este <strong className="text-slate-900 font-bold">{propertyType.toLowerCase()}</strong> mediante el procedimiento de subasta permite acceder a un precio significativamente inferior al de mercado.</>,
+      <>La inversión en este activo de <strong className="text-slate-900 font-bold">{cityName}</strong> se perfila como una operación de bajo riesgo relativo dado el descuento de salida.</>,
+      <>Este expediente en <strong className="text-slate-900 font-bold">{cityName}</strong> es ideal para una estrategia de 'buy-to-rent' o para reventa rápida tras la adjudicación.</>
+    ];
+
+    const strategyPhrases = [
+      <> Dada la ubicación y las características del inmueble, se estima un potencial de revalorización inmediato tras la adjudicación y toma de posesión.</>,
+      <> La demanda de alquiler en <strong className="text-slate-900 font-bold">{cityName}</strong> asegura una rentabilidad bruta atractiva para este tipo de {propertyType.toLowerCase()}.</>,
+      <> La escasez de oferta similar en la provincia de <strong className="text-slate-900 font-bold">{auction.province}</strong> convierte a este activo en una pieza codiciada para carteras patrimoniales.</>
+    ];
+
+    return <>{phrases[idx1]}{strategyPhrases[idx2]}</>;
+  }, [propertyType, cityName, auction.province, auction.boeId, auction.slug]);
+
+  const opportunityLevel = useMemo(() => {
+    if (compDiscountVsMarket >= 35) return "Alta";
+    if (compDiscountVsMarket >= 20) return "Media-Alta";
+    if (compDiscountVsMarket >= 10) return "Media";
+    return "Moderada";
+  }, [compDiscountVsMarket]);
+
+  const liquidityLevel = useMemo(() => {
+    if (!auction?.boeId) return "Media";
+    const seed = auction.boeId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const levels = ["Alta", "Media-Alta", "Media", "Moderada"];
+    return levels[seed % levels.length];
+  }, [auction?.boeId]);
+
   const isCityCapital = cityName !== 'España' && cityName.toLowerCase() === provinceName.toLowerCase();
 
   const getOpportunityMessage = (ratio: number | null) => {
@@ -998,7 +1123,6 @@ const AuctionPage: React.FC = () => {
     if (!auction || !cleanSlug) return null;
 
     const propertyType = normalizePropertyType(auction.propertyType);
-    const cityName = normalizeCity(auction) || 'España';
     const discount = auction.appraisalValue && auction.claimedDebt 
       ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) 
       : 0;
@@ -1041,39 +1165,21 @@ const AuctionPage: React.FC = () => {
       ? new Date(Math.max(...dateCandidates.map(d => new Date(d).getTime()))).toISOString()
       : publishedDate.toISOString();
 
-    const availability = isFinished ? "https://schema.org/OutOfStock" : "https://schema.org/InStock";
-
-    const realEstateListing: any = {
-      "@context": "https://schema.org",
-      "@type": "RealEstateListing",
-      "name": finalTitle,
-      "description": description,
-      "url": url,
-      "datePosted": publishedDate.toISOString().split('T')[0],
-      "dateModified": dateModified,
-      "category": propertyType,
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": cityName,
-        "addressRegion": provinceName,
-        "addressCountry": "ES"
-      }
-    };
-
-    if (imageUrl) {
-      realEstateListing["image"] = imageUrl;
-    }
-
-    if (auction.auctionDate) {
-      realEstateListing["availabilityEnds"] = new Date(auction.auctionDate).toISOString().split('T')[0];
-    }
+    const availability = isFinished 
+      ? "https://schema.org/SoldOut" 
+      : auction.status === 'suspended'
+        ? "https://schema.org/LimitedAvailability"
+        : auction.status === 'upcoming'
+          ? "https://schema.org/PreOrder"
+          : "https://schema.org/InStock";
 
     const product: any = {
       "@context": "https://schema.org",
       "@type": "Product",
       "name": finalTitle,
       "description": description,
-      "dateModified": dateModified,
+      "image": imageUrl || "https://activosoffmarket.es/og-image.png",
+      "category": propertyType,
       "brand": {
         "@type": "Brand",
         "name": "Activos Off-Market"
@@ -1083,16 +1189,55 @@ const AuctionPage: React.FC = () => {
         "price": price,
         "priceCurrency": "EUR",
         "availability": availability,
-        "url": url
-      }
+        "url": url,
+        "itemCondition": "https://schema.org/UsedCondition"
+      },
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Tipo de Inmueble",
+          "value": propertyType
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Ciudad",
+          "value": cityName
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Provincia",
+          "value": provinceName
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Valor Subasta",
+          "value": auction.valorSubasta || auction.appraisalValue
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Valor Mercado",
+          "value": auction.appraisalValue
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Descuento",
+          "value": `${discount}%`
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Estado Subasta",
+          "value": auction.status
+        }
+      ]
     };
 
-    if (imageUrl) {
-      product["image"] = imageUrl;
-    }
-
     if (auction.auctionDate) {
-      product.offers["validThrough"] = new Date(auction.auctionDate).toISOString().split('T')[0];
+      product.offers["priceValidUntil"] = new Date(auction.auctionDate).toISOString().split('T')[0];
+      product.additionalProperty.push({
+        "@type": "PropertyValue",
+        "name": "Fecha Cierre",
+        "value": auction.auctionDate
+      });
     }
 
     const faqPage: any = {
@@ -1158,7 +1303,6 @@ const AuctionPage: React.FC = () => {
         }
       ];
     } else {
-      // Active or Upcoming
       faqPage.mainEntity = [
         {
           "@type": "Question",
@@ -1187,6 +1331,15 @@ const AuctionPage: React.FC = () => {
       ];
     }
 
+    const slugify = (text: string) => {
+      return text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+    };
+
     const breadcrumbList: any = {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -1200,25 +1353,31 @@ const AuctionPage: React.FC = () => {
         {
           "@type": "ListItem",
           "position": 2,
-          "name": `Subastas ${provinceName}`,
-          "item": `https://activosoffmarket.es/subastas/${provinceName.toLowerCase()}`
+          "name": "Subastas",
+          "item": "https://activosoffmarket.es/subastas-boe"
         },
         {
           "@type": "ListItem",
           "position": 3,
-          "name": `Subastas ${cityName}`,
-          "item": `https://activosoffmarket.es/subastas/${cityName.toLowerCase()}`
+          "name": provinceName,
+          "item": `https://activosoffmarket.es/subastas/${slugify(provinceName)}`
         },
         {
           "@type": "ListItem",
           "position": 4,
-          "name": `${propertyType} en ${cityName}`,
+          "name": cityName,
+          "item": `https://activosoffmarket.es/subastas/${slugify(cityName)}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": finalTitle,
           "item": url
         }
       ]
     };
 
-    return [realEstateListing, product, faqPage, breadcrumbList];
+    return [product, faqPage, breadcrumbList];
   }, [auction, slug, cityName, provinceName, isFinished, analysisInsights]);
 
   return (
@@ -1288,10 +1447,30 @@ const AuctionPage: React.FC = () => {
 
           {/* Dynamic SEO Intro */}
           <p className="text-slate-600 text-xs md:text-base leading-relaxed mb-4 md:mb-6 text-justify">
-            {opportunityRatio && opportunityRatio > 0.4 
-              ? `Esta subasta en ${cityName} presenta un margen excepcional del ${Math.round(opportunityRatio * 100)}% frente a la tasación oficial. Una oportunidad estratégica tanto para inversores profesionales como para familias y pequeños ahorradores que buscan su primera vivienda con un ahorro sustancial.`
-              : `Oportunidad de adquisición de ${propertyType.toLowerCase()} en ${cityName} mediante procedimiento ${getAuctionType(auction.boeId).toLowerCase()}. Un activo ideal para particulares que desean capitalizar su ahorro o inversores que buscan rentabilidad con garantías jurídicas.`}
-            {" "}El análisis de cargas es el paso crítico para asegurar el éxito de la operación.
+            {useMemo(() => {
+              const ratio = opportunityRatio || 0;
+              const phrases = [
+                `Esta subasta de ${propertyType.toLowerCase()} en ${cityName} representa una oportunidad estratégica con un margen del ${Math.round(ratio * 100)}% respecto a su valor de tasación.`,
+                `Oportunidad detectada en ${cityName}: ${propertyType} con un descuento del ${Math.round(ratio * 100)}% sobre el valor oficial. Ideal para inversores que buscan rentabilidad inmediata.`,
+                `Adquisición preferente de ${propertyType.toLowerCase()} en ${cityName}. El activo cuenta con un valor de mercado muy superior al precio de salida, lo que garantiza un colchón de seguridad para el adjudicatario.`
+              ];
+              const fomoPhrases = [
+                " Las subastas en esta zona suelen recibir un alto volumen de pujas en las últimas 48 horas.",
+                " Activos con este nivel de descuento en la provincia de " + auction.province + " son escasos y de alta rotación.",
+                " La fecha de cierre se aproxima y el interés por este expediente ha crecido significativamente esta semana."
+              ];
+              const professionalPhrases = [
+                " Se recomienda encarecidamente la revisión del estado de cargas antes de formalizar la puja.",
+                " El análisis documental jurídico es el paso crítico para asegurar el éxito y la seguridad de la inversión.",
+                " Un estudio detallado del edicto y la certificación registral evitará sorpresas tras la adjudicación."
+              ];
+              
+              const base = phrases[Math.floor(Math.random() * phrases.length)] || phrases[0];
+              const fomo = fomoPhrases[Math.floor(Math.random() * fomoPhrases.length)] || fomoPhrases[0];
+              const prof = professionalPhrases[Math.floor(Math.random() * professionalPhrases.length)] || professionalPhrases[0];
+              
+              return `${base}${fomo}${prof}`;
+            }, [cityName, propertyType, opportunityRatio, auction.province])}
           </p>
           
           {/* Address and Share Row */}
@@ -1665,10 +1844,16 @@ const AuctionPage: React.FC = () => {
             <p className="text-[9px] md:text-[10px] text-slate-400 font-medium hidden sm:block">Información técnica de la Sede Electrónica del Catastro</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-            <div className="space-y-1">
+          <div 
+            className={`grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 relative group transition-all ${plan !== 'pro' ? 'cursor-pointer' : ''}`}
+            onClick={() => plan !== 'pro' && setSoftGateOrigin('catastro')}
+          >
+            {plan !== 'pro' && (
+              <div className="absolute inset-0 z-10 bg-slate-900/0 group-hover:bg-slate-900/[0.02] transition-colors rounded-lg" />
+            )}
+            <div className={`space-y-1 ${plan !== 'pro' ? 'blur-[4px] select-none' : ''}`}>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Superficie estimada</p>
-              <p className={`text-sm font-bold text-slate-900 ${plan === 'free' ? 'blur-[4px] select-none' : ''}`}>
+              <p className="text-sm font-bold text-slate-900">
                 {auction.surface ? `${auction.surface} m²` : (
                   <span className="flex items-center gap-1 text-slate-400 font-medium italic">
                     <Info size={10} /> Pendiente
@@ -1676,15 +1861,15 @@ const AuctionPage: React.FC = () => {
                 )}
               </p>
             </div>
-            <div className="space-y-1">
+            <div className={`space-y-1 ${plan !== 'pro' ? 'blur-[4px] select-none' : ''}`}>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Año construcción</p>
-              <p className={`text-sm font-bold text-slate-900 ${plan === 'free' ? 'blur-[4px] select-none' : ''}`}>
+              <p className="text-sm font-bold text-slate-900">
                 {auction.yearBuilt || '1995'}
               </p>
             </div>
-            <div className="space-y-1">
+            <div className={`space-y-1 ${plan !== 'pro' ? 'blur-[6px] select-none' : ''}`}>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Referencia catastral</p>
-              <p className={`text-sm font-mono font-bold text-slate-900 ${plan === 'free' ? 'blur-[6px] select-none' : ''}`}>
+              <p className="text-sm font-mono font-bold text-slate-900">
                 {auction.refCat || (
                   <span className="flex items-center gap-1 text-slate-400 font-medium italic">
                     <Info size={10} /> Consultar BOE
@@ -1692,11 +1877,11 @@ const AuctionPage: React.FC = () => {
                 )}
               </p>
             </div>
-            <div className="space-y-1">
+            <div className={`space-y-1 ${plan !== 'pro' ? 'blur-[4px] select-none' : ''}`}>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Confianza datos</p>
               <div className="flex items-center gap-1.5">
-                <div className={`w-2 h-2 rounded-full ${plan === 'free' ? 'bg-slate-300' : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]'}`} />
-                <p className={`text-sm font-bold text-slate-900 ${plan === 'free' ? 'blur-[4px] select-none' : ''}`}>
+                <div className={`w-2 h-2 rounded-full ${plan !== 'pro' ? 'bg-slate-300' : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.4)]'}`} />
+                <p className="text-sm font-bold text-slate-900">
                   {auction.cadastreConfidence || 'ALTA'}
                 </p>
               </div>
@@ -1947,9 +2132,10 @@ const AuctionPage: React.FC = () => {
             </div>
 
             {/* Expandable Section */}
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {!isComparatorExpanded ? (
                 <motion.div 
+                  key="collapsed"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
@@ -1980,31 +2166,13 @@ const AuctionPage: React.FC = () => {
                       Calcula superficie real y ahorro potencial antes de pujar
                     </p>
                   </div>
-
-                  {plan === 'free' && (
-                    <div 
-                      className="mt-6 pt-6 border-t border-slate-200 overflow-hidden relative cursor-pointer group"
-                      onClick={() => setSoftGateOrigin('catastro')}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/80 to-slate-50 z-10 flex items-end justify-center pb-4">
-                        <div className="flex flex-col items-center bg-white/90 px-5 py-3 rounded-2xl shadow-sm backdrop-blur-sm border border-slate-100 transition-transform group-hover:scale-105">
-                          <span className="text-sm font-bold text-slate-900 mb-0.5">Desbloquea análisis completo</span>
-                          <span className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">Disponible en BASIC y PRO</span>
-                        </div>
-                      </div>
-                      <div className="blur-[2px] opacity-40 select-none pointer-events-none">
-                        <div className="flex flex-col items-center text-center mb-6">
-                          <span className="text-[10px] uppercase tracking-wide text-slate-500 mb-1">Superficie estimada</span>
-                          <span className="text-2xl font-bold text-slate-900">{auction.propertyType === 'Vivienda' ? '120' : '---'} m²</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </motion.div>
               ) : (
                 <motion.div 
+                  key="expanded"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
                   className="mt-8 pt-8 border-t border-slate-200 overflow-hidden"
                 >
                   <div className="flex flex-col items-center text-center mb-8">
@@ -2129,15 +2297,20 @@ const AuctionPage: React.FC = () => {
                       </div>
                       <div className="flex items-baseline gap-1">
                         <span className="text-3xl font-bold text-slate-900">
-                          {plan === 'free' ? '2,99€' : 'Incluido'}
+                          {plan === 'free' ? '2,99€' : plan === 'pro' ? 'Incluido' : ''}
                         </span>
-                        {plan !== 'free' && (
-                          <span className="ml-2 px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100">
+                        {plan === 'basic' && (
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100">
                             Incluido en tu plan
                           </span>
                         )}
-                        {plan !== 'free' && (
-                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">/ Crédito</span>
+                        {plan === 'pro' && (
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100">
+                            Incluido ilimitado
+                          </span>
+                        )}
+                        {plan === 'free' && (
+                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">/ Pago único</span>
                         )}
                       </div>
                       <div className="mt-2 space-y-0.5">
@@ -2205,8 +2378,13 @@ const AuctionPage: React.FC = () => {
                     </span>
                     <div className="flex items-baseline gap-1">
                       <span className="text-4xl font-bold text-slate-900">
-                        {plan === 'pro' ? '0,99€' : plan === 'basic' ? '2,99€' : '4,99€'}
+                        {plan === 'pro' ? 'Incluido' : plan === 'basic' ? '2,99€' : '4,99€'}
                       </span>
+                      {plan === 'pro' && (
+                        <span className="px-2 py-0.5 bg-brand-50 text-brand-600 text-[10px] font-bold rounded-full border border-brand-100">
+                          Incluido ilimitado
+                        </span>
+                      )}
                     </div>
                   </div>
                   {plan !== 'pro' && (
@@ -2366,108 +2544,186 @@ const AuctionPage: React.FC = () => {
           <div className="space-y-8">
           {/* LONG-TAIL SEO CONTENT */}
           <section className="space-y-16 pb-20 mt-24 md:mt-32 border-t border-slate-100 pt-16">
-            <div className="prose prose-slate max-w-none text-justify">
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-8">Análisis del Activo</h2>
+            <div className="max-w-none">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-4">Análisis del Activo en {cityName}</h2>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider rounded-full">{propertyType}</span>
+                    <span className="px-3 py-1 bg-brand-50 text-brand-600 text-[10px] font-bold uppercase tracking-wider rounded-full">{cityName}</span>
+                    <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider rounded-full">Oportunidad {opportunityLevel}</span>
+                  </div>
+                </div>
+              </div>
               
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-                <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                    <TrendingUp size={16} className="text-brand-500" />
-                    Contexto de Mercado
-                  </h3>
-                  <p className="text-slate-600 leading-relaxed">{analysisInsights?.marketContext}</p>
+              {/* QUICK SUMMARY */}
+              <div className="flex flex-wrap gap-2 md:gap-3 mb-10">
+                <div className="px-3 py-1.5 md:px-4 md:py-2 bg-brand-50 border border-brand-100 rounded-xl flex items-center gap-2">
+                  <DollarSign size={14} className="text-brand-600" />
+                  <span className="text-[10px] md:text-xs font-bold text-brand-900">Descuento: {compDiscountVsMarket.toFixed(0)}%</span>
                 </div>
-                <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                    <Search size={16} className="text-brand-500" />
-                    Interpretación Técnica
-                  </h3>
-                  <p className="text-slate-600 leading-relaxed">{analysisInsights?.interpretation}</p>
+                <div className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2">
+                  <Home size={14} className="text-slate-600" />
+                  <span className="text-[10px] md:text-xs font-bold text-slate-900">{propertyType}</span>
                 </div>
-              </div>
-
-              <div className="text-slate-600 leading-relaxed text-lg space-y-6">
-                <p>{auction.description}</p>
-                <p>
-                  Esta subasta se tramita bajo el número de expediente <strong className="text-slate-900">{auction.boeId}</strong>. 
-                  El procedimiento es de tipo <strong className="text-slate-900">{getAuctionType(auction.boeId)}</strong>, lo que implica unas reglas específicas de participación y plazos de consignación definidos por la Ley de Enjuiciamiento Civil.
-                </p>
-              </div>
-
-              <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mt-16 mb-8">¿Cómo participar en esta subasta en {cityName}?</h3>
-              <div className="text-slate-600 leading-relaxed text-lg space-y-6">
-                <p>
-                  Para participar en la subasta de este {propertyType.toLowerCase()}, es necesario realizar un depósito (consignación) del 5% del valor de tasación. 
-                  En este caso, el depósito requerido es de <strong className="text-slate-900">{auction.appraisalValue ? (auction.appraisalValue * 0.05).toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : '---'}</strong>.
-                </p>
-                <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 my-8">
-                  <ul className="list-none p-0 m-0 space-y-4">
-                    <li className="flex items-start gap-3">
-                      <CheckCircle size={20} className="text-emerald-500 shrink-0 mt-1" />
-                      <span><strong>Registro:</strong> Es obligatorio estar registrado en el Portal de Subastas del BOE.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle size={20} className="text-emerald-500 shrink-0 mt-1" />
-                      <span><strong>Depósito:</strong> Se realiza de forma telemática a través de la pasarela de pagos de la AEAT.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle size={20} className="text-emerald-500 shrink-0 mt-1" />
-                      <span><strong>Puja:</strong> Las pujas se realizan en tramos definidos por el juzgado.</span>
-                    </li>
-                  </ul>
+                <div className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2">
+                  <MapPin size={14} className="text-slate-600" />
+                  <span className="text-[10px] md:text-xs font-bold text-slate-900">{cityName}</span>
+                </div>
+                <div className="px-3 py-1.5 md:px-4 md:py-2 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2">
+                  <TrendingUp size={14} className="text-emerald-600" />
+                  <span className="text-[10px] md:text-xs font-bold text-emerald-900">Perfil: Inversión</span>
+                </div>
+                <div className="px-3 py-1.5 md:px-4 md:py-2 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-2">
+                  <Clock size={14} className="text-blue-600" />
+                  <span className="text-[10px] md:text-xs font-bold text-blue-900">{isActive ? 'Activa' : 'Finalizada'}</span>
                 </div>
               </div>
 
-              <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mt-16 mb-8 text-center">Preguntas Frecuentes</h3>
-              
-              <div className="space-y-3 max-w-4xl mx-auto">
-                {[
-                  {
-                    q: "¿Se puede visitar el inmueble?",
-                    a: "Normalmente no. En las subastas judiciales, el juzgado no tiene las llaves. Solo si el ocupante accede voluntariamente podrías entrar, pero lo habitual es comprar basándose en el expediente y la ubicación exterior."
-                  },
-                  {
-                    q: "¿Qué ocurre con las cargas?",
-                    a: "Las cargas anteriores a la hipoteca que se ejecuta permanecen (debes asumirlas). Las posteriores se cancelan. Es vital revisar la certificación de cargas del Registro de la Propiedad antes de pujar."
-                  },
-                  {
-                    q: "¿Necesito financiación especial?",
-                    a: "Sí. Los bancos no suelen dar hipotecas convencionales para subastas porque no pueden tasar el interior. Necesitas disponer del capital o financiación alternativa (préstamos personales o capital privado)."
-                  },
-                  {
-                    q: "¿Cuánto debo depositar?",
-                    a: "El depósito (consignación) suele ser el 5% del valor de tasación. Se hace a través del Portal de Subastas del BOE mediante cuenta bancaria."
-                  },
-                  {
-                    q: "¿Cuántos participan normalmente?",
-                    a: "Depende del atractivo del activo. En viviendas bien ubicadas pueden participar de 5 a 15 postores. En activos industriales o menos líquidos, a veces solo uno o ninguno."
-                  },
-                  {
-                    q: "¿Estoy aún a tiempo?",
-                    a: "La subasta dura 20 días naturales desde su apertura. Puedes pujar hasta el último segundo, aunque si hay una puja en los últimos 2 minutos, el plazo se prorroga otros 2 minutos."
-                  },
-                  {
-                    q: "¿Puedo comprar para vivir?",
-                    a: "Por supuesto. Muchos usuarios compran su vivienda habitual en subasta para ahorrar entre un 20% y un 40% sobre el precio de mercado, asumiendo el proceso de toma de posesión."
-                  },
-                  {
-                    q: "¿Cómo se decide el ganador?",
-                    a: "Gana la puja más alta, pero si no llega al 70% del valor de tasación, el ejecutado tiene derecho a presentar a un tercero que mejore la postura. El proceso finaliza con el Decreto de Adjudicación."
-                  }
-                ].map((faq, idx) => (
-                  <details key={idx} className="group bg-white rounded-2xl border border-slate-200 overflow-hidden transition-all hover:border-brand-200">
-                    <summary className="flex items-center justify-between p-5 cursor-pointer list-none">
-                      <span className="font-bold text-slate-900 text-sm md:text-base pr-4">{faq.q}</span>
-                      <div className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                      </div>
-                    </summary>
-                    <div className="px-5 pb-5 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
-                      {faq.a}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-16">
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                      <TrendingUp size={16} className="text-brand-500" />
+                      Contexto de Mercado
+                    </h3>
+                    <div className="text-slate-600 leading-relaxed text-sm md:text-base">
+                      {marketAnalysis}
                     </div>
-                  </details>
-                ))}
+                  </div>
+
+                  <div className="bg-brand-50/50 border border-brand-100 p-6 rounded-2xl">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-brand-500 text-white flex items-center justify-center">
+                        <Zap size={16} />
+                      </div>
+                      <h4 className="font-bold text-brand-900 text-sm">Insight de Mercado</h4>
+                    </div>
+                    <p className="text-brand-800 text-xs md:text-sm leading-relaxed">
+                      La liquidez en <span className="font-bold">{cityName}</span> para activos de tipo <span className="font-bold">{propertyType.toLowerCase()}</span> se sitúa en un nivel <span className="font-bold">{liquidityLevel}</span>, lo que sugiere un tiempo de salida estimado de 3 a 6 meses tras la adjudicación.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                      <Search size={16} className="text-brand-500" />
+                      Estrategia de Inversión
+                    </h3>
+                    <div className="text-slate-600 leading-relaxed text-sm md:text-base">
+                      {investmentStrategy}
+                    </div>
+                  </div>
+
+                  <div className="bg-emerald-50/50 border border-emerald-100 p-6 rounded-2xl">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+                        <ShieldCheck size={16} />
+                      </div>
+                      <h4 className="font-bold text-emerald-900 text-sm">Seguridad de la Operación</h4>
+                    </div>
+                    <p className="text-emerald-800 text-xs md:text-sm leading-relaxed">
+                      Con un descuento del <span className="font-bold">{(auction.appraisalValue && auction.claimedDebt ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) : 0).toFixed(0)}%</span>, el margen de seguridad protege la inversión incluso ante correcciones moderadas del mercado local en <span className="font-bold">{auction.province}</span>.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div className="md:col-span-2 text-slate-600 leading-relaxed text-base md:text-lg space-y-6">
+                  <p>
+                    Esta oportunidad en <strong className="text-slate-900 font-bold">{cityName}</strong> destaca por su equilibrio entre riesgo y rentabilidad. 
+                    La descripción oficial del BOE detalla un activo con características que encajan en la demanda actual de la provincia de <strong className="text-slate-900 font-bold">{auction.province}</strong>.
+                  </p>
+                  <p>
+                    El expediente <strong className="text-slate-900 font-bold">{auction.boeId}</strong> corresponde a un procedimiento <strong className="text-slate-900 font-bold">{getAuctionType(auction.boeId)}</strong>. 
+                    Es fundamental entender que los plazos y requisitos de este tipo de subastas están estrictamente regulados, lo que garantiza transparencia pero exige una preparación técnica previa para evitar errores en la puja.
+                  </p>
+                </div>
+                <div className="bg-slate-900 text-white p-8 rounded-[32px] flex flex-col justify-between">
+                  <div>
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Expediente</p>
+                    <h4 className="text-xl font-bold mb-6">{auction.boeId}</h4>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-400">Tipo</span>
+                        <span className="font-bold">{getAuctionType(auction.boeId)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-400">Provincia</span>
+                        <span className="font-bold">{auction.province}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-8 pt-8 border-t border-slate-800">
+                    <p className="text-[10px] text-slate-500 leading-relaxed">
+                      Datos verificados con el Portal de Subastas del BOE.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-y border-slate-100 py-16 mb-16">
+                <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-8">¿Cómo participar en esta subasta en {cityName}?</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                  <div className="text-slate-600 leading-relaxed text-base md:text-lg space-y-6">
+                    <p>
+                      Para participar en la subasta de este {propertyType.toLowerCase()}, es necesario realizar un depósito (consignación) del 5% del valor de tasación. 
+                      En este caso, el depósito requerido es de <strong className="text-slate-900 font-bold">{auction.appraisalValue ? (auction.appraisalValue * 0.05).toLocaleString('es-ES', {style: 'currency', currency: 'EUR'}) : '---'}</strong>.
+                    </p>
+                    <p className="text-sm italic text-slate-500">
+                      * El depósito se devuelve íntegramente si no resultas ganador de la subasta.
+                    </p>
+                  </div>
+                  <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                    <ul className="list-none p-0 m-0 space-y-4">
+                      <li className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check size={14} strokeWidth={3} />
+                        </div>
+                        <span className="text-sm md:text-base text-slate-700"><strong className="text-slate-900 font-bold">Registro:</strong> Es obligatorio estar registrado en el Portal de Subastas del BOE.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check size={14} strokeWidth={3} />
+                        </div>
+                        <span className="text-sm md:text-base text-slate-700"><strong className="text-slate-900 font-bold">Depósito:</strong> Se realiza de forma telemática a través de la pasarela de pagos de la AEAT.</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check size={14} strokeWidth={3} />
+                        </div>
+                        <span className="text-sm md:text-base text-slate-700"><strong className="text-slate-900 font-bold">Puja:</strong> Las pujas se realizan en tramos definidos por el juzgado.</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="max-w-4xl mx-auto">
+                <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-8 text-center">Preguntas Frecuentes</h3>
+                
+                <div className="space-y-4">
+                  {dynamicFaqs.map((faq, idx) => (
+                    <details key={idx} className="group bg-white rounded-2xl border border-slate-200 overflow-hidden transition-all hover:border-brand-200 hover:shadow-md">
+                      <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                        <div className="flex items-center gap-4">
+                          <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                            <HelpCircle size={18} />
+                          </div>
+                          <span className="font-bold text-slate-900 text-sm md:text-base pr-4">{faq.q}</span>
+                        </div>
+                        <div className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">
+                          <ChevronDown size={14} strokeWidth={3} />
+                        </div>
+                      </summary>
+                      <div className="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-5 ml-12">
+                        {faq.a}
+                      </div>
+                    </details>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
@@ -2475,7 +2731,7 @@ const AuctionPage: React.FC = () => {
 
         {/* RELATED AUCTIONS */}
         {cleanSlug && (
-          <div className="mt-32 mb-24 border-t border-slate-100 pt-16">
+          <div className="mt-24 mb-32 border-t border-slate-100 pt-24">
             <RelatedAuctions currentAuctionSlug={cleanSlug} currentAuctionData={auction} />
           </div>
         )}
@@ -2652,8 +2908,6 @@ const AuctionPage: React.FC = () => {
           )}
         </AnimatePresence>
       </main>
-
-      <Footer />
     </div>
   );
 };
