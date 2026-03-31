@@ -9,8 +9,9 @@ import firebaseConfig from '../../firebase-applet-config.json';
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 // Set persistence to local to ensure session is maintained after redirect
-await setPersistence(auth, browserLocalPersistence);
-console.log("[AUTH_DEBUG] persistence set");
+setPersistence(auth, browserLocalPersistence)
+  .then(() => console.log("[AUTH_DEBUG] persistence set"))
+  .catch(console.error);
 export const db = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
 
