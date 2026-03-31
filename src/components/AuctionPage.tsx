@@ -132,7 +132,7 @@ const AuctionPage: React.FC = () => {
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showFullAnalysisModal, setShowFullAnalysisModal] = useState(false);
-  const [softGateOrigin, setSoftGateOrigin] = useState<'favorite' | 'alert' | 'note' | 'limit_favorite' | 'limit_alert' | 'valuation' | 'boe' | 'save' | 'limit_analysis' | 'streetview' | 'catastro' | null>(null);
+  const [softGateOrigin, setSoftGateOrigin] = useState<'favorite' | 'alert' | 'note' | 'limit_favorite' | 'limit_alert' | 'valuation' | 'boe' | 'save' | 'limit_analysis' | 'streetview' | 'catastro' | 'comparativa' | null>(null);
   const [showStreetView, setShowStreetView] = useState(false);
   const [showCargasUpload, setShowCargasUpload] = useState(false);
   const [hasActiveAlert, setHasActiveAlert] = useState(false);
@@ -1737,8 +1737,8 @@ const AuctionPage: React.FC = () => {
               ></iframe>
             </div>
 
-            {/* Overlay for FREE users */}
-            {plan === 'free' && (
+            {/* Overlay for FREE/BASIC users */}
+            {plan !== 'pro' && (
               <div className="absolute inset-0 z-40 flex items-center justify-center p-6 bg-slate-900/10 backdrop-blur-[2px]">
                 <button 
                   onClick={() => setSoftGateOrigin('streetview')}
@@ -1748,13 +1748,15 @@ const AuctionPage: React.FC = () => {
                     <Lock size={16} className="text-brand-600" />
                     <span>Ver entorno real del inmueble</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Disponible en BASIC y PRO</span>
+                  <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                    {plan === 'free' ? 'Disponible en BASIC y PRO' : 'Consume 1 crédito'}
+                  </span>
                 </button>
               </div>
             )}
 
-            {/* Street View Button - Visible for BASIC/PRO */}
-            {plan !== 'free' && (
+            {/* Street View Button - Visible for PRO */}
+            {plan === 'pro' && (
               <div className="absolute bottom-4 right-4 z-20 flex flex-col items-end gap-1.5">
                 <button
                   onClick={() => setShowStreetView(true)}
@@ -1785,7 +1787,7 @@ const AuctionPage: React.FC = () => {
               </span>
             </div>
             
-            {plan === 'free' ? (
+            {plan !== 'pro' ? (
               <button 
                 onClick={() => setSoftGateOrigin('streetview')}
                 className="flex items-center justify-center gap-1.5 py-1.5 px-3 bg-white border border-slate-200 rounded-lg text-slate-700 text-[10px] md:text-[11px] font-bold hover:bg-slate-50 transition-colors shadow-sm shrink-0"
@@ -1869,7 +1871,10 @@ const AuctionPage: React.FC = () => {
               <div className="space-y-1 relative">
                 <span className="text-[10px] md:text-xs uppercase tracking-widest text-slate-400 font-bold block mb-1">Precio mercado actual</span>
                 
-                <div className={`flex flex-col ${plan === 'free' ? 'blur-sm select-none' : ''}`}>
+                <div 
+                  className={`flex flex-col ${plan !== 'pro' ? 'blur-sm select-none cursor-pointer' : ''}`}
+                  onClick={() => plan !== 'pro' && setSoftGateOrigin('comparativa')}
+                >
                   <p className="text-xl md:text-2xl font-bold text-slate-900 leading-none">
                     {compMarketValue > 0 ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(compMarketValue) : '---'}
                   </p>
@@ -1960,15 +1965,15 @@ const AuctionPage: React.FC = () => {
                     )}
                     <button 
                       onClick={() => {
-                        if (plan === 'free') {
-                          setSoftGateOrigin('catastro');
-                        } else {
+                        if (plan === 'pro') {
                           setIsComparatorExpanded(true);
+                        } else {
+                          setSoftGateOrigin('catastro');
                         }
                       }}
                       className="w-full md:w-auto px-6 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-all shadow-lg flex items-center justify-center gap-2"
                     >
-                      {plan === 'free' ? <Lock size={14} /> : <Search size={14} />}
+                      {plan === 'pro' ? <Search size={14} /> : <Lock size={14} />}
                       Verificar m² con Catastro
                     </button>
                     <p className="text-xs text-slate-500 text-center mt-2">
@@ -2528,6 +2533,21 @@ const AuctionPage: React.FC = () => {
           isOpen={!!softGateOrigin} 
           onClose={() => setSoftGateOrigin(null)} 
           origin={softGateOrigin || undefined}
+          onUnlock={async () => {
+            if (plan === 'basic') {
+              const { incrementAnalysisCount } = userContext || {};
+              if (incrementAnalysisCount) {
+                const success = await incrementAnalysisCount();
+                if (!success) return;
+              }
+            }
+            
+            if (softGateOrigin === 'streetview') {
+              setShowStreetView(true);
+            } else if (softGateOrigin === 'catastro' || softGateOrigin === 'comparativa') {
+              setIsComparatorExpanded(true);
+            }
+          }}
         />
 
         {/* FULL ANALYSIS MODAL */}
