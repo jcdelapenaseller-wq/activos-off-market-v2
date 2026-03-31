@@ -58,14 +58,17 @@ service cloud.firestore {
 
     function isValidUser(data) {
       return data.keys().hasAll(['id', 'email', 'name', 'plan', 'createdAt']) &&
-             data.keys().hasOnly(['id', 'email', 'name', 'plan', 'createdAt', 'analysisUsed', 'lastAnalysisReset', 'role']) &&
+             data.keys().hasOnly(['id', 'email', 'name', 'plan', 'createdAt', 'analysisUsed', 'lastAnalysisReset', 'role', 'provider', 'favorites', 'alerts']) &&
              data.id == request.auth.uid &&
              data.email is string && isValidEmail(data.email) &&
-             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.name is string && data.name.size() <= 100 &&
              isValidPlan(data.plan) &&
              data.createdAt is timestamp &&
              (!('analysisUsed' in data) || data.analysisUsed is int) &&
-             (!('lastAnalysisReset' in data) || data.lastAnalysisReset is timestamp);
+             (!('lastAnalysisReset' in data) || data.lastAnalysisReset is timestamp) &&
+             (!('provider' in data) || data.provider is string) &&
+             (!('favorites' in data) || data.favorites is list) &&
+             (!('alerts' in data) || data.alerts is list);
     }
 
     function isValidViewHistory(data) {
@@ -110,6 +113,22 @@ service cloud.firestore {
         // Only owner can read/write their history
         allow read, write: if isOwner(userId) && isValidViewHistory(request.resource.data);
       }
+      
+      match /alerts/{alertId} {
+        // Only owner can read/write their alerts
+        allow read, write: if isOwner(userId);
+      }
+      
+      match /favorites/{favoriteId} {
+        // Only owner can read/write their favorites (if structured as subcollection)
+        allow read, write: if isOwner(userId);
+      }
+    }
+    
+    match /favorites/{favoriteId} {
+      // Only owner can read/write their favorites (if structured as top-level collection)
+      allow read, update, delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
     }
   }
 }
