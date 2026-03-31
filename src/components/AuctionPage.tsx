@@ -1407,6 +1407,7 @@ const AuctionPage: React.FC = () => {
                 variant="minimal"
                 province={cityName}
                 origin="ficha"
+                label=""
               />
             </div>
           </div>

@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Gavel, Sparkles, ChevronDown, Calculator, FileText, Calendar, ExternalLink, User, LogOut, Star, Search, Bell } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { useUser } from '../contexts/UserContext';
+import { db } from '../lib/firebase';
+import { collection, getCountFromServer, query } from 'firebase/firestore';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -13,6 +15,26 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, isLogged, login, logout, isLoading, plan, updatePlan } = useUser();
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const [alertsCount, setAlertsCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchAlertsCount = async () => {
+      if (isLogged && user && db) {
+        try {
+          const alertsRef = collection(db, 'users', user.id, 'alerts');
+          const snapshot = await getCountFromServer(query(alertsRef));
+          setAlertsCount(snapshot.data().count);
+        } catch (error) {
+          console.error("Error fetching alerts count:", error);
+        }
+      } else {
+        setAlertsCount(null);
+      }
+    };
+    fetchAlertsCount();
+  }, [isLogged, user]);
+
+  const limit = plan === 'free' ? 1 : plan === 'basic' ? 3 : Infinity;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -227,7 +249,12 @@ const Header: React.FC = () => {
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
                       >
                         <Bell size={16} />
-                        <span>{plan === 'free' ? 'Activar alertas personalizadas' : 'Crear alerta nueva'}</span>
+                        <span>
+                          {plan === 'free' ? 'Activar alertas' : 'Crear alerta'}
+                          {alertsCount !== null && (
+                            plan === 'pro' ? ' (∞)' : ` (${alertsCount}/${limit})`
+                          )}
+                        </span>
                       </Link>
                       <Link 
                         to={ROUTES.MIS_GUARDADOS}
@@ -372,7 +399,12 @@ const Header: React.FC = () => {
                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
                    >
                      <Bell size={16} />
-                     <span>{plan === 'free' ? 'Activar alertas personalizadas' : 'Crear alerta nueva'}</span>
+                     <span>
+                       {plan === 'free' ? 'Activar alertas' : 'Crear alerta'}
+                       {alertsCount !== null && (
+                         plan === 'pro' ? ' (∞)' : ` (${alertsCount}/${limit})`
+                       )}
+                     </span>
                    </Link>
                    <Link 
                      to={ROUTES.MIS_GUARDADOS}
