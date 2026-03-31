@@ -44,8 +44,8 @@ const RelatedAuctions: React.FC<RelatedAuctionsProps> = ({ currentAuctionSlug, c
 
   return (
     <section className="mt-10">
-      <h2 className="text-2xl font-bold text-slate-900 mb-6">Otras subastas interesantes en esta zona</h2>
-      <div className="grid md:grid-cols-2 gap-4">
+      <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-6">Otras subastas interesantes en esta zona</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {relatedAuctions.map(([slug, data]) => {
           const isFinished = data.status === 'closed' || isAuctionFinished(data.auctionDate);
           const isSuspended = data.status === 'suspended';
@@ -54,7 +54,7 @@ const RelatedAuctions: React.FC<RelatedAuctionsProps> = ({ currentAuctionSlug, c
           return (
           <Link 
             key={slug} 
-            to={`/subasta/${slug}`} className={`bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-brand-300 transition-all group relative ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}
+            to={`/subasta/${slug}`} className={`bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-brand-300 transition-all group relative ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}
           >
             <div className="flex justify-between items-start mb-3 gap-2">
               <div className="flex flex-col gap-1">

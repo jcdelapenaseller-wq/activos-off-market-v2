@@ -1785,21 +1785,33 @@ const AuctionPage: React.FC = () => {
               </span>
             </div>
             
-            <a 
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                approximateCoords 
-                  ? `${approximateCoords.lat},${approximateCoords.lng}` 
-                  : (auction?.address ? `${auction.address}, ${auction.city}` : (auction?.city || 'España'))
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 py-1.5 px-3 bg-white border border-slate-200 rounded-lg text-slate-700 text-[10px] md:text-[11px] font-bold hover:bg-slate-50 transition-colors shadow-sm shrink-0"
-            >
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 opacity-80 text-brand-600" fill="currentColor">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-              </svg>
-              Google Maps
-            </a>
+            {plan === 'free' ? (
+              <button 
+                onClick={() => setSoftGateOrigin('streetview')}
+                className="flex items-center justify-center gap-1.5 py-1.5 px-3 bg-white border border-slate-200 rounded-lg text-slate-700 text-[10px] md:text-[11px] font-bold hover:bg-slate-50 transition-colors shadow-sm shrink-0"
+              >
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 opacity-80 text-brand-600" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                </svg>
+                Google Maps
+              </button>
+            ) : (
+              <a 
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                  approximateCoords 
+                    ? `${approximateCoords.lat},${approximateCoords.lng}` 
+                    : (auction?.address ? `${auction.address}, ${auction.city}` : (auction?.city || 'España'))
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 py-1.5 px-3 bg-white border border-slate-200 rounded-lg text-slate-700 text-[10px] md:text-[11px] font-bold hover:bg-slate-50 transition-colors shadow-sm shrink-0"
+              >
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 opacity-80 text-brand-600" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                </svg>
+                Google Maps
+              </a>
+            )}
           </div>
         </section>
 
@@ -1857,7 +1869,7 @@ const AuctionPage: React.FC = () => {
               <div className="space-y-1 relative">
                 <span className="text-[10px] md:text-xs uppercase tracking-widest text-slate-400 font-bold block mb-1">Precio mercado actual</span>
                 
-                <div className="flex flex-col">
+                <div className={`flex flex-col ${plan === 'free' ? 'blur-sm select-none' : ''}`}>
                   <p className="text-xl md:text-2xl font-bold text-slate-900 leading-none">
                     {compMarketValue > 0 ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(compMarketValue) : '---'}
                   </p>
@@ -1891,6 +1903,7 @@ const AuctionPage: React.FC = () => {
                     </button>
                   </div>
                 </div>
+                <p className="text-[10px] text-slate-400 mt-2">Basado en datos de Idealista</p>
               </div>
               <div className="space-y-1">
                 <span className="text-[10px] md:text-xs uppercase tracking-widest text-slate-400 font-bold">Valor tasación BOE</span>
@@ -1937,7 +1950,14 @@ const AuctionPage: React.FC = () => {
                   exit={{ opacity: 0, height: 0 }}
                   className="mt-6"
                 >
-                  <div className="flex justify-center relative z-20">
+                  <div className="flex flex-col items-center relative z-20">
+                    {plan === 'free' && (
+                      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mb-4">
+                        <span className="text-[10px] text-slate-500 font-medium">🔒 Datos de mercado verificados</span>
+                        <span className="text-[10px] text-slate-500 font-medium">🔒 Ahorro estimado</span>
+                        <span className="text-[10px] text-slate-500 font-medium">🔒 Superficie confirmada</span>
+                      </div>
+                    )}
                     <button 
                       onClick={() => {
                         if (plan === 'free') {
@@ -1951,6 +1971,9 @@ const AuctionPage: React.FC = () => {
                       {plan === 'free' ? <Lock size={14} /> : <Search size={14} />}
                       Verificar m² con Catastro
                     </button>
+                    <p className="text-xs text-slate-500 text-center mt-2">
+                      Calcula superficie real y ahorro potencial antes de pujar
+                    </p>
                   </div>
 
                   {plan === 'free' && (
@@ -1966,15 +1989,8 @@ const AuctionPage: React.FC = () => {
                       </div>
                       <div className="blur-[2px] opacity-40 select-none pointer-events-none">
                         <div className="flex flex-col items-center text-center mb-6">
-                          <span className="text-[10px] uppercase tracking-wide text-slate-500 mb-1">Ahorro vs mercado</span>
-                          <span className="text-4xl md:text-5xl font-bold tracking-tighter leading-none mb-2 text-emerald-600">+25.000 €</span>
-                          <span className="text-xs font-medium text-slate-600"><strong className="font-bold text-emerald-600">15.5%</strong> por debajo del valor de mercado</span>
-                        </div>
-                        <div className="mb-6">
-                          <div className="relative h-2 bg-slate-200 rounded-full overflow-hidden flex">
-                            <div className="h-full bg-brand-500 w-[80%]" />
-                            <div className="h-full bg-emerald-400 w-[20%]" />
-                          </div>
+                          <span className="text-[10px] uppercase tracking-wide text-slate-500 mb-1">Superficie estimada</span>
+                          <span className="text-2xl font-bold text-slate-900">{auction.propertyType === 'Vivienda' ? '120' : '---'} m²</span>
                         </div>
                       </div>
                     </div>
@@ -2110,6 +2126,11 @@ const AuctionPage: React.FC = () => {
                         <span className="text-3xl font-bold text-slate-900">
                           {plan === 'free' ? '2,99€' : 'Incluido'}
                         </span>
+                        {plan !== 'free' && (
+                          <span className="ml-2 px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100">
+                            Incluido en tu plan
+                          </span>
+                        )}
                         {plan !== 'free' && (
                           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">/ Crédito</span>
                         )}
@@ -2340,7 +2361,7 @@ const AuctionPage: React.FC = () => {
           <div className="space-y-8">
           {/* LONG-TAIL SEO CONTENT */}
           <section className="space-y-16 pb-20 mt-24 md:mt-32 border-t border-slate-100 pt-16">
-            <div className="prose prose-slate max-w-none">
+            <div className="prose prose-slate max-w-none text-justify">
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-8">Análisis del Activo</h2>
               
 
@@ -2449,7 +2470,7 @@ const AuctionPage: React.FC = () => {
 
         {/* RELATED AUCTIONS */}
         {cleanSlug && (
-          <div className="mt-16">
+          <div className="mt-32 mb-24 border-t border-slate-100 pt-16">
             <RelatedAuctions currentAuctionSlug={cleanSlug} currentAuctionData={auction} />
           </div>
         )}
