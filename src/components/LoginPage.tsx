@@ -21,12 +21,18 @@ const LoginPage: React.FC = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
 
-  // Redirection logic: if already logged in, go to dashboard
+  // Redirection logic: if already logged in, go to dashboard or intended page
   useEffect(() => {
     if (isLogged && !isLoading) {
-      navigate(ROUTES.HOME, { replace: true });
+      const searchParams = new URLSearchParams(location.search);
+      const redirectQuery = searchParams.get('redirect');
+      const fromQuery = searchParams.get('from');
+      const fromState = (location.state as any)?.from?.pathname;
+      
+      const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || ROUTES.HOME));
+      navigate(from, { replace: true });
     }
-  }, [isLogged, isLoading, navigate]);
+  }, [isLogged, isLoading, navigate, location]);
 
   // Handle Redirect Result
   useEffect(() => {
@@ -54,15 +60,8 @@ const LoginPage: React.FC = () => {
               });
             }
           }
-
-          // Determine redirection path
-          const searchParams = new URLSearchParams(location.search);
-          const redirectQuery = searchParams.get('redirect');
-          const fromQuery = searchParams.get('from');
-          const fromState = (location.state as any)?.from?.pathname;
-          
-          const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || ROUTES.HOME));
-          navigate(from, { replace: true });
+          // Note: We don't navigate here. UserContext will detect the new auth state
+          // and the redirection logic useEffect above will handle the navigation.
         }
       } catch (error) {
         console.error('Error with redirect result:', error);
@@ -101,15 +100,7 @@ const LoginPage: React.FC = () => {
     const googleCredential = GoogleAuthProvider.credential(credential);
     try {
       await signInWithCredential(auth, googleCredential);
-      // Determine redirection path
-      const searchParams = new URLSearchParams(location.search);
-      const redirectQuery = searchParams.get('redirect');
-      const fromQuery = searchParams.get('from');
-      const fromState = (location.state as any)?.from?.pathname;
-      
-      // Prioritize: redirect > from > state > dashboard
-      const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || ROUTES.HOME));
-      navigate(from, { replace: true });
+      // Redirection is handled by the useEffect above once auth state updates
     } catch (error) {
       console.error('Error logging in with One Tap:', error);
       setIsAuthenticating(false);

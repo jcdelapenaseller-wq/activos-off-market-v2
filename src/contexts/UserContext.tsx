@@ -290,7 +290,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const requireLogin = () => {
-    if (!user) {
+    if (!isLoading && !user) {
       navigate(ROUTES.LOGIN);
     }
   };
