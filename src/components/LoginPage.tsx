@@ -5,7 +5,7 @@ import { ROUTES } from '../constants/routes';
 import { Gavel, ArrowLeft, Loader2, CheckCircle, Shield, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 import { auth, googleProvider, db } from '../lib/firebase';
-import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 declare global {
@@ -26,6 +26,8 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
   
   const isMounted = useRef(true);
 
@@ -34,6 +36,12 @@ const LoginPage: React.FC = () => {
       isMounted.current = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (resetSuccess) {
+      setResetSuccess('');
+    }
+  }, [email]);
 
   console.log("[AUTH_DEBUG] render LoginPage - isAuthenticating:", isAuthenticating);
 
@@ -87,6 +95,42 @@ const LoginPage: React.FC = () => {
         setAuthError(error.message || 'Error al iniciar sesión.');
       }
       setIsAuthenticating(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (isResetting || resetSuccess) return;
+    
+    setAuthError('');
+    setResetSuccess('');
+    
+    if (!email) {
+      setAuthError('Introduce tu email');
+      return;
+    }
+    
+    setIsResetting(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      if (!isMounted.current) return;
+      setResetSuccess('Email enviado');
+    } catch (error: any) {
+      console.error('Error resetting password:', error.code, error.message);
+      if (!isMounted.current) return;
+      
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        setAuthError('Este email no está registrado');
+      } else if (error.code === 'auth/invalid-email') {
+        setAuthError('Email no válido');
+      } else if (error.code === 'auth/too-many-requests') {
+        setAuthError('Inténtalo más tarde');
+      } else {
+        setAuthError('Error al enviar el email.');
+      }
+    } finally {
+      if (isMounted.current) {
+        setIsResetting(false);
+      }
     }
   };
 
@@ -283,6 +327,39 @@ const LoginPage: React.FC = () => {
                       className="w-full px-3 h-9 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
                       required
                     />
+                    <div className="flex flex-col items-end mt-1.5">
+                      <button
+                        type="button"
+                        onClick={handlePasswordReset}
+                        disabled={isResetting || !!resetSuccess}
+                        className={`text-[11px] transition-colors flex items-center gap-1 ${
+                          resetSuccess 
+                            ? 'text-emerald-600 cursor-default' 
+                            : isResetting
+                              ? 'text-slate-400 cursor-not-allowed'
+                              : 'text-slate-400 hover:text-slate-600 hover:underline'
+                        }`}
+                      >
+                        {isResetting ? (
+                          <>
+                            <Loader2 size={10} className="animate-spin" />
+                            <span>Enviando...</span>
+                          </>
+                        ) : resetSuccess ? (
+                          <>
+                            <CheckCircle size={10} />
+                            <span>Email enviado</span>
+                          </>
+                        ) : (
+                          "¿Olvidaste tu contraseña?"
+                        )}
+                      </button>
+                      {resetSuccess && (
+                        <span className="text-[10px] text-slate-400 mt-0.5">
+                          Revisa tu bandeja de entrada o spam
+                        </span>
+                      )}
+                    </div>
                   </div>
                   
                   {authError && (
