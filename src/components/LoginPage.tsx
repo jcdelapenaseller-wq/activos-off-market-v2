@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import { ROUTES } from '../constants/routes';
 import { Gavel, ArrowLeft, Loader2, CheckCircle, Shield, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 import { auth, googleProvider, db } from '../lib/firebase';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 declare global {
@@ -18,8 +18,22 @@ const LoginPage: React.FC = () => {
   const { login, isLogged, isLoading } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
+  
+  const [showEmailForm, setShowEmailForm] = useState(searchParams.get('method') === 'email');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   console.log("[AUTH_DEBUG] render LoginPage - isAuthenticating:", isAuthenticating);
 
@@ -28,31 +42,138 @@ const LoginPage: React.FC = () => {
     console.log("[AUTH_DEBUG] LoginPage: isLogged:", isLogged, "isLoading:", isLoading);
     if (isLogged && !isLoading) {
       console.log("[AUTH_DEBUG] LoginPage: User is logged in and not loading, REDIRECTING...");
-      const searchParams = new URLSearchParams(location.search);
       const redirectQuery = searchParams.get('redirect');
       const fromQuery = searchParams.get('from');
       const fromState = (location.state as any)?.from?.pathname;
       
       const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || '/subastas-recientes'));
       console.log("[AUTH_DEBUG] LoginPage: Target path:", from);
-      navigate(from, { replace: true });
+      navigate(from || '/', { replace: true });
     }
   }, [isLogged, isLoading, navigate, location]);
 
   const handleGoogleLogin = async () => {
+    if (isAuthenticating) return;
     console.log("[AUTH_DEBUG] click google");
     setIsAuthenticating(true);
+    setAuthError('');
 
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (e) {
       console.error('Error logging in with popup:', e);
+      if (isMounted.current) setIsAuthenticating(false);
+    }
+  };
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isAuthenticating) return;
+    
+    setAuthError('');
+    setIsAuthenticating(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      console.error('Error logging in with email:', error.code, error.message);
+      if (!isMounted.current) return;
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        setAuthError('Correo o contraseña incorrectos.');
+      } else if (error.code === 'auth/invalid-email') {
+        setAuthError('El formato del correo no es válido.');
+      } else if (error.code === 'auth/network-request-failed') {
+        setAuthError('Error de conexión. Revisa tu internet.');
+      } else {
+        setAuthError(error.message || 'Error al iniciar sesión.');
+      }
       setIsAuthenticating(false);
     }
   };
 
+  const handleEmailSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isAuthenticating) return;
+    
+    setAuthError('');
+    setIsAuthenticating(true);
+    let createdUser: any = null;
+    
+    console.log("signup start");
+    
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      createdUser = result.user;
+      console.log("auth created");
+      
+      // Create user document in Firestore
+      const userRef = doc(db, 'users', createdUser.uid);
+      const userData = {
+        id: createdUser.uid,
+        email: createdUser.email || '',
+        name: createdUser.email?.split('@')[0] || '', // Default name from email
+        plan: 'free',
+        analysisUsed: 0,
+        favorites: [],
+        alerts: [],
+        createdAt: serverTimestamp(),
+        lastAnalysisReset: serverTimestamp(),
+        provider: 'email'
+      };
+      
+      try {
+        await setDoc(userRef, userData);
+        console.log("firestore ok");
+      } catch (firestoreError) {
+        console.error('Error creating user profile in Firestore:', firestoreError);
+        // Retry once
+        try {
+          await setDoc(userRef, userData);
+          console.log("firestore ok (after retry)");
+        } catch (retryError) {
+          console.error('Retry failed for creating user profile:', retryError);
+          // If it fails again, logout and show error
+          await signOut(auth);
+          if (isMounted.current) {
+            setAuthError('Error al crear perfil. Inténtalo de nuevo.');
+          }
+          return;
+        }
+      }
+      
+      console.log("redirecting");
+      // onAuthStateChanged in UserContext will handle the rest
+    } catch (error: any) {
+      console.error('Error signing up with email:', error.code, error.message);
+      if (!isMounted.current) return;
+      if (error.code === 'auth/email-already-in-use') {
+        setAuthError('Este correo ya está registrado. Inicia sesión con Google.');
+      } else if (error.code === 'auth/weak-password') {
+        setAuthError('La contraseña debe tener al menos 6 caracteres.');
+      } else if (error.code === 'auth/invalid-email') {
+        setAuthError('El formato del correo no es válido.');
+      } else if (error.code === 'auth/network-request-failed') {
+        setAuthError('Error de conexión. Revisa tu internet.');
+      } else {
+        setAuthError(error.message || 'Error al crear la cuenta. Inténtalo de nuevo.');
+      }
+    } finally {
+      console.log("signup end");
+      if (isMounted.current) {
+        setIsAuthenticating(false);
+      }
+    }
+  };
+
+  if (isLogged && isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600 mb-4" />
+        <p className="text-slate-500 text-sm font-medium">Preparando tu cuenta...</p>
+      </div>
+    );
+  }
+
   const getMessage = () => {
-    const searchParams = new URLSearchParams(location.search);
     const from = searchParams.get('from');
     switch (from) {
       case 'charges': return "Accede al análisis jurídico completo de la subasta";
@@ -82,11 +203,11 @@ const LoginPage: React.FC = () => {
 
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-6 md:p-8">
-          <div className="flex flex-col items-center text-center mb-6">
+          <div className="flex flex-col items-center text-center mb-5">
             <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-2 flex items-center gap-1.5">
               <Shield size={12} /> 🔒 Acceso privado inversores
             </div>
-            <h1 className="text-2xl font-serif font-bold text-slate-900 mb-2">
+            <h1 className="text-2xl font-serif font-bold text-slate-900 mb-1">
               Iniciar sesión
             </h1>
             <p className="text-slate-500 text-sm leading-relaxed">
@@ -94,7 +215,7 @@ const LoginPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <button
               onClick={handleGoogleLogin}
               className="w-full flex items-center justify-center gap-3 px-6 h-12 bg-white border border-slate-200 rounded-[10px] text-slate-700 font-semibold hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
@@ -129,14 +250,89 @@ const LoginPage: React.FC = () => {
               )}
             </button>
 
+            {!showEmailForm ? (
+              <button
+                onClick={() => setShowEmailForm(true)}
+                className="w-full py-2 text-slate-500 font-medium hover:text-slate-700 transition-colors text-sm"
+              >
+                Usar otro correo
+              </button>
+            ) : (
+              <div className="mt-2 pt-2 border-t border-slate-100">
+                <div className="relative flex items-center justify-center mb-2">
+                  <span className="bg-white px-2 text-[10px] text-slate-400 font-medium uppercase tracking-wider">o con email</span>
+                </div>
+                
+                <form className="space-y-2" onSubmit={(e) => e.preventDefault()}>
+                  <div>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Tu correo electrónico"
+                      className="w-full px-3 h-9 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Contraseña"
+                      className="w-full px-3 h-9 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                      required
+                    />
+                  </div>
+                  
+                  {authError && (
+                    <p className="text-xs text-red-500 text-center">{authError}</p>
+                  )}
+                  
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={handleEmailSignup}
+                      disabled={isAuthenticating || !email || !password}
+                      className="flex-1 h-9 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {isAuthenticating ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" />
+                          <span>Creando...</span>
+                        </>
+                      ) : (
+                        "Crear cuenta"
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleEmailLogin}
+                      disabled={isAuthenticating || !email || !password}
+                      className="flex-1 h-9 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {isAuthenticating ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" />
+                          <span>Iniciando...</span>
+                        </>
+                      ) : (
+                        "Iniciar sesión"
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
             <div className="text-center space-y-1">
-              <p className="text-[11px] text-slate-400">
-                Acceso inmediato · Sin compromiso · 1 análisis gratuito incluido
+              <p className="text-[10px] text-slate-400 font-medium mt-1">
+                Acceso en 1 clic · Sin tarjeta
               </p>
             </div>
 
             {/* Value Block */}
-            <div className="mt-6 pt-6 border-t border-slate-100 space-y-2">
+            <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <CheckCircle size={14} className="text-brand-600" /> Guarda subastas favoritas
               </div>
@@ -149,7 +345,7 @@ const LoginPage: React.FC = () => {
             </div>
             
             {/* Social Proof */}
-            <div className="text-center pt-4">
+            <div className="text-center pt-3">
                <p className="text-[10px] text-slate-400 italic">
                  Más de 5.000 inversores ya usan Activos Off-Market
                </p>
