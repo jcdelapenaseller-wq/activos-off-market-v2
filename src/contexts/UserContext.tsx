@@ -125,6 +125,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log("[AUTH_DEBUG] auth state", firebaseUser?.uid);
       console.log("[AUTH_DEBUG] 1. onAuthStateChanged fired. firebaseUser:", firebaseUser?.uid || 'null');
       if (firebaseUser && db) {
         try {

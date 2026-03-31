@@ -119,6 +119,7 @@ const LoginPage: React.FC = () => {
     setIsAuthenticating(true);
     setIsBlocked(false);
     try {
+      console.log("[AUTH_DEBUG] click google");
       console.log("[AUTH_DEBUG] calling redirect");
       await signInWithRedirect(auth, googleProvider);
     } catch (error: any) {

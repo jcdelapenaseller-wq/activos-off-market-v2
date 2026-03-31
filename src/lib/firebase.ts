@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { initializeAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithRedirect, getRedirectResult, browserLocalPersistence } from 'firebase/auth';
+import { getAuth, setPersistence, GoogleAuthProvider, signInWithPopup, signOut, signInWithRedirect, getRedirectResult, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 // Import the Firebase configuration
@@ -7,9 +7,9 @@ import firebaseConfig from '../../firebase-applet-config.json';
 
 // Initialize Firebase SDK
 export const app = initializeApp(firebaseConfig);
-export const auth = initializeAuth(app, {
-  persistence: browserLocalPersistence,
-});
+export const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence);
+console.log("[AUTH_DEBUG] persistence init");
 export const db = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
 
