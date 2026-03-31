@@ -170,6 +170,15 @@ const AuctionPage: React.FC = () => {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
+    if (params.get('openBoe') === 'true' && user && auction) {
+      const boeUrl = auction.boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${auction.boeId}`;
+      window.open(boeUrl, '_blank');
+      
+      params.delete('openBoe');
+      const newUrl = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+      window.history.replaceState({}, document.title, newUrl);
+    }
+
     if (shouldScrollToAnalysis || analysisPaid) {
       setTimeout(() => {
         const element = document.getElementById('analisis-completo');
@@ -188,7 +197,7 @@ const AuctionPage: React.FC = () => {
         }
       }, 500);
     }
-  }, [auctionId, analysisPaid, cargasPaid]);
+  }, [auctionId, analysisPaid, cargasPaid, user, auction]);
 
   const approximateCoords = useMemo(() => {
     if (!auction?.lat || !auction?.lng) return null;
@@ -1634,43 +1643,24 @@ const AuctionPage: React.FC = () => {
                   <p className="text-[10px] md:text-xs font-bold text-white/90">{auction.boeId}</p>
                   <div className="w-px h-3 bg-white/10" />
                   <a 
-                    href={(!user || plan === 'free') ? '#' : (auction.boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${auction.boeId}`)} 
-                    target={(!user || plan === 'free') ? undefined : "_blank"} 
-                    rel={(!user || plan === 'free') ? undefined : "noopener noreferrer"}
+                    href={!user ? '#' : (auction.boeUrl || `https://subastas.boe.es/detalle_subasta.php?idSub=${auction.boeId}`)} 
+                    target={!user ? undefined : "_blank"} 
+                    rel={!user ? undefined : "noopener noreferrer"}
                     onClick={(e) => {
-                      if (!user || plan === 'free') {
+                      if (!user) {
                         e.preventDefault();
                         setSoftGateOrigin('boe');
                       }
                     }}
-                    className={`text-[9px] md:text-[10px] transition-colors flex items-center gap-1.5 font-bold group/link ${(!user || plan === 'free') ? 'text-slate-400 cursor-pointer hover:text-brand-400' : 'text-brand-400 hover:text-brand-300'}`}
+                    className={`text-[9px] md:text-[10px] transition-colors flex items-center gap-1.5 font-bold group/link px-2.5 py-1 rounded-md border ${!user ? 'border-white/10 text-white/60 hover:text-white hover:border-white/20 hover:bg-white/5' : 'border-brand-500/30 text-brand-400 hover:text-brand-300 hover:border-brand-500/50 hover:bg-brand-500/10'}`}
                   >
-                    BOE {(!user || plan === 'free') ? <Lock size={8} /> : <ExternalLink size={8} className="group-hover/link:translate-x-0.5 transition-transform" />}
+                    Ir a la subasta oficial del BOE {!user ? <Lock size={10} /> : <ExternalLink size={10} className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />}
                   </a>
                 </div>
               </div>
             </div>
             
             <div className="flex items-center gap-4 md:gap-6">
-              <button 
-                onClick={handleToggleFavorite}
-                disabled={isTogglingFavorite}
-                className={`flex items-center gap-1.5 transition-colors ${
-                  isFavorite ? 'text-red-400' : 'text-white/30 hover:text-white/60'
-                }`}
-              >
-                <div className="relative">
-                  <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
-                  {(!isLogged || (plan === 'free' && !isFavorite)) && (
-                    <div className="absolute -top-1 -right-1 bg-slate-900 rounded-full p-0.5">
-                      <Lock size={6} className="text-white/60" />
-                    </div>
-                  )}
-                </div>
-                <span className="text-[8px] font-bold uppercase tracking-widest">
-                  {isFavorite ? 'Guardada' : 'Guardar'}
-                </span>
-              </button>
               <div className="text-right">
                 <p className="text-[7px] md:text-[8px] font-bold text-white/30 uppercase tracking-widest mb-0.5">Estado</p>
                 <div className="flex items-center gap-1.5 justify-end">
@@ -2543,7 +2533,7 @@ const AuctionPage: React.FC = () => {
 
           <div className="space-y-8">
           {/* LONG-TAIL SEO CONTENT */}
-          <section className="space-y-16 pb-20 mt-24 md:mt-32 border-t border-slate-100 pt-16">
+          <section className="space-y-16 pb-8 md:pb-12 mt-24 md:mt-32 border-t border-slate-100 pt-16">
             <div className="max-w-none">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                 <div>
@@ -2731,7 +2721,7 @@ const AuctionPage: React.FC = () => {
 
         {/* RELATED AUCTIONS */}
         {cleanSlug && (
-          <div className="mt-24 mb-32 border-t border-slate-100 pt-24">
+          <div className="mb-32 border-t border-slate-100 pt-8 md:pt-12">
             <RelatedAuctions currentAuctionSlug={cleanSlug} currentAuctionData={auction} />
           </div>
         )}

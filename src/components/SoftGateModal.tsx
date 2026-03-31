@@ -28,7 +28,10 @@ const SoftGateModal: React.FC<SoftGateModalProps> = ({ isOpen, onClose, origin, 
     if (user) {
       navigate(ROUTES.PRO);
     } else {
-      const redirectPath = window.location.pathname + window.location.search;
+      let redirectPath = window.location.pathname + window.location.search;
+      if (origin === 'boe') {
+        redirectPath += (window.location.search ? '&' : '?') + 'openBoe=true';
+      }
       navigate(`${ROUTES.LOGIN}?from=feature&redirect=${encodeURIComponent(redirectPath)}`);
     }
     onClose();
@@ -63,6 +66,13 @@ const SoftGateModal: React.FC<SoftGateModalProps> = ({ isOpen, onClose, origin, 
           text: 'Accede al análisis de precios comparables y valoración estimada del activo.',
           hint: 'Plan actual: FREE',
           upgradeHint: 'BASIC o PRO requerido'
+        };
+      case 'boe':
+        return {
+          title: 'Accede al expediente oficial',
+          text: 'Inicia sesión gratis para ver el enlace directo al Portal de Subastas del BOE.',
+          hint: null,
+          upgradeHint: null
         };
       default:
         return {

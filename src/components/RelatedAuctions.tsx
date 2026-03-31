@@ -43,7 +43,7 @@ const RelatedAuctions: React.FC<RelatedAuctionsProps> = ({ currentAuctionSlug, c
   if (relatedAuctions.length === 0) return null;
 
   return (
-    <section className="mt-16 md:mt-24 mb-32">
+    <section className="mb-16 md:mb-24">
       <div className="mb-12 md:mb-16 text-center md:text-left">
         <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 mb-4">Más oportunidades similares</h2>
         <p className="text-slate-500 text-xl md:text-2xl font-medium">Subastas en la zona y activos similares que podrían interesarte</p>
