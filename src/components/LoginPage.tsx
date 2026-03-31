@@ -5,7 +5,7 @@ import { ROUTES } from '../constants/routes';
 import { Gavel, ArrowLeft, Loader2, CheckCircle, Shield, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 import { auth, googleProvider, db } from '../lib/firebase';
-import { GoogleAuthProvider, signInWithCredential, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithCredential, signInWithRedirect } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 declare global {
@@ -38,48 +38,6 @@ const LoginPage: React.FC = () => {
       navigate(from, { replace: true });
     }
   }, [isLogged, isLoading, navigate, location]);
-
-  // Handle Redirect Result
-  useEffect(() => {
-    const checkRedirect = async () => {
-      try {
-        console.log("[AUTH_DEBUG] LoginPage: Checking getRedirectResult...");
-        const result = await getRedirectResult(auth);
-        console.log("[AUTH_DEBUG] LoginPage: getRedirectResult result:", result?.user?.uid || 'null');
-        if (result) {
-          setIsAuthenticating(true);
-          const user = result.user;
-          
-          // Ensure profile exists in Firestore
-          if (db) {
-            console.log("[AUTH_DEBUG] LoginPage: Checking/Creating Firestore profile for:", user.uid);
-            const userRef = doc(db, 'users', user.uid);
-            const userSnap = await getDoc(userRef);
-            
-            if (!userSnap.exists()) {
-              console.log("[AUTH_DEBUG] LoginPage: Creating new profile in Firestore");
-              await setDoc(userRef, {
-                id: user.uid,
-                email: user.email || '',
-                name: user.displayName || '',
-                plan: 'free',
-                createdAt: serverTimestamp(),
-                analysisUsed: 0,
-                lastAnalysisReset: serverTimestamp()
-              });
-            } else {
-              console.log("[AUTH_DEBUG] LoginPage: Profile already exists in Firestore");
-            }
-          }
-          console.log("[AUTH_DEBUG] LoginPage: Redirect result handled.");
-        }
-      } catch (error) {
-        console.error('[AUTH_DEBUG] LoginPage: Error with redirect result:', error);
-        setIsAuthenticating(false);
-      }
-    };
-    checkRedirect();
-  }, [navigate, location]);
 
   // Load Google One Tap
   useEffect(() => {
