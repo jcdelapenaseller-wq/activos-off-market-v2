@@ -12,12 +12,14 @@ interface SoftGateModalProps {
 }
 
 const SoftGateModal: React.FC<SoftGateModalProps> = ({ isOpen, onClose, origin }) => {
-  const { isLogged, plan } = useUser();
+  const { user, isLoading, plan } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleAuthAction = () => {
-    if (isLogged) {
+    if (isLoading) return;
+
+    if (user) {
       navigate(ROUTES.PRO);
     } else {
       navigate(`${ROUTES.LOGIN}?from=feature&redirect=${window.location.pathname}`);
@@ -174,10 +176,10 @@ const SoftGateModal: React.FC<SoftGateModalProps> = ({ isOpen, onClose, origin }
                   onClick={handleAuthAction}
                   className="w-full py-3.5 px-6 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-all shadow-lg shadow-brand-200 text-base"
                 >
-                  {isLogged ? 'Ver planes PRO' : 'Crear cuenta gratis'}
+                  {user ? 'Ver planes PRO' : 'Crear cuenta gratis'}
                 </button>
                 
-                {!isLogged && (
+                {!user && (
                   <button
                     onClick={handleAuthAction}
                     className="w-full py-3 px-6 border-2 border-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-50 hover:border-slate-200 transition-all text-sm"

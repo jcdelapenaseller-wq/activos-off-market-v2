@@ -13,7 +13,7 @@ type BillingCycle = 'mensual' | 'trimestral' | 'anual';
 const ProPage: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('anual');
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro'>('basic');
-  const { isLogged, updatePlan, plan: currentPlan } = useUser();
+  const { user, isLoading, updatePlan, plan: currentPlan } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,7 +25,9 @@ const ProPage: React.FC = () => {
   const handleActivate = async (planToActivate: 'basic' | 'pro') => {
     if (currentPlan === planToActivate) return;
 
-    if (!isLogged) {
+    if (isLoading) return;
+
+    if (!user) {
       navigate(`${ROUTES.LOGIN}?from=feature&redirect=${window.location.pathname}`);
       return;
     }

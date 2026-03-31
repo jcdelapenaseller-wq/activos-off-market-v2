@@ -65,7 +65,7 @@ const SavedAuctionsPage: React.FC = () => {
     );
   }
 
-  if (!isLogged) {
+  if (!user) {
     return <Navigate to={ROUTES.HOME} replace />;
   }
 

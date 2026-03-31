@@ -125,38 +125,40 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log("UserContext: onAuthStateChanged - firebaseUser:", firebaseUser?.uid || 'null');
+      console.log("[AUTH_DEBUG] 1. onAuthStateChanged fired. firebaseUser:", firebaseUser?.uid || 'null');
       if (firebaseUser && db) {
         try {
-          console.log("UserContext: Fetching profile for:", firebaseUser.uid);
+          console.log("[AUTH_DEBUG] 2. Fetching profile for:", firebaseUser.uid);
           const userRef = doc(db, 'users', firebaseUser.uid);
           const userSnap = await getDoc(userRef);
           if (userSnap.exists()) {
-            console.log("UserContext: Profile found in Firestore");
+            console.log("[AUTH_DEBUG] 3. Profile found in Firestore");
             let userData = userSnap.data() as UserProfile;
             userData = await checkMonthlyReset(userData);
+            console.log("[AUTH_DEBUG] 4. Calling setUser(userData)");
             setUser(userData);
           } else {
-            console.log("UserContext: Profile NOT found in Firestore, using fallback");
-            // Fallback if document doesn't exist yet but auth does
-            setUser({
+            console.log("[AUTH_DEBUG] 3. Profile NOT found in Firestore, using fallback");
+            const fallbackUser: UserProfile = {
               id: firebaseUser.uid,
               email: firebaseUser.email || '',
               name: firebaseUser.displayName || '',
               plan: 'free',
               createdAt: new Date(),
               analysisUsed: 0
-            });
+            };
+            console.log("[AUTH_DEBUG] 4. Calling setUser(fallbackUser)");
+            setUser(fallbackUser);
           }
         } catch (error) {
-          console.error("UserContext: Error fetching profile:", error);
+          console.error("[AUTH_DEBUG] Error fetching profile:", error);
           handleFirestoreError(error, OperationType.GET, `users/${firebaseUser.uid}`);
         }
       } else {
-        console.log("UserContext: No firebaseUser or no db, setting user to null");
+        console.log("[AUTH_DEBUG] 2. No firebaseUser or no db, calling setUser(null)");
         setUser(null);
       }
-      console.log("UserContext: Setting isLoading to false");
+      console.log("[AUTH_DEBUG] 5. Calling setIsLoading(false)");
       setIsLoading(false);
     });
 

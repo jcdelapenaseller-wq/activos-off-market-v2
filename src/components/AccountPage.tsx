@@ -31,9 +31,16 @@ const AccountPage: React.FC = () => {
   const [isLoadingAlerts, setIsLoadingAlerts] = React.useState(false);
 
   useEffect(() => {
-    if (isLoading) return;
-    if (user === null) {
+    console.log("[AUTH_DEBUG] AccountPage: user:", user?.id || 'null', "isLoading:", isLoading);
+    if (isLoading) {
+      console.log("[AUTH_DEBUG] AccountPage: Still loading, skipping redirect check.");
+      return;
+    }
+    if (!user) {
+      console.log("[AUTH_DEBUG] AccountPage: No user found after loading, REDIRECTING TO LOGIN...");
       navigate(ROUTES.LOGIN);
+    } else {
+      console.log("[AUTH_DEBUG] AccountPage: User found, access granted.");
     }
   }, [user, isLoading, navigate]);
 
