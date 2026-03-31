@@ -125,16 +125,19 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log("AUTH STATE:", firebaseUser);
+      console.log("UserContext: onAuthStateChanged - firebaseUser:", firebaseUser?.uid || 'null');
       if (firebaseUser && db) {
         try {
+          console.log("UserContext: Fetching profile for:", firebaseUser.uid);
           const userRef = doc(db, 'users', firebaseUser.uid);
           const userSnap = await getDoc(userRef);
           if (userSnap.exists()) {
+            console.log("UserContext: Profile found in Firestore");
             let userData = userSnap.data() as UserProfile;
             userData = await checkMonthlyReset(userData);
             setUser(userData);
           } else {
+            console.log("UserContext: Profile NOT found in Firestore, using fallback");
             // Fallback if document doesn't exist yet but auth does
             setUser({
               id: firebaseUser.uid,
@@ -146,11 +149,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
           }
         } catch (error) {
+          console.error("UserContext: Error fetching profile:", error);
           handleFirestoreError(error, OperationType.GET, `users/${firebaseUser.uid}`);
         }
       } else {
+        console.log("UserContext: No firebaseUser or no db, setting user to null");
         setUser(null);
       }
+      console.log("UserContext: Setting isLoading to false");
       setIsLoading(false);
     });
 

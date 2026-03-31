@@ -31,10 +31,11 @@ const AccountPage: React.FC = () => {
   const [isLoadingAlerts, setIsLoadingAlerts] = React.useState(false);
 
   useEffect(() => {
-    if (!isLoading && !isLogged) {
-      navigate('/');
+    if (isLoading) return;
+    if (user === null) {
+      navigate(ROUTES.LOGIN);
     }
-  }, [isLogged, isLoading, navigate]);
+  }, [user, isLoading, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {

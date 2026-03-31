@@ -23,6 +23,7 @@ const LoginPage: React.FC = () => {
 
   // Redirection logic: if already logged in, go to dashboard or intended page
   useEffect(() => {
+    console.log("LoginPage: isLogged:", isLogged, "isLoading:", isLoading);
     if (isLogged && !isLoading) {
       const searchParams = new URLSearchParams(location.search);
       const redirectQuery = searchParams.get('redirect');
@@ -38,17 +39,21 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     const checkRedirect = async () => {
       try {
+        console.log("LoginPage: Checking getRedirectResult...");
         const result = await getRedirectResult(auth);
+        console.log("LoginPage: getRedirectResult result:", result);
         if (result) {
           setIsAuthenticating(true);
           const user = result.user;
           
           // Ensure profile exists in Firestore
           if (db) {
+            console.log("LoginPage: Checking/Creating Firestore profile for:", user.uid);
             const userRef = doc(db, 'users', user.uid);
             const userSnap = await getDoc(userRef);
             
             if (!userSnap.exists()) {
+              console.log("LoginPage: Creating new profile in Firestore");
               await setDoc(userRef, {
                 id: user.uid,
                 email: user.email || '',
@@ -58,6 +63,8 @@ const LoginPage: React.FC = () => {
                 analysisUsed: 0,
                 lastAnalysisReset: serverTimestamp()
               });
+            } else {
+              console.log("LoginPage: Profile already exists in Firestore");
             }
           }
           // Note: We don't navigate here. UserContext will detect the new auth state
