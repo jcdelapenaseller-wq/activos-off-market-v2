@@ -4,8 +4,9 @@ import { useUser } from '../contexts/UserContext';
 import { ROUTES } from '../constants/routes';
 import { Gavel, ArrowLeft, Loader2, CheckCircle, Shield, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
-import { auth } from '../lib/firebase';
-import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { auth, googleProvider, db } from '../lib/firebase';
+import { GoogleAuthProvider, signInWithCredential, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 declare global {
   interface Window {
@@ -26,6 +27,50 @@ const LoginPage: React.FC = () => {
       navigate(ROUTES.HOME, { replace: true });
     }
   }, [isLogged, isLoading, navigate]);
+
+  // Handle Redirect Result
+  useEffect(() => {
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          setIsAuthenticating(true);
+          const user = result.user;
+          
+          // Ensure profile exists in Firestore
+          if (db) {
+            const userRef = doc(db, 'users', user.uid);
+            const userSnap = await getDoc(userRef);
+            
+            if (!userSnap.exists()) {
+              await setDoc(userRef, {
+                id: user.uid,
+                email: user.email || '',
+                name: user.displayName || '',
+                plan: 'free',
+                createdAt: serverTimestamp(),
+                analysisUsed: 0,
+                lastAnalysisReset: serverTimestamp()
+              });
+            }
+          }
+
+          // Determine redirection path
+          const searchParams = new URLSearchParams(location.search);
+          const redirectQuery = searchParams.get('redirect');
+          const fromQuery = searchParams.get('from');
+          const fromState = (location.state as any)?.from?.pathname;
+          
+          const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || ROUTES.HOME));
+          navigate(from, { replace: true });
+        }
+      } catch (error) {
+        console.error('Error with redirect result:', error);
+        setIsAuthenticating(false);
+      }
+    };
+    checkRedirect();
+  }, [navigate, location]);
 
   // Load Google One Tap
   useEffect(() => {
@@ -75,17 +120,7 @@ const LoginPage: React.FC = () => {
     setIsAuthenticating(true);
     setIsBlocked(false);
     try {
-      await login();
-      
-      // Determine redirection path
-      const searchParams = new URLSearchParams(location.search);
-      const redirectQuery = searchParams.get('redirect');
-      const fromQuery = searchParams.get('from');
-      const fromState = (location.state as any)?.from?.pathname;
-      
-      // Prioritize: redirect > from > state > dashboard
-      const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || ROUTES.HOME));
-      navigate(from, { replace: true });
+      await signInWithRedirect(auth, googleProvider);
     } catch (error: any) {
       console.error('Error logging in:', error);
       setIsAuthenticating(false);
