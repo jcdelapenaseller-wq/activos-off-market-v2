@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithRedirect, getRedirectResult, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { initializeAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithRedirect, getRedirectResult, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 // Import the Firebase configuration
@@ -7,11 +7,9 @@ import firebaseConfig from '../../firebase-applet-config.json';
 
 // Initialize Firebase SDK
 export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-// Set persistence to local to ensure session is maintained after redirect
-setPersistence(auth, browserLocalPersistence)
-  .then(() => console.log("[AUTH_DEBUG] persistence set"))
-  .catch(console.error);
+export const auth = initializeAuth(app, {
+  persistence: browserLocalPersistence,
+});
 export const db = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
 
