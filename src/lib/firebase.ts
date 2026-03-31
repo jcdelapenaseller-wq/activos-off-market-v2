@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, setPersistence, GoogleAuthProvider, signInWithPopup, signOut, signInWithRedirect, browserLocalPersistence } from 'firebase/auth';
+import { getAuth, setPersistence, GoogleAuthProvider, signInWithPopup, signOut, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 // Import the Firebase configuration
@@ -12,8 +12,6 @@ setPersistence(auth, browserLocalPersistence);
 console.log("[AUTH_DEBUG] persistence init");
 export const db = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
-
-export { signInWithRedirect };
 
 export interface UserProfile {
   id: string;

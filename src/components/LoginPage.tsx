@@ -5,7 +5,7 @@ import { ROUTES } from '../constants/routes';
 import { Gavel, ArrowLeft, Loader2, CheckCircle, Shield, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 import { auth, googleProvider, db } from '../lib/firebase';
-import { GoogleAuthProvider, signInWithCredential, signInWithRedirect } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 declare global {
@@ -39,51 +39,14 @@ const LoginPage: React.FC = () => {
     }
   }, [isLogged, isLoading, navigate, location]);
 
-  // Load Google One Tap
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-
-    script.onload = () => {
-      if (window.google && import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-        /*
-        window.google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-          callback: handleCredentialResponse,
-        });
-        window.google.accounts.id.prompt();
-        */
-      }
-    };
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
-  const handleCredentialResponse = async (response: any) => {
-    setIsAuthenticating(true);
-    const credential = response.credential;
-    const googleCredential = GoogleAuthProvider.credential(credential);
-    try {
-      await signInWithCredential(auth, googleCredential);
-      // Redirection is handled by the useEffect above once auth state updates
-    } catch (error) {
-      console.error('Error logging in with One Tap:', error);
-      setIsAuthenticating(false);
-    }
-  };
-
   const handleGoogleLogin = async () => {
     console.log("[AUTH_DEBUG] click google");
     setIsAuthenticating(true);
 
     try {
-      await signInWithRedirect(auth, googleProvider);
+      await signInWithPopup(auth, googleProvider);
     } catch (e) {
+      console.error('Error logging in with popup:', e);
       setIsAuthenticating(false);
     }
   };
