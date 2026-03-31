@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Gavel, Sparkles, ChevronDown, Calculator, FileText, Calendar, ExternalLink, User, LogOut, Star, Search } from 'lucide-react';
+import { Menu, X, Gavel, Sparkles, ChevronDown, Calculator, FileText, Calendar, ExternalLink, User, LogOut, Star, Search, Bell } from 'lucide-react';
 import { ROUTES } from '../constants/routes';
 import { useUser } from '../contexts/UserContext';
 
@@ -184,35 +184,29 @@ const Header: React.FC = () => {
                         )}
                       </div>
                       
-                      <div className="px-4 py-3 border-y border-slate-100 bg-slate-50/50 my-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Mi plan</p>
-                        
-                        <Link to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA} onClick={() => setIsUserMenuOpen(false)} className="block mb-2">
-                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            plan === 'pro' ? 'bg-violet-100 text-violet-700' : 
-                            plan === 'basic' ? 'bg-blue-100 text-blue-700' : 
-                            'bg-slate-100 text-slate-600'
-                          }`}>
-                            {plan === 'pro' ? '👑 PRO' : plan === 'basic' ? '⭐ BASIC' : '○ FREE'}
-                          </div>
-                          <p className="text-[10px] text-slate-500 mt-1">
-                            {plan === 'free' ? 'Funciones limitadas' : 'Acceso completo'}
-                          </p>
-                          {plan === 'free' && (
-                            <p className="text-[10px] text-brand-600 font-medium mt-0.5">Desbloquea análisis completos</p>
-                          )}
-                        </Link>
-
+                      <div className="px-4 py-2 border-b border-slate-100 mb-1">
                         <Link 
                           to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA}
                           onClick={() => setIsUserMenuOpen(false)}
-                          className={`w-full flex items-center justify-center gap-2 px-3 py-1.5 text-[11px] font-semibold rounded-lg transition-all shadow-sm border ${
-                            plan === 'free' ? 'bg-white text-brand-700 border-brand-100 hover:border-brand-200 hover:shadow' : 
-                            'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:shadow'
-                          }`}
+                          className="block p-3 rounded-lg border border-slate-200 bg-gradient-to-br from-brand-50 to-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer group"
                         >
-                          {plan === 'free' ? 'Mejorar a BASIC' : 'Gestionar plan'}
-                          {plan === 'free' && <span className="text-[9px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full">Recomendado</span>}
+                          <div className="mb-2">
+                            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              plan === 'pro' ? 'bg-violet-100 text-violet-700' : 
+                              plan === 'basic' ? 'bg-blue-100 text-blue-700' : 
+                              'bg-slate-100 text-slate-600'
+                            }`}>
+                              {plan === 'pro' ? '👑 PRO' : plan === 'basic' ? '⭐ BASIC' : '○ FREE'}
+                            </span>
+                          </div>
+                          <p className="text-xs font-medium text-slate-800 mb-2">
+                            {plan === 'free' ? 'Desbloquea análisis completos' : plan === 'basic' ? 'Plan BASIC activo' : 'Plan PRO activo'}
+                          </p>
+                          <div className="flex justify-end">
+                            <span className="text-[10px] font-bold text-brand-600 group-hover:text-brand-700 transition-colors">
+                              {plan === 'free' ? 'Mejorar a BASIC →' : 'Gestionar plan →'}
+                            </span>
+                          </div>
                         </Link>
                       </div>
 
@@ -227,6 +221,14 @@ const Header: React.FC = () => {
                         </div>
                       )}
 
+                      <Link 
+                        to={ROUTES.ALERTAS}
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
+                      >
+                        <Bell size={16} />
+                        <span>{plan === 'free' ? 'Activar alertas personalizadas' : 'Crear alerta nueva'}</span>
+                      </Link>
                       <Link 
                         to={ROUTES.MIS_GUARDADOS}
                         onClick={() => setIsUserMenuOpen(false)}
@@ -247,7 +249,7 @@ const Header: React.FC = () => {
                         onClick={() => {
                           logout();
                           setIsUserMenuOpen(false);
-                          navigate('/');
+                          navigate('/subastas-recientes');
                         }}
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left cursor-pointer active:bg-slate-100"
                       >
@@ -325,19 +327,28 @@ const Header: React.FC = () => {
                    </div>
 
                    <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Mi plan</p>
-                     <Link to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA} onClick={() => { setIsUserMenuOpen(false); setIsMobileMenuOpen(false); }} className="block mb-2">
-                       <span className={`text-xs font-bold ${plan === 'pro' ? 'text-brand-700' : plan === 'basic' ? 'text-amber-700' : 'text-slate-600'}`}>
-                         {plan === 'pro' ? '🚀 PRO activo' : plan === 'basic' ? '✨ BASIC activo' : 'FREE'}
-                       </span>
-                     </Link>
                      <Link 
                        to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA}
                        onClick={() => { setIsUserMenuOpen(false); setIsMobileMenuOpen(false); }}
-                       className={`w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-colors ${plan === 'free' ? 'bg-brand-50 text-brand-700 hover:bg-brand-100' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+                       className="block p-3 rounded-lg border border-slate-200 bg-gradient-to-br from-brand-50 to-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer group"
                      >
-                       {plan === 'free' ? 'Mejorar a BASIC' : 'Gestionar plan'}
-                       {plan === 'free' && <span className="text-[9px] bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded">Recomendado</span>}
+                       <div className="mb-2">
+                         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                           plan === 'pro' ? 'bg-violet-100 text-violet-700' : 
+                           plan === 'basic' ? 'bg-blue-100 text-blue-700' : 
+                           'bg-slate-100 text-slate-600'
+                         }`}>
+                           {plan === 'pro' ? '👑 PRO' : plan === 'basic' ? '⭐ BASIC' : '○ FREE'}
+                         </span>
+                       </div>
+                       <p className="text-xs font-medium text-slate-800 mb-2">
+                         {plan === 'free' ? 'Desbloquea análisis completos' : plan === 'basic' ? 'Plan BASIC activo' : 'Plan PRO activo'}
+                       </p>
+                       <div className="flex justify-end">
+                         <span className="text-[10px] font-bold text-brand-600 group-hover:text-brand-700 transition-colors">
+                           {plan === 'free' ? 'Mejorar a BASIC →' : 'Gestionar plan →'}
+                         </span>
+                       </div>
                      </Link>
                    </div>
 
@@ -352,6 +363,17 @@ const Header: React.FC = () => {
                      </div>
                    )}
 
+                   <Link 
+                     to={ROUTES.ALERTAS}
+                     onClick={() => {
+                       setIsUserMenuOpen(false);
+                       setIsMobileMenuOpen(false);
+                     }}
+                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
+                   >
+                     <Bell size={16} />
+                     <span>{plan === 'free' ? 'Activar alertas personalizadas' : 'Crear alerta nueva'}</span>
+                   </Link>
                    <Link 
                      to={ROUTES.MIS_GUARDADOS}
                      onClick={() => {
@@ -379,7 +401,7 @@ const Header: React.FC = () => {
                        logout();
                        setIsUserMenuOpen(false);
                        setIsMobileMenuOpen(false);
-                       navigate('/');
+                       navigate('/subastas-recientes');
                      }}
                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left cursor-pointer active:bg-slate-100"
                    >

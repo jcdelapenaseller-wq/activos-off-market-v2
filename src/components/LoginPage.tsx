@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
       const fromQuery = searchParams.get('from');
       const fromState = (location.state as any)?.from?.pathname;
       
-      const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || ROUTES.HOME));
+      const from = redirectQuery || (fromQuery ? `/${fromQuery}` : (fromState || '/subastas-recientes'));
       console.log("[AUTH_DEBUG] LoginPage: Target path:", from);
       navigate(from, { replace: true });
     }

@@ -159,6 +159,8 @@ const AlertForm: React.FC = () => {
     );
   }
 
+  const limit = plan === 'free' ? 1 : plan === 'basic' ? 3 : Infinity;
+
   return (
     <div className="bg-white border border-slate-200 rounded-3xl p-8 md:p-12 shadow-sm max-w-2xl mx-auto">
       <div className="text-center mb-10">
@@ -232,6 +234,19 @@ const AlertForm: React.FC = () => {
             className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-brand-500 transition-all"
           />
         </div>
+
+        {isLogged && alertsCount !== null && (
+          <div className={`text-xs mb-2 flex justify-between items-center ${alertsCount >= limit ? 'text-amber-600 font-medium' : 'text-slate-500'}`}>
+            {plan === 'pro' ? (
+              <span>Alertas ilimitadas</span>
+            ) : (
+              <span>
+                {alertsCount} / {limit} alertas usadas
+                {alertsCount >= limit && ' — límite alcanzado'}
+              </span>
+            )}
+          </div>
+        )}
 
         <button
           type="submit"
