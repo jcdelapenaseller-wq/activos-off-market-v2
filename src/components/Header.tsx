@@ -15,6 +15,7 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, isLogged, login, logout, isLoading, plan, updatePlan } = useUser();
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuMobileRef = useRef<HTMLDivElement>(null);
   const [alertsCount, setAlertsCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -46,7 +47,12 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node) &&
+        userMenuMobileRef.current &&
+        !userMenuMobileRef.current.contains(event.target as Node)
+      ) {
         setIsUserMenuOpen(false);
       }
     };
@@ -326,7 +332,7 @@ const Header: React.FC = () => {
             </Link>
           )}
           {!isLoading && isLogged && (
-             <div className="relative flex items-center gap-2" ref={userMenuRef}>
+             <div className="relative flex items-center gap-2" ref={userMenuMobileRef}>
                <button 
                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                  className="flex items-center p-1.5 rounded-lg hover:bg-slate-100 transition-colors"

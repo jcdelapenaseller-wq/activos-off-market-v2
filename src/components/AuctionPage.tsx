@@ -1306,6 +1306,14 @@ const AuctionPage: React.FC = () => {
               </span>
             </div>
 
+            <button 
+              onClick={hasActiveAlert ? handleDeleteAlert : handleCreateAlert}
+              className="w-full md:w-auto bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition flex items-center justify-center gap-2"
+            >
+              <Bell size={16} />
+              Crear alerta de esta subasta
+            </button>
+
             <div className="flex items-center gap-1 md:gap-2 shrink-0">
               {(() => {
                 const isBlocked = !isLogged || (plan === 'free' && !isFavorite);
