@@ -199,96 +199,91 @@ const Header: React.FC = () => {
                   </button>
                   
                   {isUserMenuOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-56 bg-white shadow-xl rounded-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2">
-                      <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
-                          {user?.id === 'mock-user' && (
-                            <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded uppercase tracking-wider">Modo demo</span>
-                          )}
+                    <div className="absolute top-full right-0 mt-2 w-64 bg-white shadow-2xl rounded-2xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2 z-50">
+                      {/* Plan Status Block */}
+                      <div className="px-4 py-3 border-b border-slate-100 mb-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                            plan === 'pro' ? 'bg-amber-100 text-amber-700' : 
+                            plan === 'basic' ? 'bg-blue-100 text-blue-700' : 
+                            'bg-slate-100 text-slate-600'
+                          }`}>
+                            {plan === 'pro' ? '👑 Plan PRO' : plan === 'basic' ? '⭐ Plan BASIC' : '🟢 Plan FREE'}
+                          </span>
                         </div>
-                        {user?.id !== 'mock-user' && (
-                          <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                        )}
-                      </div>
-                      
-                      <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                        <Link 
-                          to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA}
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="block p-3 rounded-lg border border-slate-200 bg-gradient-to-br from-brand-50 to-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer group"
-                        >
-                          <div className="mb-2">
-                            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                              plan === 'pro' ? 'bg-violet-100 text-violet-700' : 
-                              plan === 'basic' ? 'bg-blue-100 text-blue-700' : 
-                              'bg-slate-100 text-slate-600'
-                            }`}>
-                              {plan === 'pro' ? '👑 PRO' : plan === 'basic' ? '⭐ BASIC' : '○ FREE'}
-                            </span>
-                          </div>
-                          <p className="text-xs font-medium text-slate-800 mb-2">
-                            {plan === 'free' ? 'Desbloquea análisis completos' : plan === 'basic' ? 'Plan BASIC activo' : 'Plan PRO activo'}
-                          </p>
-                          <div className="flex justify-end">
-                            <span className="text-[10px] font-bold text-brand-600 group-hover:text-brand-700 transition-colors">
-                              {plan === 'free' ? 'Mejorar a BASIC →' : 'Gestionar plan →'}
-                            </span>
-                          </div>
-                        </Link>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          {plan === 'pro' ? 'Análisis ilimitados' : plan === 'basic' ? '3 análisis disponibles este mes' : '1 análisis disponible este mes'}
+                        </p>
                       </div>
 
                       {user?.id === 'mock-user' && (
-                        <div className="px-4 py-2 border-b border-slate-100 mb-1 bg-slate-50">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Simular planes (Demo)</p>
+                        <div className="px-4 py-2 border-b border-slate-100 mb-1 bg-slate-50/50">
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Simular planes (Demo)</p>
                           <div className="flex gap-1">
-                            <button onClick={() => updatePlan('free')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'free' ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}>FREE</button>
-                            <button onClick={() => updatePlan('basic')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'basic' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}>BASIC</button>
-                            <button onClick={() => updatePlan('pro')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'pro' ? 'bg-brand-600 text-white' : 'bg-brand-100 text-brand-700 hover:bg-brand-200'}`}>PRO</button>
+                            <button onClick={(e) => { e.stopPropagation(); updatePlan('free'); }} className={`flex-1 text-[9px] py-1 rounded font-bold transition-colors ${plan === 'free' ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}>FREE</button>
+                            <button onClick={(e) => { e.stopPropagation(); updatePlan('basic'); }} className={`flex-1 text-[9px] py-1 rounded font-bold transition-colors ${plan === 'basic' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}>BASIC</button>
+                            <button onClick={(e) => { e.stopPropagation(); updatePlan('pro'); }} className={`flex-1 text-[9px] py-1 rounded font-bold transition-colors ${plan === 'pro' ? 'bg-brand-600 text-white' : 'bg-brand-100 text-brand-700 hover:bg-brand-200'}`}>PRO</button>
                           </div>
                         </div>
                       )}
 
-                      <Link 
-                        to={ROUTES.ALERTAS}
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
-                      >
-                        <Bell size={16} />
-                        <span>
-                          {plan === 'free' ? 'Activar alertas' : 'Crear alerta'}
-                          {alertsCount !== null && (
-                            plan === 'pro' ? ' (∞)' : ` (${alertsCount}/${limit})`
-                          )}
-                        </span>
-                      </Link>
-                      <Link 
-                        to={ROUTES.MIS_GUARDADOS}
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
-                      >
-                        <Star size={16} />
-                        <span>Mis Guardados</span>
-                      </Link>
-                      <Link 
-                        to={ROUTES.MI_CUENTA}
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
-                      >
-                        <User size={16} />
-                        <span>Mi cuenta</span>
-                      </Link>
-                      <button 
-                        onClick={() => {
-                          logout();
-                          setIsUserMenuOpen(false);
-                          navigate('/subastas-recientes');
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left cursor-pointer active:bg-slate-100"
-                      >
-                        <LogOut size={16} />
-                        <span>Cerrar sesión</span>
-                      </button>
+                      <div className="px-2 py-1">
+                        <Link 
+                          to={ROUTES.ALERTAS}
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-700 rounded-lg transition-all"
+                        >
+                          <span className="text-base">🔔</span>
+                          <div className="flex flex-col">
+                            <span>Mis alertas</span>
+                            {alertsCount !== null && (
+                              <span className="text-[10px] text-slate-400 font-normal">
+                                {plan === 'pro' ? 'Ilimitadas' : `${alertsCount} de ${limit} usadas`}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                        <Link 
+                          to={ROUTES.MIS_GUARDADOS}
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-700 rounded-lg transition-all"
+                        >
+                          <span className="text-base">⭐</span>
+                          <span>Guardados</span>
+                        </Link>
+                        <Link 
+                          to={ROUTES.MI_CUENTA}
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-700 rounded-lg transition-all"
+                        >
+                          <span className="text-base">👤</span>
+                          <span>Mi cuenta</span>
+                        </Link>
+                      </div>
+
+                      <div className="my-1 border-t border-slate-100"></div>
+
+                      <div className="px-2 py-1">
+                        <Link 
+                          to="/pro"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-brand-600 hover:bg-brand-50 rounded-lg transition-all"
+                        >
+                          <span className="text-base">🚀</span>
+                          <span>Ver planes</span>
+                        </Link>
+                        <button 
+                          onClick={() => {
+                            logout();
+                            setIsUserMenuOpen(false);
+                            navigate('/subastas-recientes');
+                          }}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all text-left"
+                        >
+                          <span className="text-base">↩</span>
+                          <span>Cerrar sesión</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -346,106 +341,92 @@ const Header: React.FC = () => {
                </button>
                
                {isUserMenuOpen && (
-                 <div className="absolute top-full right-0 mt-2 w-56 bg-white shadow-xl rounded-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2">
-                   <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                     <div className="flex items-center gap-2 mb-0.5">
-                       <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
-                       {user?.id === 'mock-user' && (
-                         <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded uppercase tracking-wider">Modo demo</span>
-                       )}
+                 <div className="absolute top-full right-0 mt-2 w-64 bg-white shadow-2xl rounded-2xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2 z-50">
+                   {/* Plan Status Block */}
+                   <div className="px-4 py-3 border-b border-slate-100 mb-1">
+                     <div className="flex items-center justify-between mb-1">
+                       <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                         plan === 'pro' ? 'bg-amber-100 text-amber-700' : 
+                         plan === 'basic' ? 'bg-blue-100 text-blue-700' : 
+                         'bg-slate-100 text-slate-600'
+                       }`}>
+                         {plan === 'pro' ? '👑 Plan PRO' : plan === 'basic' ? '⭐ Plan BASIC' : '🟢 Plan FREE'}
+                       </span>
                      </div>
-                     {user?.id !== 'mock-user' && (
-                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                     )}
-                   </div>
-
-                   <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                     <Link 
-                       to={plan === 'free' ? '/pro' : ROUTES.MI_CUENTA}
-                       onClick={() => { setIsUserMenuOpen(false); setIsMobileMenuOpen(false); }}
-                       className="block p-3 rounded-lg border border-slate-200 bg-gradient-to-br from-brand-50 to-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer group"
-                     >
-                       <div className="mb-2">
-                         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                           plan === 'pro' ? 'bg-violet-100 text-violet-700' : 
-                           plan === 'basic' ? 'bg-blue-100 text-blue-700' : 
-                           'bg-slate-100 text-slate-600'
-                         }`}>
-                           {plan === 'pro' ? '👑 PRO' : plan === 'basic' ? '⭐ BASIC' : '○ FREE'}
-                         </span>
-                       </div>
-                       <p className="text-xs font-medium text-slate-800 mb-2">
-                         {plan === 'free' ? 'Desbloquea análisis completos' : plan === 'basic' ? 'Plan BASIC activo' : 'Plan PRO activo'}
-                       </p>
-                       <div className="flex justify-end">
-                         <span className="text-[10px] font-bold text-brand-600 group-hover:text-brand-700 transition-colors">
-                           {plan === 'free' ? 'Mejorar a BASIC →' : 'Gestionar plan →'}
-                         </span>
-                       </div>
-                     </Link>
+                     <p className="text-[11px] text-slate-500 font-medium">
+                       {plan === 'pro' ? 'Análisis ilimitados' : plan === 'basic' ? '3 análisis disponibles este mes' : '1 análisis disponible este mes'}
+                     </p>
                    </div>
 
                    {user?.id === 'mock-user' && (
-                     <div className="px-4 py-2 border-b border-slate-100 mb-1 bg-slate-50">
-                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Simular planes (Demo)</p>
+                     <div className="px-4 py-2 border-b border-slate-100 mb-1 bg-slate-50/50">
+                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Simular planes (Demo)</p>
                        <div className="flex gap-1">
-                         <button onClick={() => updatePlan('free')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'free' ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}>FREE</button>
-                         <button onClick={() => updatePlan('basic')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'basic' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}>BASIC</button>
-                         <button onClick={() => updatePlan('pro')} className={`flex-1 text-[10px] py-1 rounded font-bold transition-colors ${plan === 'pro' ? 'bg-brand-600 text-white' : 'bg-brand-100 text-brand-700 hover:bg-brand-200'}`}>PRO</button>
+                         <button onClick={(e) => { e.stopPropagation(); updatePlan('free'); }} className={`flex-1 text-[9px] py-1 rounded font-bold transition-colors ${plan === 'free' ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}>FREE</button>
+                         <button onClick={(e) => { e.stopPropagation(); updatePlan('basic'); }} className={`flex-1 text-[9px] py-1 rounded font-bold transition-colors ${plan === 'basic' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}>BASIC</button>
+                         <button onClick={(e) => { e.stopPropagation(); updatePlan('pro'); }} className={`flex-1 text-[9px] py-1 rounded font-bold transition-colors ${plan === 'pro' ? 'bg-brand-600 text-white' : 'bg-brand-100 text-brand-700 hover:bg-brand-200'}`}>PRO</button>
                        </div>
                      </div>
                    )}
 
-                   <Link 
-                     to={ROUTES.ALERTAS}
-                     onClick={() => {
-                       setIsUserMenuOpen(false);
-                       setIsMobileMenuOpen(false);
-                     }}
-                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
-                   >
-                     <Bell size={16} />
-                     <span>
-                       {plan === 'free' ? 'Activar alertas' : 'Crear alerta'}
-                       {alertsCount !== null && (
-                         plan === 'pro' ? ' (∞)' : ` (${alertsCount}/${limit})`
-                       )}
-                     </span>
-                   </Link>
-                   <Link 
-                     to={ROUTES.MIS_GUARDADOS}
-                     onClick={() => {
-                       setIsUserMenuOpen(false);
-                       setIsMobileMenuOpen(false);
-                     }}
-                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
-                   >
-                     <Star size={16} />
-                     <span>Mis Guardados</span>
-                   </Link>
-                   <Link 
-                     to={ROUTES.MI_CUENTA}
-                     onClick={() => {
-                       setIsUserMenuOpen(false);
-                       setIsMobileMenuOpen(false);
-                     }}
-                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors text-left cursor-pointer active:bg-slate-100"
-                   >
-                     <User size={16} />
-                     <span>Mi cuenta</span>
-                   </Link>
-                   <button 
-                     onClick={() => {
-                       logout();
-                       setIsUserMenuOpen(false);
-                       setIsMobileMenuOpen(false);
-                       navigate('/subastas-recientes');
-                     }}
-                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition-colors text-left cursor-pointer active:bg-slate-100"
-                   >
-                     <LogOut size={16} />
-                     <span>Cerrar sesión</span>
-                   </button>
+                   <div className="px-2 py-1">
+                     <Link 
+                       to={ROUTES.ALERTAS}
+                       onClick={() => { setIsUserMenuOpen(false); setIsMobileMenuOpen(false); }}
+                       className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-700 rounded-lg transition-all"
+                     >
+                       <span className="text-base">🔔</span>
+                       <div className="flex flex-col">
+                         <span>Mis alertas</span>
+                         {alertsCount !== null && (
+                           <span className="text-[10px] text-slate-400 font-normal">
+                             {plan === 'pro' ? 'Ilimitadas' : `${alertsCount} de ${limit} usadas`}
+                           </span>
+                         )}
+                       </div>
+                     </Link>
+                     <Link 
+                       to={ROUTES.MIS_GUARDADOS}
+                       onClick={() => { setIsUserMenuOpen(false); setIsMobileMenuOpen(false); }}
+                       className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-700 rounded-lg transition-all"
+                     >
+                       <span className="text-base">⭐</span>
+                       <span>Guardados</span>
+                     </Link>
+                     <Link 
+                       to={ROUTES.MI_CUENTA}
+                       onClick={() => { setIsUserMenuOpen(false); setIsMobileMenuOpen(false); }}
+                       className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-700 rounded-lg transition-all"
+                     >
+                       <span className="text-base">👤</span>
+                       <span>Mi cuenta</span>
+                     </Link>
+                   </div>
+
+                   <div className="my-1 border-t border-slate-100"></div>
+
+                   <div className="px-2 py-1">
+                     <Link 
+                       to="/pro"
+                       onClick={() => { setIsUserMenuOpen(false); setIsMobileMenuOpen(false); }}
+                       className="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-brand-600 hover:bg-brand-50 rounded-lg transition-all"
+                     >
+                       <span className="text-base">🚀</span>
+                       <span>Ver planes</span>
+                     </Link>
+                     <button 
+                       onClick={() => {
+                         logout();
+                         setIsUserMenuOpen(false);
+                         setIsMobileMenuOpen(false);
+                         navigate('/subastas-recientes');
+                       }}
+                       className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all text-left"
+                     >
+                       <span className="text-base">↩</span>
+                       <span>Cerrar sesión</span>
+                     </button>
+                   </div>
                  </div>
                )}
              </div>
