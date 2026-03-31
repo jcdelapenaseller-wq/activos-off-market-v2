@@ -1306,14 +1306,6 @@ const AuctionPage: React.FC = () => {
               </span>
             </div>
 
-            <button 
-              onClick={hasActiveAlert ? handleDeleteAlert : handleCreateAlert}
-              className="w-full md:w-auto bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition flex items-center justify-center gap-2"
-            >
-              <Bell size={16} />
-              Crear alerta de esta subasta
-            </button>
-
             <div className="flex items-center gap-1 md:gap-2 shrink-0">
               {(() => {
                 const isBlocked = !isLogged || (plan === 'free' && !isFavorite);
@@ -1351,6 +1343,11 @@ const AuctionPage: React.FC = () => {
               {(() => {
                 const isLimitReached = (plan === 'free' && alertsCount >= 1) || (plan === 'basic' && alertsCount >= 3);
                 const limit = plan === 'free' ? 1 : plan === 'basic' ? 3 : null;
+                const tooltip = hasActiveAlert 
+                  ? "Eliminar alerta" 
+                  : isLimitReached 
+                    ? "Límite alcanzado" 
+                    : `Crear alerta de esta zona (${limit} disponible en Plan ${plan.toUpperCase()})`;
                 
                 return (
                   <div className="flex flex-col items-center">
@@ -1358,10 +1355,10 @@ const AuctionPage: React.FC = () => {
                       onClick={hasActiveAlert ? handleDeleteAlert : handleCreateAlert}
                       className={`p-2 rounded-full transition-all relative flex items-center gap-1.5 ${
                         hasActiveAlert 
-                          ? 'text-brand-600 bg-brand-50 hover:bg-brand-100' 
+                          ? 'text-brand-600 bg-brand-50 hover:bg-brand-100 shadow-sm shadow-brand-100' 
                           : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
                       }`}
-                      title={hasActiveAlert ? "Eliminar alerta" : isLimitReached ? "Límite alcanzado" : "Crear alerta de esta zona"}
+                      title={tooltip}
                     >
                       <div className="relative">
                         <Bell size={20} className={hasActiveAlert ? 'fill-brand-600' : ''} />
@@ -1386,7 +1383,6 @@ const AuctionPage: React.FC = () => {
                           <div className="flex flex-col items-center gap-0.5">
                             <span className="px-1 py-0 rounded bg-brand-50 text-brand-600 text-[6px] font-bold uppercase tracking-tighter border border-brand-100">PRO activo</span>
                             <span className="text-[7px] font-bold text-slate-400 uppercase tracking-tighter whitespace-nowrap">Ilimitadas</span>
-                            <span className="text-[6px] font-bold text-emerald-600 uppercase tracking-tighter whitespace-nowrap">Prioritarias</span>
                           </div>
                         )}
                       </div>
@@ -1724,14 +1720,6 @@ const AuctionPage: React.FC = () => {
           </div>
 
           <div className="relative min-h-[140px] md:min-h-[200px] h-[200px] md:h-[280px] group">
-            {/* Status Badge */}
-            <div className="absolute top-2 right-2 z-30 px-2.5 py-1 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-full flex items-center gap-1.5 shadow-sm">
-              <div className={`w-1.5 h-1.5 rounded-full ${plan === 'free' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></div>
-              <span className="text-[9px] md:text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                {plan === 'free' ? 'Vista real bloqueada' : 'Vista real disponible'}
-              </span>
-            </div>
-
             {/* Street View Preview - Using a street view embed with fallback logic */}
             <div className="absolute inset-0 bg-slate-100">
               <iframe
@@ -1751,34 +1739,36 @@ const AuctionPage: React.FC = () => {
 
             {/* Overlay for FREE users */}
             {plan === 'free' && (
-              <LockedFeatureBlock 
-                title="Ver entorno real del inmueble"
-                description="Disponible en BASIC y PRO"
-                onAction={() => setSoftGateOrigin('streetview')}
-              />
+              <div className="absolute inset-0 z-40 flex items-center justify-center p-6 bg-slate-900/10 backdrop-blur-[2px]">
+                <button 
+                  onClick={() => setSoftGateOrigin('streetview')}
+                  className="bg-white text-slate-900 px-6 py-3 rounded-2xl font-bold shadow-2xl border border-slate-200 flex flex-col items-center gap-1 hover:scale-105 transition-transform"
+                >
+                  <div className="flex items-center gap-2">
+                    <Lock size={16} className="text-brand-600" />
+                    <span>Ver entorno real del inmueble</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">Disponible en BASIC y PRO</span>
+                </button>
+              </div>
             )}
 
-            {/* Street View Button - Visible for all but different action */}
-            <div className="absolute bottom-4 right-4 z-20 flex flex-col items-end gap-1.5">
-              <button
-                onClick={() => plan === 'free' ? setSoftGateOrigin('streetview') : setShowStreetView(true)}
-                className="bg-white hover:bg-slate-50 text-slate-900 font-bold py-2 px-4 rounded-xl transition-all shadow-xl border border-slate-200 flex items-center gap-2 text-xs md:text-sm group/map"
-              >
-                <div className="w-6 h-6 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 group-hover/map:bg-brand-500 group-hover/map:text-white transition-colors">
-                  {plan === 'free' ? <Lock size={14} /> : (
+            {/* Street View Button - Visible for BASIC/PRO */}
+            {plan !== 'free' && (
+              <div className="absolute bottom-4 right-4 z-20 flex flex-col items-end gap-1.5">
+                <button
+                  onClick={() => setShowStreetView(true)}
+                  className="bg-white hover:bg-slate-50 text-slate-900 font-bold py-2 px-4 rounded-xl transition-all shadow-xl border border-slate-200 flex items-center gap-2 text-xs md:text-sm group/map"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 group-hover/map:bg-brand-500 group-hover/map:text-white transition-colors">
                     <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 opacity-80" fill="currentColor">
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                     </svg>
-                  )}
-                </div>
-                Ver Street View
-              </button>
-              <p className="text-[9px] md:text-[10px] text-slate-500 font-medium bg-white/60 backdrop-blur-sm px-2 py-0.5 rounded-md border border-slate-100/50">
-                {auction.lat && auction.lng 
-                  ? "Ubicación exacta disponible" 
-                  : (auction.address ? "Ubicación aproximada basada en BOE" : "Vista general de la ciudad")}
-              </p>
-            </div>
+                  </div>
+                  Abrir Street View
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Location Precision & External Link - COMPACT ROW */}
@@ -1811,73 +1801,31 @@ const AuctionPage: React.FC = () => {
               Google Maps
             </a>
           </div>
-
-          {/* FREE USER HELP TEXT */}
-          {plan === 'free' && (
-            <div className="p-5 md:p-6 bg-slate-50/50 border-t border-slate-100">
-              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <div className="w-1 h-3 bg-brand-500 rounded-full"></div>
-                Qué puedes comprobar
-              </h4>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: 'Estado fachada', icon: Home },
-                  { label: 'Tipo edificio', icon: CheckCircle },
-                  { label: 'Entorno zona', icon: MapPin },
-                  { label: 'Accesos', icon: ArrowRight }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-slate-600">
-                    <item.icon size={14} className="text-slate-400" />
-                    <span className="text-xs font-medium">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </section>
 
         {/* KEY DISTANCES BLOCK */}
         <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-6 md:mb-8">
-          <div className="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-100">
-                <Car size={16} />
+          <div className="p-3 md:p-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                <Car size={14} />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-sm md:text-base">Distancias clave</h3>
-                <p className="text-[10px] text-slate-500 font-medium">Tiempo estimado de trayecto en coche</p>
-              </div>
+              <h3 className="font-bold text-slate-900 text-xs md:text-sm">Distancias clave</h3>
             </div>
           </div>
 
-          <div className="relative">
-            <div className={`p-4 md:p-5 ${plan === 'free' ? 'blur-md grayscale opacity-40 select-none pointer-events-none' : ''}`}>
-              <div className="flex flex-row flex-wrap items-center gap-4 md:gap-8 overflow-x-auto no-scrollbar">
-                {keyDistances?.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 h-10 shrink-0">
-                    <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
-                      <item.icon size={14} />
-                    </div>
-                    <div className="flex flex-col justify-center">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-1">{item.label}</span>
-                      <div className="flex items-baseline gap-1 leading-none">
-                        <span className="text-sm font-black text-slate-900">{item.time} min</span>
-                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">aprox.</span>
-                      </div>
-                    </div>
+          <div className="p-3 md:p-4">
+            <div className="flex flex-row flex-wrap items-center gap-x-6 gap-y-3">
+              {keyDistances?.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2 shrink-0">
+                  <item.icon size={14} className="text-slate-400" />
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{item.label}</span>
+                    <span className="text-xs font-black text-slate-900">{item.time} min</span>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-
-            {/* Overlay for FREE users */}
-            {plan === 'free' && (
-              <LockedFeatureBlock 
-                title="Análisis de distancias bloqueado"
-                description="Los planes BASIC y PRO incluyen el cálculo de distancias a puntos de interés."
-                onAction={() => setSoftGateOrigin('streetview')}
-              />
-            )}
           </div>
         </section>
 
@@ -1909,17 +1857,12 @@ const AuctionPage: React.FC = () => {
               <div className="space-y-1 relative">
                 <span className="text-[10px] md:text-xs uppercase tracking-widest text-slate-400 font-bold block mb-1">Precio mercado actual</span>
                 
-                <div 
-                  className={`flex flex-col ${plan === 'free' ? 'cursor-pointer' : ''}`}
-                  onClick={() => {
-                    if (plan === 'free') setSoftGateOrigin('catastro');
-                  }}
-                >
-                  <p className={`text-xl md:text-2xl font-bold text-slate-900 leading-none transition-all duration-300 ${plan === 'free' ? 'blur-[4px] opacity-40 select-none' : ''}`}>
+                <div className="flex flex-col">
+                  <p className="text-xl md:text-2xl font-bold text-slate-900 leading-none">
                     {compMarketValue > 0 ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(compMarketValue) : '---'}
                   </p>
                   {compMarketPricePerSqm > 0 && (
-                    <span className={`text-base font-semibold text-slate-900 mt-0.5 transition-all duration-300 ${plan === 'free' ? 'blur-[3px] opacity-50 select-none' : ''}`}>
+                    <span className="text-base font-semibold text-slate-900 mt-0.5">
                       {new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(compMarketPricePerSqm)} €/m²
                     </span>
                   )}
@@ -2003,32 +1946,32 @@ const AuctionPage: React.FC = () => {
                           setIsComparatorExpanded(true);
                         }
                       }}
-                      className="w-full md:w-auto px-6 py-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm flex items-center justify-center gap-2"
+                      className="w-full md:w-auto px-6 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-all shadow-lg flex items-center justify-center gap-2"
                     >
-                      <Search size={16} className="text-brand-600" />
+                      {plan === 'free' ? <Lock size={14} /> : <Search size={14} />}
                       Verificar m² con Catastro
                     </button>
                   </div>
 
                   {plan === 'free' && (
                     <div 
-                      className="mt-8 pt-8 border-t border-slate-200 overflow-hidden relative cursor-pointer group"
+                      className="mt-6 pt-6 border-t border-slate-200 overflow-hidden relative cursor-pointer group"
                       onClick={() => setSoftGateOrigin('catastro')}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/80 to-slate-50 z-10 flex items-end justify-center pb-6">
-                        <div className="flex flex-col items-center bg-white/90 px-6 py-4 rounded-2xl shadow-sm backdrop-blur-sm border border-slate-100 transition-transform group-hover:scale-105">
-                          <span className="text-base font-bold text-slate-900 mb-1">Desbloquea análisis completo</span>
-                          <span className="text-xs font-medium text-slate-500">Disponible en BASIC y PRO</span>
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/80 to-slate-50 z-10 flex items-end justify-center pb-4">
+                        <div className="flex flex-col items-center bg-white/90 px-5 py-3 rounded-2xl shadow-sm backdrop-blur-sm border border-slate-100 transition-transform group-hover:scale-105">
+                          <span className="text-sm font-bold text-slate-900 mb-0.5">Desbloquea análisis completo</span>
+                          <span className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">Disponible en BASIC y PRO</span>
                         </div>
                       </div>
-                      <div className="blur-[1.5px] opacity-60 select-none pointer-events-none">
-                        <div className="flex flex-col items-center text-center mb-8">
-                          <span className="text-xs uppercase tracking-wide text-slate-500 mb-2">Ahorro vs mercado</span>
-                          <span className="text-5xl md:text-6xl font-bold tracking-tighter leading-none mb-3 text-emerald-600">+25.000 €</span>
-                          <span className="text-sm md:text-base font-medium text-slate-600 mb-4"><strong className="font-bold text-emerald-600">15.5%</strong> por debajo del valor de mercado</span>
+                      <div className="blur-[2px] opacity-40 select-none pointer-events-none">
+                        <div className="flex flex-col items-center text-center mb-6">
+                          <span className="text-[10px] uppercase tracking-wide text-slate-500 mb-1">Ahorro vs mercado</span>
+                          <span className="text-4xl md:text-5xl font-bold tracking-tighter leading-none mb-2 text-emerald-600">+25.000 €</span>
+                          <span className="text-xs font-medium text-slate-600"><strong className="font-bold text-emerald-600">15.5%</strong> por debajo del valor de mercado</span>
                         </div>
-                        <div className="mb-8">
-                          <div className="relative h-3 bg-slate-200 rounded-full overflow-hidden flex">
+                        <div className="mb-6">
+                          <div className="relative h-2 bg-slate-200 rounded-full overflow-hidden flex">
                             <div className="h-full bg-brand-500 w-[80%]" />
                             <div className="h-full bg-emerald-400 w-[20%]" />
                           </div>
@@ -2047,26 +1990,26 @@ const AuctionPage: React.FC = () => {
                     <span className="text-xs uppercase tracking-wide text-slate-500 mb-2">
                       {isOverpriced ? 'Sobreprecio vs mercado' : 'Ahorro vs mercado'}
                     </span>
-                    <span className={`text-5xl md:text-6xl font-bold tracking-tighter leading-none mb-3 ${compSavings > 0 ? 'text-emerald-600' : compSavings < 0 ? 'text-red-600' : 'text-amber-500'}`}>
+                    <span className={`text-4xl md:text-5xl font-bold tracking-tighter leading-none mb-3 ${compSavings > 0 ? 'text-emerald-600' : compSavings < 0 ? 'text-red-600' : 'text-amber-500'}`}>
                       {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0, signDisplay: 'always' }).format(isOverpriced ? Math.abs(compSavings) : compSavings)}
                     </span>
-                    <span className="text-sm md:text-base font-medium text-slate-600 mb-4">
+                    <span className="text-sm font-medium text-slate-600 mb-4">
                       <strong className={`font-bold ${compSavings > 0 ? 'text-emerald-600' : compSavings < 0 ? 'text-red-600' : 'text-amber-500'}`}>
                         {isOverpriced ? compOverpricePercent.toFixed(1) : compDiscountVsMarket.toFixed(1)}%
                       </strong> {isOverpriced ? 'por encima del valor de mercado' : 'por debajo del valor de mercado'}
                     </span>
-                    <div className={`px-3 py-1 rounded-full border text-xs font-bold ${compBadge.color}`}>
+                    <div className={`px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${compBadge.color}`}>
                       {compBadge.text}
                     </div>
                   </div>
 
                   {/* Visual Bar */}
-                  <div className="mb-8">
-                    <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                  <div className="mb-8 max-w-md mx-auto">
+                    <div className="flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">
                       <span>{isOverpriced ? 'Valor Mercado' : 'Tu compra'}</span>
                       <span>{isOverpriced ? 'Tu compra' : 'Valor Mercado'}</span>
                     </div>
-                    <div className="relative h-3 bg-slate-200 rounded-full overflow-hidden flex">
+                    <div className="relative h-2 bg-slate-200 rounded-full overflow-hidden flex">
                       {isOverpriced ? (
                         <>
                           <div 
@@ -2090,35 +2033,30 @@ const AuctionPage: React.FC = () => {
                           />
                         </>
                       )}
-                      {/* Marker for "Tu compra" */}
-                      <div 
-                        className="absolute top-0 bottom-0 w-1 bg-slate-800 rounded-full shadow-sm transition-all duration-300 z-10"
-                        style={{ 
-                          left: isOverpriced ? '100%' : `${(purchasePriceSlider / compMarketValue) * 100}%`,
-                          transform: 'translateX(-50%)'
-                        }}
-                      />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-slate-100">
-                    <div>
+                  <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-slate-100 max-w-md mx-auto">
+                    <div className="text-center">
                       <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold block mb-1">Superficie verificada</span>
                       <span className="text-sm font-bold text-slate-900">{compSurface} m²</span>
                     </div>
-                    <div>
+                    <div className="text-center">
                       <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold block mb-1">Precio estimado</span>
                       <span className="text-sm font-bold text-slate-900">{new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(compPricePerSqm)}/m²</span>
                     </div>
                   </div>
                   
                   <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col items-center justify-center gap-2">
-                    <span className="text-[10px] text-slate-400 font-medium">
+                    <span className="text-[9px] text-slate-400 font-medium">
                       Fuente: Ministerio de Vivienda · {auction?.city || 'Localidad'} · Datos basados en Idealista
                     </span>
-                    <span className="text-xs text-slate-400 text-center mt-2">
-                      Ahorro teórico sin impuestos ni posibles otros gastos. Usa la <a href="#calculadora" className="text-brand-600 hover:underline">Calculadora PRO</a> para precisión absoluta.
-                    </span>
+                    <button 
+                      onClick={() => setIsComparatorExpanded(false)}
+                      className="text-[10px] text-brand-600 font-bold uppercase tracking-widest hover:underline mt-2"
+                    >
+                      Ocultar análisis
+                    </button>
                   </div>
                 </motion.div>
               )}
@@ -2126,7 +2064,7 @@ const AuctionPage: React.FC = () => {
           </div>
         </section>
 
-        <div id="servicios-analisis" className="mb-12">
+        <div id="servicios-analisis" className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
             {/* Card 1: Análisis de cargas */}
             <div className="bg-white border-2 border-slate-900/20 rounded-3xl p-6 md:p-8 shadow-md flex flex-col h-full hover:shadow-lg transition-all order-last md:order-none relative z-10">
@@ -2314,7 +2252,7 @@ const AuctionPage: React.FC = () => {
 
         {/* User Notes Block */}
           {isLogged && (
-            <div id="user-notes" className="mb-12 bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm">
+            <div id="user-notes" className="mb-8 bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
@@ -2401,9 +2339,9 @@ const AuctionPage: React.FC = () => {
 
           <div className="space-y-8">
           {/* LONG-TAIL SEO CONTENT */}
-          <section className="space-y-16 pb-20 mt-32 md:mt-48 border-t border-slate-100 pt-16">
+          <section className="space-y-16 pb-20 mt-24 md:mt-32 border-t border-slate-100 pt-16">
             <div className="prose prose-slate max-w-none">
-              <h2 className="text-4xl font-serif font-bold text-slate-900 mb-8">Análisis del Activo</h2>
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-8">Análisis del Activo</h2>
               
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
@@ -2431,7 +2369,7 @@ const AuctionPage: React.FC = () => {
                 </p>
               </div>
 
-              <h3 className="text-3xl font-serif font-bold text-slate-900 mt-16 mb-8">¿Cómo participar en esta subasta en {cityName}?</h3>
+              <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mt-16 mb-8">¿Cómo participar en esta subasta en {cityName}?</h3>
               <div className="text-slate-600 leading-relaxed text-lg space-y-6">
                 <p>
                   Para participar en la subasta de este {propertyType.toLowerCase()}, es necesario realizar un depósito (consignación) del 5% del valor de tasación. 
@@ -2455,23 +2393,55 @@ const AuctionPage: React.FC = () => {
                 </div>
               </div>
 
-              <h3 className="text-3xl font-serif font-bold text-slate-900 mt-16 mb-8">Preguntas Frecuentes</h3>
-              <div className="space-y-8">
-                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                  <p className="font-bold text-slate-900 text-xl mb-3">¿Cuál es el descuento teórico respecto a tasación?</p>
-                  <p className="text-slate-600 text-lg">
-                    En esta subasta en {cityName}, la deuda es de {auction.claimedDebt?.toLocaleString('es-ES')}€ frente a una tasación de {auction.appraisalValue?.toLocaleString('es-ES')}€, 
-                    lo que implica un descuento teórico del {auction.appraisalValue && auction.claimedDebt ? Math.round((1 - (auction.claimedDebt / auction.appraisalValue)) * 100) : '---'}%. 
-                    Esto representa un margen potencial de {auction.appraisalValue && auction.claimedDebt ? (auction.appraisalValue - auction.claimedDebt).toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'} sobre el valor oficial.
-                  </p>
-                </div>
-                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                  <p className="font-bold text-slate-900 text-xl mb-3">¿Qué cargas tiene este inmueble en {cityName}?</p>
-                  <p className="text-slate-600 text-lg">
-                    Según el edicto del expediente {auction.boeId}, la deuda reclamada asciende a {auction.claimedDebt ? auction.claimedDebt.toLocaleString('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 0}) : '---'}. 
-                    Para este {propertyType.toLowerCase()}, es fundamental analizar si existen cargas anteriores en el Registro de la Propiedad de {cityName} que subsistan tras la adjudicación.
-                  </p>
-                </div>
+              <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mt-16 mb-8 text-center">Preguntas Frecuentes</h3>
+              
+              <div className="space-y-3 max-w-4xl mx-auto">
+                {[
+                  {
+                    q: "¿Se puede visitar el inmueble?",
+                    a: "Normalmente no. En las subastas judiciales, el juzgado no tiene las llaves. Solo si el ocupante accede voluntariamente podrías entrar, pero lo habitual es comprar basándose en el expediente y la ubicación exterior."
+                  },
+                  {
+                    q: "¿Qué ocurre con las cargas?",
+                    a: "Las cargas anteriores a la hipoteca que se ejecuta permanecen (debes asumirlas). Las posteriores se cancelan. Es vital revisar la certificación de cargas del Registro de la Propiedad antes de pujar."
+                  },
+                  {
+                    q: "¿Necesito financiación especial?",
+                    a: "Sí. Los bancos no suelen dar hipotecas convencionales para subastas porque no pueden tasar el interior. Necesitas disponer del capital o financiación alternativa (préstamos personales o capital privado)."
+                  },
+                  {
+                    q: "¿Cuánto debo depositar?",
+                    a: "El depósito (consignación) suele ser el 5% del valor de tasación. Se hace a través del Portal de Subastas del BOE mediante cuenta bancaria."
+                  },
+                  {
+                    q: "¿Cuántos participan normalmente?",
+                    a: "Depende del atractivo del activo. En viviendas bien ubicadas pueden participar de 5 a 15 postores. En activos industriales o menos líquidos, a veces solo uno o ninguno."
+                  },
+                  {
+                    q: "¿Estoy aún a tiempo?",
+                    a: "La subasta dura 20 días naturales desde su apertura. Puedes pujar hasta el último segundo, aunque si hay una puja en los últimos 2 minutos, el plazo se prorroga otros 2 minutos."
+                  },
+                  {
+                    q: "¿Puedo comprar para vivir?",
+                    a: "Por supuesto. Muchos usuarios compran su vivienda habitual en subasta para ahorrar entre un 20% y un 40% sobre el precio de mercado, asumiendo el proceso de toma de posesión."
+                  },
+                  {
+                    q: "¿Cómo se decide el ganador?",
+                    a: "Gana la puja más alta, pero si no llega al 70% del valor de tasación, el ejecutado tiene derecho a presentar a un tercero que mejore la postura. El proceso finaliza con el Decreto de Adjudicación."
+                  }
+                ].map((faq, idx) => (
+                  <details key={idx} className="group bg-white rounded-2xl border border-slate-200 overflow-hidden transition-all hover:border-brand-200">
+                    <summary className="flex items-center justify-between p-5 cursor-pointer list-none">
+                      <span className="font-bold text-slate-900 text-sm md:text-base pr-4">{faq.q}</span>
+                      <div className="w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-open:rotate-180 transition-transform">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </div>
+                    </summary>
+                    <div className="px-5 pb-5 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                      {faq.a}
+                    </div>
+                  </details>
+                ))}
               </div>
             </div>
           </section>
@@ -2479,7 +2449,7 @@ const AuctionPage: React.FC = () => {
 
         {/* RELATED AUCTIONS */}
         {cleanSlug && (
-          <div className="mt-24">
+          <div className="mt-16">
             <RelatedAuctions currentAuctionSlug={cleanSlug} currentAuctionData={auction} />
           </div>
         )}
