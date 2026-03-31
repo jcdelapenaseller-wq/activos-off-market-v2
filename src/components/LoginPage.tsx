@@ -21,6 +21,8 @@ const LoginPage: React.FC = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
 
+  console.log("[AUTH_DEBUG] render LoginPage - isAuthenticating:", isAuthenticating);
+
   // Redirection logic: if already logged in, go to dashboard or intended page
   useEffect(() => {
     console.log("[AUTH_DEBUG] LoginPage: isLogged:", isLogged, "isLoading:", isLoading);
@@ -116,18 +118,13 @@ const LoginPage: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
+    console.log("[AUTH_DEBUG] click google");
     setIsAuthenticating(true);
-    setIsBlocked(false);
+
     try {
-      console.log("[AUTH_DEBUG] click google");
-      console.log("[AUTH_DEBUG] calling redirect");
       await signInWithRedirect(auth, googleProvider);
-    } catch (error: any) {
-      console.error('Error logging in:', error);
+    } catch (e) {
       setIsAuthenticating(false);
-      if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-        setIsBlocked(true);
-      }
     }
   };
 
@@ -177,7 +174,6 @@ const LoginPage: React.FC = () => {
           <div className="space-y-4">
             <button
               onClick={handleGoogleLogin}
-              disabled={isAuthenticating}
               className="w-full flex items-center justify-center gap-3 px-6 h-12 bg-white border border-slate-200 rounded-[10px] text-slate-700 font-semibold hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isAuthenticating ? (
