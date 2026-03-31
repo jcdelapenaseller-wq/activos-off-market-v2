@@ -91,11 +91,13 @@ const LoginPage: React.FC = () => {
 
     script.onload = () => {
       if (window.google && import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+        /*
         window.google.accounts.id.initialize({
           client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
         });
         window.google.accounts.id.prompt();
+        */
       }
     };
 
