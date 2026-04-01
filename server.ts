@@ -8,6 +8,7 @@ import valuationHandler from './api/valuation.js';
 import sendConfirmationHandler from './api/send-confirmation.js';
 import stripeWebhookHandler from './api/stripe-webhook.js';
 import subscribeHandler from './api/subscribe.js';
+import analyzeHandler from './api/analyze.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,12 +24,14 @@ async function startServer() {
   app.use('/api/valuation', express.json());
   app.use('/api/send-confirmation', express.json());
   app.use('/api/subscribe', express.json());
+  app.use('/api/analyze', express.json({ limit: '20mb' }));
 
   // Map API routes
   app.all('/api/valuation', (req, res) => valuationHandler(req as any, res as any));
   app.all('/api/send-confirmation', (req, res) => sendConfirmationHandler(req as any, res as any));
   app.all('/api/stripe-webhook', (req, res) => stripeWebhookHandler(req as any, res as any));
   app.all('/api/subscribe', (req, res) => subscribeHandler(req as any, res as any));
+  app.all('/api/analyze', (req, res) => analyzeHandler(req as any, res as any));
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
