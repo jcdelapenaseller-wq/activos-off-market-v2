@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useContext } from 'react';
+import React, { useEffect, useState, useMemo, useContext, Suspense } from 'react';
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { 
@@ -23,7 +23,7 @@ import ConversionBlock from './ConversionBlock';
 import ConsultingCTA from './ConsultingCTA';
 import RadarPremiumCTA from './RadarPremiumCTA';
 import RelatedAuctions from './RelatedAuctions';
-import LoadAnalysisBlock from './LoadAnalysisBlock';
+const LoadAnalysisBlock = React.lazy(() => import('./LoadAnalysisBlock'));
 import FullAnalysisModal from './FullAnalysisModal';
 import SoftGateModal from './SoftGateModal';
 import Header from './Header';
@@ -2251,14 +2251,16 @@ const AuctionPage: React.FC = () => {
         <div id="servicios-analisis" className="mb-8">
           {(analysisPaid || cargasPaid) && auction ? (
             <div id="analisis-tecnico" className="w-full">
-              <LoadAnalysisBlock 
-                boeId={auction.boeId || ''} 
-                boeUrl={auction.boeUrl}
-                isIntegrated={false}
-                initialStep="upload"
-                isPaid={analysisPaid || cargasPaid}
-                noMargin={true}
-              />
+              <Suspense fallback={null}>
+                <LoadAnalysisBlock 
+                  boeId={auction.boeId || ''} 
+                  boeUrl={auction.boeUrl}
+                  isIntegrated={false}
+                  initialStep="upload"
+                  isPaid={analysisPaid || cargasPaid}
+                  noMargin={true}
+                />
+              </Suspense>
             </div>
           ) : (
             <>
