@@ -2249,7 +2249,7 @@ const AuctionPage: React.FC = () => {
         </section>
 
         <div id="servicios-analisis" className="mb-8">
-          {(analysisPaid || cargasPaid) ? (
+          {(analysisPaid || cargasPaid) && auction ? (
             <div id="analisis-tecnico" className="w-full">
               <LoadAnalysisBlock 
                 boeId={auction.boeId || ''} 
