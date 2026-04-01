@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldAlert, UploadCloud, FileText, CheckCircle, AlertTriangle, Lock, Loader2, ArrowRight, ShieldCheck, FileWarning, Download, Info, Calculator, Calendar, Scale, ExternalLink, X, HelpCircle, FileSearch, LogIn } from 'lucide-react';
+import { ShieldAlert, UploadCloud, FileText, CheckCircle, AlertTriangle, Lock, Loader2, ArrowRight, ShieldCheck, FileWarning, Download, Info, Calculator, Calendar, Scale, ExternalLink, X, HelpCircle, FileSearch, LogIn, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUser } from '../contexts/UserContext';
 
@@ -319,6 +319,10 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
     }, 2000);
   };
 
+  const handleDownloadPDF = () => {
+    window.print();
+  };
+
   const getConfianzaExplanation = (nivel: string) => {
     if (nivel.includes('MUY ALTA')) return 'Basado en Certificación de Cargas reciente y Edicto.';
     if (nivel.includes('ALTA')) return 'Basado en Certificación de Cargas reciente.';
@@ -329,7 +333,29 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
   };
 
   return (
-    <div ref={blockRef} className={`${isIntegrated ? 'w-full' : 'my-8 md:my-12 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden'}`}>
+    <div ref={blockRef} className={`${isIntegrated ? 'w-full bg-white rounded-[32px] shadow-2xl overflow-hidden mb-16 border border-slate-200' : 'my-8 md:my-12 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden'}`}>
+      {isIntegrated && (
+        <div className="bg-slate-900 text-white p-10 md:p-16 text-center relative overflow-hidden">
+          {/* Decorative background elements */}
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500 blur-[120px]"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500 blur-[120px]"></div>
+          </div>
+          
+          <div className="relative z-10 max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-500/20 text-brand-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-8 border border-brand-500/30 shadow-lg shadow-brand-500/10">
+              <ShieldCheck size={14} className="text-brand-400" /> Análisis Premium Desbloqueado
+            </div>
+            <h2 className="text-4xl md:text-6xl font-serif font-bold mb-8 leading-[1.1] tracking-tight">
+              Analiza las cargas de esta subasta con IA
+            </h2>
+            <p className="text-slate-400 text-lg md:text-2xl max-w-2xl mx-auto leading-relaxed font-medium">
+              Sube la certificación de cargas del BOE y obtén un desglose jurídico detallado en segundos.
+            </p>
+          </div>
+        </div>
+      )}
+
       {!isIntegrated && (
         <div className="bg-slate-900 px-8 py-5 text-white flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -344,7 +370,31 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
         </div>
       )}
 
-      <div className={`${isIntegrated ? 'p-0' : 'p-4 md:p-8'}`}>
+      <div className={`${isIntegrated ? 'p-8 md:p-20 bg-white' : 'p-4 md:p-8'}`}>
+        {isIntegrated && step === 'upload' && (
+          <div className="max-w-5xl mx-auto mb-20">
+            <div className="text-center mb-12">
+              <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">Así es tu análisis de cargas</h3>
+              <div className="w-20 h-1 bg-brand-500 mx-auto rounded-full"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { icon: <Search size={28} />, title: "Extracción IA", desc: "Leemos el PDF oficial del BOE y extraemos cada carga registral de forma automática." },
+                { icon: <ShieldAlert size={28} />, title: "Cálculo de Deuda", desc: "Calculamos el impacto real de las cargas que subsisten y su coste estimado." },
+                { icon: <CheckCircle size={28} />, title: "Estrategia Segura", desc: "Te decimos si la subasta es segura o si tiene riesgos ocultos que debes evitar." }
+              ].map((item, idx) => (
+                <div key={idx} className="flex flex-col items-center text-center p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-brand-200 transition-all group">
+                  <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-brand-600 mb-6 group-hover:scale-110 transition-transform">
+                    {item.icon}
+                  </div>
+                  <h4 className="font-bold text-slate-900 text-lg mb-3">{item.title}</h4>
+                  <p className="text-sm text-slate-500 leading-relaxed font-medium">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {step === 'locked' && (
           <div 
             className={`${isIntegrated ? '' : 'group/card cursor-pointer bg-white border border-slate-100 rounded-2xl p-4 md:p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]'}`}
@@ -415,34 +465,45 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
         {step === 'upload' && (
           <div className="max-w-[980px] mx-auto">
             {isIntegrated ? (
-              <div className="mb-6 space-y-4">
-                <div className="text-left">
-                  <p className="text-sm text-slate-900 font-bold">Sube la Nota Simple o la Certificación de Cargas del BOE para detectar cargas y riesgos</p>
+              <div className="mb-10 text-center">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-50 text-brand-700 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4 border border-brand-100">
+                  <CheckCircle size={12} /> Pago confirmado — Acceso completo
+                </div>
+                <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900 mb-4">Sube la documentación para analizar</h3>
+                <p className="text-slate-600 text-base md:text-lg max-w-2xl mx-auto mb-8">
+                  Para un análisis preciso, necesitamos la <strong>Nota Simple</strong> o la <strong>Certificación de Cargas</strong> del BOE.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-w-2xl mx-auto">
+                  <button 
+                    onClick={() => {
+                      setBoeClicked(true);
+                      window.open(finalBoeUrl, '_blank');
+                    }}
+                    className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold text-base hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-lg group"
+                  >
+                    <ExternalLink size={20} className="group-hover:scale-110 transition-transform" />
+                    Abrir BOE oficial
+                  </button>
+                  <button 
+                    onClick={() => setShowHowToModal(true)}
+                    className="flex-1 py-4 bg-white border-2 border-slate-200 text-slate-600 rounded-2xl font-bold text-base hover:border-brand-200 hover:text-brand-600 transition-all flex items-center justify-center gap-3"
+                  >
+                    <HelpCircle size={20} />
+                    ¿Cómo descargar?
+                  </button>
                 </div>
                 
-                <button 
-                  onClick={() => {
-                    setBoeClicked(true);
-                    window.open(finalBoeUrl, '_blank');
-                  }}
-                  className="w-full py-3 bg-white border-2 border-slate-900 text-slate-900 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-                >
-                  Abrir BOE
-                </button>
-                <p className="text-xs text-slate-400 mt-1 text-center">Paso 1 — descargar certificación del BOE</p>
-                
                 {boeClicked && (
-                  <p className="text-xs text-slate-500 font-medium text-center mt-2">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl inline-flex items-center gap-3 text-emerald-700 text-sm font-medium mb-8"
+                  >
+                    <Loader2 size={16} className="animate-spin" />
                     Esperando el PDF… súbelo aquí cuando lo descargues
-                  </p>
+                  </motion.div>
                 )}
-                
-                <p 
-                  className="text-xs text-slate-500 text-center cursor-pointer hover:underline mt-2 flex items-center justify-center gap-1.5"
-                  onClick={() => setShowHowToModal(true)}
-                >
-                  <Info size={14} /> ¿Cómo descargar la certificación del BOE?
-                </p>
               </div>
             ) : (
               <div className="text-center mb-6 md:mb-10">
@@ -672,14 +733,35 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
         )}
 
         {step === 'result' && resultData && (
-          <div className="space-y-8">
+          <div className="space-y-12">
+            {/* Premium Result Header */}
+            {isIntegrated && (
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-10 border-b border-slate-100">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-widest mb-3 border border-emerald-100">
+                    <ShieldCheck size={12} /> Informe Jurídico IA Finalizado
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-serif font-bold text-slate-900">Resultado del Análisis</h3>
+                  <p className="text-slate-500 mt-2 text-lg">Desglose técnico de cargas para la subasta {boeId}</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={handleDownloadPDF}
+                    className="flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl hover:-translate-y-1"
+                  >
+                    <Download size={20} /> Descargar PDF
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* CTAs Section */}
-            <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <button 
                 onClick={() => alert("Abriendo calculadora de puja máxima...")}
-                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-colors flex items-center justify-center gap-3 text-lg"
+                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-5 px-8 rounded-2xl shadow-xl shadow-brand-100 transition-all flex items-center justify-center gap-4 text-xl hover:-translate-y-1"
               >
-                <Calculator size={24} />
+                <Calculator size={28} />
                 Calcular puja máxima segura
               </button>
 
@@ -700,13 +782,13 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
                     href="https://calendly.com/activosoffmarket" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition-colors flex flex-col items-center justify-center gap-1"
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-5 px-8 rounded-2xl transition-all flex flex-col items-center justify-center gap-1 shadow-xl hover:-translate-y-1"
                   >
-                    <div className="flex items-center gap-2 text-base">
-                      <Calendar size={20} className="text-brand-600" />
+                    <div className="flex items-center gap-3 text-lg">
+                      <Calendar size={24} className="text-brand-400" />
                       Analizar esta subasta conmigo
                     </div>
-                    <span className="text-xs text-slate-500 font-normal">Revisión jurídica y estrategia de puja</span>
+                    <span className="text-xs text-slate-400 font-medium uppercase tracking-widest">Revisión jurídica y estrategia personalizada</span>
                   </a>
                 );
               })()}
