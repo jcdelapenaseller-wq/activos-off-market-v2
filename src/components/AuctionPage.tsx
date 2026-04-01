@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useContext } from 'react';
-import { useParams, Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { 
   Calculator, Gavel, TrendingUp, Search, ChevronRight, 
@@ -83,8 +83,6 @@ const LockedFeatureBlock: React.FC<LockedFeatureBlockProps> = ({
 const AuctionPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const isUnlocked = searchParams.get("analysis") === "unlocked";
   const cleanSlug = slug ? decodeURIComponent(slug).replace(/\/$/, '').toLowerCase() : '';
   const auction = cleanSlug ? AUCTIONS[cleanSlug] : null;
   const { user, isLogged, requireLogin, plan, trackAuctionView } = useUser();
@@ -2251,14 +2249,14 @@ const AuctionPage: React.FC = () => {
         </section>
 
         <div id="servicios-analisis" className="mb-8">
-          {isUnlocked && auction ? (
+          {(analysisPaid || cargasPaid) && auction ? (
             <div id="analisis-tecnico" className="w-full">
               <LoadAnalysisBlock 
                 boeId={auction.boeId || ''} 
                 boeUrl={auction.boeUrl}
                 isIntegrated={false}
                 initialStep="upload"
-                isPaid={isUnlocked}
+                isPaid={analysisPaid || cargasPaid}
                 noMargin={true}
               />
             </div>
@@ -2469,7 +2467,7 @@ const AuctionPage: React.FC = () => {
           )}
 
           {/* SECONDARY CTA ROW */}
-          {!isUnlocked && (
+          {!(analysisPaid || cargasPaid) && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <motion.a 
                 whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}

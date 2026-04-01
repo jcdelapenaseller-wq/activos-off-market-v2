@@ -14,7 +14,7 @@ import { prefetchAuction } from '../utils/prefetch';
 
 const RecentAuctions: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(AUCTIONS);
+  const [filteredAuctions, setFilteredAuctions] = useState<Record<string, AuctionData>>(() => getFilteredAuctions(AUCTIONS));
   const [sortBy, setSortBy] = useState<string>('recent');
   
   const currentPage = useMemo(() => {
@@ -33,7 +33,6 @@ const RecentAuctions: React.FC = () => {
     return Object.values(AUCTIONS).filter(a => isAuctionActive(a)).length;
   }, []);
 
-  console.log('RecentAuctions: Total AUCTIONS keys:', Object.keys(AUCTIONS).length);
   const auctionsWithBadges = useMemo(() => {
     let newBadgeCount = 0;
     return sortedAuctions.map(([slug, data]) => {
@@ -48,9 +47,7 @@ const RecentAuctions: React.FC = () => {
   const safePage = Math.min(currentPage, totalPages || 1);
   const paginatedAuctions = useMemo(() => {
     const startIndex = (safePage - 1) * itemsPerPage;
-    const result = auctionsWithBadges.slice(startIndex, startIndex + itemsPerPage);
-    console.log('RecentAuctions: paginatedAuctions:', result);
-    return result;
+    return auctionsWithBadges.slice(startIndex, startIndex + itemsPerPage);
   }, [auctionsWithBadges, safePage, itemsPerPage]);
 
   const handlePageChange = (page: number) => {
@@ -193,19 +190,9 @@ const RecentAuctions: React.FC = () => {
           )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {paginatedAuctions.length > 0 ? paginatedAuctions.map(({ slug, data, showNewBadge }) => (
-            <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} showImage={false} />
-          )) : (
-            <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-slate-200 shadow-sm">
-              <p className="text-slate-500 text-lg">No se han encontrado subastas con los filtros actuales.</p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="mt-4 px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
-              >
-                Reiniciar filtros
-              </button>
-            </div>
-          )}
+          {paginatedAuctions.map(({ slug, data, showNewBadge }) => (
+            <AuctionCard key={slug} slug={slug} data={data} showNewBadge={showNewBadge} />
+          ))}
         </div>
 
         {totalPages > 1 && (
