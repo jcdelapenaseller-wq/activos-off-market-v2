@@ -6,10 +6,12 @@ let aiInstance: GoogleGenAI | null = null;
 const getGeminiClient = () => {
   if (aiInstance) return aiInstance;
   
-  const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+  // Priority: 1. AI Studio automatic key (process.env) | 2. Manual secret (import.meta.env)
+  const apiKey = (process as any).env?.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+  
   if (!apiKey) {
-    console.error("VITE_GEMINI_API_KEY is missing. Please add it to your environment variables.");
-    throw new Error("Missing VITE_GEMINI_API_KEY");
+    console.error("No se ha encontrado ninguna clave de API de Gemini (GEMINI_API_KEY o VITE_GEMINI_API_KEY).");
+    throw new Error("Missing Gemini API Key");
   }
   
   aiInstance = new GoogleGenAI({ apiKey });
