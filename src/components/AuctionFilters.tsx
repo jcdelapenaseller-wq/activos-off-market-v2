@@ -37,9 +37,6 @@ export const AuctionFilters: React.FC<AuctionFiltersProps> = ({ auctions, onFilt
       if (province && data.province?.toLowerCase() !== province.toLowerCase()) return acc;
       if (status) {
         if (getComputedStatus(data) !== status) return acc;
-      } else {
-        // Default: exclude closed
-        if (!isAuctionActive(data)) return acc;
       }
       if (type && getAuctionType(data.boeId) !== type) return acc;
       acc[slug] = data;
