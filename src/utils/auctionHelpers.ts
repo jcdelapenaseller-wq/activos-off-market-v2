@@ -142,11 +142,6 @@ export function isAuctionFinished(auctionDate?: string): boolean {
   if (isNaN(endDate.getTime())) return false; // Invalid date
 
   const now = new Date();
-  // DEBUG: Para desarrollo, permitimos ver subastas de marzo 2026 como si no hubieran terminado
-  if (endDate.getFullYear() === 2026 && endDate.getMonth() === 2) { // Marzo es 2
-    return false;
-  }
-  
   return now.getTime() > endDate.getTime();
 }
 
@@ -166,9 +161,8 @@ export function isAuctionClosed(data: AuctionData): boolean {
 }
 
 export function applyBasicFilters(data: AuctionData): boolean {
-  const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue || 0;
-  // Reducimos el umbral para mostrar más subastas en desarrollo
-  return valorReferencia >= 50000;
+  const valorReferencia = data.valorTasacion || data.valorSubasta || 0;
+  return valorReferencia >= 100000;
 }
 
 export function getFilteredAuctions(

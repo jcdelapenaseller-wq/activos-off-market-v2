@@ -77,7 +77,6 @@ import DiscoverReportArticle from './components/DiscoverReportArticle';
 import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
 import DiscoverReportsIndex from './components/DiscoverReportsIndex';
 import ProvinceHub from './components/ProvinceHub';
-import ErrorBoundary from './components/ErrorBoundary';
 const AuctionPage = React.lazy(() => import('./components/AuctionPage'));
 const AnalysisPage = React.lazy(() => import('./pages/AnalysisPage'));
 import AuctionCalculatorPage from './components/AuctionCalculatorPage';
@@ -135,7 +134,7 @@ export const routes: RouteObject[] = [
   },
   {
     path: ROUTES.AUCTION_PAGE,
-    element: createElement(ErrorBoundary, null, createElement(AuctionPage)),
+    element: createElement(AuctionPage),
   },
   {
     path: ROUTES.CALCULATOR_SLUG,
