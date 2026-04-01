@@ -1,32 +1,38 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
 // Initialize the Gemini client
-// Note: In a real production environment, this would run on a Node.js backend
-// to protect the API key. For this demo/prototype, we are simulating the backend
-// call from the client side.
-const ai = new GoogleGenAI({ apiKey: (import.meta as any).env.VITE_GEMINI_API_KEY || 'mock-key' });
+const ai = new GoogleGenAI({ apiKey: (process as any).env.GEMINI_API_KEY || (import.meta as any).env.VITE_GEMINI_API_KEY || 'mock-key' });
 
 export const analyzeDocumentWithAI = async (files: File[]) => {
   const currentDate = new Date().toISOString().split('T')[0];
   
+  if (!files || files.length === 0) {
+    throw new Error("No se han proporcionado archivos para analizar.");
+  }
+
   // Convert all Files to base64 parts
   const pdfParts = await Promise.all(files.map(async (file) => {
-    const arrayBuffer = await file.arrayBuffer();
-    const base64EncodeString = btoa(
-      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-    );
-    
-    console.log(`Preparando archivo: ${file.name} (${file.size} bytes)`);
-    
-    return {
-      inlineData: {
-        data: base64EncodeString,
-        mimeType: "application/pdf"
-      }
-    };
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const base64EncodeString = btoa(
+        new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
+      
+      console.log(`[GeminiService] Preparando archivo: ${file.name} (${file.size} bytes)`);
+      
+      return {
+        inlineData: {
+          data: base64EncodeString,
+          mimeType: "application/pdf"
+        }
+      };
+    } catch (err) {
+      console.error(`[GeminiService] Error al procesar el archivo ${file.name}:`, err);
+      throw new Error(`Error al leer el archivo ${file.name}. Asegúrate de que es un PDF válido.`);
+    }
   }));
 
-  console.log(`--- INICIANDO ANÁLISIS MULTI-DOCUMENTO CON GEMINI (${files.length} archivos) ---`);
+  console.log(`[GeminiService] --- INICIANDO ANÁLISIS CON GEMINI (${files.length} archivos) ---`);
 
   const prompt = `
 Actúa como un experto en derecho hipotecario español, ejecuciones judiciales y análisis de subastas inmobiliarias.
@@ -319,15 +325,15 @@ DOCUMENTO(S) A ANALIZAR:
 
     if (response.text) {
       const result = JSON.parse(response.text);
-      console.log("--- ANÁLISIS COMPLETADO ---");
-      console.log("Documentos detectados por IA:", result.documentos_detectados);
-      console.log("Nivel de confianza:", result.nivel_confianza_global);
-      console.log("Cargas detectadas (Regex):", result.cargas_detectadas_regex);
+      console.log("[GeminiService] --- ANÁLISIS COMPLETADO ---");
+      console.log("[GeminiService] Documentos detectados por IA:", result.documentos_detectados);
+      console.log("[GeminiService] Nivel de confianza:", result.nivel_confianza_global);
       return result;
     }
-    throw new Error("No response from AI");
-  } catch (error) {
-    console.error("Error calling Gemini API:", error);
-    throw error;
+    throw new Error("No se recibió respuesta de la IA.");
+  } catch (error: any) {
+    console.error("[GeminiService] Error calling Gemini API:", error);
+    const errorMessage = error.message || "Error desconocido en el servicio de IA.";
+    throw new Error(errorMessage);
   }
 };

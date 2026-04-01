@@ -312,7 +312,8 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
     } catch (error) {
       console.error("Error en el análisis:", error);
       setStep('upload');
-      alert("Hubo un error al analizar el documento. Por favor, inténtalo de nuevo.");
+      const errorMessage = error instanceof Error ? error.message : "Hubo un error al analizar el documento.";
+      alert(`${errorMessage} Por favor, inténtalo de nuevo.`);
     }
   };
 
@@ -331,7 +332,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
         <div className="bg-slate-900 px-8 py-5 text-white flex justify-between items-center">
           <div className="flex items-center gap-3">
             <ShieldAlert size={20} className="text-brand-400" />
-            <h2 className="font-serif font-bold text-lg">Análisis IA de Cargas Registrales</h2>
+            <h2 className="font-serif font-bold text-lg">Revisión experta + IA de cargas registrales</h2>
           </div>
           {step === 'locked' && (
             <span className="bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -357,7 +358,6 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
                   </div>
                   <div className="flex-1">
                     <span className="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Riesgo legal</span>
-                    <h3 className="text-sm md:text-lg font-serif font-bold text-slate-900 mb-0.5 tracking-tight">Análisis de cargas registrales</h3>
                     <p className="text-slate-500 text-[10px] md:text-sm font-medium leading-tight">Detecta hipotecas, embargos y riesgos ocultos antes de pujar</p>
                     
                     <div className="flex flex-wrap items-center gap-1.5 mt-3 md:mt-4">
@@ -378,10 +378,6 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
               {/* Right Side (30%) */}
               <div className="w-full md:flex-[0.3] flex flex-col items-center md:items-end gap-2 md:gap-3">
                 <div className="text-center md:text-right border-t md:border-t-0 border-slate-100 pt-3 md:pt-0 w-full md:w-auto">
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] md:text-[10px] font-bold uppercase tracking-tight mb-1.5 border border-emerald-100/50 group-hover/card:bg-emerald-100/80 transition-colors">
-                    <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
-                    Disponible para esta subasta
-                  </div>
                   <div className="flex items-baseline justify-center md:justify-end gap-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Por solo</span>
                     <span className="text-lg md:text-xl font-bold text-emerald-600 tracking-tight">2,99€</span>
@@ -443,9 +439,8 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
               </div>
             ) : (
               <div className="text-center mb-6 md:mb-10">
-                <h3 className="text-lg md:text-2xl font-serif font-bold text-slate-900 mb-1">Análisis de cargas registrales</h3>
                 <p className="text-sm text-slate-500 mt-1 max-w-2xl mx-auto leading-tight">
-                  Revisión experta + IA del expediente basado en ley hipotecaria y registral actualizada
+                  Análisis jurídico asistido por IA basado en documentación registral y criterio experto.
                 </p>
                 
                 <p className="text-[10px] md:text-xs text-slate-600 mt-4 md:mt-6 max-w-2xl mx-auto leading-relaxed font-medium px-4">
@@ -607,11 +602,6 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
                       Desbloquea 3 análisis al mes con BASIC <ArrowRight size={12} />
                     </Link>
                   )}
-
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] md:text-[10px] font-bold uppercase tracking-tight mt-2 border border-emerald-100/50">
-                    <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
-                    Disponible para esta subasta
-                  </div>
                 </>
               )}
 
@@ -630,20 +620,20 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
                   </div>
                   <div className="flex flex-col sm:flex-row justify-center gap-2 md:gap-3 shrink-0 w-full md:w-auto">
                     <a 
-                      href={(!user || currentPlan === 'free') ? '#' : finalBoeUrl}
-                      target={(!user || currentPlan === 'free') ? undefined : "_blank"}
-                      rel={(!user || currentPlan === 'free') ? undefined : "noopener noreferrer"}
+                      href={(!user || (currentPlan === 'free' && !isPaid)) ? '#' : finalBoeUrl}
+                      target={(!user || (currentPlan === 'free' && !isPaid)) ? undefined : "_blank"}
+                      rel={(!user || (currentPlan === 'free' && !isPaid)) ? undefined : "noopener noreferrer"}
                       onClick={(e) => {
-                        if (!user || currentPlan === 'free') {
+                        if (!user || (currentPlan === 'free' && !isPaid)) {
                           e.preventDefault();
                           if (onShowSoftGate) {
                             onShowSoftGate();
                           }
                         }
                       }}
-                      className={`w-full sm:w-auto px-4 py-2.5 md:py-2.5 rounded-xl bg-white border border-slate-300 text-[10px] md:text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm ${(!user || currentPlan === 'free') ? 'text-slate-400 cursor-pointer hover:text-brand-600' : 'text-slate-900 hover:bg-slate-50'}`}
+                      className={`w-full sm:w-auto px-4 py-2.5 md:py-2.5 rounded-xl bg-white border border-slate-300 text-[10px] md:text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm ${(!user || (currentPlan === 'free' && !isPaid)) ? 'text-slate-400 cursor-pointer hover:text-brand-600' : 'text-slate-900 hover:bg-slate-50'}`}
                     >
-                      Ver subasta en BOE {(!user || currentPlan === 'free') ? <Lock size={10} className="md:w-3 md:h-3" /> : <ExternalLink size={10} className="md:w-3 md:h-3" />}
+                      Ver subasta en BOE {(!user || (currentPlan === 'free' && !isPaid)) ? <Lock size={10} className="md:w-3 md:h-3" /> : <ExternalLink size={10} className="md:w-3 md:h-3" />}
                     </a>
                     <button 
                       onClick={() => setShowHowToModal(true)}
@@ -1097,10 +1087,6 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
                 <>Subir documentos <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-medium">2,99€</span></>
               )}
             </button>
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] font-bold uppercase tracking-tight mt-1.5 border border-emerald-100/50">
-              <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
-              Disponible para esta subasta
-            </div>
           </motion.div>
         )}
       </AnimatePresence>

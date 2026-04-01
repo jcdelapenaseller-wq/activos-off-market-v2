@@ -195,9 +195,6 @@ const AuctionPage: React.FC = () => {
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
-        if (shouldScrollToAnalysis || analysisPaid) {
-          setShowFullAnalysisModal(true);
-        }
       }, 500);
     }
   }, [auctionId, analysisPaid, cargasPaid, user, auction]);
