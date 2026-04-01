@@ -7,7 +7,7 @@ import {
   Info, ArrowRight, FileText, Scale, ShieldCheck, AlertOctagon,
   Clock, Calendar, User, Twitter, Linkedin, Mail, MessageCircle,
   ExternalLink, AlertCircle, Lock, ArrowUpRight, Heart, Share2,
-  Bell, StickyNote, X, Car, Train, Navigation, Shield, LineChart, Check, Zap, HelpCircle, ChevronDown
+  Bell, StickyNote, X, Car, Train, Navigation, Shield, LineChart, Check, Zap, HelpCircle, ChevronDown, ShieldAlert
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AUCTIONS } from '../data/auctions';
@@ -194,9 +194,6 @@ const AuctionPage: React.FC = () => {
         const element = document.getElementById('analisis-tecnico');
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
-        }
-        if (shouldScrollToAnalysis || analysisPaid) {
-          setShowFullAnalysisModal(true);
         }
       }, 500);
     }
@@ -2253,7 +2250,7 @@ const AuctionPage: React.FC = () => {
 
         <div id="servicios-analisis" className="mb-8">
           {(analysisPaid || cargasPaid) ? (
-            <div id="analisis-tecnico" className="w-full bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-200">
+            <div id="analisis-tecnico">
               <LoadAnalysisBlock 
                 boeId={auction.boeId || ''} 
                 boeUrl={auction.boeUrl}
@@ -2262,182 +2259,130 @@ const AuctionPage: React.FC = () => {
               />
             </div>
           ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                {/* Card 1: Análisis de cargas */}
-                <div id="analisis-tecnico" className="bg-white border-2 border-slate-900/20 rounded-3xl p-6 md:p-8 shadow-md flex flex-col h-full hover:shadow-lg transition-all order-last md:order-none relative z-10">
-                  <div className="mb-6 mt-2">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Shield className="w-4 h-4 text-slate-400" />
-                      <h3 className="text-2xl font-serif font-bold text-slate-900">Análisis de cargas</h3>
-                    </div>
-                    <p className="text-slate-600 text-sm font-medium">La revisión legal antes de pujar</p>
+            <div className="w-full bg-white rounded-[32px] border border-slate-200 shadow-xl overflow-hidden">
+              <div className="bg-slate-900 text-white p-10 md:p-16 text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                  <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500 blur-[120px]"></div>
+                  <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500 blur-[120px]"></div>
+                </div>
+                
+                <div className="relative z-10 max-w-4xl mx-auto">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-500/20 text-brand-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-8 border border-brand-500/30 shadow-lg shadow-brand-500/10">
+                    <ShieldCheck size={14} className="text-brand-400" /> Servicio Premium de Análisis
                   </div>
-                  
-                  <div className="flex-1 flex flex-col">
-                    <div className="mb-6">
-                      <div className="inline-block px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded uppercase tracking-wider mb-2">
-                        REVISIÓN LEGAL
+                  <h2 className="text-4xl md:text-6xl font-serif font-bold mb-8 leading-[1.1] tracking-tight">
+                    No pujes a ciegas. <br className="hidden md:block" /> Analiza esta subasta con IA.
+                  </h2>
+                  <p className="text-slate-400 text-lg md:text-2xl max-w-2xl mx-auto leading-relaxed font-medium">
+                    Detecta hipotecas, embargos y riesgos ocultos antes de invertir. Desglose jurídico inmediato.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-8 md:p-20">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
+                  {/* Option 1: Cargas */}
+                  <div className="flex flex-col p-8 md:p-12 rounded-[32px] bg-slate-50 border border-slate-100 hover:border-brand-200 transition-all group">
+                    <div className="mb-8">
+                      <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-brand-600 mb-6 group-hover:scale-110 transition-transform">
+                        <ShieldAlert size={32} />
                       </div>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-bold text-slate-900">
-                          {plan === 'free' ? '2,99€' : plan === 'pro' ? 'Incluido' : ''}
-                        </span>
-                        {plan === 'basic' && (
-                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100">
-                            Incluido en tu plan
-                          </span>
-                        )}
-                        {plan === 'pro' && (
-                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100">
-                            Incluido ilimitado
-                          </span>
-                        )}
-                        {plan === 'free' && (
-                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">/ Pago único</span>
-                        )}
-                      </div>
-                      <div className="mt-2 space-y-0.5">
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Análisis documental con criterio jurídico</p>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Basado en Ley Hipotecaria y Registral actual</p>
-                      </div>
+                      <h3 className="text-3xl font-serif font-bold text-slate-900 mb-3">Análisis de Cargas</h3>
+                      <p className="text-slate-500 text-lg font-medium leading-relaxed">
+                        Revisión técnica de la certificación de cargas para detectar deudas que subsisten.
+                      </p>
                     </div>
 
-                    <div className="space-y-4 mb-8 flex-1">
+                    <div className="space-y-4 mb-10 flex-1">
                       {[
-                        'Hipotecas',
-                        'Embargos',
-                        'Cargas ocultas',
-                        'Ocupantes'
+                        'Identificación de hipotecas previas',
+                        'Cálculo de embargos vigentes',
+                        'Detección de cargas preferentes',
+                        'Informe jurídico inmediato'
                       ].map((item, i) => (
                         <div key={i} className="flex items-center gap-3 text-slate-700">
-                          <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                          </div>
-                          <span className="text-sm font-medium">{item}</span>
+                          <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+                          <span className="font-medium">{item}</span>
                         </div>
                       ))}
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="mt-auto">
+                      <div className="flex items-baseline gap-2 mb-6">
+                        <span className="text-4xl font-bold text-slate-900">2,99€</span>
+                        <span className="text-sm text-slate-400 font-bold uppercase tracking-widest">/ Pago único</span>
+                      </div>
                       <button 
                         onClick={handleAnalyzeCargasClick}
-                        className="w-full py-5 px-6 bg-slate-900 hover:bg-brand-700 text-white rounded-2xl font-semibold text-lg transition-all flex items-center justify-center gap-3 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                        className="w-full py-5 px-8 bg-slate-900 text-white rounded-2xl font-bold text-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-xl hover:-translate-y-1"
                       >
-                        Analizar cargas
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        Analizar cargas <ArrowRight size={24} />
                       </button>
-                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-500 font-medium text-center">
-                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Entrega inmediata</div>
-                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Sin suscripción</div>
-                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Pago único</div>
-                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Informe descargable</div>
-                      </div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">Revisión documental experta basada en BOE y Registro</p>
                     </div>
                   </div>
-                </div>
 
-                {/* Card 2: Análisis completo */}
-                <div id="analisis-completo" className="bg-slate-50/50 border-2 border-slate-900 rounded-3xl p-6 md:p-8 shadow-md flex flex-col h-full relative hover:shadow-lg transition-all order-first md:order-none z-10">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-slate-900 text-white text-[10px] font-bold rounded-full uppercase tracking-widest shadow-lg border border-slate-800">
-                    RECOMENDADO
-                  </div>
-
-                  <div className="mb-6 mt-2">
-                    <div className="flex items-center gap-2 mb-1">
-                      <LineChart className="w-4 h-4 text-brand-500" />
-                      <h3 className="text-2xl font-serif font-bold text-slate-900">Análisis completo</h3>
+                  {/* Option 2: Completo */}
+                  <div className="flex flex-col p-8 md:p-12 rounded-[32px] bg-brand-50 border border-brand-100 hover:border-brand-300 transition-all group relative overflow-hidden">
+                    <div className="absolute top-6 right-6 px-4 py-1.5 bg-brand-600 text-white text-[10px] font-bold rounded-full uppercase tracking-widest shadow-lg">
+                      MÁS COMPLETO
                     </div>
-                    <p className="text-slate-600 text-sm font-medium">La decisión inteligente de inversión</p>
-                  </div>
-
-                  <div className="flex-1 flex flex-col">
+                    
                     <div className="mb-8">
-                      <div className="flex flex-col">
-                        <span className="text-sm text-slate-400 line-through font-medium mb-0.5">
-                          Valor estimado {plan === 'pro' ? '9,99€' : plan === 'basic' ? '19€' : '29€'}
-                        </span>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-4xl font-bold text-slate-900">
-                            {plan === 'pro' ? 'Incluido' : plan === 'basic' ? '2,99€' : '4,99€'}
-                          </span>
-                          {plan === 'pro' && (
-                            <span className="px-2 py-0.5 bg-brand-50 text-brand-600 text-[10px] font-bold rounded-full border border-brand-100">
-                              Incluido ilimitado
-                            </span>
-                          )}
-                        </div>
+                      <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-brand-600 mb-6 group-hover:scale-110 transition-transform">
+                        <LineChart size={32} />
                       </div>
-                      {plan !== 'pro' && (
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="px-2 py-0.5 bg-brand-100 text-brand-700 text-[9px] font-bold rounded uppercase tracking-wider">Ahorro PRO</span>
-                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Precio PRO: 0,99€</p>
-                        </div>
-                      )}
+                      <h3 className="text-3xl font-serif font-bold text-slate-900 mb-3">Informe de Inversión</h3>
+                      <p className="text-slate-600 text-lg font-medium leading-relaxed">
+                        Análisis 360º: Cargas, rentabilidad, mercado y estrategia de puja recomendada.
+                      </p>
                     </div>
 
-                    <div className="space-y-4 mb-8">
-                      <div className="flex items-center gap-3 text-slate-700">
-                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <div className="space-y-4 mb-10 flex-1">
+                      {[
+                        'Todo el análisis de cargas incluido',
+                        'Cálculo de rentabilidad (ROI)',
+                        'Comparables de mercado reales',
+                        'Estrategia de puja máxima segura'
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3 text-slate-700">
+                          <CheckCircle className="w-5 h-5 text-brand-500 shrink-0" />
+                          <span className="font-medium">{item}</span>
                         </div>
-                        <span className="text-sm font-medium">Rentabilidad estimada de inversión</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-700">
-                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                        <span className="text-sm font-medium">Riesgos legales detectados</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-700">
-                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                        <span className="text-sm font-medium">Estrategia de puja recomendada</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-700">
-                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                        <span className="text-sm font-medium">Comparables de mercado</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-700">
-                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                        <span className="text-sm font-medium">Informe profesional en PDF</span>
-                      </div>
+                      ))}
                     </div>
 
-                    <div className="mt-auto space-y-4">
+                    <div className="mt-auto">
+                      <div className="flex items-baseline gap-2 mb-6">
+                        <span className="text-4xl font-bold text-slate-900">4,99€</span>
+                        <span className="text-sm text-slate-400 font-bold uppercase tracking-widest">/ Pago único</span>
+                      </div>
                       <button 
                         onClick={() => {
                           setPaymentType('analysis');
                           setShowPaymentModal(true);
                         }}
-                        className="w-full bg-slate-900 hover:bg-brand-700 text-white font-bold py-5 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group/btn text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                        className="w-full py-5 px-8 bg-brand-600 text-white rounded-2xl font-bold text-xl hover:bg-brand-700 transition-all flex items-center justify-center gap-3 shadow-xl hover:-translate-y-1"
                       >
-                        Generar informe completo
-                        <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
+                        Informe completo <ArrowRight size={24} />
                       </button>
-                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-500 font-medium text-center">
-                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Entrega inmediata</div>
-                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Sin suscripción</div>
-                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Pago único</div>
-                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Informe descargable</div>
-                      </div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">Análisis inversión completo con estrategia de puja</p>
                     </div>
                   </div>
                 </div>
+
+                <div className="mt-16 pt-12 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                  {[
+                    { title: "Entrega Inmediata", desc: "Recibe tu informe en menos de 60 segundos tras el pago." },
+                    { title: "Sin Suscripción", desc: "Paga solo por lo que necesitas. Sin cuotas mensuales ocultas." },
+                    { title: "Garantía AM", desc: "Análisis basado en datos oficiales del BOE y Registro." }
+                  ].map((item, i) => (
+                    <div key={i}>
+                      <h4 className="font-bold text-slate-900 mb-2">{item.title}</h4>
+                      <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="mt-8 text-center text-slate-400 text-xs">
-                <p className="font-medium">
-                  Compra segura • Pago único sin suscripción • Acceso inmediato al informe • Servicio independiente • No necesitas crear cuenta
-                </p>
-              </div>
-            </>
+            </div>
           )}
         </div>
 

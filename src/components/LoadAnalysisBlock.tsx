@@ -63,6 +63,7 @@ interface LoadAnalysisBlockProps {
   onShowSoftGate?: () => void;
   initialStep?: 'locked' | 'upload' | 'loading' | 'result';
   isPaid?: boolean;
+  initialData?: AnalysisResult | null;
 }
 
 const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ 
@@ -71,11 +72,12 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
   isIntegrated = false,
   onShowSoftGate,
   initialStep = 'locked',
-  isPaid = false
+  isPaid = false,
+  initialData = null
 }) => {
-  const [step, setStep] = useState<'locked' | 'upload' | 'loading' | 'result'>(initialStep);
+  const [step, setStep] = useState<'locked' | 'upload' | 'loading' | 'result'>(initialData ? 'result' : initialStep);
   const [files, setFiles] = useState<File[]>([]);
-  const [resultData, setResultData] = useState<AnalysisResult | null>(null);
+  const [resultData, setResultData] = useState<AnalysisResult | null>(initialData);
   const [showHowToModal, setShowHowToModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -90,6 +92,15 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
 
   const { user, plan: currentPlan, incrementAnalysisCount } = useUser();
   const navigate = useNavigate();
+
+  // Redirect to dedicated page when analysis is done in integrated mode
+  useEffect(() => {
+    if (isIntegrated && step === 'result' && resultData) {
+      navigate(`/analisis-cargas?id=${boeId}&report=ready`, { 
+        state: { analysisResult: resultData } 
+      });
+    }
+  }, [step, resultData, isIntegrated, navigate, boeId]);
   
   const usage = user?.analysisUsed || 0;
 
@@ -274,49 +285,28 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
 
     setStep('loading');
     
-    // Mock analysis for all plans
-    setTimeout(async () => {
+    try {
+      const result = await analyzeDocumentWithAI(files);
+      
       // Incrementar contador solo cuando análisis se ejecuta correctamente
       let success = true;
       if (!isPaid) {
         success = await incrementAnalysisCount();
       }
+      
       if (!success && currentPlan !== 'pro') {
         setStep('upload');
         if (onShowSoftGate) onShowSoftGate();
         return;
       }
 
-      setResultData({
-        razonamiento_juridico: "Análisis de prueba. Se han detectado cargas anteriores que deben ser canceladas.",
-        fuente_documento: "Nota Simple (Simulada)",
-        nivel_confianza_global: "MEDIA",
-        riesgo_global: "MEDIO",
-        cargas_detectadas: [
-          {
-            identificador_registral: "Finca 12345",
-            tipo: "Hipoteca",
-            fuente_textual: "Inscripción 4ª",
-            desglose: { principal: 50000, intereses: 5000, costas: 2000, total: 57000 },
-            titular: "Banco Santander",
-            rango: "Anterior",
-            resultado: "SUBSISTE",
-            estado_carga: "SUBSISTE",
-            vigente: true,
-            confianza: "ALTA"
-          }
-        ],
-        incoherencias_detectadas: [],
-        ocupacion_detectada: false,
-        nivel_riesgo_ocupacion: "BAJO",
-        peor_escenario: { principal: 50000, intereses: 5000, costas: 2000, total: 57000 },
-        impacto_economico: { coste_estimado: 57000, nivel: "MEDIO" },
-        alertas: ["Revisar estado de la deuda hipotecaria actual."],
-        recomendacion: "Se recomienda contactar con la entidad acreedora para conocer la deuda exacta a día de hoy."
-      });
-      
+      setResultData(result);
       setStep('result');
-    }, 2000);
+    } catch (error) {
+      console.error("Error en el análisis:", error);
+      setStep('upload');
+      alert("Hubo un error al analizar el documento. Por favor, inténtalo de nuevo.");
+    }
   };
 
   const getConfianzaExplanation = (nivel: string) => {
