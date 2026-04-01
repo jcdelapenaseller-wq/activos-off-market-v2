@@ -1,16 +1,23 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Initialize the Gemini client
-const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+// Lazy initialization of the Gemini client
+let aiInstance: GoogleGenAI | null = null;
 
-if (!apiKey) {
-  console.error("VITE_GEMINI_API_KEY is missing. Please add it to your environment variables.");
-  throw new Error("Missing VITE_GEMINI_API_KEY");
-}
-
-const ai = new GoogleGenAI({ apiKey });
+const getGeminiClient = () => {
+  if (aiInstance) return aiInstance;
+  
+  const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error("VITE_GEMINI_API_KEY is missing. Please add it to your environment variables.");
+    throw new Error("Missing VITE_GEMINI_API_KEY");
+  }
+  
+  aiInstance = new GoogleGenAI({ apiKey });
+  return aiInstance;
+};
 
 export const analyzeDocumentWithAI = async (files: File[]) => {
+  const ai = getGeminiClient();
   const currentDate = new Date().toISOString().split('T')[0];
   
   if (!files || files.length === 0) {
