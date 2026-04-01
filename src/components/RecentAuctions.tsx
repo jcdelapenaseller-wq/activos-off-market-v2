@@ -33,6 +33,7 @@ const RecentAuctions: React.FC = () => {
     return Object.values(AUCTIONS).filter(a => isAuctionActive(a)).length;
   }, []);
 
+  console.log('RecentAuctions: Total AUCTIONS keys:', Object.keys(AUCTIONS).length);
   const auctionsWithBadges = useMemo(() => {
     let newBadgeCount = 0;
     return sortedAuctions.map(([slug, data]) => {
