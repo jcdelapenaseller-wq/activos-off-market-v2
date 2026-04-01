@@ -78,6 +78,7 @@ import DiscoverArticlesIndex from './components/DiscoverArticlesIndex';
 import DiscoverReportsIndex from './components/DiscoverReportsIndex';
 import ProvinceHub from './components/ProvinceHub';
 const AuctionPage = React.lazy(() => import('./components/AuctionPage'));
+const AnalysisPage = React.lazy(() => import('./pages/AnalysisPage'));
 import AuctionCalculatorPage from './components/AuctionCalculatorPage';
 import Legal from './components/Legal';
 import AdminTracking from './components/AdminTracking';
@@ -126,6 +127,10 @@ export const routes: RouteObject[] = [
   {
     path: ROUTES.PROVINCE_HUB,
     element: createElement(ProvinceHub),
+  },
+  {
+    path: ROUTES.ANALISIS_SLUG,
+    element: createElement(RedirectSlug, { to: ROUTES.AUCTION_PAGE }),
   },
   {
     path: ROUTES.AUCTION_PAGE,

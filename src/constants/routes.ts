@@ -8,6 +8,7 @@ export const ROUTES = {
   GUIDE_INDEX: '/indice-guia-subastas',
   GUIDE_PILLAR: '/subastas-judiciales-espana',
   ANALYSIS: '/como-analizar-subasta-judicial-paso-a-paso',
+  ANALISIS_SLUG: '/analisis/:slug',
   GLOSSARY: '/glosario-subastas',
   COMPARISON: '/subasta-judicial-vs-aeat-diferencias',
   DEPOSIT: '/deposito-subasta-judicial-5-por-ciento',

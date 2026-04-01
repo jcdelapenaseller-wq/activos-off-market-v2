@@ -134,7 +134,6 @@ const AuctionPage: React.FC = () => {
   const [showFullAnalysisModal, setShowFullAnalysisModal] = useState(false);
   const [softGateOrigin, setSoftGateOrigin] = useState<'favorite' | 'alert' | 'note' | 'limit_favorite' | 'limit_alert' | 'valuation' | 'boe' | 'save' | 'limit_analysis' | 'streetview' | 'catastro' | 'comparativa' | null>(null);
   const [showStreetView, setShowStreetView] = useState(false);
-  const [showCargasUpload, setShowCargasUpload] = useState(false);
   const [hasActiveAlert, setHasActiveAlert] = useState(false);
   const [activeAlertId, setActiveAlertId] = useState<string | null>(null);
   const [alertsCount, setAlertsCount] = useState(0);
@@ -154,20 +153,31 @@ const AuctionPage: React.FC = () => {
     let shouldScrollToAnalysis = false;
     let shouldScrollToCargas = false;
 
-    if (analysisParam === 'paid') {
+    if (analysisParam === 'unlocked' || analysisParam === 'paid') {
       sessionStorage.setItem(`analysisPaid_${auctionId}`, 'true');
       sessionStorage.setItem(`analysisPaid_${auctionId}_time`, Date.now().toString());
       setAnalysisPaid(true);
+      setCargasPaid(true);
       shouldScrollToAnalysis = true;
-      window.history.replaceState({}, document.title, window.location.pathname);
+      setShowPaymentModal(false);
+      setShowPremiumModal(false);
+      
+      params.delete('analysis');
+      const newUrl = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+      window.history.replaceState({}, document.title, newUrl);
     }
 
-    if (cargasParam === 'paid') {
+    if (cargasParam === 'unlocked' || cargasParam === 'paid') {
       sessionStorage.setItem(`cargasPaid_${auctionId}`, 'true');
       sessionStorage.setItem(`cargasPaid_${auctionId}_time`, Date.now().toString());
       setCargasPaid(true);
       shouldScrollToCargas = true;
-      window.history.replaceState({}, document.title, window.location.pathname);
+      setShowPaymentModal(false);
+      setShowPremiumModal(false);
+      
+      params.delete('cargas');
+      const newUrl = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+      window.history.replaceState({}, document.title, newUrl);
     }
 
     if (params.get('openBoe') === 'true' && user && auction) {
@@ -179,21 +189,14 @@ const AuctionPage: React.FC = () => {
       window.history.replaceState({}, document.title, newUrl);
     }
 
-    if (shouldScrollToAnalysis || analysisPaid) {
+    if (shouldScrollToAnalysis || analysisPaid || shouldScrollToCargas || cargasPaid) {
       setTimeout(() => {
-        const element = document.getElementById('analisis-completo');
+        const element = document.getElementById('analisis-tecnico');
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
         if (shouldScrollToAnalysis || analysisPaid) {
           setShowFullAnalysisModal(true);
-        }
-      }, 500);
-    } else if (shouldScrollToCargas || cargasPaid) {
-      setTimeout(() => {
-        const element = document.getElementById('analisis-tecnico');
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
         }
       }, 500);
     }
@@ -333,6 +336,11 @@ const AuctionPage: React.FC = () => {
 
   const handleUnlockAnalysis = () => {
     setSoftGateOrigin('valuation');
+  };
+
+  const handleAnalyzeCargasClick = () => {
+    setPaymentType('cargas');
+    setShowPaymentModal(true);
   };
 
   const handleDownloadPDF = () => {
@@ -2244,34 +2252,20 @@ const AuctionPage: React.FC = () => {
         </section>
 
         <div id="servicios-analisis" className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-            {/* Card 1: Análisis de cargas */}
-            <div className="bg-white border-2 border-slate-900/20 rounded-3xl p-6 md:p-8 shadow-md flex flex-col h-full hover:shadow-lg transition-all order-last md:order-none relative z-10">
-              {showCargasUpload && cargasPaid ? (
-                <div className="flex-1 flex flex-col">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-serif font-bold text-slate-900">Análisis de cargas</h3>
-                    <button 
-                      onClick={() => setShowCargasUpload(false)}
-                      className="text-xs text-slate-400 hover:text-slate-600 font-medium"
-                    >
-                      Volver
-                    </button>
-                  </div>
-                  <div className="flex-1">
-                    <UserContext.Provider value={userContext ? { ...userContext, plan: 'pro', user: userContext.user ? { ...userContext.user, analysisUsed: 0 } : null } : undefined}>
-                      <LoadAnalysisBlock 
-                        boeId={auction.boeId || ''} 
-                        boeUrl={auction.boeUrl}
-                        isIntegrated={true} 
-                        initialStep="upload"
-                        onShowSoftGate={() => {}}
-                      />
-                    </UserContext.Provider>
-                  </div>
-                </div>
-              ) : (
-                <>
+          {(analysisPaid || cargasPaid) ? (
+            <div id="analisis-tecnico" className="w-full bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-200">
+              <LoadAnalysisBlock 
+                boeId={auction.boeId || ''} 
+                boeUrl={auction.boeUrl}
+                isIntegrated={true}
+                initialStep="upload"
+              />
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                {/* Card 1: Análisis de cargas */}
+                <div id="analisis-tecnico" className="bg-white border-2 border-slate-900/20 rounded-3xl p-6 md:p-8 shadow-md flex flex-col h-full hover:shadow-lg transition-all order-last md:order-none relative z-10">
                   <div className="mb-6 mt-2">
                     <div className="flex items-center gap-2 mb-1">
                       <Shield className="w-4 h-4 text-slate-400" />
@@ -2326,13 +2320,13 @@ const AuctionPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-4">
-                      <Link 
-                        to={`/analisis-cargas?id=${auction.boeId || auction.slug}`}
+                      <button 
+                        onClick={handleAnalyzeCargasClick}
                         className="w-full py-5 px-6 bg-slate-900 hover:bg-brand-700 text-white rounded-2xl font-semibold text-lg transition-all flex items-center justify-center gap-3 group shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                       >
                         Analizar cargas
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                      </Link>
+                      </button>
                       <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-500 font-medium text-center">
                         <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Entrega inmediata</div>
                         <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Sin suscripción</div>
@@ -2342,106 +2336,109 @@ const AuctionPage: React.FC = () => {
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">Revisión documental experta basada en BOE y Registro</p>
                     </div>
                   </div>
-                </>
-              )}
-            </div>
-
-            {/* Card 2: Análisis completo */}
-            <div id="analisis-completo" className="bg-slate-50/50 border-2 border-slate-900 rounded-3xl p-6 md:p-8 shadow-md flex flex-col h-full relative hover:shadow-lg transition-all order-first md:order-none z-10">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-slate-900 text-white text-[10px] font-bold rounded-full uppercase tracking-widest shadow-lg border border-slate-800">
-                RECOMENDADO
-              </div>
-
-              <div className="mb-6 mt-2">
-                <div className="flex items-center gap-2 mb-1">
-                  <LineChart className="w-4 h-4 text-brand-500" />
-                  <h3 className="text-2xl font-serif font-bold text-slate-900">Análisis completo</h3>
                 </div>
-                <p className="text-slate-600 text-sm font-medium">La decisión inteligente de inversión</p>
-              </div>
 
-              <div className="flex-1 flex flex-col">
-                <div className="mb-8">
-                  <div className="flex flex-col">
-                    <span className="text-sm text-slate-400 line-through font-medium mb-0.5">
-                      Valor estimado {plan === 'pro' ? '9,99€' : plan === 'basic' ? '19€' : '29€'}
-                    </span>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold text-slate-900">
-                        {plan === 'pro' ? 'Incluido' : plan === 'basic' ? '2,99€' : '4,99€'}
-                      </span>
-                      {plan === 'pro' && (
-                        <span className="px-2 py-0.5 bg-brand-50 text-brand-600 text-[10px] font-bold rounded-full border border-brand-100">
-                          Incluido ilimitado
+                {/* Card 2: Análisis completo */}
+                <div id="analisis-completo" className="bg-slate-50/50 border-2 border-slate-900 rounded-3xl p-6 md:p-8 shadow-md flex flex-col h-full relative hover:shadow-lg transition-all order-first md:order-none z-10">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-slate-900 text-white text-[10px] font-bold rounded-full uppercase tracking-widest shadow-lg border border-slate-800">
+                    RECOMENDADO
+                  </div>
+
+                  <div className="mb-6 mt-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <LineChart className="w-4 h-4 text-brand-500" />
+                      <h3 className="text-2xl font-serif font-bold text-slate-900">Análisis completo</h3>
+                    </div>
+                    <p className="text-slate-600 text-sm font-medium">La decisión inteligente de inversión</p>
+                  </div>
+
+                  <div className="flex-1 flex flex-col">
+                    <div className="mb-8">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-slate-400 line-through font-medium mb-0.5">
+                          Valor estimado {plan === 'pro' ? '9,99€' : plan === 'basic' ? '19€' : '29€'}
                         </span>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-4xl font-bold text-slate-900">
+                            {plan === 'pro' ? 'Incluido' : plan === 'basic' ? '2,99€' : '4,99€'}
+                          </span>
+                          {plan === 'pro' && (
+                            <span className="px-2 py-0.5 bg-brand-50 text-brand-600 text-[10px] font-bold rounded-full border border-brand-100">
+                              Incluido ilimitado
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {plan !== 'pro' && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="px-2 py-0.5 bg-brand-100 text-brand-700 text-[9px] font-bold rounded uppercase tracking-wider">Ahorro PRO</span>
+                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Precio PRO: 0,99€</p>
+                        </div>
                       )}
                     </div>
-                  </div>
-                  {plan !== 'pro' && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="px-2 py-0.5 bg-brand-100 text-brand-700 text-[9px] font-bold rounded uppercase tracking-wider">Ahorro PRO</span>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Precio PRO: 0,99€</p>
-                    </div>
-                  )}
-                </div>
 
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center gap-3 text-slate-700">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <div className="space-y-4 mb-8">
+                      <div className="flex items-center gap-3 text-slate-700">
+                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span className="text-sm font-medium">Rentabilidad estimada de inversión</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-slate-700">
+                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span className="text-sm font-medium">Riesgos legales detectados</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-slate-700">
+                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span className="text-sm font-medium">Estrategia de puja recomendada</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-slate-700">
+                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span className="text-sm font-medium">Comparables de mercado</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-slate-700">
+                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span className="text-sm font-medium">Informe profesional en PDF</span>
+                      </div>
                     </div>
-                    <span className="text-sm font-medium">Rentabilidad estimada de inversión</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-700">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <span className="text-sm font-medium">Riesgos legales detectados</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-700">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <span className="text-sm font-medium">Estrategia de puja recomendada</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-700">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <span className="text-sm font-medium">Comparables de mercado</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-700">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <span className="text-sm font-medium">Informe profesional en PDF</span>
-                  </div>
-                </div>
 
-                <div className="mt-auto space-y-4">
-                  <Link 
-                    to={`/analisis-inversion?id=${auction.boeId || auction.slug}`}
-                    className="w-full bg-slate-900 hover:bg-brand-700 text-white font-bold py-5 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group/btn text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    Generar informe completo
-                    <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
-                  </Link>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-500 font-medium text-center">
-                    <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Entrega inmediata</div>
-                    <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Sin suscripción</div>
-                    <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Pago único</div>
-                    <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Informe descargable</div>
+                    <div className="mt-auto space-y-4">
+                      <button 
+                        onClick={() => {
+                          setPaymentType('analysis');
+                          setShowPaymentModal(true);
+                        }}
+                        className="w-full bg-slate-900 hover:bg-brand-700 text-white font-bold py-5 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group/btn text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                      >
+                        Generar informe completo
+                        <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
+                      </button>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] text-slate-500 font-medium text-center">
+                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Entrega inmediata</div>
+                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Sin suscripción</div>
+                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Pago único</div>
+                        <div className="flex items-center gap-1 justify-center"><Check className="w-3 h-3 text-emerald-500" /> Informe descargable</div>
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">Análisis inversión completo con estrategia de puja</p>
+                    </div>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">Análisis inversión completo con estrategia de puja</p>
                 </div>
               </div>
-            </div>
-          </div>
-          <div className="mt-8 text-center text-slate-400 text-xs">
-            <p className="font-medium">
-              Compra segura • Pago único sin suscripción • Acceso inmediato al informe • Servicio independiente • No necesitas crear cuenta
-            </p>
-          </div>
+              <div className="mt-8 text-center text-slate-400 text-xs">
+                <p className="font-medium">
+                  Compra segura • Pago único sin suscripción • Acceso inmediato al informe • Servicio independiente • No necesitas crear cuenta
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         {/* User Notes Block */}

@@ -17,7 +17,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, type, auct
     const currentUrl = new URL(window.location.href);
     
     if (type === 'cargas') {
-      currentUrl.searchParams.set('cargas', 'paid');
+      currentUrl.searchParams.set('analysis', 'unlocked');
       return {
         price: '2,99€',
         url: `https://buy.stripe.com/test_cargas?client_reference_id=${auctionId}&redirect_url=${encodeURIComponent(currentUrl.toString())}`
@@ -25,7 +25,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, type, auct
     }
 
     // Dynamic pricing for analysis based on plan
-    currentUrl.searchParams.set('analysis', 'paid');
+    currentUrl.searchParams.set('analysis', 'unlocked');
     switch (plan) {
       case 'pro':
         return {
