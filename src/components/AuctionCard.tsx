@@ -17,7 +17,6 @@ interface AuctionCardProps {
 }
 
 export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBadge }) => {
-  console.log(`Rendering AuctionCard for slug: ${slug}`, data);
   const navigate = useNavigate();
   const id = slug;
   const valorReferencia = data.valorTasacion || data.valorSubasta || data.appraisalValue;
@@ -81,20 +80,6 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
     <div 
       className={`bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col relative group ${isFinished ? 'opacity-70 grayscale-[0.3]' : ''}`}
     >
-      {/* Image Container */}
-      <div className="relative h-48 overflow-hidden bg-slate-100">
-        <img 
-          src={imageUrl} 
-          alt={normalizePropertyType(data.propertyType)}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          referrerPolicy="no-referrer"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/auction/800/600';
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-      </div>
-
       {/* Left: Commercial Badges (Max 2) */}
       <div className="absolute top-4 left-4 z-10 flex flex-col items-start gap-1.5">
         {oppBadge && (
@@ -143,7 +128,7 @@ export const AuctionCard: React.FC<AuctionCardProps> = ({ slug, data, showNewBad
         </div>
       </div>
 
-      <div className="p-5 flex-grow flex flex-col relative">
+      <div className="p-5 pt-24 flex-grow flex flex-col relative">
         <div 
           onClick={() => navigate(`/subasta/${id}`)}
           className="block mb-4 cursor-pointer"
