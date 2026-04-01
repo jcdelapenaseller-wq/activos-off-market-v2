@@ -1,7 +1,14 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
 // Initialize the Gemini client
-const ai = new GoogleGenAI({ apiKey: (process as any).env.GEMINI_API_KEY || (import.meta as any).env.VITE_GEMINI_API_KEY || 'mock-key' });
+const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+
+if (!apiKey) {
+  console.error("VITE_GEMINI_API_KEY is missing. Please add it to your environment variables.");
+  throw new Error("Missing VITE_GEMINI_API_KEY");
+}
+
+const ai = new GoogleGenAI({ apiKey });
 
 export const analyzeDocumentWithAI = async (files: File[]) => {
   const currentDate = new Date().toISOString().split('T')[0];
