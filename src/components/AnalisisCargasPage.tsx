@@ -26,6 +26,16 @@ const AnalisisCargasPage: React.FC = () => {
     // Check if we have data passed from the auction page
     if (location.state?.analysisResult) {
       setInitialAnalysisData(location.state.analysisResult);
+    } else if (reportReady && idParam) {
+      // Try to recover from session storage on reload
+      const stored = sessionStorage.getItem(`analysisResult_${idParam}`);
+      if (stored) {
+        try {
+          setInitialAnalysisData(JSON.parse(stored));
+        } catch (e) {
+          console.error("Error parsing stored analysis result", e);
+        }
+      }
     }
 
     if (idParam) {
@@ -107,7 +117,7 @@ const AnalisisCargasPage: React.FC = () => {
   };
 
   return (
-    <div className={`mx-auto px-4 py-12 ${isReportReady ? 'max-w-5xl' : 'max-w-4xl'}`}>
+    <div className={`mx-auto px-4 py-12 ${isReportReady ? 'max-w-7xl' : 'max-w-4xl'}`}>
       {!isReportReady && (
         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mb-16 text-center">
           <h2 className="text-3xl font-serif font-bold text-slate-900 mb-2">Pega el enlace de una subasta del BOE y analiza antes de pujar</h2>

@@ -64,6 +64,7 @@ interface LoadAnalysisBlockProps {
   initialStep?: 'locked' | 'upload' | 'loading' | 'result';
   isPaid?: boolean;
   initialData?: AnalysisResult | null;
+  noMargin?: boolean;
 }
 
 const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({ 
@@ -73,7 +74,8 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
   onShowSoftGate,
   initialStep = 'locked',
   isPaid = false,
-  initialData = null
+  initialData = null,
+  noMargin = false
 }) => {
   const [step, setStep] = useState<'locked' | 'upload' | 'loading' | 'result'>(initialData ? 'result' : initialStep);
   const [files, setFiles] = useState<File[]>([]);
@@ -96,6 +98,9 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
   // Redirect to dedicated page when analysis is done in integrated mode
   useEffect(() => {
     if (isIntegrated && step === 'result' && resultData) {
+      // Save to session storage to prevent data loss on reload
+      sessionStorage.setItem(`analysisResult_${boeId}`, JSON.stringify(resultData));
+      
       navigate(`/analisis-cargas?id=${boeId}&report=ready`, { 
         state: { analysisResult: resultData } 
       });
@@ -301,6 +306,8 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
       }
 
       setResultData(result);
+      // Also save to session storage for the current page if needed
+      sessionStorage.setItem(`analysisResult_${boeId}`, JSON.stringify(result));
       setStep('result');
     } catch (error) {
       console.error("Error en el análisis:", error);
@@ -319,7 +326,7 @@ const LoadAnalysisBlock: React.FC<LoadAnalysisBlockProps> = ({
   };
 
   return (
-    <div ref={blockRef} className={`${isIntegrated ? 'w-full' : 'my-8 md:my-12 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden'}`}>
+    <div ref={blockRef} className={`${isIntegrated ? 'w-full' : `${noMargin ? '' : 'my-8 md:my-12'} bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden`}`}>
       {!isIntegrated && (
         <div className="bg-slate-900 px-8 py-5 text-white flex justify-between items-center">
           <div className="flex items-center gap-3">
