@@ -1,28 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Lazy initialization of the Gemini client
-let aiInstance: GoogleGenAI | null = null;
-
-const getGeminiClient = () => {
-  if (aiInstance) return aiInstance;
-  
-  console.log("process.env.GEMINI_API_KEY", process.env.GEMINI_API_KEY);
-  
-  // Priority: 1. AI Studio automatic key (process.env) | 2. Manual secret (VITE_GEMINI_API_KEY)
-  const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
-  
-  if (!apiKey) {
-    console.error("No se ha encontrado ninguna clave de API de Gemini.");
-
-    throw new Error("Missing Gemini API Key");
-  }
-  
-  aiInstance = new GoogleGenAI({ apiKey });
-  return aiInstance;
-};
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
 
 export const analyzeDocumentWithAI = async (files: File[]) => {
-  const ai = getGeminiClient();
   const currentDate = new Date().toISOString().split('T')[0];
   
   if (!files || files.length === 0) {
